@@ -1,5 +1,4 @@
 Super Mario Strikers
-
 [![Build Status]][actions] [![Code Progress]][progress] [![Data Progress]][progress] [![Discord Badge]][discord]
 =============
 
