@@ -10,13 +10,6 @@ hash: 376d699c99b6b0949abe1b4ceccefdef7828d2b5
 symbols: config/G4QE01/symbols.txt
 splits: config/G4QE01/splits.txt
 
-# mw_comment_version: 8 # GC Linker 1.2.5
-
-# symbols_known: true # Very fast analysis
-# fill_gaps: false # Alignments known
-# quick_analysis: true # Faster reruns after full analysis
-# mw_comment_version: 11 # GC 2.7 linker
-
 mw_comment_version: 10 # GC Linker 2.6
 symbols_known: true # Very fast analysis
 fill_gaps: false # Alignments known
