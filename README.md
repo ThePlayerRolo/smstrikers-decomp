@@ -1,6 +1,6 @@
-Super Mario Strikers
+Super Mario Strikers Game  
 [![Build Status]][actions] [![Code Progress]][progress] [![Data Progress]][progress] [![Discord Badge]][discord]
-====================
+=============
 
 <!--
 Replace with your repository's URL.
