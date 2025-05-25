@@ -197,6 +197,7 @@ cflags_base = [
     "-str reuse",
     "-multibyte",  # For Wii compilers, replace with `-enc SJIS`
     "-i include",
+    "-i include/libc",
     f"-i build/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",
     f"-DVERSION_{config.version}",
@@ -217,6 +218,41 @@ cflags_runtime = [
     "-gccinc",
     "-common off",
     "-inline auto",
+]
+
+cflags_musyx = [
+    "-proc gekko",
+    "-nodefaults",
+    "-nosyspath",
+    "-i include",
+    "-i extern/musyx/include",
+    "-i libc",
+    "-inline auto,depth=4",
+    "-O4,p",
+    "-fp hard",
+    "-enum int",
+    "-sym on",
+    "-Cpp_exceptions off",
+    "-str reuse,pool,readonly",
+    "-fp_contract off",
+    "-DMUSY_TARGET=MUSY_TARGET_DOLPHIN",
+]
+
+cflags_musyx_debug = [
+    "-proc gecko",
+    "-fp hard",
+    "-nodefaults",
+    "-nosyspath",
+    "-i include",
+    "-i extern/musyx/include",
+    "-i libc",
+    "-g",
+    "-sym on",
+    "-D_DEBUG=1",
+    "-fp hard",
+    "-enum int",
+    "-Cpp_exceptions off",
+    "-DMUSY_TARGET=MUSY_TARGET_DOLPHIN",
 ]
 
 # REL flags
@@ -268,8 +304,13 @@ config.libs = [
         "lib": "Runtime.PPCEABI.H",
         "mw_version": config.linker_version,
         "cflags": cflags_runtime,
-        "progress_category": "sdk",  # str | List[str]
+        "progress_category": "sdk",
+        "shift_jis": False,
         "objects": [
+
+            # Object(Matching, "Runtime/PPCEABI/H/__va_arg.c"),
+            Object(NonMatching, "Runtime/__va_arg.c"),
+
             Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
             Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
         ],
@@ -299,6 +340,7 @@ def link_order_callback(module_id: int, objects: List[str]) -> List[str]:
 config.progress_categories = [
     ProgressCategory("game", "Game Code"),
     ProgressCategory("sdk", "SDK Code"),
+    ProgressCategory("third_party", "Third Party"),
 ]
 config.progress_each_module = args.verbose
 # Optional extra arguments to `objdiff-cli report generate`
