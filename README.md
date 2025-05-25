@@ -1,6 +1,6 @@
-Super Mario Strikers
+Super Mario Strikers  
 [![Build Status]][actions] [![Code Progress]][progress] [![Data Progress]][progress] [![Discord Badge]][discord]
-====================
+=============
 
 <!--
 Replace with your repository's URL.
@@ -11,16 +11,16 @@ Replace with your repository's URL.
 decomp.dev progress badges
 See https://decomp.dev/api for an API overview.
 -->
-[Code Progress]: https://decomp.dev/zeldaret/tww.svg?mode=shield&measure=code&label=Code
-[Data Progress]: https://decomp.dev/zeldaret/tww.svg?mode=shield&measure=data&label=Data
-[progress]: https://decomp.dev/zeldaret/tww
+[Code Progress]: https://decomp.dev/yannicksuter/sms-decomp.svg?mode=shield&measure=code&label=Code
+[Data Progress]: https://decomp.dev/yannicksuter/sms-decomp.svg?mode=shield&measure=data&label=Data
+[progress]: https://decomp.dev/yannicksuter/sms-decomp
 <!--
 Replace with your Discord server's ID and invite URL.
 -->
 [Discord Badge]: https://img.shields.io/discord/727908905392275526?color=%237289DA&logo=discord&logoColor=%23FFFFFF
 [discord]: https://discord.gg/hKx3FJJgrV
 
-A work-in-progress decompilation of Super Mario Strikers.
+A work-in-progress decompilation of Super Mario Strikers for GameCube.
 
 This repository does **not** contain any game assets or assembly whatsoever. An existing copy of the game is required.
 
