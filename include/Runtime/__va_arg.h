@@ -3,12 +3,19 @@
 
 #include "types.h"
 
-struct va_list {
-	char mG_register;
-	char mFloat_register;
-	char mPadding[2];
-	char* mInput_arg_area;
-	char* mReg_save_area;
-};
+typedef struct {
+  char gpr;
+  char fpr;
+  char mPadding[2];
+  char* input_arg_area;
+  char* reg_save_area;
+} va_list;
+
+typedef enum {
+  ARGPOINTER = 0,
+  WORD,
+  DOUBLEWORD,
+  REAL,
+} _va_arg_type;
 
 #endif

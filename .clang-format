@@ -7,7 +7,29 @@ SortIncludes: false
 IndentWidth: 4
 TabWidth: 4
 
-UseTab: ForIndentation
+AlignConsecutiveAssignments:
+  Enabled: false
+  AcrossEmptyLines: true
+  AcrossComments: false
+
+BreakBeforeBraces: Allman
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+UseTab: Never
 
 NamespaceIndentation: None
 FixNamespaceComments: true
@@ -15,7 +37,6 @@ CompactNamespaces: false
 
 AlignTrailingComments: true
 AlignAfterOpenBracket: true
-AlignConsecutiveAssignments: true
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator

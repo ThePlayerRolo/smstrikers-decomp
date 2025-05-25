@@ -1,54 +1,54 @@
-// #include "PowerPC_EABI_Support/Runtime/__va_arg.h"
 #include "Runtime/__va_arg.h"
 
-/*
- * --INFO--
- * Address:	80214870
- * Size:	0000F4
- */
-void* __va_arg(struct va_list* v_list, u8 type)
+#define ALIGN(addr, amount) (((unsigned int)(addr) + ((amount) - 1)) & ~((amount) - 1))
+
+void* __va_arg(va_list* ap, _va_arg_type type)
 {
-	char* addr;
-	char* reg      = &(v_list->mG_register);
-	s32 g_reg      = v_list->mG_register;
-	s32 maxsize    = 8;
-	s32 size       = 4;
-	s32 increment  = 1;
-	s32 even       = 0;
-	s32 fpr_offset = 0;
-	s32 regsize    = 4;
+    char* addr;
+    char* cur_gpr_ptr = &(ap->gpr);
+    int cur_gpr = ap->gpr;
+    int max = 8;
+    int size = 4;
+    int inc = 1;
+    int even = 0;
+    int fpr_offset = 0;
+    int reg_size = 4;
 
-	if (type == 4) {
-		addr                    = (char*)(((int)v_list->mInput_arg_area + 0xf) & 0xfffffff0);
-		v_list->mInput_arg_area = addr + 0x10;
-		return addr;
-	}
-	if (type == 3) {
-		reg        = &(v_list->mFloat_register);
-		g_reg      = v_list->mFloat_register;
-		size       = 8;
-		fpr_offset = 32;
-		regsize    = 8;
-	}
-	if (type == 2) {
-		size = 8;
-		maxsize--;
-		if (g_reg & 1)
-			even = 1;
-		increment = 2;
-	}
-	if (g_reg < maxsize) {
-		g_reg += even;
-		addr = v_list->mReg_save_area + fpr_offset + (g_reg * regsize);
-		*reg = g_reg + increment;
-	} else {
-		*reg                    = 8;
-		addr                    = v_list->mInput_arg_area;
-		addr                    = (char*)(((u32)(addr) + ((size)-1)) & ~((size)-1));
-		v_list->mInput_arg_area = addr + size;
-	}
-	if (type == 0)
-		addr = *((char**)addr);
+    if (type == REAL)
+    {
+        cur_gpr_ptr = &(ap->fpr);
+        cur_gpr = ap->fpr;
+        size = 8;
+        fpr_offset = 32; // 8 * 4
+        reg_size = 8;
+    }
+    if (type == DOUBLEWORD)
+    {
+        size = 8;
+        max = max - 1;
+        if (cur_gpr & 1)
+            even = 1;
+        inc = 2;
+    }
 
-	return addr;
+    if (cur_gpr < max)
+    {
+        cur_gpr += even;
+        addr = ap->reg_save_area + fpr_offset + (cur_gpr * reg_size);
+        *cur_gpr_ptr = cur_gpr + inc;
+    }
+    else
+    {
+        *cur_gpr_ptr = 8;
+        addr = ap->input_arg_area;
+        addr = (char*)ALIGN(addr, size);
+        ap->input_arg_area = addr + size;
+    }
+    
+    if (type == ARGPOINTER)
+    {
+        addr = *((char**)addr);
+    }
+
+    return addr;
 }

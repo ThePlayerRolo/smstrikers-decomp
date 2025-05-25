@@ -309,7 +309,7 @@ config.libs = [
         "objects": [
 
             # Object(Matching, "Runtime/PPCEABI/H/__va_arg.c"),
-            Object(NonMatching, "Runtime/__va_arg.c"),
+            Object(Matching, "Runtime/__va_arg.c"),
 
             Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
             Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
