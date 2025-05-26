@@ -5208,7 +5208,7 @@ msl_c.ppceabi.bare.h.a/extras.c:
 Runtime/__va_arg.c:
 	.text       start:0x8023A08C end:0x8023A154
 
-runtime.ppceabi.h.a/global_destructor_chain.c:
+Runtime/global_destructor_chain.c:
 	.text       start:0x8023A154 end:0x8023A1B4
 	.dtors      start:0x8028D5A8 end:0x8028D5AC
 	.sbss       start:0x803744E0 end:0x803744E8
@@ -5225,7 +5225,7 @@ runtime.ppceabi.h.a/runtime.c:
 	.text       start:0x8023A5B8 end:0x8023AC94
 	.rodata     start:0x802A1638 end:0x802A1650
 
-runtime.ppceabi.h.a/__init_cpp_exceptions.cpp:
+Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x8023AC94 end:0x8023AD10
 	.ctors      start:0x8028D260 end:0x8028D264
 	.dtors      start:0x8028D5A0 end:0x8028D5A8
@@ -5563,7 +5563,7 @@ os.a/OSTime.c:
 	.text       start:0x80259C2C end:0x8025A050
 	.data       start:0x803071C0 end:0x80307220
 
-runtime.ppceabi.h.a/__mem.c:
+Runtime/__mem.c:
 	.init       start:0x800050B4 end:0x800051EC
 
 os.a/__start.c:

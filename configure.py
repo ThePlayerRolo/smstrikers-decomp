@@ -214,7 +214,7 @@ else:
 cflags_runtime = [
     *cflags_base,
     "-use_lmw_stmw on",
-    "-str reuse,pool,readonly",
+    "-str reuse,readonly",
     "-gccinc",
     "-common off",
     "-inline auto",
@@ -314,12 +314,10 @@ config.libs = [
         "progress_category": "sdk",
         "shift_jis": False,
         "objects": [
-
-            # Object(Matching, "Runtime/PPCEABI/H/__va_arg.c"),
+            Object(Matching, "Runtime/__init_cpp_exceptions.cpp"),
+            Object(Matching, "Runtime/__mem.c"),
             Object(Matching, "Runtime/__va_arg.c"),
-
-            Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
-            Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
+            Object(NonMatching, "Runtime/global_destructor_chain.c"),
         ],
     },
     {
