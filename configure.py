@@ -272,7 +272,6 @@ cflags_nl = [
 
 config.linker_version = "GC/1.3.2"
 
-
 # Helper function for Dolphin libraries
 def DolphinLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
     return {
@@ -326,6 +325,7 @@ config.libs = [
     {
         "lib": "Game",
         "mw_version": config.linker_version,
+        # "mw_version": "GC/1.2.5n",
         "cflags": cflags_base,
         "progress_category": "game",
         "shift_jis": False,
@@ -335,7 +335,8 @@ config.libs = [
     },
     {
         "lib": "NL", # Next Level Library
-        "mw_version": "GC/1.2.5n",
+        "mw_version": config.linker_version,
+        # "mw_version": "GC/1.2.5n",
         "cflags": cflags_nl,
         "progress_category": "third_party",
         "shift_jis": False,
