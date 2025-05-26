@@ -262,6 +262,14 @@ cflags_rel = [
     "-sdata2 0",
 ]
 
+cflags_nl = [
+    *cflags_base,
+    "-proc gekko",
+    "-nodefaults",
+    "-nosyspath",
+    "-i include",
+]
+
 config.linker_version = "GC/1.3.2"
 
 
@@ -313,6 +321,26 @@ config.libs = [
 
             Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
             Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
+        ],
+    },
+    {
+        "lib": "Game",
+        "mw_version": config.linker_version,
+        "cflags": cflags_base,
+        "progress_category": "game",
+        "shift_jis": False,
+        "objects": [
+            Object(NonMatching, "Game/rotation.c"),
+        ],
+    },
+    {
+        "lib": "NL", # Next Level Library
+        "mw_version": "GC/1.2.5n",
+        "cflags": cflags_nl,
+        "progress_category": "third_party",
+        "shift_jis": False,
+        "objects": [
+            Object(NonMatching, "NL/nlMath.cpp"),
         ],
     },
 ]

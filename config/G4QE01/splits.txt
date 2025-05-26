@@ -3974,7 +3974,7 @@ nlMain.o:
 	.text       start:0x801D1040 end:0x801D1474
 	.data       start:0x802FD880 end:0x802FDC80
 
-nlMath.o:
+NL/nlMath.cpp:
 	.text       start:0x801D1474 end:0x801D1EE4
 	.rodata     start:0x802A0528 end:0x802A0568
 	.data       start:0x802FDC80 end:0x802FDCA0
@@ -4856,7 +4856,7 @@ quickstep.o:
 	.text       start:0x80221A74 end:0x80223658
 	.sdata2     start:0x80377718 end:0x80377720
 
-rotation.o:
+Game/rotation.c:
 	.text       start:0x80223658 end:0x80223A4C
 	.sdata2     start:0x80377720 end:0x80377730
 

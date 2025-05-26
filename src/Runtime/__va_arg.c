@@ -2,6 +2,12 @@
 
 #define ALIGN(addr, amount) (((unsigned int)(addr) + ((amount) - 1)) & ~((amount) - 1))
 
+/*
+ * --SYMBOL INFO--
+ * Address:	start:0x8023A08C end:0x8023A154
+ * Size:	0000C8
+ */
+
 void* __va_arg(va_list* ap, _va_arg_type type)
 {
     char* addr;
@@ -44,7 +50,7 @@ void* __va_arg(va_list* ap, _va_arg_type type)
         addr = (char*)ALIGN(addr, size);
         ap->input_arg_area = addr + size;
     }
-    
+
     if (type == ARGPOINTER)
     {
         addr = *((char**)addr);
