@@ -103,9 +103,17 @@ void nlRandom(unsigned int in1, unsigned int *out)
  * Sets the random number generator seed
  * Address: 0x801D1E94, Size: 0x2C, Scope: global 
  */
-void nlSetRandomSeed(unsigned int in1, unsigned int *out)
+void nlSetRandomSeed(unsigned int initialSeed, unsigned int *seedStorage)
 {
-// todo
+    unsigned int mixedValue;
+    unsigned int shiftedValue;
+    
+    *seedStorage = initialSeed;
+    
+    mixedValue = *seedStorage ^ 0x1d872b41;  // Mix with constant   
+    shiftedValue = mixedValue ^ (mixedValue >> 5);  // Mix with right-shifted value
+    
+    *seedStorage = mixedValue ^ shiftedValue ^ (shiftedValue << 0x1b);  // Final mixing
 }
 
 /* 

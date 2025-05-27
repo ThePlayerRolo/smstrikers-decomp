@@ -269,21 +269,29 @@ void dQMultiply0(float *q_out,float *q1_in,float *q2_in)
   q_out[3] = -((y1 * x2) -  (x1 * y2 + (w1 * z2 + z1 * w2)));
 }
 
-// void dQMultiply0(float *q_out, float *q1_in, float *q2_in) {
-//     float w1 = q1_in[0];
+
+// void dQMultiply0(float *q_out,float *q1_in,float *q2_in)
+// {
+//     asm {
+// 		lfs f5,4(r4)
+// 		lfs f9,8(r4)
+// 		lfs f11,0xc(r4)
+//     }
+
 //     float x1 = q1_in[1];
-//     float y1 = q1_in[2];
-//     float z1 = q1_in[3];
-
-//     float w2 = q2_in[0];
 //     float x2 = q2_in[1];
-//     float y2 = q2_in[2];
+//     float w2 = q2_in[0];
+//     float w1 = q1_in[0];   
+//     float y1 = q1_in[2];
+//     float z1 = q1_in[3]; // f11
+//     float y2 = q2_in[2]; // f8
 //     float z2 = q2_in[3];
-
-//     q_out[0] = (w1*w2 - x1*x2) - y1*y2 - z1*z2;
-//     q_out[1] = (w1*x2 + x1*w2) + y1*z2 - z1*y2;
-//     q_out[2] = (w1*y2 - x1*z2) + y1*w2 + z1*x2;
-//     q_out[3] = (w1*z2 + x1*y2) - y1*x2 + z1*w2;
+    
+//     // q_out[0] = -((z1 * z2) - -((y1 * y2) - ((w1 * w2) - (x1 * x2))));
+//     q_out[0] = -((z1 * z2) + ((y1 * y2) - ((w1 * w2) - (x1 * x2))));
+//     q_out[1] = -((z1 * y2) -  ((y1 * z2) + ((w1 * x2) + (x1 * w2))));
+//     q_out[2] = -((x1 * z2) -  ((z1 * x2) + ((w1 * y2) + (y1 * w2))));
+//     q_out[3] = -((y1 * x2) -  ((x1 * y2) + ((w1 * z2) + (z1 * w2))));
 // }
 
 /*
