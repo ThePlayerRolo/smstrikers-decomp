@@ -3974,7 +3974,7 @@ nlMain.o:
 	.text       start:0x801D1040 end:0x801D1474
 	.data       start:0x802FD880 end:0x802FDC80
 
-nl/nlMath.cpp:
+NL/nlMath.cpp:
 	.text       start:0x801D1474 end:0x801D1EE4
 	.rodata     start:0x802A0528 end:0x802A0568
 	.data       start:0x802FDC80 end:0x802FDCA0
@@ -4856,7 +4856,7 @@ quickstep.o:
 	.text       start:0x80221A74 end:0x80223658
 	.sdata2     start:0x80377718 end:0x80377720
 
-game/rotation.c:
+Game/rotation.c:
 	.text       start:0x80223658 end:0x80223A4C
 	.sdata2     start:0x80377720 end:0x80377730
 
@@ -5205,33 +5205,33 @@ msl_c.ppceabi.bare.h.a/w_sqrt.c:
 msl_c.ppceabi.bare.h.a/extras.c:
 	.text       start:0x8023A000 end:0x8023A08C
 
-runtime/__va_arg.c:
+PowerPC_EABI_Support/Runtime/__va_arg.c:
 	.text       start:0x8023A08C end:0x8023A154
 
-runtime/global_destructor_chain.c:
+PowerPC_EABI_Support/Runtime/global_destructor_chain.c:
 	.text       start:0x8023A154 end:0x8023A1B4
 	.dtors      start:0x8028D5A8 end:0x8028D5AC
 	.sbss       start:0x803744E0 end:0x803744E8
 
-runtime/NMWException.cpp:
+PowerPC_EABI_Support/Runtime/NMWException.cpp:
 	extab       start:0x80005600 end:0x80005648
 	extabindex  start:0x80005660 end:0x8000569C
 	.text       start:0x8023A1B4 end:0x8023A560
 
-runtime/ptmf.c:
+PowerPC_EABI_Support/Runtime/ptmf.c:
 	.text       start:0x8023A560 end:0x8023A5B8
 
-runtime/runtime.c:
+PowerPC_EABI_Support/Runtime/runtime.c:
 	.text       start:0x8023A5B8 end:0x8023AC94
 	.rodata     start:0x802A1638 end:0x802A1650
 
-runtime/__init_cpp_exceptions.cpp:
+PowerPC_EABI_Support/Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x8023AC94 end:0x8023AD10
 	.ctors      start:0x8028D260 end:0x8028D264
 	.dtors      start:0x8028D5A0 end:0x8028D5A8
 	.sdata      start:0x80373490 end:0x80373498
 
-runtime/Gecko_ExceptionPPC.cpp:
+PowerPC_EABI_Support/Runtime/Gecko_ExceptionPPC.cpp:
 	.text       start:0x8023AD10 end:0x8023AD78
 	.bss        start:0x803471C0 end:0x803471D0
 
@@ -5563,7 +5563,7 @@ os.a/OSTime.c:
 	.text       start:0x80259C2C end:0x8025A050
 	.data       start:0x803071C0 end:0x80307220
 
-runtime/__mem.c:
+PowerPC_EABI_Support/Runtime/__mem.c:
 	.init       start:0x800050B4 end:0x800051EC
 
 os.a/__start.c:

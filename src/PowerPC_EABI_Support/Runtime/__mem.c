@@ -1,4 +1,4 @@
-#include "runtime/_mem.h"
+#include "PowerPC_EABI_Support/Runtime/__mem.h"
 
 __declspec(section ".init") void* memset(void* dst, int val, size_t size){
     __fill_mem(dst,val, size);

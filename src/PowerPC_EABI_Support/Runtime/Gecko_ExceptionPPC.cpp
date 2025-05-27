@@ -1,5 +1,4 @@
-#include "__ppc_eabi_linker.h"
-#include "runtime/NMWException.h"
+#include "PowerPC_EABI_Support/Runtime/NMWException.h"
 
 #if __MWERKS__
 #pragma exceptions on 
