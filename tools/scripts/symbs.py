@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 def read_splits(splits_path):
     """
     Read and parse a splits file, extracting only .text sections.
@@ -139,5 +141,11 @@ if __name__ == "__main__":
                         f.write(f"    {symbol} (0x{addr:08X})\n")
         
         print(f"Results written to {output_file}")
+        
+        # Print simple statistics to console
+        print("\nStatistics:")
+        print(f"Total symbols found: {len(symbols)}")
+        print(f"Total files/splits: {len(set(splits.keys()))}")
+        
     except Exception as e:
         print(f"Error writing to output file: {e}")

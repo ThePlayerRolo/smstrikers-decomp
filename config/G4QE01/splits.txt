@@ -5218,10 +5218,10 @@ runtime.ppceabi.h.a/NMWException.cp:
 	extabindex  start:0x80005660 end:0x8000569C
 	.text       start:0x8023A1B4 end:0x8023A560
 
-runtime.ppceabi.h.a/ptmf.c:
+Runtime/ptmf.c:
 	.text       start:0x8023A560 end:0x8023A5B8
 
-runtime.ppceabi.h.a/runtime.c:
+Runtime/runtime.c:
 	.text       start:0x8023A5B8 end:0x8023AC94
 	.rodata     start:0x802A1638 end:0x802A1650
 
