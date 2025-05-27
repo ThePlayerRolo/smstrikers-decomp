@@ -1,4 +1,5 @@
-typedef struct DestructorChain {
+typedef struct DestructorChain
+{
     struct DestructorChain* next;
     void* destructor;
     void* object;
@@ -6,16 +7,19 @@ typedef struct DestructorChain {
 
 DestructorChain* __global_destructor_chain;
 
-void __destroy_global_chain(void) {
+void __destroy_global_chain(void)
+{
     DestructorChain* gdc;
 
-    while ((gdc = __global_destructor_chain) != 0) {
+    while ((gdc = __global_destructor_chain) != 0)
+    {
         __global_destructor_chain = gdc->next;
         ((void (*)(void*, short))gdc->destructor)(gdc->object, -1);
     }
 }
 
-void* __register_global_object(void* object, void* destructor, void* regmem) {
+void* __register_global_object(void* object, void* destructor, void* regmem)
+{
     ((DestructorChain*)regmem)->next = __global_destructor_chain;
     ((DestructorChain*)regmem)->destructor = destructor;
     ((DestructorChain*)regmem)->object = object;
@@ -24,5 +28,4 @@ void* __register_global_object(void* object, void* destructor, void* regmem) {
     return object;
 }
 
-__declspec(section ".dtors") static void* const __destroy_global_chain_reference =
-    __destroy_global_chain;
+__declspec(section ".dtors") static void* const __destroy_global_chain_reference = __destroy_global_chain;
