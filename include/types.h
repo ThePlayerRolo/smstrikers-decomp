@@ -74,7 +74,9 @@ typedef u16 wchar_t;
 #elif __cplusplus >= 201103L
 #define NULL nullptr
 #else
+#undef NULL
 #define NULL    0
+#undef nullptr
 #define nullptr 0
 #endif
 
