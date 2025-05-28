@@ -16,8 +16,10 @@ import argparse
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
+from typing import Iterator, Optional
 
 from tools.project import (
+    Library,
     Object,
     ProgressCategory,
     ProjectConfig,
@@ -28,9 +30,7 @@ from tools.project import (
 
 # Game versions
 DEFAULT_VERSION = 0
-VERSIONS = [
-    "G4QE01",  # 0
-]
+VERSIONS = ["G4QE01"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -156,12 +156,14 @@ config.asflags = [
     "-mgekko",
     "--strip-local-absolute",
     "-I include",
+    "-I src",
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
 ]
 config.ldflags = [
     "-fp hardware",
     "-nodefaults",
+    "-warn off",
 ]
 if args.debug:
     config.ldflags.append("-g")  # Or -gdwarf-2 for Wii linkers
@@ -172,32 +174,63 @@ if args.map:
 # Use for any additional files that should cause a re-configure when modified
 config.reconfig_deps = []
 
+# Progress
+config.progress_use_fancy = True
+config.progress_code_fancy_frac = 293
+config.progress_code_fancy_item = "Trophies"
+config.progress_data_fancy_frac = 51
+config.progress_data_fancy_item = "Event Matches"
+
 # Optional numeric ID for decomp.me preset
 # Can be overridden in libraries or objects
 config.scratch_preset_id = None
 
 # Base flags, common to most GC/Wii games.
 # Generally leave untouched, with overrides added below.
+
+# cflags_base = [
+#     "-nodefaults",
+#     "-proc gekko",
+#     "-align powerpc",
+#     "-enum int",
+#     "-fp hardware",
+#     "-Cpp_exceptions off",
+#     # "-W all",
+#     "-O4,p",
+#     "-inline auto",
+#     '-pragma "cats off"',
+#     '-pragma "warn_notinlined off"',
+#     "-maxerrors 1",
+#     "-nosyspath",
+#     "-RTTI off",
+#     "-fp_contract on",
+#     "-str reuse",
+#     "-multibyte", 
+#     "-i include",
+#     "-i include/libc",
+#     f"-i build/{config.version}/include",
+#     f"-DBUILD_VERSION={version_num}",
+#     f"-DVERSION_{config.version}",
+# ]
+
 cflags_base = [
-    "-nodefaults",
-    "-proc gekko",
-    "-align powerpc",
-    "-enum int",
-    "-fp hardware",
+    "-nowraplines",
+    "-cwd source",
     "-Cpp_exceptions off",
-    # "-W all",
+    "-proc gekko",
+    "-fp hardware",
+    "-align powerpc",
+    "-nosyspath",
+    "-fp_contract on",
     "-O4,p",
+    "-multibyte",
+    "-enum int",
+    "-nodefaults",
     "-inline auto",
     '-pragma "cats off"',
     '-pragma "warn_notinlined off"',
-    "-maxerrors 1",
-    "-nosyspath",
     "-RTTI off",
-    "-fp_contract on",
     "-str reuse",
-    "-multibyte",  # For Wii compilers, replace with `-enc SJIS`
-    "-i include",
-    "-i include/libc",
     f"-i build/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",
     f"-DVERSION_{config.version}",
@@ -210,12 +243,26 @@ if args.debug:
 else:
     cflags_base.append("-DNDEBUG=1")
 
+# cflags_base.append(f"-maxerrors {args.max_errors}")
+# if args.max_errors == 0:
+#     cflags_base.append("-nofail")
+
+# cflags_base.append(f"-msgstyle {args.msg_style}")
+# config.ldflags.append(f"-msgstyle {args.msg_style}")
+# cflags_base.append(f"-warn {args.warn}")
+
+# if args.warn_error:
+#     cflags_base.append("-warn iserror")
+
+# if args.require_protos:
+#     cflags_base.append("-requireprotos")
+
 # Metrowerks library flags
 cflags_runtime = [
     *cflags_base,
     "-use_lmw_stmw on",
     "-str reuse,readonly",
-    "-gccinc",
+    # "-gccinc",
     "-common off",
     "-inline auto",
 ]
@@ -270,28 +317,136 @@ cflags_nl = [
     "-i include",
 ]
 
+# includes_base = ["src"]
+includes_base = [
+    "include",
+    "include/libc",
+]
+
+system_includes_base = [
+    "include",
+    "include/LIBC",
+    f"build/{config.version}/include",
+]
+
 config.linker_version = "GC/1.3.2"
 
+Objects = List[Object]
+
+def Lib(
+    lib_name: str,
+    objects: Objects,
+    mw_version: str = "GC/1.3.2",
+    cflags=cflags_base,
+    fix_epilogue=True,
+    fix_trk=False,
+    includes: List[str] = includes_base,
+    system_includes: List[str] = system_includes_base,
+    src_dir: Optional[str] = None,
+    category: Optional[str] = None,
+) -> Library:
+    def make_includes(includes: List[str]) -> Iterator[str]:
+        return map(lambda s: f"-i {s}", includes)
+
+    lib = {
+        "lib": lib_name,
+        # "mw_version": f"GC/1.2.5{'n' if fix_epilogue else ''}",
+        "mw_version": mw_version, #"GC/1.3.2",
+        "cflags": [
+            *cflags,
+            *make_includes(includes),
+            "-I-",
+            *make_includes(system_includes),
+        ],
+        "host": False,
+        "progress_category": category,
+        "objects": objects,
+    }
+
+    if fix_trk:
+        lib["mw_version"] = "GC/1.1p1"
+
+    if src_dir is not None:
+        lib["src_dir"] = src_dir
+
+    return lib
+
+def RuntimeLib(lib_name: str, objects: Objects) -> Library:
+    return Lib(
+        lib_name,
+        objects,
+        cflags=cflags_runtime,
+        fix_epilogue=False,
+        category="runtime",
+    )
+
+def GameLib(lib_name: str, objects: Objects) -> Library:
+    return Lib(
+        lib_name,
+        objects,
+        includes=[
+            *includes_base,
+        ],
+        system_includes=[
+            *system_includes_base,
+        ],
+        category="game",
+    )
+
 # Helper function for Dolphin libraries
-def DolphinLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
-    return {
-        "lib": lib_name,
-        "mw_version": "GC/1.2.5n",
-        "cflags": cflags_base,
-        "progress_category": "sdk",
-        "objects": objects,
-    }
+# def DolphinLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
+#     return {
+#         "lib": lib_name,
+#         "mw_version": "GC/1.2.5n",
+#         "cflags": cflags_base,
+#         "progress_category": "sdk",
+#         "objects": objects,
+#     }
 
+def DolphinLib(
+    lib_name: str, objects: Objects, fix_epilogue=False, extern=False
+) -> Library:
+    if extern:
+        cflags = [
+            "-c",
+            "-O4,p",
+            "-inline auto",
+            "-sym on",
+            # TODO charflags
+            "-nodefaults",
+            "-proc gekko",
+            "-fp hard",
+            "-Cpp_exceptions off",
+            "-enum int",
+            "-warn pragmas",
+            "-requireprotos",
+            '-pragma "cats off"',
+            "-I-",
+            "-Iextern/dolphin/include",
+            "-Iextern/dolphin/include/libc",
+            "-ir extern/dolphin/src",
+            "-DRELEASE",
+        ]
+        src_dir = "extern/dolphin/src"
+        includes = []
+        system_includes = []
+    else:
+        cflags = cflags_base
+        src_dir = None
+        includes = includes_base
+        system_includes = system_includes_base
 
-# Helper function for REL script objects
-def Rel(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
-    return {
-        "lib": lib_name,
-        "mw_version": "GC/1.3.2",
-        "cflags": cflags_rel,
-        "progress_category": "game",
-        "objects": objects,
-    }
+    return Lib(
+        lib_name,
+        objects,
+        mw_version = "GC/1.2.5n",
+        fix_epilogue=fix_epilogue,
+        src_dir=src_dir,
+        cflags=cflags,
+        includes=includes,
+        system_includes=system_includes,
+        category="sdk",
+    )
 
 
 Matching = True                   # Object matches and should be linked
@@ -306,46 +461,44 @@ def MatchingFor(*versions):
 
 config.warn_missing_config = True
 config.warn_missing_source = False
+
 config.libs = [
-    {
-        "lib": "Runtime.PPCEABI.H",
-        "mw_version": config.linker_version,
-        "cflags": cflags_runtime,
-        "progress_category": "sdk",
-        "shift_jis": False,
-        "objects": [
+
+    RuntimeLib(
+        "Gekko runtime",
+        [
             Object(Matching, "PowerPC_EABI_Support/Runtime/__init_cpp_exceptions.cpp"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/__mem.c"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/__va_arg.c"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/global_destructor_chain.c"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/ptmf.c"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/runtime.c"),
+            Object(Matching, "PowerPC_EABI_Support/Runtime/Gecko_ExceptionPPC.cpp"),
             Object(NonMatching, "PowerPC_EABI_Support/Runtime/NMWException.cpp"),
-            Object(NonMatching, "PowerPC_EABI_Support/Runtime/Gecko_ExceptionPPC.cpp"),
         ],
-    },
-    {
-        "lib": "Game",
-        "mw_version": config.linker_version,
-        # "mw_version": "GC/1.2.5n",
-        "cflags": cflags_base,
-        "progress_category": "game",
-        "shift_jis": False,
-        "objects": [
+    ),
+
+    GameLib(
+        "SMS (Super Mario Strikers)",
+        [
             Object(NonMatching, "Game/rotation.c"),
         ],
-    },
-    {
-        "lib": "NL", # Next Level Library
-        "mw_version": config.linker_version,
-        # "mw_version": "GC/1.2.5n",
-        "cflags": cflags_nl,
-        "progress_category": "third_party",
-        "shift_jis": False,
-        "objects": [
+    ),
+
+    GameLib(
+        "NL (Next Level Library)",
+        [
             Object(NonMatching, "NL/nlMath.cpp"),
         ],
-    },
+    ),
+
+    DolphinLib(
+        "OdemuExi2",
+        [
+            Object(NonMatching, "OdemuExi2/DebuggerDriver.c"),
+        ],
+    ),
+        
 ]
 
 
@@ -370,10 +523,13 @@ def link_order_callback(module_id: int, objects: List[str]) -> List[str]:
 # Adjust as desired for your project
 config.progress_categories = [
     ProgressCategory("game", "Game Code"),
-    ProgressCategory("sdk", "SDK Code"),
+    ProgressCategory("sdk", "Dolphin SDK Code"),
     ProgressCategory("third_party", "Third Party"),
+    ProgressCategory("runtime", "Gekko Runtime Code"),
 ]
+config.print_progress_categories = args.verbose
 config.progress_each_module = args.verbose
+
 # Optional extra arguments to `objdiff-cli report generate`
 config.progress_report_args = [
     # Marks relocations as mismatching if the target value is different

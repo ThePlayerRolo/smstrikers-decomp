@@ -5624,7 +5624,7 @@ vmbase.a/VMBase.c:
 	.text       start:0x8025FB48 end:0x802607B4
 	.sbss       start:0x803748A0 end:0x803748C0
 
-odemuexi2.a/DebuggerDriver.c:
+OdemuExi2/DebuggerDriver.c:
 	.text       start:0x802607B4 end:0x80261234
 	.sdata      start:0x803735F8 end:0x80373600
 	.sbss       start:0x803748C0 end:0x803748D8

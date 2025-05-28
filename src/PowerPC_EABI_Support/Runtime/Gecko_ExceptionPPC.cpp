@@ -13,6 +13,18 @@ typedef struct ProcessInfo
 
 static ProcessInfo fragmentinfo[1];
 
+void __unregister_fragment(int fragmentId)
+{
+    ProcessInfo* f;
+    if (fragmentId >= 0 && fragmentId < 1)
+    {
+        f = &fragmentinfo[fragmentId];
+        f->exception_info = 0;
+        f->TOC = 0;
+        f->active = 0;
+    }
+}
+
 int __register_fragment(struct __eti_init_info* info, char* TOC)
 {
     ProcessInfo* f;
@@ -30,16 +42,4 @@ int __register_fragment(struct __eti_init_info* info, char* TOC)
     }
 
     return (-1);
-}
-
-void __unregister_fragment(int fragmentId)
-{
-    ProcessInfo* f;
-    if (fragmentId >= 0 && fragmentId < 1)
-    {
-        f = &fragmentinfo[fragmentId];
-        f->exception_info = 0;
-        f->TOC = 0;
-        f->active = 0;
-    }
 }
