@@ -5245,7 +5245,7 @@ ai.a/ai.c:
 	.sdata      start:0x80373498 end:0x803734A0
 	.sbss       start:0x803744E8 end:0x80374528
 
-amcstubs.a/AmcExi2Stubs.c:
+Dolphin/AmcStub/AmcExi2Stubs.c:
 	.text       start:0x8023B7F4 end:0x8023B824
 
 ar.a/ar.c:
@@ -5463,7 +5463,7 @@ mtx.a/quat.c:
 	.text       start:0x80252FDC end:0x8025318C
 	.sdata2     start:0x80377C48 end:0x80377C58
 
-OdenotStub/odenotstub.c:
+Dolphin/OdenotStub/odenotstub.c:
 	.text       start:0x8025318C end:0x80253194
 
 os.a/OS.c:
@@ -5624,7 +5624,7 @@ vmbase.a/VMBase.c:
 	.text       start:0x8025FB48 end:0x802607B4
 	.sbss       start:0x803748A0 end:0x803748C0
 
-OdemuExi2/DebuggerDriver.c:
+Dolphin/OdemuExi2/DebuggerDriver.c:
 	.text       start:0x802607B4 end:0x80261234
 	.sdata      start:0x803735F8 end:0x80373600
 	.sbss       start:0x803748C0 end:0x803748D8

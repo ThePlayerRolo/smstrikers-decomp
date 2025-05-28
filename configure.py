@@ -445,16 +445,22 @@ config.libs = [
         ],
     ),
     DolphinLib(
+        "amcstubs",
+        [
+            Object(Matching, "Dolphin/AmcStub/AmcExi2Stubs.c"),
+        ],
+    ),    
+    DolphinLib(
         "OdemuExi2",
         [
-            Object(NonMatching, "OdemuExi2/DebuggerDriver.c"),
+            Object(NonMatching, "Dolphin/OdemuExi2/DebuggerDriver.c"),
         ],
         cflags=cflags_odemuexi,
     ),
     DolphinLib(
         "OdenotStub",
         [
-            Object(Matching, "OdenotStub/odenotstub.c"),
+            Object(Matching, "Dolphin/OdenotStub/odenotstub.c"),
         ],
     ),        
 ]
