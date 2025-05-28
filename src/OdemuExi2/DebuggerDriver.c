@@ -95,11 +95,6 @@ inline BOOL DBGWriteMailbox(u32 p1)
 	return IS_FALSE(total);
 }
 
-/*
- * --INFO--
- * Address:	80221770
- * Size:	0000AC
- */
 static BOOL DBGReadMailbox(u32* p1)
 {
 	BOOL total = FALSE;
@@ -121,11 +116,6 @@ static BOOL DBGReadMailbox(u32* p1)
 	return IS_FALSE(total);
 }
 
-/*
- * --INFO--
- * Address:	8022181C
- * Size:	0000DC
- */
 static BOOL DBGRead(u32 count, u32* buffer, s32 param3)
 {
 	BOOL total = FALSE;
@@ -157,11 +147,6 @@ static BOOL DBGRead(u32 count, u32* buffer, s32 param3)
 	return IS_FALSE(total);
 }
 
-/*
- * --INFO--
- * Address:	802218F8
- * Size:	0000DC
- */
 static BOOL DBGWrite(u32 count, void* buffer, s32 param3)
 {
 	BOOL total = FALSE;
@@ -193,11 +178,6 @@ static BOOL DBGWrite(u32 count, void* buffer, s32 param3)
 	return IS_FALSE(total);
 }
 
-/*
- * --INFO--
- * Address:	802219D4
- * Size:	0000AC
- */
 static BOOL DBGReadStatus(u32* p1)
 {
 	BOOL total = FALSE;
@@ -219,11 +199,6 @@ static BOOL DBGReadStatus(u32* p1)
 	return IS_FALSE(total);
 }
 
-/*
- * --INFO--
- * Address:	80221A80
- * Size:	00003C
- */
 static void MWCallback(u32 a, OSContext* b)
 {
 	EXIInputFlag = TRUE;
@@ -232,11 +207,6 @@ static void MWCallback(u32 a, OSContext* b)
 	}
 }
 
-/*
- * --INFO--
- * Address:	80221ABC
- * Size:	000040
- */
 static void DBGHandler(s16 a, OSContext* b)
 {
 	*__PIRegs = 0x1000;
@@ -245,11 +215,6 @@ static void DBGHandler(s16 a, OSContext* b)
 	}
 }
 
-/*
- * --INFO--
- * Address:	80221AFC
- * Size:	000078
- */
 void DBInitComm(u8** a, MTRCallbackType b)
 {
 	BOOL interrupts = OSDisableInterrupts();
@@ -266,11 +231,6 @@ void DBInitComm(u8** a, MTRCallbackType b)
 	OSRestoreInterrupts(interrupts);
 }
 
-/*
- * --INFO--
- * Address:	80221B74
- * Size:	000054
- */
 void DBInitInterrupts(void)
 {
 	__OSMaskInterrupts(0x18000);
@@ -280,12 +240,7 @@ void DBInitInterrupts(void)
 	__OSUnmaskInterrupts(0x40);
 }
 
-/*
- * --INFO--
- * Address:	........
- * Size:	000150
- */
-inline void CheckMailBox(void)
+inline static void CheckMailBox(void)
 {
 	u32 v;
 	DBGReadStatus(&v);
@@ -301,29 +256,21 @@ inline void CheckMailBox(void)
 	}
 }
 
-/*
- * --INFO--
- * Address:	80221BC8
- * Size:	00009C
- */
 u32 DBQueryData(void)
 {
 	BOOL interrupts;
 
 	EXIInputFlag = 0;
-	if (!RecvDataLeng) {
+	if (RecvDataLeng == 0) {
 		interrupts = OSDisableInterrupts();
 		CheckMailBox();
 	}
+	
 	OSRestoreInterrupts(interrupts);
+	
 	return RecvDataLeng;
 }
 
-/*
- * --INFO--
- * Address:	80221C64
- * Size:	00008C
- */
 BOOL DBRead(u32* buffer, s32 count)
 {
 	u32 interrupts = OSDisableInterrupts();
@@ -339,11 +286,6 @@ BOOL DBRead(u32* buffer, s32 count)
 	return 0;
 }
 
-/*
- * --INFO--
- * Address:	80221CF0
- * Size:	000260
- */
 BOOL DBWrite(const void* src, u32 size)
 {
 	u32 v;
@@ -380,21 +322,11 @@ BOOL DBWrite(const void* src, u32 size)
 	return 0;
 }
 
-/*
- * --INFO--
- * Address:	80221F50
- * Size:	000004
- */
 void DBOpen(void)
 {
 	return;
 }
 
-/*
- *  * --INFO--
- * Address:	80221F54
- * Size:	000004
- */
 void DBClose(void)
 {
 	return;

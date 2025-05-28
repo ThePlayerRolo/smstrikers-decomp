@@ -5463,7 +5463,7 @@ mtx.a/quat.c:
 	.text       start:0x80252FDC end:0x8025318C
 	.sdata2     start:0x80377C48 end:0x80377C58
 
-odenotstub.a/odenotstub.c:
+OdenotStub/odenotstub.c:
 	.text       start:0x8025318C end:0x80253194
 
 os.a/OS.c:

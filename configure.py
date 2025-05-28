@@ -188,31 +188,6 @@ config.scratch_preset_id = None
 # Base flags, common to most GC/Wii games.
 # Generally leave untouched, with overrides added below.
 
-# cflags_base = [
-#     "-nodefaults",
-#     "-proc gekko",
-#     "-align powerpc",
-#     "-enum int",
-#     "-fp hardware",
-#     "-Cpp_exceptions off",
-#     # "-W all",
-#     "-O4,p",
-#     "-inline auto",
-#     '-pragma "cats off"',
-#     '-pragma "warn_notinlined off"',
-#     "-maxerrors 1",
-#     "-nosyspath",
-#     "-RTTI off",
-#     "-fp_contract on",
-#     "-str reuse",
-#     "-multibyte", 
-#     "-i include",
-#     "-i include/libc",
-#     f"-i build/{config.version}/include",
-#     f"-DBUILD_VERSION={version_num}",
-#     f"-DVERSION_{config.version}",
-# ]
-
 cflags_base = [
     "-nowraplines",
     "-cwd source",
@@ -242,20 +217,6 @@ if args.debug:
     cflags_base.extend(["-sym on", "-DDEBUG=1"])
 else:
     cflags_base.append("-DNDEBUG=1")
-
-# cflags_base.append(f"-maxerrors {args.max_errors}")
-# if args.max_errors == 0:
-#     cflags_base.append("-nofail")
-
-# cflags_base.append(f"-msgstyle {args.msg_style}")
-# config.ldflags.append(f"-msgstyle {args.msg_style}")
-# cflags_base.append(f"-warn {args.warn}")
-
-# if args.warn_error:
-#     cflags_base.append("-warn iserror")
-
-# if args.require_protos:
-#     cflags_base.append("-requireprotos")
 
 # Metrowerks library flags
 cflags_runtime = [
@@ -317,6 +278,11 @@ cflags_nl = [
     "-i include",
 ]
 
+cflags_odemuexi = [
+    *cflags_base,
+    "-inline deferred"
+]
+
 # includes_base = ["src"]
 includes_base = [
     "include",
@@ -336,7 +302,7 @@ Objects = List[Object]
 def Lib(
     lib_name: str,
     objects: Objects,
-    mw_version: str = "GC/1.3.2",
+    mw_version: str = config.linker_version,
     cflags=cflags_base,
     fix_epilogue=True,
     fix_trk=False,
@@ -351,7 +317,7 @@ def Lib(
     lib = {
         "lib": lib_name,
         # "mw_version": f"GC/1.2.5{'n' if fix_epilogue else ''}",
-        "mw_version": mw_version, #"GC/1.3.2",
+        "mw_version": mw_version, 
         "cflags": [
             *cflags,
             *make_includes(includes),
@@ -393,18 +359,8 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
         category="game",
     )
 
-# Helper function for Dolphin libraries
-# def DolphinLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
-#     return {
-#         "lib": lib_name,
-#         "mw_version": "GC/1.2.5n",
-#         "cflags": cflags_base,
-#         "progress_category": "sdk",
-#         "objects": objects,
-#     }
-
 def DolphinLib(
-    lib_name: str, objects: Objects, fix_epilogue=False, extern=False
+    lib_name: str, objects: Objects, cflags=cflags_base, fix_epilogue=False, extern=False
 ) -> Library:
     if extern:
         cflags = [
@@ -431,7 +387,6 @@ def DolphinLib(
         includes = []
         system_includes = []
     else:
-        cflags = cflags_base
         src_dir = None
         includes = includes_base
         system_includes = system_includes_base
@@ -439,7 +394,7 @@ def DolphinLib(
     return Lib(
         lib_name,
         objects,
-        mw_version = "GC/1.2.5n",
+        mw_version="GC/1.2.5n",
         fix_epilogue=fix_epilogue,
         src_dir=src_dir,
         cflags=cflags,
@@ -462,8 +417,8 @@ def MatchingFor(*versions):
 config.warn_missing_config = True
 config.warn_missing_source = False
 
-config.libs = [
 
+config.libs = [
     RuntimeLib(
         "Gekko runtime",
         [
@@ -477,28 +432,31 @@ config.libs = [
             Object(NonMatching, "PowerPC_EABI_Support/Runtime/NMWException.cpp"),
         ],
     ),
-
     GameLib(
         "SMS (Super Mario Strikers)",
         [
             Object(NonMatching, "Game/rotation.c"),
         ],
     ),
-
     GameLib(
         "NL (Next Level Library)",
         [
             Object(NonMatching, "NL/nlMath.cpp"),
         ],
     ),
-
     DolphinLib(
         "OdemuExi2",
         [
             Object(NonMatching, "OdemuExi2/DebuggerDriver.c"),
         ],
+        cflags=cflags_odemuexi,
     ),
-        
+    DolphinLib(
+        "OdenotStub",
+        [
+            Object(Matching, "OdenotStub/odenotstub.c"),
+        ],
+    ),        
 ]
 
 
