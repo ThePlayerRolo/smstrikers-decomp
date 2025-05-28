@@ -25,6 +25,8 @@ typedef u32 NubEventID;
 // UART Error type.
 typedef int UARTError;
 
+typedef int MessageBufferID;
+
 // Size of message buffer.
 #define TRKMSGBUF_SIZE (0x800 + 0x80)
 

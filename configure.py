@@ -283,6 +283,37 @@ cflags_odemuexi = [
     "-inline deferred"
 ]
 
+cflags_trk_minnow_dolphin = [
+    "-nodefaults",
+    "-proc gekko",
+    "-align powerpc",
+    "-enum int",
+    "-fp hardware",
+    "-Cpp_exceptions off",
+    "-O4,p",
+    "-inline auto",
+    '-pragma "cats off"',
+    '-pragma "warn_notinlined off"',
+    "-maxerrors 1",
+    "-nosyspath",
+    "-RTTI off",
+    "-fp_contract on",
+    "-str reuse",
+    "-i include",
+    "-multibyte",
+    "-use_lmw_stmw on",
+    "-str reuse,readonly",
+    "-common off",
+    "-sdata 0",
+    "-sdata2 0",
+    "-inline auto,deferred",
+    "-enum min",
+    "-sdatathreshold 0",
+    f"-i build/{config.version}/include",
+    f"-DBUILD_VERSION={version_num}",
+    f"-DVERSION_{config.version}",
+]
+
 # includes_base = ["src"]
 includes_base = [
     "include",
@@ -291,13 +322,14 @@ includes_base = [
 
 system_includes_base = [
     "include",
-    "include/LIBC",
+    # "include/LIBC",
     f"build/{config.version}/include",
 ]
 
 config.linker_version = "GC/1.3.2"
 
 Objects = List[Object]
+
 
 def Lib(
     lib_name: str,
@@ -337,6 +369,7 @@ def Lib(
 
     return lib
 
+
 def RuntimeLib(lib_name: str, objects: Objects) -> Library:
     return Lib(
         lib_name,
@@ -345,6 +378,7 @@ def RuntimeLib(lib_name: str, objects: Objects) -> Library:
         fix_epilogue=False,
         category="runtime",
     )
+
 
 def GameLib(lib_name: str, objects: Objects) -> Library:
     return Lib(
@@ -358,6 +392,7 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
         ],
         category="game",
     )
+
 
 def DolphinLib(
     lib_name: str, objects: Objects, cflags=cflags_base, fix_epilogue=False, extern=False
@@ -395,6 +430,25 @@ def DolphinLib(
         lib_name,
         objects,
         mw_version="GC/1.2.5n",
+        fix_epilogue=fix_epilogue,
+        src_dir=src_dir,
+        cflags=cflags,
+        includes=includes,
+        system_includes=system_includes,
+        category="sdk",
+    )
+
+
+def DolphinTrkLib(
+    lib_name: str, objects: Objects, cflags=cflags_trk_minnow_dolphin, fix_epilogue=False, extern=False
+) -> Library:
+    src_dir = None
+    includes = includes_base
+    system_includes = system_includes_base
+    return Lib(
+        lib_name,
+        objects,
+        mw_version="GC/1.3",
         fix_epilogue=fix_epilogue,
         src_dir=src_dir,
         cflags=cflags,
@@ -464,6 +518,12 @@ config.libs = [
             Object(Matching, "Dolphin/OdenotStub/odenotstub.c"),
         ],
     ),        
+    DolphinTrkLib(
+        "TRK_MINNOW_DOLPHIN",
+        [
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mainloop.c"),
+        ]
+    ),  
 ]
 
 

@@ -4870,7 +4870,7 @@ NLGAdditions.o:
 	.data       start:0x80303C68 end:0x80303C80
 	.sdata2     start:0x80377748 end:0x80377758
 
-trk_minnow_dolphin.a/mainloop.c:
+SDK/TRK_MINNOW_DOLPHIN/mainloop.c:
 	.text       start:0x802248C0 end:0x802249B8
 
 trk_minnow_dolphin.a/nubevent.c:
@@ -4900,7 +4900,7 @@ trk_minnow_dolphin.a/serpoll.c:
 trk_minnow_dolphin.a/usr_put.c:
 	.text       start:0x802258B0 end:0x8022593C
 
-trk_minnow_dolphin.a/dispatch.c:
+SDK/TRK_MINNOW_DOLPHIN/dispatch.c:
 	.text       start:0x8022593C end:0x80225AB4
 	.rodata     start:0x802A0B58 end:0x802A0B98
 	.data       start:0x80303C80 end:0x80303CF0
