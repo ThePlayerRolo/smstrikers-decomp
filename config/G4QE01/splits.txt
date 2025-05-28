@@ -2451,7 +2451,7 @@ ResetTask.o:
 	.sdata      start:0x80372750 end:0x80372758
 	.sbss       start:0x80373DB0 end:0x80373DD8
 
-main.o:
+Game/main.cpp:
 	.text       start:0x80173510 end:0x80175114
 	.text       start:0x80175114 end:0x80175114
 	.text       start:0x80175114 end:0x80175114

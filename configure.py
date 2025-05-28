@@ -435,6 +435,7 @@ config.libs = [
     GameLib(
         "SMS (Super Mario Strikers)",
         [
+            Object(NonMatching, "Game/main.cpp"),
             Object(NonMatching, "Game/rotation.c"),
         ],
     ),
