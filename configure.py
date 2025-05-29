@@ -519,6 +519,8 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/usr_put.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/support.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/mslsupp.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/UDP_Stubs.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msgbuf.c"),

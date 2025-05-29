@@ -4967,10 +4967,10 @@ SDK/TRK_MINNOW_DOLPHIN/target_options.c:
 	.text       start:0x80229F20 end:0x80229F3C
 	.bss        start:0x80346028 end:0x80346030
 
-trk_minnow_dolphin.a/mslsupp.c:
+SDK/TRK_MINNOW_DOLPHIN/mslsupp.c:
 	.text       start:0x80229F3C end:0x8022A57C
 
-trk_minnow_dolphin.a/UDP_Stubs.c:
+SDK/TRK_MINNOW_DOLPHIN/UDP_Stubs.c:
 	.text       start:0x8022A57C end:0x8022A5C4
 
 trk_minnow_dolphin.a/main.c:
