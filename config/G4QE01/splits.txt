@@ -4943,7 +4943,7 @@ trk_minnow_dolphin.a/mpc_7xx_603e.c:
 trk_minnow_dolphin.a/__exception.s: comment:0
 	.init       start:0x80003154 end:0x80005088
 
-trk_minnow_dolphin.a/dolphin_trk.c:
+SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c:
 	.init       start:0x80005088 end:0x800050B4
 	.text       start:0x80229300 end:0x8022993C
 	.data       start:0x80303D58 end:0x80303D98
@@ -4954,7 +4954,7 @@ SDK/TRK_MINNOW_DOLPHIN/main_TRK.c:
 	.rodata     start:0x802A0EC0 end:0x802A0ED0
 	.bss        start:0x80346018 end:0x80346020
 
-trk_minnow_dolphin.a/dolphin_trk_glue.c:
+SDK/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c:
 	.text       start:0x80229994 end:0x80229EEC
 	.rodata     start:0x802A0ED0 end:0x802A0FD8
 	.data       start:0x80303D98 end:0x80303DC0

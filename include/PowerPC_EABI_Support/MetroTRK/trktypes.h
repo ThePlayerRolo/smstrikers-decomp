@@ -13,11 +13,16 @@ extern "C" {
 #include "Dolphin/os.h"
 #include "Dolphin/OS/OSInterrupt.h"
 
+// typedef int (*DBCommFunc)();
+// typedef u32 (*DBPollFunc)(void);
+// typedef void (*DBCommInitFunc)(volatile u8**, __OSInterruptHandler);
+// typedef int (*DBCommReadFunc)(void*, u32);
+// typedef int (*DBCommWriteFunc)(const void*, u32);
+
 typedef int (*DBCommFunc)();
-typedef u32 (*DBPollFunc)(void);
-typedef void (*DBCommInitFunc)(volatile u8**, __OSInterruptHandler);
-typedef int (*DBCommReadFunc)(void*, u32);
-typedef int (*DBCommWriteFunc)(const void*, u32);
+typedef int (*DBCommInitFunc)(void*, __OSInterruptHandler);
+typedef int (*DBCommReadFunc)(u8*, int);
+typedef int (*DBCommWriteFunc)(const u8*, int);
 
 // Message buffer ID type.
 typedef int TRKBufferID;
@@ -45,14 +50,27 @@ typedef struct TRKBuffer {
 } TRKBuffer;
 
 // Struct for storing DB communication functions (size 0x1C).
+// typedef struct DBCommTable {
+// 	DBCommInitFunc initialize_func;  // _00
+// 	DBCommFunc init_interrupts_func; // _04
+// 	DBCommFunc peek_func;            // _08
+// 	DBCommReadFunc read_func;        // _0C
+// 	DBCommWriteFunc write_func;      // _10
+// 	DBCommFunc open_func;            // _14
+// 	DBCommFunc close_func;           // _18
+// } DBCommTable;
+
 typedef struct DBCommTable {
 	DBCommInitFunc initialize_func;  // _00
 	DBCommFunc init_interrupts_func; // _04
-	DBCommFunc peek_func;            // _08
-	DBCommReadFunc read_func;        // _0C
-	DBCommWriteFunc write_func;      // _10
-	DBCommFunc open_func;            // _14
-	DBCommFunc close_func;           // _18
+	DBCommFunc shutdown_func;        // _08
+	DBCommFunc peek_func;            // _0C
+	DBCommReadFunc read_func;        // _10
+	DBCommWriteFunc write_func;      // _14
+	DBCommFunc open_func;            // _18
+	DBCommFunc close_func;           // _1C
+	DBCommFunc pre_continue_func;    // _20
+	DBCommFunc post_stop_func;       // _24
 } DBCommTable;
 
 // Struct for information on DS versions (kernel and protocol) (size 0x4)

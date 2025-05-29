@@ -1,8 +1,7 @@
 #ifndef _TYPES_H
 #define _TYPES_H
 
-// r2  is 803F0200
-// r13 is 803E4D20
+// #include "global.h"
 
 // Custom types
 typedef int BOOL;
@@ -86,6 +85,10 @@ typedef u16 wchar_t;
 #define PATH_MAX  (256)                     // Max path length
 #define MAX(a, b) (((a) > (b)) ? (a) : (b)) // Returns the maximum of a and b
 #define MIN(a, b) (((a) < (b)) ? (a) : (b)) // Returns the minimum of a and b
+
+
+#define ALIGN_DECL(ALIGNMENT) __attribute__((aligned(ALIGNMENT)))
+#define ARRAY_SIZE(o) (sizeof((o)) / sizeof(*(o)))
 
 // Flag manipulation macros
 #define SET_FLAG(x, val)                (x |= (val))                     // Sets specific flag to 1

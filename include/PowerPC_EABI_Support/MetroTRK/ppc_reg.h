@@ -23,11 +23,10 @@ typedef struct Float_PPC {
 } Float_PPC;
 
 typedef struct Extended1_PPC_6xx_7xx {
-	// u8 pad[0x168];
 	u32 SR[16];
 	u32 TBL;
 	u32 TBU;
-	u32 HID0_;
+	u32 HID0;
 	u32 HID1;
 	u32 MSR;
 	u32 PVR;
@@ -45,8 +44,8 @@ typedef struct Extended1_PPC_6xx_7xx {
 	u32 DBAT1L;
 	u32 DBAT2U;
 	u32 DBAT2L;
-	u32 DBAT3U_;
-	u32 DBAT3L_;
+	u32 DBAT3U;
+	u32 DBAT3L;
 	u32 DMISS;
 	u32 DCMP;
 	u32 HASH1;
@@ -97,8 +96,8 @@ typedef struct Extended1_PPC_6xx_7xx {
 	u32 GQR[8];
 	u32 HID_G;
 	u32 WPAR;
-	u32 DMA_U_;
-	u32 DMA_L_;
+	u32 DMA_U;
+	u32 DMA_L;
 } Extended1_PPC_6xx_7xx;
 
 typedef struct Extended2_PPC_6xx_7xx {

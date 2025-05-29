@@ -503,6 +503,11 @@ config.libs = [
         "TRK_MINNOW_DOLPHIN",
         [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/main_TRK.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),
+            
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c"),
+
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dispatch.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c", extra_cflags=["-sdata 8"]),
 
@@ -514,7 +519,6 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/usr_put.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/support.c"),
-            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msgbuf.c"),
