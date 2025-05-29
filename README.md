@@ -5,15 +5,15 @@ Super Mario Strikers
 <!--
 Replace with your repository's URL.
 -->
-[Build Status]: https://github.com/yannicksuter/sms-decomp/actions/workflows/build.yml/badge.svg
-[actions]: https://github.com/yannicksuter/sms-decomp/actions/workflows/build.yml
+[Build Status]: https://github.com/yannicksuter/smstrikers-decomp/actions/workflows/build.yml/badge.svg
+[actions]: https://github.com/yannicksuter/smstrikers-decomp/actions/workflows/build.yml
 <!--
 decomp.dev progress badges
 See https://decomp.dev/api for an API overview.
 -->
-[Code Progress]: https://decomp.dev/yannicksuter/sms-decomp.svg?mode=shield&measure=code&label=Code
-[Data Progress]: https://decomp.dev/yannicksuter/sms-decomp.svg?mode=shield&measure=data&label=Data
-[progress]: https://decomp.dev/yannicksuter/sms-decomp
+[Code Progress]: https://decomp.dev/yannicksuter/smstrikers-decomp.svg?mode=shield&measure=code&label=Code
+[Data Progress]: https://decomp.dev/yannicksuter/smstrikers-decomp.svg?mode=shield&measure=data&label=Data
+[progress]: https://decomp.dev/yannicksuter/smstrikers-decomp
 <!--
 Replace with your Discord server's ID and invite URL.
 -->
