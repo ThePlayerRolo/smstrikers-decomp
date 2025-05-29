@@ -4905,7 +4905,7 @@ SDK/TRK_MINNOW_DOLPHIN/dispatch.c:
 	.rodata     start:0x802A0B58 end:0x802A0B98
 	.data       start:0x80303C80 end:0x80303CF0
 
-trk_minnow_dolphin.a/msghndlr.c:
+SDK/TRK_MINNOW_DOLPHIN/msghndlr.c:
 	.text       start:0x80225AB4 end:0x80226B24
 	.rodata     start:0x802A0B98 end:0x802A0D80
 	.data       start:0x80303CF0 end:0x80303D28

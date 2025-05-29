@@ -2,7 +2,7 @@
 
 DSError TRKMessageSend(TRKBuffer* msg)
 {
-	DSError writeErr = TRKWriteUARTN(&msg->data, msg->length);
-	MWTRACE(1, "MessageSend : cc_write returned %ld\n", writeErr);
-	return DS_NoError;
+    DSError writeErr = TRKWriteUARTN(&msg->data, msg->length);
+    MWTRACE(1, "MessageSend : cc_write returned %ld\n", writeErr);
+    return DS_NoError;
 }
