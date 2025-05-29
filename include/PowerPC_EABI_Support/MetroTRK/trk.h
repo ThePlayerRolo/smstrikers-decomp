@@ -2,72 +2,32 @@
 #define __METROTRK_TRK_H__
 
 #include "dolphin/types.h"
-// #include "types.h"
 #include "PowerPC_EABI_Support/MetroTRK/trktypes.h"
-// #include "PowerPC_EABI_Support/MetroTRK/trkenum.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// typedef int MessageBufferID;
-
-// #define TRKMSGBUF_SIZE (0x800 + 0x80)
-
-// typedef struct TRKBuffer {
-// 	/* 0x00 */ u32 mutex;
-// 	/* 0x04 */ BOOL isInUse;
-// 	/* 0x08 */ u32 length;
-// 	/* 0x0C */ u32 position;
-// 	/* 0x10 */ u8 data[TRKMSGBUF_SIZE];
-// } TRKBuffer;
-
-// typedef struct TRKFramingState {
-// 	MessageBufferID msgBufID;   // _00
-// 	TRKBuffer* buffer;          // _04
-// 	ReceiverState receiveState; // _08
-// 	BOOL isEscape;              // _0C
-// 	u8 fcsType;                 // _10
-// } TRKFramingState;
-
-// typedef struct TRKState_PPC {
-// 	u32 GPR[32];         // 0x0
-// 	u32 LR;              // 0x80
-// 	u32 CTR;             // 0x84
-// 	u32 XER;             // 0x88
-// 	u32 MSR;             // 0x8c
-// 	u32 DAR;             // 0x90
-// 	u32 DSISR;           // 0x94
-// 	BOOL stopped;        // 0x98
-// 	BOOL inputActivated; // 0x9c
-// 	u8* inputPendingPtr; // 0xA0
-// } TRKState_PPC;
-
-// typedef struct CommandReply {
-// 	u32 _00; // _00
-// 	union {
-// 		u8 b;
-// 		MessageCommandID m;
-// 	} commandID; // _04, use MessageCommandID enum
-// 	union {
-// 		u8 b;
-// 		DSReplyError r;
-// 	} replyError; // _08, use DSReplyError enum - should be enum type? check
-// 	              // size.
-// 	u32 _0C;      // _0C
-// 	u8 _10[0x30]; // _10, unknown
-// } CommandReply;
-
-// typedef struct ProcessorRestoreFlags_PPC {
-// 	u8 TBR;
-// 	u8 DEC;
-// 	u8 linker_padding[0x9 - 0x2];
-// } ProcessorRestoreFlags_PPC;
-
 void TRKSaveExtended1Block();
 
+////////// OTHER FUNCTIONS /////////
+DSError TRK_main(void);
+UARTError InitializeUART(UARTBaudRate baudRate);
+DSError TRKInitializeIntDrivenUART(u32, u32, u32, volatile u8**);
+int TRKPollUART();
+UARTError TRKReadUARTN(void*, u32);
+UARTError TRKWriteUARTN(const void* bytes, u32 length);
+void usr_put_initialize();
+void TRKTargetSetInputPendingPtr(void*);
 void SetUseSerialIO(u8);
 u8 GetUseSerialIO(void);
+u8 TRKTargetCPUMinorType();
+
+DSError TRKTargetAddStopInfo(TRKBuffer*);
+DSError TRKTargetAddExceptionInfo(TRKBuffer*);
+void TRKInterruptHandler();
+BOOL usr_puts_serial(const char* msg);
+////////////////////////////////////
 
 #define SPR_XER    1
 #define SPR_LR     8

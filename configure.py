@@ -506,6 +506,9 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubevent.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubinit.c"),
 
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/target_options.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/usr_put.c"),
+
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msgbuf.c"),
             Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/msghndlr.c"),

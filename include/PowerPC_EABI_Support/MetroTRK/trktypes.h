@@ -28,20 +28,31 @@ typedef u32 NubEventID;
 // UART Error type.
 typedef int UARTError;
 
+typedef unsigned int DSMutex;
+
 typedef int MessageBufferID;
 
 // Size of message buffer.
 #define TRKMSGBUF_SIZE (0x800 + 0x80)
-
 // Struct for sending and receiving messages (size 0x88C).
 typedef struct TRKBuffer {
-	u32 mutex;               // _00
+	DSMutex mutex;               // _00
 	BOOL isInUse;            // _04
 	// u isInUse;
 	u32 length;              // _08
 	u32 position;            // _0C
 	u8 data[TRKMSGBUF_SIZE]; // _10
 } TRKBuffer;
+
+// typedef int bool;
+// #define kMessageBufferSize 0x800 + 0x80
+// typedef struct TRKBuffer {
+//     /* 0x00 */ DSMutex mutex;
+//     /* 0x00 */ bool isInUse;
+//     /* 0x04 */ u32 length;
+//     /* 0x08 */ u32 position;
+//     /* 0x0C */ u8 data[kMessageBufferSize];
+// } TRKBuffer; // size = 0x88C
 
 // Struct for storing DB communication functions (size 0x1C).
 typedef struct DBCommTable {

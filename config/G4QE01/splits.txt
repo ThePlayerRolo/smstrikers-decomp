@@ -4897,7 +4897,7 @@ trk_minnow_dolphin.a/serpoll.c:
 	.bss        start:0x80345A70 end:0x80345A88
 	.sbss       start:0x803744A0 end:0x803744A8
 
-trk_minnow_dolphin.a/usr_put.c:
+SDK/TRK_MINNOW_DOLPHIN/usr_put.c:
 	.text       start:0x802258B0 end:0x8022593C
 
 SDK/TRK_MINNOW_DOLPHIN/dispatch.c:
@@ -4963,7 +4963,7 @@ trk_minnow_dolphin.a/dolphin_trk_glue.c:
 trk_minnow_dolphin.a/targcont.c:
 	.text       start:0x80229EEC end:0x80229F20
 
-trk_minnow_dolphin.a/target_options.c:
+SDK/TRK_MINNOW_DOLPHIN/target_options.c:
 	.text       start:0x80229F20 end:0x80229F3C
 	.bss        start:0x80346028 end:0x80346030
 

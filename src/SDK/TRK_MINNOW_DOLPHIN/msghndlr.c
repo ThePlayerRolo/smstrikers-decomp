@@ -578,7 +578,7 @@ DSError TRKDoSetOption(TRKBuffer* message)
 
     if (message->data[0x8] == '\1')
     {
-        usr_puts_serial("\nMetroTRK Option : SerialIO - ");
+        usr_puts_serial((void*)"\nMetroTRK Option : SerialIO - ");
         if (enable)
         {
             usr_puts_serial("Enable\n");
