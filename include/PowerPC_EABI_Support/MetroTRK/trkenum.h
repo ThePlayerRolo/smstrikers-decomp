@@ -184,6 +184,8 @@ typedef enum {
 	UART_NoData             = 4, // no data available from polling
 } UARTErrorOptions;
 
+typedef int UARTError;
+
 typedef enum {
 	kBaudHWSet  = -1,  // use HW settings such as DIP switches
 	kBaud300    = 300, // valid baud rates

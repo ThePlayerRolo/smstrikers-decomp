@@ -287,6 +287,7 @@ cflags_trk_minnow_dolphin = [
     "-nodefaults",
     "-proc gekko",
     "-align powerpc",
+    # "-enum min",
     "-enum int",
     "-fp hardware",
     "-Cpp_exceptions off",
@@ -307,7 +308,6 @@ cflags_trk_minnow_dolphin = [
     "-sdata 0",
     "-sdata2 0",
     "-inline auto,deferred",
-    "-enum min",
     "-sdatathreshold 0",
     f"-i build/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",
@@ -527,6 +527,7 @@ config.libs = [
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msgbuf.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/msghndlr.c"),
         ]
     ),  
 ]

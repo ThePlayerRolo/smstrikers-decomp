@@ -2,7 +2,6 @@
 #define _METROTRK_TRKTYPES_H
 
 #include "types.h"
-#include "Dolphin/OS/OSInterrupt.h"
 #include "PowerPC_EABI_Support/MetroTRK/trkenum.h"
 
 #ifdef __cplusplus
@@ -11,7 +10,11 @@ extern "C" {
 
 /////// TRK STRUCTS AND TYPES //////
 // Function types for DB communications.
+#include "Dolphin/os.h"
+#include "Dolphin/OS/OSInterrupt.h"
+
 typedef int (*DBCommFunc)();
+typedef u32 (*DBPollFunc)(void);
 typedef void (*DBCommInitFunc)(volatile u8**, __OSInterruptHandler);
 typedef int (*DBCommReadFunc)(void*, u32);
 typedef int (*DBCommWriteFunc)(const void*, u32);
@@ -34,6 +37,7 @@ typedef int MessageBufferID;
 typedef struct TRKBuffer {
 	u32 mutex;               // _00
 	BOOL isInUse;            // _04
+	// u isInUse;
 	u32 length;              // _08
 	u32 position;            // _0C
 	u8 data[TRKMSGBUF_SIZE]; // _10
@@ -90,7 +94,9 @@ typedef struct CommandReply {
 
 // Nub event information (size 0xC).
 typedef struct TRKEvent {
-	u8 eventType;         // _00
+	// u8 eventType;         // _00
+	// NubEventType eventType;
+	u32 eventType;
 	NubEventID eventID;   // _04
 	TRKBufferID msgBufID; // _08
 } TRKEvent;

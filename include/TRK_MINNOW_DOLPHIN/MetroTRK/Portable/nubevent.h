@@ -7,23 +7,23 @@
 extern "C" {
 #endif
 
-typedef u32 NubEventID;
+// typedef u32 NubEventID;
 
-typedef struct TRKEvent {
-	// NubEventType eventType;
-	u32 eventType;
-	NubEventID eventID;
-	MessageBufferID msgBufID;
-} TRKEvent;
+// typedef struct TRKEvent {
+// 	// NubEventType eventType;
+// 	u32 eventType;
+// 	NubEventID eventID;
+// 	MessageBufferID msgBufID;
+// } TRKEvent;
 
-typedef struct TRKEventQueue {
-	int _00;
-	int count;
-	int next;
-	TRKEvent events[2];
-	NubEventID eventID;
-} TRKEventQueue;
-extern TRKEventQueue gTRKEventQueue;
+// typedef struct TRKEventQueue {
+// 	int _00;
+// 	int count;
+// 	int next;
+// 	TRKEvent events[2];
+// 	NubEventID eventID;
+// } TRKEventQueue;
+// extern TRKEventQueue gTRKEventQueue;
 
 BOOL TRKGetNextEvent(TRKEvent* event);
 void TRKDestructEvent(TRKEvent*);

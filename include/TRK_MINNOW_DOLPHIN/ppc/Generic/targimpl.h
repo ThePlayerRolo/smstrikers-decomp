@@ -40,26 +40,8 @@ u32 TRKTargetStop();
 void TRKInterruptHandler();
 void TRKPostInterruptEvent(void);
 
-typedef struct DSVersions {
-	u8 kernelMajor;
-	u8 kernelMinor;
-	u8 protocolMajor;
-	u8 protocolMinor;
-} DSVersions;
-
 DSError TRKTargetVersions(DSVersions* versions);
 DSError TRKTargetSupportMask(u8 mask[32]);
-
-typedef struct DSCPUType {
-	u8 cpuMajor;
-	u8 cpuMinor;
-	u8 bigEndian;
-	u8 defaultTypeSize;
-	u8 fpTypeSize;
-	u8 extended1TypeSize;
-	u8 extended2TypeSize;
-} DSCPUType;
-DSError TRKTargetCPUType(DSCPUType* cpuType);
 
 typedef struct Default_PPC {
 	u32 GPR[32];
@@ -169,18 +151,6 @@ typedef struct ProcessorState_PPC_6xx_7xx {
 typedef ProcessorState_PPC_6xx_7xx ProcessorState_PPC;
 extern ProcessorState_PPC gTRKCPUState;
 
-typedef struct TRKState {
-	u32 gpr[32];           // _00
-	u32 lr;                // _80
-	u32 ctr;               // _84
-	u32 xer;               // _88
-	u32 msr;               // _8C
-	u32 dar;               // _90
-	u32 dsisr;             // _94
-	BOOL isStopped;        // _98
-	BOOL inputActivated;   // _9C
-	void* inputPendingPtr; // _A0
-} TRKState;
 extern TRKState gTRKState;
 
 #ifdef __cplusplus
