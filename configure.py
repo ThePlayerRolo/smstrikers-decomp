@@ -503,8 +503,9 @@ config.libs = [
     DolphinTrkLib(
         "TRK_MINNOW_DOLPHIN",
         [
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/main_TRK.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dispatch.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c", extra_cflags=["-sdata 8"]),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mainloop.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubevent.c"),

@@ -3,6 +3,8 @@
 static TRKFramingState gTRKFramingState;
 void* gTRKInputPendingPtr;
 
+// #pragma clang diagnostic push
+// #pragma clang diagnostic ignored "-Wsometimes-uninitialized"
 MessageBufferID TRKTestForPacket()
 {
     u8 payloadBuf[0x880];
@@ -54,10 +56,6 @@ MessageBufferID TRKTestForPacket()
     return result;
 }
 
-/**
- * @note Address: 0x800BC1E4
- * @note Size: 0x60
- */
 void TRKGetInput(void)
 {
     MessageBufferID id = TRKTestForPacket();
@@ -72,10 +70,6 @@ void TRKGetInput(void)
     }
 }
 
-/**
- * @note Address: 0x800BC194
- * @note Size: 0x50
- */
 void TRKProcessInput(int bufferIdx)
 {
     TRKEvent event;

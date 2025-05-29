@@ -4949,7 +4949,7 @@ trk_minnow_dolphin.a/dolphin_trk.c:
 	.data       start:0x80303D58 end:0x80303D98
 	.bss        start:0x80346010 end:0x80346018
 
-trk_minnow_dolphin.a/main_TRK.c:
+SDK/TRK_MINNOW_DOLPHIN/main_TRK.c:
 	.text       start:0x8022993C end:0x80229994
 	.rodata     start:0x802A0EC0 end:0x802A0ED0
 	.bss        start:0x80346018 end:0x80346020
