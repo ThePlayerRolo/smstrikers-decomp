@@ -30,12 +30,12 @@ void SetTRKConnected(int isConnected)
     IsTRKConnected = isConnected;
 }
 
-void TRKMessageIntoReply(void)
+inline void TRKMessageIntoReply(void)
 {
     // UNUSED FUNCTION
 }
 
-DSError TRKSendACK(TRKBuffer* buffer)
+inline DSError TRKSendACK(TRKBuffer* buffer)
 {
     DSError err;
     MWTRACE(1, "SendACK : Calling MessageSend\n");
@@ -44,7 +44,7 @@ DSError TRKSendACK(TRKBuffer* buffer)
     return err;
 }
 
-DSError TRKStandardACK(TRKBuffer* buffer, MessageCommandID commandID, DSReplyError replyError)
+inline DSError TRKStandardACK(TRKBuffer* buffer, MessageCommandID commandID, DSReplyError replyError)
 {
     CommandReply reply;
 
@@ -102,28 +102,16 @@ DSError TRKDoVersions(TRKBuffer*)
     return DS_NoError;
 }
 
-/**
- * @note Address: 0x800BD394
- * @note Size: 0x8
- */
 DSError TRKDoSupportMask(TRKBuffer*)
 {
     return DS_NoError;
 }
 
-/**
- * @note Address: N/A
- * @note Size: 0x8
- */
-void TRKDoCPUType(void)
+inline void TRKDoCPUType(void)
 {
     // UNUSED FUNCTION
 }
 
-/**
- * @note Address: 0x800BD150
- * @note Size: 0x244
- */
 DSError TRKDoReadMemory(TRKBuffer* buffer)
 {
     u8 buf[0x820] __attribute__((aligned(32)));
@@ -206,10 +194,6 @@ DSError TRKDoReadMemory(TRKBuffer* buffer)
     return TRKSendACK(buffer);
 }
 
-/**
- * @note Address: 0x800BCF14
- * @note Size: 0x23C
- */
 DSError TRKDoWriteMemory(TRKBuffer* b)
 {
     u8 buf[0x820] __attribute__((aligned(32)));
@@ -286,10 +270,6 @@ DSError TRKDoWriteMemory(TRKBuffer* b)
     return TRKSendACK(b);
 }
 
-/**
- * @note Address: 0x800BCC34
- * @note Size: 0x2E0
- */
 DSError TRKDoReadRegisters(TRKBuffer* b)
 {
     int error;
@@ -377,10 +357,6 @@ DSError TRKDoReadRegisters(TRKBuffer* b)
     }
 }
 
-/**
- * @note Address: 0x800BC9A4
- * @note Size: 0x290
- */
 DSError TRKDoWriteRegisters(TRKBuffer* b)
 {
     int error;
@@ -474,20 +450,12 @@ DSError TRKDoWriteRegisters(TRKBuffer* b)
     }
 }
 
-/**
- * @note Address: N/A
- * @note Size: 0x250
- */
 void TRKDoFlushCache(void)
 {
     MWTRACE(1, "DoFlushCache unimplemented!!!\n");
     // UNUSED FUNCTION
 }
 
-/**
- * @note Address: 0x800BC8F4
- * @note Size: 0xB0
- */
 DSError TRKDoContinue(TRKBuffer*)
 {
     MWTRACE(1, "DoContinue\n");
@@ -516,11 +484,6 @@ DSError TRKDoContinue(TRKBuffer*)
         return TRKTargetContinue();
     }
 }
-
-/**
- * @note Address: 0x800BC6D4
- * @note Size: 0x220
- */
 
 DSError TRKDoStep(TRKBuffer* b)
 {
@@ -581,10 +544,6 @@ DSError TRKDoStep(TRKBuffer* b)
     }
 }
 
-/**
- * @note Address: 0x800BC62C
- * @note Size: 0xA8
- */
 DSError TRKDoStop(TRKBuffer* b)
 {
     MessageCommandID c;
@@ -613,10 +572,6 @@ DSError TRKDoStop(TRKBuffer* b)
     return DS_NoError;
 }
 
-/**
- * @note Address: 0x800BC584
- * @note Size: 0xA8
- */
 DSError TRKDoSetOption(TRKBuffer* message)
 {
     u8 enable = message->data[0xc];

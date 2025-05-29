@@ -284,37 +284,19 @@ cflags_odemuexi = [
 ]
 
 cflags_trk_minnow_dolphin = [
-    "-nodefaults",
-    "-proc gekko",
-    "-align powerpc",
-    # "-enum min",
-    "-enum int",
-    "-fp hardware",
-    "-Cpp_exceptions off",
-    "-O4,p",
-    "-inline auto",
-    '-pragma "cats off"',
-    '-pragma "warn_notinlined off"',
-    "-maxerrors 1",
-    "-nosyspath",
-    "-RTTI off",
-    "-fp_contract on",
-    "-str reuse",
-    "-i include",
-    "-multibyte",
+    *cflags_base,
     "-use_lmw_stmw on",
-    "-str reuse,readonly",
+    "-rostr",
+    "-str reuse",
+    "-gccinc",
     "-common off",
+    "-inline deferred,auto",
+    "-char signed",
     "-sdata 0",
-    "-sdata2 0",
-    "-inline auto,deferred",
+    "-sdata2 0",    
     "-sdatathreshold 0",
-    f"-i build/{config.version}/include",
-    f"-DBUILD_VERSION={version_num}",
-    f"-DVERSION_{config.version}",
 ]
 
-# includes_base = ["src"]
 includes_base = [
     "include",
     "include/libc",
@@ -322,7 +304,6 @@ includes_base = [
 
 system_includes_base = [
     "include",
-    # "include/LIBC",
     f"build/{config.version}/include",
 ]
 
