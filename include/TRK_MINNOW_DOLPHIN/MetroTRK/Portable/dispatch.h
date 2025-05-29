@@ -26,7 +26,7 @@ extern "C" {
 typedef struct TRKBuffer TRKBuffer;
 
 DSError TRKInitializeDispatcher();
-BOOL TRKDispatchMessage(TRKBuffer* buffer);
+DSError TRKDispatchMessage(TRKBuffer* buffer);
 
 #ifdef __cplusplus
 }

@@ -9,9 +9,6 @@
 extern "C" {
 #endif
 
-DSError TRKInitializeIntDrivenUART(u32 param_0, u32 param_1, u32 param_2,
-                                   volatile u8** param_3);
-
 void UnreserveEXI2Port(void);
 void ReserveEXI2Port(void);
 int TRKPollUART(void);

@@ -44,16 +44,6 @@ typedef struct TRKBuffer {
 	u8 data[TRKMSGBUF_SIZE]; // _10
 } TRKBuffer;
 
-// typedef int bool;
-// #define kMessageBufferSize 0x800 + 0x80
-// typedef struct TRKBuffer {
-//     /* 0x00 */ DSMutex mutex;
-//     /* 0x00 */ bool isInUse;
-//     /* 0x04 */ u32 length;
-//     /* 0x08 */ u32 position;
-//     /* 0x0C */ u8 data[kMessageBufferSize];
-// } TRKBuffer; // size = 0x88C
-
 // Struct for storing DB communication functions (size 0x1C).
 typedef struct DBCommTable {
 	DBCommInitFunc initialize_func;  // _00
@@ -83,7 +73,7 @@ typedef struct TRKPacketSeq {
 typedef struct TRKFramingState {
 	TRKBufferID msgBufID; // _00
 	TRKBuffer* buffer;    // _04
-	u8 receiveState;      // _08
+	u32 receiveState;     // _08
 	BOOL isEscape;        // _0C
 	u8 fcsType;           // _10
 } TRKFramingState;

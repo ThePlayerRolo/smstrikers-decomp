@@ -4891,7 +4891,7 @@ SDK/TRK_MINNOW_DOLPHIN/msgbuf.c:
 	.rodata     start:0x802A09A8 end:0x802A09C8
 	.bss        start:0x803440C0 end:0x80345A70
 
-trk_minnow_dolphin.a/serpoll.c:
+SDK/TRK_MINNOW_DOLPHIN/serpoll.c:
 	.text       start:0x802255F8 end:0x802258B0
 	.rodata     start:0x802A09C8 end:0x802A0B58
 	.bss        start:0x80345A70 end:0x80345A88
@@ -4911,11 +4911,11 @@ SDK/TRK_MINNOW_DOLPHIN/msghndlr.c:
 	.data       start:0x80303CF0 end:0x80303D28
 	.bss        start:0x80345A88 end:0x80345A90
 
-trk_minnow_dolphin.a/support.c:
+SDK/TRK_MINNOW_DOLPHIN/support.c:
 	.text       start:0x80226B24 end:0x80227238
 	.rodata     start:0x802A0D80 end:0x802A0E28
 
-trk_minnow_dolphin.a/mutex_TRK.c:
+SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c:
 	.text       start:0x80227238 end:0x80227250
 
 trk_minnow_dolphin.a/notify.c:

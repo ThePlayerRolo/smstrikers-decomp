@@ -292,6 +292,7 @@ cflags_trk_minnow_dolphin = [
     "-common off",
     "-inline deferred,auto",
     "-char signed",
+    # "-sym on",
     "-sdata 0",
     "-sdata2 0",    
     "-sdatathreshold 0",
@@ -502,12 +503,18 @@ config.libs = [
     DolphinTrkLib(
         "TRK_MINNOW_DOLPHIN",
         [
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dispatch.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c"),
+
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mainloop.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubevent.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubinit.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/target_options.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/usr_put.c"),
+
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/support.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msgbuf.c"),

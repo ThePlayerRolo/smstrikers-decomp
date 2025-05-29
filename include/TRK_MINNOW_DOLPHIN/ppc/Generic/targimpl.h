@@ -18,7 +18,8 @@ void TRKDestructEvent(TRKEvent*);
 DSError TRKTargetFlushCache(u8, void* start, void* end);
 BOOL TRKTargetStopped(void);
 DSError TRKTargetAddStopInfo(TRKBuffer* b);
-DSError TRKTargetAddExceptionInfo(TRKBuffer* b);
+// DSError TRKTargetAddExceptionInfo(TRKBuffer* b);
+void TRKTargetAddExceptionInfo(TRKBuffer* b);
 DSError TRKTargetAccessARAM(u32 p1, u32 p2, u32* p3, BOOL read);
 DSError TRKTargetAccessMemory(void* data, u32 start, size_t* length,
                               MemoryAccessOptions accessOptions, BOOL read);
