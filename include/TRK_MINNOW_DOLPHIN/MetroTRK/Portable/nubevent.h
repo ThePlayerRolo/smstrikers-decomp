@@ -27,7 +27,7 @@ extern TRKEventQueue gTRKEventQueue;
 
 BOOL TRKGetNextEvent(TRKEvent* event);
 void TRKDestructEvent(TRKEvent*);
-void TRKConstructEvent(TRKEvent*, NubEventType);
+void TRKConstructEvent(TRKEvent*, /*NubEventType*/ u32 EventType);
 DSError TRKPostEvent(TRKEvent*);
 DSError TRKInitializeEventQueue();
 

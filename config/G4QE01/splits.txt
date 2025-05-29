@@ -4873,11 +4873,11 @@ NLGAdditions.o:
 SDK/TRK_MINNOW_DOLPHIN/mainloop.c:
 	.text       start:0x802248C0 end:0x802249B8
 
-trk_minnow_dolphin.a/nubevent.c:
+SDK/TRK_MINNOW_DOLPHIN/nubevent.c:
 	.text       start:0x802249B8 end:0x80224BE0
 	.bss        start:0x80344090 end:0x803440B8
 
-trk_minnow_dolphin.a/nubinit.c:
+SDK/TRK_MINNOW_DOLPHIN/nubinit.c:
 	.text       start:0x80224BE0 end:0x80224D78
 	.rodata     start:0x802A0950 end:0x802A0980
 	.bss        start:0x803440B8 end:0x803440C0

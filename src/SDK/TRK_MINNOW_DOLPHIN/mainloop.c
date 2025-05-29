@@ -1,6 +1,6 @@
-#include "PowerPC_EABI_Support/MetroTRK/Portable/serpoll.h"
-#include "PowerPC_EABI_Support/MetroTRK/Portable/msgbuf.h"
-#include "PowerPC_EABI_Support/MetroTRK/Portable/dispatch.h"
+#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/serpoll.h"
+#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/msgbuf.h"
+#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/dispatch.h"
 #include "TRK_MINNOW_DOLPHIN/Os/dolphin/targcont.h"
 #include "TRK_MINNOW_DOLPHIN/ppc/Generic/targimpl.h"
 

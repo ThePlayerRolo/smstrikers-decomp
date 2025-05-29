@@ -522,6 +522,8 @@ config.libs = [
         "TRK_MINNOW_DOLPHIN",
         [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mainloop.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubevent.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubinit.c"),
         ]
     ),  
 ]

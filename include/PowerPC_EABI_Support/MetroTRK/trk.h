@@ -377,6 +377,10 @@ u8 GetUseSerialIO(void);
 #define PPC_1F00Exception              0x1F00 // Non maskable development port?
 #define PPC_2000Exception              0x2000
 
+/////////// MW FUNCTIONS ///////////
+void MWTRACE(u8, char*, ...);
+////////////////////////////////////
+
 #ifdef __cplusplus
 }
 #endif

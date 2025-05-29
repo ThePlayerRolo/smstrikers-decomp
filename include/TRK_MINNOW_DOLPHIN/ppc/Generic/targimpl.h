@@ -1,7 +1,7 @@
 #ifndef PPC_GENERIC_TARGIMPL_H
 #define PPC_GENERIC_TARGIMPL_H
 
-#include "PowerPC_EABI_Support/MetroTRK/Portable/nubevent.h"
+#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/nubevent.h"
 #include "stddef.h"
 
 #ifdef __cplusplus
