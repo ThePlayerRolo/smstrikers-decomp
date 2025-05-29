@@ -290,11 +290,10 @@ cflags_trk_minnow_dolphin = [
     "-str reuse",
     "-gccinc",
     "-common off",
-    "-inline deferred,auto",
+    "-inline deferred",
     "-char signed",
-    # "-sym on",
     "-sdata 0",
-    "-sdata2 0",    
+    "-sdata2 0",   
     "-sdatathreshold 0",
 ]
 
@@ -430,7 +429,7 @@ def DolphinTrkLib(
     return Lib(
         lib_name,
         objects,
-        mw_version="GC/1.3",
+        mw_version="GC/1.3.2",
         fix_epilogue=fix_epilogue,
         src_dir=src_dir,
         cflags=cflags,
@@ -505,7 +504,7 @@ config.libs = [
         [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/main_TRK.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dispatch.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c", extra_cflags=["-sdata 8"]),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c", extra_cflags=["-sdata 8"]),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mainloop.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubevent.c"),
@@ -514,12 +513,12 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/target_options.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/usr_put.c"),
 
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/support.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/support.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msgbuf.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/msghndlr.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msghndlr.c"),
         ]
     ),  
 ]
