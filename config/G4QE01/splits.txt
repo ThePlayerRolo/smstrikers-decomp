@@ -4882,11 +4882,11 @@ SDK/TRK_MINNOW_DOLPHIN/nubinit.c:
 	.rodata     start:0x802A0950 end:0x802A0980
 	.bss        start:0x803440B8 end:0x803440C0
 
-trk_minnow_dolphin.a/msg.c:
+SDK/TRK_MINNOW_DOLPHIN/msg.c:
 	.text       start:0x80224D78 end:0x80224DBC
 	.rodata     start:0x802A0980 end:0x802A09A8
 
-trk_minnow_dolphin.a/msgbuf.c:
+SDK/TRK_MINNOW_DOLPHIN/msgbuf.c:
 	.text       start:0x80224DBC end:0x802255F8
 	.rodata     start:0x802A09A8 end:0x802A09C8
 	.bss        start:0x803440C0 end:0x80345A70

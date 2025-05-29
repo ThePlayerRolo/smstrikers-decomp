@@ -15,7 +15,8 @@ typedef struct _TRK_Msg {
 extern "C" {
 #endif
 
-DSError TRKMessageSend(TRK_Msg* msg);
+// DSError TRKMessageSend(TRK_Msg* msg);
+DSError TRKMessageSend(TRKBuffer* msg);
 
 #ifdef __cplusplus
 }
