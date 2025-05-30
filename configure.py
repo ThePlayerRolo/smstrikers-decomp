@@ -503,10 +503,15 @@ config.libs = [
         "TRK_MINNOW_DOLPHIN",
         [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/main_TRK.c"),
-            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),
-            
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),      
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mem_TRK.c"),
+
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c"),
+            
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targcont.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/notify.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/flush_cache.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dispatch.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c", extra_cflags=["-sdata 8"]),

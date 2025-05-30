@@ -4918,13 +4918,13 @@ SDK/TRK_MINNOW_DOLPHIN/support.c:
 SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c:
 	.text       start:0x80227238 end:0x80227250
 
-trk_minnow_dolphin.a/notify.c:
+SDK/TRK_MINNOW_DOLPHIN/notify.c:
 	.text       start:0x80227250 end:0x802272E8
 
-trk_minnow_dolphin.a/flush_cache.c:
+SDK/TRK_MINNOW_DOLPHIN/flush_cache.c:
 	.text       start:0x802272E8 end:0x80227320
 
-trk_minnow_dolphin.a/mem_TRK.c:
+SDK/TRK_MINNOW_DOLPHIN/mem_TRK.c:
 	.init       start:0x80003100 end:0x80003154
 	.text       start:0x80227320 end:0x802273D8
 
@@ -4960,7 +4960,7 @@ SDK/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c:
 	.data       start:0x80303D98 end:0x80303DC0
 	.bss        start:0x80346020 end:0x80346028
 
-trk_minnow_dolphin.a/targcont.c:
+SDK/TRK_MINNOW_DOLPHIN/targcont.c:
 	.text       start:0x80229EEC end:0x80229F20
 
 SDK/TRK_MINNOW_DOLPHIN/target_options.c:
