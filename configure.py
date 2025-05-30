@@ -511,18 +511,20 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c"),
             
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/target_options.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targcont.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/targimpl.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targsupp.c",),
+            
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/notify.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/flush_cache.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dispatch.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/serpoll.c", extra_cflags=["-sdata 8"]),
-
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mainloop.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubevent.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/nubinit.c"),
 
-            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/target_options.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/usr_put.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/support.c"),

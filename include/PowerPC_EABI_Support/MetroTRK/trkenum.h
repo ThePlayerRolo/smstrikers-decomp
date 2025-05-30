@@ -49,7 +49,7 @@ typedef struct DSCPUType {
 	u8 extended1TypeSize;
 	u8 extended2TypeSize;
 } DSCPUType;
-DSError TRKTargetCPUType(DSCPUType* cpuType);
+// DSError TRKTargetCPUType(DSCPUType* cpuType);
 
 // Where to read/write.
 typedef enum {

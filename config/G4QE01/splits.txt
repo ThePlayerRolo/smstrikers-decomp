@@ -4928,13 +4928,13 @@ SDK/TRK_MINNOW_DOLPHIN/mem_TRK.c:
 	.init       start:0x80003100 end:0x80003154
 	.text       start:0x80227320 end:0x802273D8
 
-trk_minnow_dolphin.a/targimpl.c: comment:0
+SDK/TRK_MINNOW_DOLPHIN/targimpl.c: comment:0
 	.text       start:0x802273D8 end:0x80228F70
 	.rodata     start:0x802A0E28 end:0x802A0EC0
 	.data       start:0x80303D28 end:0x80303D58
 	.bss        start:0x80345A90 end:0x80346010
 
-trk_minnow_dolphin.a/targsupp.s: comment:0
+SDK/TRK_MINNOW_DOLPHIN/targsupp.c: comment:0
 	.text       start:0x80228F70 end:0x80228F90
 
 trk_minnow_dolphin.a/mpc_7xx_603e.c:
