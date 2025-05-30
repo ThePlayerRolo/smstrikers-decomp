@@ -506,6 +506,8 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),      
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mem_TRK.c"),
 
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/CircleBuffer.c"),
+
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c"),
             
@@ -530,6 +532,10 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msgbuf.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msghndlr.c"),
+
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/MWTrace.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/MWCriticalSection_gc.cpp"),
+            
         ]
     ),  
 ]

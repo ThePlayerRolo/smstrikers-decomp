@@ -13,7 +13,6 @@ void TRKEXICallBack(s16 param_0, OSContext* ctx)
     TRKLoadContext(ctx, 0x500);
 }
 
-/* 80371EA8-80372114 36C7E8 026C+00 0/0 2/2 0/0 .text            InitMetroTRKCommTable */
 int InitMetroTRKCommTable(int hwId)
 {
     int result = 1;
@@ -80,7 +79,6 @@ int InitMetroTRKCommTable(int hwId)
     return result;
 }
 
-/* 80371E58-80371EA8 36C798 0050+00 0/0 1/1 0/0 .text            TRKInitializeIntDrivenUART */
 DSError TRKInitializeIntDrivenUART(u32 param_0, u32 param_1, u32 param_2, void* param_3)
 {
     gDBCommTable.initialize_func(param_3, TRKEXICallBack);
@@ -88,7 +86,6 @@ DSError TRKInitializeIntDrivenUART(u32 param_0, u32 param_1, u32 param_2, void* 
     return DS_NoError;
 }
 
-/* 80371E10-80371E58 36C750 0048+00 0/0 1/1 0/0 .text            EnableEXI2Interrupts */
 void EnableEXI2Interrupts(void)
 {
     if (!TRK_Use_BBA)
@@ -100,45 +97,38 @@ void EnableEXI2Interrupts(void)
     }
 }
 
-/* 80371DE0-80371E10 36C720 0030+00 0/0 1/1 0/0 .text            TRKPollUART */
 int TRKPollUART(void)
 {
     return gDBCommTable.peek_func();
 }
 
-/* 80371DA4-80371DE0 36C6E4 003C+00 0/0 1/1 0/0 .text            TRKReadUARTN */
 UARTError TRKReadUARTN(void* bytes, u32 length)
 {
     int readErr = gDBCommTable.read_func(bytes, length);
     return ((-readErr | readErr) >> 31);
 }
 
-/* 80371D68-80371DA4 36C6A8 003C+00 0/0 13/13 0/0 .text            TRKWriteUARTN */
 UARTError TRKWriteUARTN(const void* bytes, u32 length)
 {
     int writeErr = gDBCommTable.write_func(bytes, length);
     return ((-writeErr | writeErr) >> 31);
 }
 
-/* 80371D38-80371D68 36C678 0030+00 0/0 1/1 0/0 .text            ReserveEXI2Port */
 void ReserveEXI2Port(void)
 {
     gDBCommTable.post_stop_func();
 }
 
-/* 80371D08-80371D38 36C648 0030+00 0/0 1/1 0/0 .text            UnreserveEXI2Port */
 void UnreserveEXI2Port(void)
 {
     gDBCommTable.pre_continue_func();
 }
 
-/* 80371CD8-80371D08 36C618 0030+00 0/0 1/1 0/0 .text            TRK_board_display */
 void TRK_board_display(char* str)
 {
     OSReport("%s\n", str);
 }
 
-/* 80371C80-80371CD8 36C5C0 0058+00 0/0 1/1 0/0 .text            InitializeProgramEndTrap */
 DSError InitializeProgramEndTrap(void)
 {
     static const u32 EndofProgramInstruction = 'END';
@@ -150,12 +140,10 @@ DSError InitializeProgramEndTrap(void)
     DCFlushRange(ppcHaltPtr + 4, 4);
 }
 
-/* 80371C7C-80371C80 36C5BC 0004+00 0/0 1/1 0/0 .text            TRKUARTInterruptHandler */
 void TRKUARTInterruptHandler()
 {
 }
 
-/* 80371BF4-80371C7C 36C534 0088+00 1/1 0/0 0/0 .text            TRKLoadContext */
 asm void TRKLoadContext(OSContext* ctx, u32)
 {
     // clang-format off

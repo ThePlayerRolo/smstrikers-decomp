@@ -4982,16 +4982,16 @@ trk_minnow_dolphin.a/main.c:
 	.sbss       start:0x803744A8 end:0x803744B0
 	.sbss       start:0x803744B0 end:0x803744B8
 
-trk_minnow_dolphin.a/CircleBuffer.c:
+SDK/TRK_MINNOW_DOLPHIN/CircleBuffer.c:
 	.text       start:0x8022A908 end:0x8022AB70
 
 trk_minnow_dolphin.a/main_gdev.c:
 	.text       start:0x8022AB70 end:0x8022AEBC
 
-trk_minnow_dolphin.a/MWTrace.c:
+SDK/TRK_MINNOW_DOLPHIN/MWTrace.c:
 	.text       start:0x8022AEBC end:0x8022AF0C
 
-trk_minnow_dolphin.a/MWCriticalSection_gc.cpp:
+SDK/TRK_MINNOW_DOLPHIN/MWCriticalSection_gc.cpp:
 	.text       start:0x8022AF0C end:0x8022AF64
 
 msl_c.ppceabi.bare.h.a/abort_exit.c:

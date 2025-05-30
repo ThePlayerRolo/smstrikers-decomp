@@ -6,7 +6,6 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-# Store the directory parameter
 DIR="$1"
 
 # Check if directory exists
@@ -17,3 +16,4 @@ fi
 
 # Run clang-format on all .c files in the directory
 clang-format -i "$DIR"/*.c 
+clang-format -i "$DIR"/*.cpp 

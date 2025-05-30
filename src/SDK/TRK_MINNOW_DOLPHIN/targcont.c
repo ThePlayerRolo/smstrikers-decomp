@@ -6,6 +6,6 @@ DSError TRKTargetContinue(void)
     UnreserveEXI2Port();
     TRKSwapAndGo();
     ReserveEXI2Port();
-    
+
     return DS_NoError;
 }

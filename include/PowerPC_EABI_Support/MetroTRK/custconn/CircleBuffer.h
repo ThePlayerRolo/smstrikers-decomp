@@ -3,6 +3,10 @@
 
 #include "types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct CircleBuffer {
 	u8* mReadPtr;      // _00
 	u8* mWritePtr;     // _04
@@ -20,5 +24,9 @@ void CircleBufferInitialize(CircleBuffer* cb, u8* buf, u32 size);
 void CircleBufferTerminate(CircleBuffer* cb);
 int CircleBufferWriteBytes(CircleBuffer* cb, u8* buf, u32 size);
 int CircleBufferReadBytes(CircleBuffer* cb, u8* buf, u32 size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
