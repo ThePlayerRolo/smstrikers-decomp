@@ -1,29 +1,44 @@
 #include "types.h"
 
-void EXI2_Init(void){
+#include "Dolphin/Amc/AmcExi2Stubs.h"
+
+
+void EXI2_Init(vu8**, AmcEXICallback)
+{
 
 }
-void EXI2_EnableInterrupts(void){
+
+void EXI2_EnableInterrupts(void)
+{
 
 }
-u8 EXI2_Poll(void){
+
+int EXI2_Poll(void)
+{
     return 0;
 }
 
-u8 EXI2_ReadN(void){
-    return 0;
+AmcExiError EXI2_ReadN(void*, u32)
+{
+    return AMC_EXI_NO_ERROR;
 }
 
-u8 EXI2_WriteN(void){
-    return 0;
+AmcExiError EXI2_WriteN(const void*, u32)
+{
+    return AMC_EXI_NO_ERROR;
 }
 
-void EXI2_Reserve(void){
+void EXI2_Reserve(void)
+{
 
 }
-void EXI2_Unreserve(void){
+
+void EXI2_Unreserve(void)
+{
 
 }
-u8 AMC_IsStub(void){
-    return 1;
+
+BOOL AMC_IsStub(void)
+{
+    return TRUE;
 }

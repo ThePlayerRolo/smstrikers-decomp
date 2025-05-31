@@ -4937,10 +4937,10 @@ SDK/TRK_MINNOW_DOLPHIN/targimpl.c: comment:0
 SDK/TRK_MINNOW_DOLPHIN/targsupp.c: comment:0
 	.text       start:0x80228F70 end:0x80228F90
 
-trk_minnow_dolphin.a/mpc_7xx_603e.c:
+SDK/TRK_MINNOW_DOLPHIN/mpc_7xx_603e.c:
 	.text       start:0x80228F90 end:0x80229300
 
-trk_minnow_dolphin.a/__exception.s: comment:0
+SDK/TRK_MINNOW_DOLPHIN/__exception.s: comment:0
 	.init       start:0x80003154 end:0x80005088
 
 SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c:
@@ -4973,7 +4973,7 @@ SDK/TRK_MINNOW_DOLPHIN/mslsupp.c:
 SDK/TRK_MINNOW_DOLPHIN/UDP_Stubs.c:
 	.text       start:0x8022A57C end:0x8022A5C4
 
-trk_minnow_dolphin.a/main.c:
+SDK/TRK_MINNOW_DOLPHIN/main.c:
 	.text       start:0x8022A5C4 end:0x8022A908
 	.rodata     start:0x802A0FD8 end:0x802A10B8
 	.rodata     start:0x802A10B8 end:0x802A1198
@@ -4985,7 +4985,7 @@ trk_minnow_dolphin.a/main.c:
 SDK/TRK_MINNOW_DOLPHIN/CircleBuffer.c:
 	.text       start:0x8022A908 end:0x8022AB70
 
-trk_minnow_dolphin.a/main_gdev.c:
+SDK/TRK_MINNOW_DOLPHIN/main_gdev.c:
 	.text       start:0x8022AB70 end:0x8022AEBC
 
 SDK/TRK_MINNOW_DOLPHIN/MWTrace.c:

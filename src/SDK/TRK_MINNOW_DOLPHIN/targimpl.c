@@ -48,6 +48,7 @@ DSError TRKPPCAccessFPRegister(void* srcDestPtr, u32 fpr, BOOL read);
 void WriteFPSCR(f64*);
 void ReadFPSCR(f64*);
 
+u16 _padding[2];
 static u16 TRK_saved_exceptionID = 0;
 TRKState gTRKState;
 Default_PPC gTRKSaveState;

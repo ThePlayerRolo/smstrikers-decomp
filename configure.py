@@ -507,6 +507,11 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),      
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mem_TRK.c"),
 
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/main.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/main_gdev.c"),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mpc_7xx_603e.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/__exception.s"),
+
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/CircleBuffer.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c"),
