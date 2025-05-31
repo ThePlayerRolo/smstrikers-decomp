@@ -1088,7 +1088,7 @@ L_802CF694:
 #endif // clang-format on
 
 #ifdef __MWERKS__ // clang-format off
-asm void TRKExceptionHandler(u16 r3){ 
+asm void TRKExceptionHandler(u16 exceptionID){ 
 	nofralloc
 	lis r2, gTRKExceptionStatus@h
 	ori r2, r2, gTRKExceptionStatus@l

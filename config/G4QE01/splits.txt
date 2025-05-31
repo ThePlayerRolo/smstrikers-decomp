@@ -62,7 +62,7 @@ AvoidController.o:
 	.rodata     start:0x8028D5C0 end:0x8028D5D8
 	.sdata2     start:0x80374C58 end:0x80374CE8
 
-Ball.o:
+Game/Ball.cpp:
 	.text       start:0x800099D4 end:0x8000D53C
 	.text       start:0x8000D53C end:0x8000DE00
 	.text       start:0x8000DE00 end:0x8000DE00
@@ -4856,7 +4856,7 @@ quickstep.o:
 	.text       start:0x80221A74 end:0x80223658
 	.sdata2     start:0x80377718 end:0x80377720
 
-Game/rotation.c:
+Game/Math/rotation.c:
 	.text       start:0x80223658 end:0x80223A4C
 	.sdata2     start:0x80377720 end:0x80377730
 

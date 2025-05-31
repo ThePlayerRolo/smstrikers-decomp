@@ -471,7 +471,8 @@ config.libs = [
         "SMS (Super Mario Strikers)",
         [
             Object(NonMatching, "Game/main.cpp"),
-            Object(NonMatching, "Game/rotation.c"),
+            Object(NonMatching, "Game/Ball.cpp"),
+            Object(NonMatching, "Game/Math/rotation.c"),
         ],
     ),
     GameLib(
@@ -514,7 +515,7 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/target_options.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targcont.c"),
             Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/targimpl.c"),
-            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targsupp.c",),
+            Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targsupp.c"),
             
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/notify.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/flush_cache.c"),
