@@ -20,28 +20,28 @@ SECTION_INIT extern void __flush_cache(void* addr, u32 size);
 
 static u8 Debug_BBA;
 
-/* 80003100-80003140 000000 0040+00 1/1 0/0 0/0 .init            __check_pad3 */
-SECTION_INIT void __check_pad3(void) {
-    if ((*(u16*)0x800030E4 & 0xEEF) == 0xEEF) {
+SECTION_INIT void __check_pad3(void) 
+{
+    if ((*(u16*)0x800030E4 & 0xEEF) == 0xEEF) 
+    {
         OSResetSystem(0, 0, 0);
     }
 }
 
-/* 80003140-8000314C 000040 000C+00 1/1 0/0 0/0 .init            __set_debug_bba */
-void __set_debug_bba(void) {
+void __set_debug_bba(void) 
+{
     Debug_BBA = 1;
 }
 
-/* 8000314C-80003154 -00001 0008+00 0/0 0/0 0/0 .init            __get_debug_bba */
-SECTION_INIT u8 __get_debug_bba(void) {
+SECTION_INIT u8 __get_debug_bba(void) 
+{
     return Debug_BBA;
 }
 
-/* 80003154-800032B0 000054 015C+00 0/0 1/0 0/0 .init            __start */
-SECTION_INIT asm void __start(void) {
-    // clang-format off
+// clang-format off
+SECTION_INIT asm void __start(void) 
+{
     nofralloc
-
     bl __init_registers
     bl __init_hardware
     li r0, -1
@@ -149,14 +149,13 @@ lbl_8000329C:
     mr r4, r15
     bl main
     b exit
-    // clang-format on
 }
+// clang-format on
 
-/* 800032B0-80003340 0001B0 0090+00 1/1 0/0 0/0 .init            __init_registers */
-SECTION_INIT asm void __init_registers(void) {
-    // clang-format off
+// clang-format off
+SECTION_INIT asm void __init_registers(void) 
+{
     nofralloc
-
     li r0, 0
     li r3, 0
     li r4, 0
@@ -195,12 +194,13 @@ SECTION_INIT asm void __init_registers(void) {
     lis r13, _SDA_BASE_@h
     ori r13, r13, _SDA_BASE_@l
     blr 
-    // clang-format on
 }
+// clang-format on
 
 inline static void __copy_rom_section(void* dst, const void* src, u32 size)
 {
-    if (size && (dst != src)) {
+    if (size && (dst != src)) 
+    {
         memcpy(dst, src, size);
         __flush_cache(dst, size);
     }
@@ -208,18 +208,20 @@ inline static void __copy_rom_section(void* dst, const void* src, u32 size)
 
 inline static void __init_bss_section(void* dst, u32 size)
 {
-    if (size) {
+    if (size) 
+    {
         memset(dst, 0, size);
     }
 }
 
-/* 80003340-80003400 000240 00C0+00 1/1 0/0 1/1 .init            __init_data */
-SECTION_INIT void __init_data() {
+SECTION_INIT void __init_data() 
+{
     __rom_copy_info* dci;
     __bss_init_info* bii;
 
     dci = _rom_copy_info;
-    while (TRUE) {
+    while (TRUE) 
+    {
         if (dci->size == 0)
             break;
         __copy_rom_section(dci->addr, dci->rom, dci->size);
@@ -227,7 +229,8 @@ SECTION_INIT void __init_data() {
     }
 
     bii = _bss_init_info;
-    while (TRUE) {
+    while (TRUE) 
+    {
         if (bii->size == 0)
             break;
         __init_bss_section(bii->addr, bii->size);
