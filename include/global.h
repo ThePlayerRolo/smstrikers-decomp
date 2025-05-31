@@ -25,12 +25,18 @@
 
 #define ARRAY_SIZE(o) (sizeof((o)) / sizeof(*(o)))
 
-// Align X to the previous N bytes (N must be power of two)
+#ifndef ALIGN_PREV
 #define ALIGN_PREV(X, N) ((X) & ~((N)-1))
-// Align X to the next N bytes (N must be power of two)
+#endif
+#ifndef ALIGN_NEXT
 #define ALIGN_NEXT(X, N) ALIGN_PREV(((X) + (N)-1), N)
+#endif
+#ifndef IS_ALIGNED
 #define IS_ALIGNED(X, N) (((X) & ((N)-1)) == 0)
+#endif
+#ifndef IS_NOT_ALIGNED
 #define IS_NOT_ALIGNED(X, N) (((X) & ((N)-1)) != 0)
+#endif
 
 #define ROUND(n, a) (((u32)(n) + (a)-1) & ~((a)-1))
 #define TRUNC(n, a) (((u32)(n)) & ~((a)-1))
