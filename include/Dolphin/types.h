@@ -107,4 +107,12 @@ typedef int BOOL;
 #define AUTO(name, val) __typeof__(val) name = val
 #endif
 
+#if defined(__MWERKS__)
+#define AT_ADDRESS(addr) : (addr)
+#elif defined(__GNUC__)
+#define AT_ADDRESS(addr)
+#else
+#error unknown compiler
+#endif
+
 #endif // _DOLPHIN_TYPES

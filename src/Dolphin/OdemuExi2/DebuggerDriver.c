@@ -240,15 +240,17 @@ void DBInitInterrupts(void)
 	__OSUnmaskInterrupts(0x40);
 }
 
-inline static void CheckMailBox(void)
+static inline void CheckMailBox(void)
 {
 	u32 v;
 	DBGReadStatus(&v);
-	if (v & 1) {
+	if (v & 1)
+	{
 		DBGReadMailbox(&v);
-		v &= 0x1fffffff;
-
-		if ((v & 0x1f000000) == 0x1f000000) {
+        v &= 0x1fffffff;
+        
+		if ((v & 0x1f000000) == 0x1f000000)
+		{
 			SendMailData = v;
 			RecvDataLeng = v & 0x7fff;
 			EXIInputFlag = 1;
@@ -259,15 +261,13 @@ inline static void CheckMailBox(void)
 u32 DBQueryData(void)
 {
 	BOOL interrupts;
-
 	EXIInputFlag = 0;
-	if (RecvDataLeng == 0) {
+	if (!RecvDataLeng)
+	{
 		interrupts = OSDisableInterrupts();
 		CheckMailBox();
+		OSRestoreInterrupts(interrupts);
 	}
-	
-	OSRestoreInterrupts(interrupts);
-	
 	return RecvDataLeng;
 }
 

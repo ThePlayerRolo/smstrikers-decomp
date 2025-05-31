@@ -1,92 +1,95 @@
-#include "dolphin/DVDPriv.h"
-#include "dolphin/gx/GXStruct.h"
-#include "dolphin/os.h"
-#include "dolphin/vi.h"
+#include <dolphin.h>
+#include <dolphin/dvd.h>
 
-void __DVDPrintFatalMessage(void);
+#include "__dvd.h"
 
-static void (*FatalFunc)(void) = NULL;
+static void (*FatalFunc)();
 
-const char* Japanese = "\n\n\nエラーが発生しました。"
-                       "\n\n本体のパワーボタンを押して電源をOFFにし、"
-                       "\n本体の取扱説明書の指示に従ってください。";
+const char* Japanese =
+    "\n\n\nエラーが発生しました。\n\n"
+    "本体のパワーボタンを押して電源をOFFにし、\n"
+    "本体の取扱説明書の指示に従ってください。";
 
-const char* English = "\n\n\nAn error has occurred."
-                      "\nTurn the power off and refer to the"
-                      "\nNintendo GameCube Instruction Booklet"
-                      "\nfor further instructions.";
+const char* English = 
+    "\n\n\nAn error has occurred.\n"
+    "Turn the power off and refer to the\n"
+    "Nintendo GameCube Instruction Booklet\n"
+    "for further instructions.";
 
-const char* const Europe[] = {
-    // English
-    "\n\n\nAn error has occurred."
-    "\nTurn the power off and refer to the"
-    "\nNintendo GameCube""\x99"" Instruction Booklet"
-    "\nfor further instructions.",
-
-    // German
-    "\n\n\nEin Fehler ist aufgetreten."
-    "\nBitte schalten Sie den NINTENDO GAMECUBE"
-    "\naus und lesen Sie die Bedienungsanleitung,"
-    "\num weitere Informationen zu erhalten.",
-
-    // French
-    "\n\n\nUne erreur est survenue."
-    "\nEteignez la console et r" "\xe9" "f" "\xe9" "rez-vous au"
-    "\nmanuel d'instructions NINTENDO GAMECUBE"
-    "\npour de plus amples informations.",
-
-    // Spanish
-    "\n\n\nSe ha producido un error."
-    "\nApaga la consola y consulta el manual"
-    "\nde instrucciones de NINTENDO GAMECUBE"
-    "\npara obtener m""\xe1""s informaci""\xf3""n.",
-
-    // Italian
-    "\n\n\nSi \xe8 verificato un errore."
-    "\nSpegni (OFF) e controlla il manuale"
-    "\nd'istruzioni del NINTENDO GAMECUBE"
-    "\nper ulteriori indicazioni.",
-
-    // Dutch
-    "\n\n\nEr is een fout opgetreden."
-    "\nZet de NINTENDO GAMECUBE uit en"
-    "\nraadpleeg de handleiding van de"
-    "\nNintendo GameCube voor nadere"
-    "\ninstructies.",
+// TODO: need solution to compile special characters in a cleaner way
+const char* const Europe[6] = {
+    {
+        "\n\n\nAn error has occurred.\n"
+        "Turn the power off and refer to the\n"
+        "Nintendo GameCube Instruction Booklet\n"
+        "for further instructions."
+    },
+    {
+        "\n\n\nEin Fehler ist aufgetreten.\n"
+        "Bitte schalten Sie den Nintendo GameCube\n"
+        "aus und lesen Sie die Bedienungsanleitung,\n"
+        "um weitere Informationen zu erhalten."
+    },
+    {
+        "\n\n\nUne erreur est survenue.\n"
+        "Eteignez la console et r\xE9" "f" "\xE9rez-vous au\n"
+        "manuel d'instructions Nintendo GameCube\n"
+        "pour de plus amples informations."
+    },
+    {
+        "\n\n\nSe ha producido un error.\n"
+        "Apaga la consola y consulta el manual\n"
+        "de instrucciones de Nintendo GameCube\n"
+        "para obtener m\xE1" "s informaci\xF3" "n."
+    },
+    {
+        "\n\n\nSi \xE8" " verificato un errore.\n"
+        "Spegni (OFF) e controlla il manuale\n"
+        "d'istruzioni del Nintendo GameCube\n"
+        "per ulteriori indicazioni."
+    },
+    {
+        "\n\n\nEr is een fout opgetreden.\n"
+        "Zet de Nintendo GameCube uit en\n"
+        "raadpleeg de handleiding van de\n"
+        "Nintendo GameCube voor nadere\n"
+        "instructies."
+    },
 };
 
 static void ShowMessage(void) {
-  const char* message;
-  GXColor bg = {0, 0, 0, 0};
-  GXColor fg = {255, 255, 255, 0};
+    const char* message;
+    GXColor bg = {0x00, 0x00, 0x00, 0x00};
+    GXColor fg = {0xFF, 0xFF, 0xFF, 0x00};
 
-  if (VIGetTvFormat() == VI_NTSC) {
-    if (OSGetFontEncode() == OS_FONT_ENCODE_SJIS) {
-      message = Japanese;
+    if (VIGetTvFormat() == VI_NTSC) {
+        if (OSGetFontEncode() == OS_FONT_ENCODE_SJIS) {
+            message = Japanese;
+        } else {
+            message = English;
+        }
     } else {
-      message = English;
+        message = Europe[OSGetLanguage()];
     }
-  } else {
-    message = Europe[OSGetLanguage()];
-  }
 
-  OSFatal(fg, bg, message);
+    OSFatal(fg, bg, message);
 }
 
-BOOL DVDSetAutoFatalMessaging(BOOL enable) {
-  BOOL enabled;
-  BOOL prev;
+int DVDSetAutoFatalMessaging(BOOL enable) {
+    BOOL enabled;
+    int prev;
 
-  enabled = OSDisableInterrupts();
-  prev = FatalFunc ? TRUE : FALSE;
-  FatalFunc = enable ? ShowMessage : NULL;
-  OSRestoreInterrupts(enabled);
-  return prev;
+    enabled = OSDisableInterrupts();
+
+    prev = FatalFunc ? 1 : 0;
+    FatalFunc = enable ? ShowMessage : NULL;
+
+    OSRestoreInterrupts(enabled);
+    return prev;
 }
 
 void __DVDPrintFatalMessage(void) {
-  if (!FatalFunc) {
-    return;
-  }
-  FatalFunc();
+    if (FatalFunc) {
+        FatalFunc();
+    }
 }

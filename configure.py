@@ -190,16 +190,16 @@ config.scratch_preset_id = None
 
 cflags_base = [
     "-nowraplines",
+    "-proc gekko",
+    "-align powerpc",
+    "-enum int",
+    "-fp hardware",
     "-cwd source",
     "-Cpp_exceptions off",
-    "-proc gekko",
-    "-fp hardware",
-    "-align powerpc",
-    "-nosyspath",
     "-fp_contract on",
+    "-nosyspath",
     "-O4,p",
     "-multibyte",
-    "-enum int",
     "-nodefaults",
     "-inline auto",
     '-pragma "cats off"',
@@ -226,6 +226,26 @@ cflags_runtime = [
     # "-gccinc",
     "-common off",
     "-inline auto",
+]
+
+cflags_dolphin = [
+    "-nodefaults",
+    "-proc gekko",
+    "-align powerpc",
+    "-enum int",
+    "-fp hardware",
+    "-Cpp_exceptions off",
+    '-pragma "cats off"',
+    '-pragma "warn_notinlined off"',
+    "-maxerrors 1",
+    "-nosyspath",
+    "-char unsigned",
+    "-O4,p",
+    "-sym on",
+    "-inline auto",
+    f"-DVERSION={version_num}",
+    "-D__GEKKO__",
+    "-DSDK_REVISION=2",
 ]
 
 cflags_musyx = [
@@ -374,50 +394,64 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
         category="game",
     )
 
-
-def DolphinLib(
-    lib_name: str, objects: Objects, cflags=cflags_base, fix_epilogue=False, extern=False
-) -> Library:
-    if extern:
-        cflags = [
-            "-c",
-            "-O4,p",
-            "-inline auto",
-            "-sym on",
-            # TODO charflags
-            "-nodefaults",
-            "-proc gekko",
-            "-fp hard",
-            "-Cpp_exceptions off",
-            "-enum int",
-            "-warn pragmas",
-            "-requireprotos",
-            '-pragma "cats off"',
-            "-I-",
-            "-Iextern/dolphin/include",
-            "-Iextern/dolphin/include/libc",
-            "-ir extern/dolphin/src",
-            "-DRELEASE",
-        ]
-        src_dir = "extern/dolphin/src"
-        includes = []
-        system_includes = []
-    else:
-        src_dir = None
-        includes = includes_base
-        system_includes = system_includes_base
-
-    return Lib(
+def DolphinLib(lib_name: str, objects: Objects, cflags=cflags_dolphin) -> Library:
+    return Lib (
         lib_name,
         objects,
+        includes=[
+            *includes_base,
+        ],
+        system_includes=[
+            *system_includes_base,
+            "include/Dolphin"
+        ],
         mw_version="GC/1.2.5n",
-        fix_epilogue=fix_epilogue,
-        src_dir=src_dir,
         cflags=cflags,
-        includes=includes,
-        system_includes=system_includes,
         category="sdk",
     )
+
+# def DolphinLib(
+#     lib_name: str, objects: Objects, cflags=cflags_base, fix_epilogue=False, extern=False
+# ) -> Library:
+#     if extern:
+#         cflags = [
+#             "-c",
+#             "-O4,p",
+#             "-inline auto",
+#             "-sym on",
+#             "-nodefaults",
+#             "-proc gekko",
+#             "-fp hard",
+#             "-Cpp_exceptions off",
+#             "-enum int",
+#             "-warn pragmas",
+#             "-requireprotos",
+#             '-pragma "cats off"',
+#             "-I-",
+#             "-Iextern/dolphin/include",
+#             "-Iextern/dolphin/include/libc",
+#             "-ir extern/dolphin/src",
+#             "-DRELEASE",
+#         ]
+#         src_dir = "extern/dolphin/src"
+#         includes = []
+#         system_includes = []
+#     else:
+#         src_dir = None
+#         includes = includes_base
+#         system_includes = system_includes_base
+
+#     return Lib(
+#         lib_name,
+#         objects,
+#         mw_version="GC/1.2.5n",
+#         fix_epilogue=fix_epilogue,
+#         src_dir=src_dir,
+#         cflags=cflags,
+#         includes=includes,
+#         system_includes=system_includes,
+#         category="sdk",
+#     )
 
 
 def DolphinTrkLib(
@@ -481,6 +515,14 @@ config.libs = [
             Object(NonMatching, "NL/nlMath.cpp"),
         ],
     ),
+
+    DolphinLib(
+        "Dolfin/OS",
+        [
+            Object(NonMatching, "Dolphin/OS/OS.c"),
+        ],
+    ),    
+
     DolphinLib(
         "amcstubs",
         [
@@ -490,7 +532,7 @@ config.libs = [
     DolphinLib(
         "OdemuExi2",
         [
-            Object(NonMatching, "Dolphin/OdemuExi2/DebuggerDriver.c"),
+            Object(Matching, "Dolphin/OdemuExi2/DebuggerDriver.c"),
         ],
         cflags=cflags_odemuexi,
     ),
@@ -507,11 +549,7 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mutex_TRK.c"),      
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mem_TRK.c"),
 
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/main.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/main_gdev.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/mpc_7xx_603e.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/__exception.s"),
-
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/CircleBuffer.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/dolphin_trk.c"),
@@ -519,7 +557,6 @@ config.libs = [
             
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/target_options.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targcont.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/targimpl.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/targsupp.c"),
             
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/notify.c"),
@@ -534,7 +571,6 @@ config.libs = [
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/usr_put.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/support.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/mslsupp.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/UDP_Stubs.c"),
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/msg.c"),
@@ -543,7 +579,14 @@ config.libs = [
 
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/MWTrace.c"),
             Object(Matching, "SDK/TRK_MINNOW_DOLPHIN/MWCriticalSection_gc.cpp"),
-            
+
+            # NonMatchin...
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/main.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/main_gdev.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/__exception.s"),
+
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/targimpl.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/mslsupp.c"),
         ]
     ),  
 ]
