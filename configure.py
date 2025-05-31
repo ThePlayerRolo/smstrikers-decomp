@@ -411,53 +411,7 @@ def DolphinLib(lib_name: str, objects: Objects, cflags=cflags_dolphin) -> Librar
         category="sdk",
     )
 
-# def DolphinLib(
-#     lib_name: str, objects: Objects, cflags=cflags_base, fix_epilogue=False, extern=False
-# ) -> Library:
-#     if extern:
-#         cflags = [
-#             "-c",
-#             "-O4,p",
-#             "-inline auto",
-#             "-sym on",
-#             "-nodefaults",
-#             "-proc gekko",
-#             "-fp hard",
-#             "-Cpp_exceptions off",
-#             "-enum int",
-#             "-warn pragmas",
-#             "-requireprotos",
-#             '-pragma "cats off"',
-#             "-I-",
-#             "-Iextern/dolphin/include",
-#             "-Iextern/dolphin/include/libc",
-#             "-ir extern/dolphin/src",
-#             "-DRELEASE",
-#         ]
-#         src_dir = "extern/dolphin/src"
-#         includes = []
-#         system_includes = []
-#     else:
-#         src_dir = None
-#         includes = includes_base
-#         system_includes = system_includes_base
-
-#     return Lib(
-#         lib_name,
-#         objects,
-#         mw_version="GC/1.2.5n",
-#         fix_epilogue=fix_epilogue,
-#         src_dir=src_dir,
-#         cflags=cflags,
-#         includes=includes,
-#         system_includes=system_includes,
-#         category="sdk",
-#     )
-
-
-def DolphinTrkLib(
-    lib_name: str, objects: Objects, cflags=cflags_trk_minnow_dolphin, fix_epilogue=False, extern=False
-) -> Library:
+def DolphinTrkLib(lib_name: str, objects: Objects, cflags=cflags_trk_minnow_dolphin) -> Library:
     src_dir = None
     includes = includes_base
     system_includes = system_includes_base
@@ -465,7 +419,6 @@ def DolphinTrkLib(
         lib_name,
         objects,
         mw_version="GC/1.3.2",
-        fix_epilogue=fix_epilogue,
         src_dir=src_dir,
         cflags=cflags,
         includes=includes,
@@ -521,28 +474,28 @@ config.libs = [
         "Dolfin/OS",
         [
             Object(NonMatching, "Dolphin/OS/OS.c"),
-            Object(NonMatching, "Dolphin/OS/OSAlarm.c"),
+            Object(Matching, "Dolphin/OS/OSAlarm.c"),
             Object(Matching, "Dolphin/OS/OSAlloc.c"),
-            Object(NonMatching, "Dolphin/OS/OSArena.c"),
-            Object(NonMatching, "Dolphin/OS/OSAudioSystem.c"),
-            Object(NonMatching, "Dolphin/OS/OSCache.c"),
-            Object(NonMatching, "Dolphin/OS/OSContext.c"),
-            Object(NonMatching, "Dolphin/OS/OSError.c"),
-            Object(NonMatching, "Dolphin/OS/OSExec.c"),
-            Object(NonMatching, "Dolphin/OS/OSFont.c"),
-            Object(NonMatching, "Dolphin/OS/OSInterrupt.c"),
+            Object(Matching, "Dolphin/OS/OSArena.c"),
+            Object(Matching, "Dolphin/OS/OSAudioSystem.c"),
+            Object(Matching, "Dolphin/OS/OSCache.c"),
+            Object(Matching, "Dolphin/OS/OSContext.c"),
+            Object(Matching, "Dolphin/OS/OSError.c"),
+            Object(Matching, "Dolphin/OS/OSExec.c"),
+            Object(Matching, "Dolphin/OS/OSFont.c"),
+            Object(Matching, "Dolphin/OS/OSInterrupt.c"),
             Object(Matching, "Dolphin/OS/OSLink.c"),
-            Object(NonMatching, "Dolphin/OS/OSMemory.c"),
-            Object(NonMatching, "Dolphin/OS/OSMutex.c"),
+            Object(Matching, "Dolphin/OS/OSMemory.c"),
+            Object(Matching, "Dolphin/OS/OSMutex.c"),
             Object(Matching, "Dolphin/OS/OSReboot.c"),
-            Object(NonMatching, "Dolphin/OS/OSReset.c"),
-            Object(NonMatching, "Dolphin/OS/OSResetSW.c"),
-            Object(NonMatching, "Dolphin/OS/OSRtc.c"),
+            Object(Matching, "Dolphin/OS/OSReset.c"),
+            Object(Matching, "Dolphin/OS/OSResetSW.c"),
+            Object(Matching, "Dolphin/OS/OSRtc.c"),
             Object(Matching, "Dolphin/OS/OSSync.c"),
-            Object(NonMatching, "Dolphin/OS/OSThread.c"),
-            Object(NonMatching, "Dolphin/OS/OSTime.c"),
-            Object(NonMatching, "Dolphin/OS/__start.c"),
-            Object(NonMatching, "Dolphin/OS/__ppc_eabi_init.cpp"),
+            Object(Matching, "Dolphin/OS/OSThread.c"),
+            Object(Matching, "Dolphin/OS/OSTime.c"),
+            Object(Matching, "Dolphin/OS/__start.c"),
+            Object(Matching, "Dolphin/OS/__ppc_eabi_init.cpp"),
         ],
     ),    
 

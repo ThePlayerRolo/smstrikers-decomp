@@ -18,19 +18,19 @@ extern void __OSInitMemoryProtection(void);
 #define OS_EXCEPTIONTABLE_ADDR 0x3000
 #define OS_DBJUMPPOINT_ADDR 0x60
 
-#if SDK_REVISION < 1
-#define BUILD_DATE  "Apr  5 2004"
-#define DBUILD_TIME "03:55:13"
-#define RBUILD_TIME "04:13:58"
-#elif SDK_REVISION < 2
+// #if SDK_REVISION < 1
+// #define BUILD_DATE  "Apr  5 2004"
+// #define DBUILD_TIME "03:55:13"
+// #define RBUILD_TIME "04:13:58"
+// #elif SDK_REVISION < 2
 #define BUILD_DATE  "May 21 2004"
 #define DBUILD_TIME "09:15:32"
 #define RBUILD_TIME "09:28:09"
-#else
-#define BUILD_DATE  "Nov 10 2004"
-#define DBUILD_TIME "06:08:19"
-#define RBUILD_TIME "06:26:41"
-#endif
+// #else
+// #define BUILD_DATE  "Nov 10 2004"
+// #define DBUILD_TIME "06:08:19"
+// #define RBUILD_TIME "06:26:41"
+// #endif
 
 #ifdef DEBUG
 const char* __OSVersion = "<< Dolphin SDK - OS\tdebug build: "BUILD_DATE" "DBUILD_TIME" (0x2301) >>";
@@ -265,6 +265,7 @@ void OSInit(void) {
 
         __DVDLongFileNameFlag = 1;
 
+        // OSSetArenaLo((!BootInfo->arenaLo) ? (u8*)((volatile u16 *)0x80388000) : BootInfo->arenaLo);
         OSSetArenaLo((!BootInfo->arenaLo) ? &__ArenaLo : BootInfo->arenaLo);
         if ((!BootInfo->arenaLo) && (BI2DebugFlag) && (*(u32*)BI2DebugFlag < 2)) {
             OSSetArenaLo((void*)(((u32)(char*)&_stack_addr + 0x1F) & 0xFFFFFFE0));
@@ -408,10 +409,10 @@ static void OSExceptionInit(void) {
     if (*(u32*)destAddr == 0) // Lomem should be zero cleared only once by BS2
     {
         DBPrintf("Installing OSDBIntegrator\n");
-        memcpy(destAddr, (void*)__OSDBINTSTART, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
-        DCFlushRangeNoSync(destAddr, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
+        memcpy(destAddr, (void*)__OSDBINTSTART, (u32)__OSDBJUMPSTART - (u32)__OSDBINTSTART);
+        DCFlushRangeNoSync(destAddr, (u32)__OSDBJUMPSTART - (u32)__OSDBINTSTART);
         __sync();
-        ICInvalidateRange(destAddr, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
+        ICInvalidateRange(destAddr, (u32)__OSDBJUMPSTART - (u32)__OSDBINTSTART);
     }
     
     // Copy the right vector into the table

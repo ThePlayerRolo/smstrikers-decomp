@@ -12,7 +12,7 @@
 static CircleBuffer gRecvCB;
 static u8 gRecvBuf[DDH_BUF_SIZE];
 
-static BOOL gIsInitialized = FALSE;
+/*__declspec(section ".sbss")*/ static BOOL gIsInitialized = FALSE;
 
 int ddh_cc_initialize(void* flagOut, __OSInterruptHandler handler){
     MWTRACE(1, "CALLING EXI2_Init\n");

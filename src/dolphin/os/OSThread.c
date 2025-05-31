@@ -142,7 +142,10 @@ void __OSThreadInit() {
     __gUnkThread1 = thread;
     OSClearContext(&thread->context);
     OSSetCurrentContext(&thread->context);
-    thread->stackBase = (u8*)&_stack_addr;
+    // thread->stackBase = (u8*)&_stack_addr;
+    thread->stackBase = (u8*)((volatile u16 *)0x80388000);
+
+
     thread->stackEnd = (u32*)&_stack_end;
     *(u32*)thread->stackEnd = OS_THREAD_STACK_MAGIC;
     OSSetCurrentThread(thread);
