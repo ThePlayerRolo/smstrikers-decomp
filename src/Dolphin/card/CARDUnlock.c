@@ -1,7 +1,3 @@
-#include <stdlib.h>
-#include <dolphin.h>
-#include <dolphin/card.h>
-
 #include "__card.h"
 
 static u8 CardData[352] ATTRIBUTE_ALIGN(DOLPHIN_ALIGNMENT) = {

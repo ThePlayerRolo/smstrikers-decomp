@@ -1,6 +1,4 @@
-#include <dolphin/card.h>
-
-#include "os/__os.h"
+#include "__os.h"
 #include "__card.h"
 
 u16 __CARDVendorID = 0xFFFF;

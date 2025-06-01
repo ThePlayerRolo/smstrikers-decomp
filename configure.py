@@ -519,7 +519,29 @@ config.libs = [
         [
             Object(Matching, "Dolphin/base/PPCArch.c"),
         ],
-    ),    
+    ),
+
+
+    DolphinLib(
+        "Dolfin/BASE",
+        [
+            Object(Matching, "Dolphin/card/CARDBios.c"),
+            Object(Matching, "Dolphin/card/CARDUnlock.c"),
+            Object(Matching, "Dolphin/card/CARDRdwr.c"),
+            Object(Matching, "Dolphin/card/CARDBlock.c"),
+            Object(Matching, "Dolphin/card/CARDDir.c"),
+            Object(Matching, "Dolphin/card/CARDCheck.c"),
+            Object(Matching, "Dolphin/card/CARDMount.c"),
+            Object(Matching, "Dolphin/card/CARDFormat.c"),
+            Object(NonMatching, "Dolphin/card/CARDOpen.c"),
+            Object(Matching, "Dolphin/card/CARDCreate.c"),
+            Object(Matching, "Dolphin/card/CARDRead.c"),
+            Object(Matching, "Dolphin/card/CARDWrite.c"),
+            Object(Matching, "Dolphin/card/CARDDelete.c"),
+            Object(Matching, "Dolphin/card/CARDStat.c"),
+            Object(Matching, "Dolphin/card/CARDNet.c"), 
+        ],
+    ),
 
     DolphinLib(
         "amcstubs",

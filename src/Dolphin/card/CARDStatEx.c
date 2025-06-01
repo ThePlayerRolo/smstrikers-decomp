@@ -1,6 +1,3 @@
-#include <dolphin.h>
-#include <dolphin/card.h>
-
 #include "__card.h"
 
 s32 __CARDGetStatusEx(s32 chan, s32 fileNo, CARDDir* dirent) {

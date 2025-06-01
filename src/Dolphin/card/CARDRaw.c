@@ -1,5 +1,3 @@
-#include <dolphin/card.h>
-
 #include "__card.h"
 
 s32 __CARDRawReadAsync(s32 chan, void* buf, s32 length, s32 offset, CARDCallback callback) {

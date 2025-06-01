@@ -5263,56 +5263,56 @@ Dolphin/ar/arq.c:
 Dolphin/base/PPCArch.c:
 	.text       start:0x8023D7BC end:0x8023D8D0
 
-card.a/CARDBios.c:
+Dolphin/card/CARDBios.c:
 	.text       start:0x8023D8D0 end:0x8023ECF8
 	.data       start:0x80304C48 end:0x80304CA0
 	.bss        start:0x803471D0 end:0x80347410
 	.sdata      start:0x803734B0 end:0x803734B8
 	.sbss       start:0x80374570 end:0x80374578
 
-card.a/CARDUnlock.c:
+Dolphin/card/CARDUnlock.c:
 	.text       start:0x8023ECF8 end:0x8023FF58
 	.data       start:0x80304CA0 end:0x80304E00
 	.sdata      start:0x803734B8 end:0x803734C0
 
-card.a/CARDRdwr.c:
+Dolphin/card/CARDRdwr.c:
 	.text       start:0x8023FF58 end:0x80240200
 
-card.a/CARDBlock.c:
+Dolphin/card/CARDBlock.c:
 	.text       start:0x80240200 end:0x80240604
 
-card.a/CARDDir.c:
+Dolphin/card/CARDDir.c:
 	.text       start:0x80240604 end:0x80240868
 
-card.a/CARDCheck.c:
+Dolphin/card/CARDCheck.c:
 	.text       start:0x80240868 end:0x802417A4
 
-card.a/CARDMount.c:
+Dolphin/card/CARDMount.c:
 	.text       start:0x802417A4 end:0x80242260
 	.data       start:0x80304E00 end:0x80304E40
 
-card.a/CARDFormat.c:
+Dolphin/card/CARDFormat.c:
 	.text       start:0x80242260 end:0x80242A44
 
-card.a/CARDOpen.c:
+Dolphin/card/CARDOpen.c:
 	.text       start:0x80242A44 end:0x80243030
 
-card.a/CARDCreate.c:
+Dolphin/card/CARDCreate.c:
 	.text       start:0x80243030 end:0x80243380
 
-card.a/CARDRead.c:
+Dolphin/card/CARDRead.c:
 	.text       start:0x80243380 end:0x802437AC
 
-card.a/CARDWrite.c:
+Dolphin/card/CARDWrite.c:
 	.text       start:0x802437AC end:0x80243AE0
 
-card.a/CARDDelete.c:
+Dolphin/card/CARDDelete.c:
 	.text       start:0x80243AE0 end:0x80243C94
 
-card.a/CARDStat.c:
+Dolphin/card/CARDStat.c:
 	.text       start:0x80243C94 end:0x80244114
 
-card.a/CARDNet.c:
+Dolphin/card/CARDNet.c:
 	.text       start:0x80244114 end:0x802441D8
 	.sdata      start:0x803734C0 end:0x803734C8
 

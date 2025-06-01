@@ -1,7 +1,4 @@
-#include <dolphin/card.h>
-#include <dolphin/exi.h>
-
-#include "os/__os.h"
+#include "__os.h"
 #include "__card.h"
 
 static u32 SectorSizeTable[8] = {
