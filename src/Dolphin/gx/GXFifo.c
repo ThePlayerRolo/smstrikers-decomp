@@ -5,6 +5,9 @@
 
 #include "__gx.h"
 
+#undef SDK_REVISION
+#define SDK_REVISION 1
+
 static __GXFifoObj* CPUFifo;
 static __GXFifoObj* GPFifo;
 

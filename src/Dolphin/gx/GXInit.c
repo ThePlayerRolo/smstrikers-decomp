@@ -7,15 +7,18 @@
 
 #include "__gx.h"
 
-// #if SDK_REVISION < 2
+#undef SDK_REVISION
+#define SDK_REVISION 1
+
+#if SDK_REVISION < 2
 #define BUILD_DATE  "Apr  5 2004"
 #define DBUILD_TIME "03:55:13"
 #define RBUILD_TIME "04:14:28"
-// #else
-// #define BUILD_DATE  "Nov 10 2004"
-// #define DBUILD_TIME "06:08:50"
-// #define RBUILD_TIME "06:27:12"
-// #endif
+#else
+#define BUILD_DATE  "Nov 10 2004"
+#define DBUILD_TIME "06:08:50"
+#define RBUILD_TIME "06:27:12"
+#endif
 
 #ifdef DEBUG
 const char* __GXVersion = "<< Dolphin SDK - GX\tdebug build: " BUILD_DATE " " DBUILD_TIME " (0x2301) >>";
