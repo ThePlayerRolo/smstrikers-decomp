@@ -515,6 +515,13 @@ config.libs = [
     ),    
 
     DolphinLib(
+        "Dolfin/BASE",
+        [
+            Object(Matching, "Dolphin/base/PPCArch.c"),
+        ],
+    ),    
+
+    DolphinLib(
         "amcstubs",
         [
             Object(Matching, "Dolphin/AmcStub/AmcExi2Stubs.c"),

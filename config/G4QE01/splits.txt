@@ -5260,7 +5260,7 @@ Dolphin/ar/arq.c:
 	.sdata      start:0x803734A8 end:0x803734B0
 	.sbss       start:0x80374548 end:0x80374570
 
-base.a/PPCArch.c:
+Dolphin/base/PPCArch.c:
 	.text       start:0x8023D7BC end:0x8023D8D0
 
 card.a/CARDBios.c:
