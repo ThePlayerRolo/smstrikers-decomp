@@ -471,8 +471,9 @@ config.libs = [
     ),
 
     DolphinLib(
-        "Dolfin/OS",
+        "Dolfin SDK",
         [
+            # Dolphin/OS
             Object(NonMatching, "Dolphin/os/OS.c"),
             Object(Matching, "Dolphin/os/OSAlarm.c"),
             Object(Matching, "Dolphin/os/OSAlloc.c"),
@@ -496,34 +497,18 @@ config.libs = [
             Object(Matching, "Dolphin/os/OSTime.c"),
             Object(Matching, "Dolphin/os/__start.c"),
             Object(Matching, "Dolphin/os/__ppc_eabi_init.cpp"),
-        ],
-    ),    
 
-    DolphinLib(
-        "Dolfin/AI",
-        [
+            # Dolfin/AI
             Object(Matching, "Dolphin/ai/ai.c"),
-        ],
-    ),    
-
-    DolphinLib(
-        "Dolfin/AR",
-        [
+            
+            # Dolfin/AR
             Object(Matching, "Dolphin/ar/ar.c"),
             Object(Matching, "Dolphin/ar/arq.c"),
-        ],
-    ),    
 
-    DolphinLib(
-        "Dolfin/BASE",
-        [
+            # Dolphin/BASE
             Object(Matching, "Dolphin/base/PPCArch.c"),
-        ],
-    ),
 
-    DolphinLib(
-        "Dolfin/CARD",
-        [
+            # Dolphin/CARD
             Object(Matching, "Dolphin/card/CARDBios.c"),
             Object(Matching, "Dolphin/card/CARDUnlock.c"),
             Object(Matching, "Dolphin/card/CARDRdwr.c"),
@@ -539,19 +524,7 @@ config.libs = [
             Object(Matching, "Dolphin/card/CARDDelete.c"),
             Object(Matching, "Dolphin/card/CARDStat.c"),
             Object(Matching, "Dolphin/card/CARDNet.c"), 
-        ],
-    ),
 
-    # DolphinLib(
-    #     "Dolfin/DB",
-    #     [
-    #         Object(Matching, "Dolphin/db/db.c"),
-    #     ],
-    # ),
-
-    DolphinLib(
-        "Dolfin/DB",
-        [
             # Dolfin/DB
             Object(Matching, "Dolphin/db/db.c"),
 
@@ -569,6 +542,12 @@ config.libs = [
             Object(Matching, "Dolphin/dvd/dvdidutils.c"),
             Object(Matching, "Dolphin/dvd/dvdFatal.c"),
             Object(Matching, "Dolphin/dvd/fstload.c"),         
+
+            # Dolphin/EXI
+            Object(NonMatching, "Dolphin/exi/EXIBios.c"),
+            Object(Matching, "Dolphin/exi/EXIUart.c"),
+
+            # Dolphin/fileCache
         ],
     ),
 
