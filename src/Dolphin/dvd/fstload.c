@@ -1,7 +1,3 @@
-#include <dolphin.h>
-#include <dolphin/os.h>
-#include <dolphin/dvd.h>
-
 #include "__dvd.h"
 
 static u8 bb2Buf[63];

@@ -5316,60 +5316,60 @@ Dolphin/card/CARDNet.c:
 	.text       start:0x80244114 end:0x802441D8
 	.sdata      start:0x803734C0 end:0x803734C8
 
-db.a/db.c:
+Dolphin/db/db.c:
 	.text       start:0x802441D8 end:0x802442C4
 	.data       start:0x80304E40 end:0x80304E58
 	.sbss       start:0x80374578 end:0x80374580
 
-dsp.a/dsp.c:
+Dolphin/dsp/dsp.c:
 	.text       start:0x802442C4 end:0x80244484
 	.data       start:0x80304E58 end:0x80304ED8
 	.sdata      start:0x803734C8 end:0x803734D0
 	.sbss       start:0x80374580 end:0x80374588
 
-dsp.a/dsp_debug.c:
+Dolphin/dsp/dsp_debug.c:
 	.text       start:0x80244484 end:0x802444D4
 
-dsp.a/dsp_task.c:
+Dolphin/dsp/dsp_task.c:
 	.text       start:0x802444D4 end:0x80244D58
 	.data       start:0x80304ED8 end:0x80305018
 	.sbss       start:0x80374588 end:0x803745A0
 
-dvd.a/dvdlow.c:
+Dolphin/dvd/dvdlow.c:
 	.text       start:0x80244D58 end:0x80245BD4
 	.bss        start:0x80347410 end:0x803474E0
 	.sdata      start:0x803734D0 end:0x803734D8
 	.sbss       start:0x803745A0 end:0x803745E8
 
-dvd.a/dvdfs.c:
+Dolphin/dvd/dvdfs.c:
 	.text       start:0x80245BD4 end:0x80246088
 	.data       start:0x80305018 end:0x80305118
 	.sdata      start:0x803734D8 end:0x803734E0
 	.sbss       start:0x803745E8 end:0x80374608
 
-dvd.a/dvd.c:
+Dolphin/dvd/dvd.c:
 	.text       start:0x80246088 end:0x80248810
 	.data       start:0x80305118 end:0x803052A0
 	.bss        start:0x803474E0 end:0x80347578
 	.sdata      start:0x803734E0 end:0x803734F8
 	.sbss       start:0x80374608 end:0x80374658
 
-dvd.a/dvdqueue.c:
+Dolphin/dvd/dvdqueue.c:
 	.text       start:0x80248810 end:0x80248A08
 	.bss        start:0x80347578 end:0x80347598
 
-dvd.a/dvderror.c:
+Dolphin/dvd/dvderror.c:
 	.text       start:0x80248A08 end:0x80248BA0
 	.data       start:0x803052A0 end:0x803052E8
 
-dvd.a/dvdidutils.c:
+Dolphin/dvd/dvdidutils.c:
 	.text       start:0x80248BA0 end:0x80248C98
 
-dvd.a/dvdFatal.c:
+Dolphin/dvd/dvdFatal.c:
 	.text       start:0x80248C98 end:0x80248CC8
 	.sbss       start:0x80374658 end:0x80374660
 
-dvd.a/fstload.c:
+Dolphin/dvd/fstload.c:
 	.text       start:0x80248CC8 end:0x80248F08
 	.data       start:0x803052E8 end:0x80305358
 	.bss        start:0x80347598 end:0x80347608

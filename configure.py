@@ -521,9 +521,8 @@ config.libs = [
         ],
     ),
 
-
     DolphinLib(
-        "Dolfin/BASE",
+        "Dolfin/CARD",
         [
             Object(Matching, "Dolphin/card/CARDBios.c"),
             Object(Matching, "Dolphin/card/CARDUnlock.c"),
@@ -540,6 +539,36 @@ config.libs = [
             Object(Matching, "Dolphin/card/CARDDelete.c"),
             Object(Matching, "Dolphin/card/CARDStat.c"),
             Object(Matching, "Dolphin/card/CARDNet.c"), 
+        ],
+    ),
+
+    # DolphinLib(
+    #     "Dolfin/DB",
+    #     [
+    #         Object(Matching, "Dolphin/db/db.c"),
+    #     ],
+    # ),
+
+    DolphinLib(
+        "Dolfin/DB",
+        [
+            # Dolfin/DB
+            Object(Matching, "Dolphin/db/db.c"),
+
+            # Dolfin/DSP
+            Object(Matching, "Dolphin/dsp/dsp.c"),
+            Object(Matching, "Dolphin/dsp/dsp_debug.c"),
+            Object(Matching, "Dolphin/dsp/dsp_task.c"),
+
+            # Dolphin/DVD
+            Object(Matching, "Dolphin/dvd/dvdlow.c"),
+            Object(Matching, "Dolphin/dvd/dvdfs.c"),
+            Object(Matching, "Dolphin/dvd/dvd.c"),
+            Object(Matching, "Dolphin/dvd/dvdqueue.c"),
+            Object(Matching, "Dolphin/dvd/dvderror.c"),
+            Object(Matching, "Dolphin/dvd/dvdidutils.c"),
+            Object(Matching, "Dolphin/dvd/dvdFatal.c"),
+            Object(Matching, "Dolphin/dvd/fstload.c"),         
         ],
     ),
 
