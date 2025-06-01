@@ -573,6 +573,10 @@ config.libs = [
             Object(Matching, "Dolphin/pad/Padclamp.c"),
             Object(Matching, "Dolphin/pad/Pad.c"),
 
+            # Dolphin/SI
+            Object(Matching, "Dolphin/si/SIBios.c"),
+            Object(Matching, "Dolphin/si/SISamplingRate.c"),
+
         ],
     ),
 

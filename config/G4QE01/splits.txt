@@ -5586,14 +5586,14 @@ Dolphin/pad/Pad.c:
 	.sdata      start:0x803735B0 end:0x803735D0
 	.sbss       start:0x803747C0 end:0x803747F0
 
-si.a/SIBios.c:
+Dolphin/si/SIBios.c:
 	.text       start:0x8025BCE0 end:0x8025D3D0
 	.data       start:0x80307278 end:0x80307390
 	.bss        start:0x80348860 end:0x80348A60
 	.sdata      start:0x803735D0 end:0x803735D8
 	.sbss       start:0x803747F0 end:0x80374800
 
-si.a/SISamplingRate.c:
+Dolphin/si/SISamplingRate.c:
 	.text       start:0x8025D3D0 end:0x8025D4D8
 	.data       start:0x80307390 end:0x80307428
 	.sbss       start:0x80374800 end:0x80374808
