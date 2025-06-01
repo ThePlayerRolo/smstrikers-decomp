@@ -500,6 +500,21 @@ config.libs = [
     ),    
 
     DolphinLib(
+        "Dolfin/AI",
+        [
+            Object(Matching, "Dolphin/ai/ai.c"),
+        ],
+    ),    
+
+    DolphinLib(
+        "Dolfin/AR",
+        [
+            Object(Matching, "Dolphin/ar/ar.c"),
+            Object(Matching, "Dolphin/ar/arq.c"),
+        ],
+    ),    
+
+    DolphinLib(
         "amcstubs",
         [
             Object(Matching, "Dolphin/AmcStub/AmcExi2Stubs.c"),
