@@ -1,21 +1,45 @@
 #include "__card.h"
 
-BOOL __CARDCompareFileName(CARDDir* ent, const char* fileName) {
-    char* entName = (char*)ent->fileName;
-    char c1;
-    char c2;
-    int n = CARD_FILENAME_MAX;
+// BOOL __CARDCompareFileName(CARDDir* ent, const char* fileName) {
+//     char* entName = (char*)ent->fileName;
+//     char c1;
+//     char c2;
+//     int n = CARD_FILENAME_MAX;
 
-    while (--n >= 0) {
-        if ((c1 = *entName++) != (c2 = *fileName++))
-            return FALSE;
-        else if (c2 == '\0')
-            return TRUE;
-    }
+//     while (--n >= 0) {
+//         if ((c1 = *entName++) != (c2 = *fileName++))
+//             return FALSE;
+//         else if (c2 == '\0')
+//             return TRUE;
+//     }
 
-    if (*fileName == '\0')
-        return TRUE;
-    return FALSE;
+//     if (*fileName == '\0')
+//         return TRUE;
+//     return FALSE;
+// }
+
+BOOL __CARDCompareFileName(CARDDir* entry, const char* fileName)
+{
+	char* entName;
+	char c1;
+	char c2;
+	int n;
+
+	entName = (char*)entry->fileName;
+	n       = CARD_FILENAME_MAX;
+	while (0 <= --n) {
+		if ((c1 = *entName++) != (c2 = *fileName++)) {
+			return FALSE;
+		} else if (c2 == '\0') {
+			return TRUE;
+		}
+	}
+
+	if (*fileName == '\0') {
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 s32 __CARDAccess(CARDControl* card, CARDDir* ent) {
