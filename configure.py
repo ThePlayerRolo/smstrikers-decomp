@@ -569,6 +569,10 @@ config.libs = [
             Object(NonMatching, "Dolphin/mtx/mtx44.c", extra_cflags=["-char signed"]),
             Object(NonMatching, "Dolphin/mtx/quat.c", extra_cflags=["-char signed", "-fp_contract off"]),
 
+            # Dolphin/PAD
+            Object(Matching, "Dolphin/pad/Padclamp.c"),
+            Object(Matching, "Dolphin/pad/Pad.c"),
+
         ],
     ),
 

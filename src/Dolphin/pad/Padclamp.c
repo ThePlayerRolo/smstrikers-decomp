@@ -27,52 +27,71 @@ static void ClampStick(s8* px, s8* py, s8 max, s8 xy, s8 min);
 static void ClampCircle(s8* px, s8* py, s8 radius, s8 min);
 static void ClampTrigger(u8* trigger, u8 min, u8 max);
 
-static void ClampStick(s8* px, s8* py, s8 max, s8 xy, s8 min) {
+static void ClampStick(s8* px, s8* py, s8 max, s8 xy, s8 min)
+{
     int x = *px;
     int y = *py;
     int signX;
     int signY;
     int d;
 
-    if (0 <= x) {
+    if (0 <= x)
+    {
         signX = 1;
-    } else {
+    }
+    else
+    {
         signX = -1;
         x = -x;
     }
 
-    if (0 <= y) {
+    if (0 <= y)
+    {
         signY = 1;
-    } else {
+    }
+    else
+    {
         signY = -1;
         y = -y;
     }
 
-    if (x <= min) {
+    if (x <= min)
+    {
         x = 0;
-    } else {
+    }
+    else
+    {
         x -= min;
     }
-    if (y <= min) {
+    if (y <= min)
+    {
         y = 0;
-    } else {
+    }
+    else
+    {
         y -= min;
     }
 
-    if (x == 0 && y == 0) {
+    if (x == 0 && y == 0)
+    {
         *px = *py = 0;
         return;
     }
 
-    if (xy * y <= xy * x) {
+    if (xy * y <= xy * x)
+    {
         d = xy * x + (max - xy) * y;
-        if (xy * max < d) {
+        if (xy * max < d)
+        {
             x = (s8)(xy * max * x / d);
             y = (s8)(xy * max * y / d);
         }
-    } else {
+    }
+    else
+    {
         d = xy * y + (max - xy) * x;
-        if (xy * max < d) {
+        if (xy * max < d)
+        {
             x = (s8)(xy * max * x / d);
             y = (s8)(xy * max * y / d);
         }
@@ -82,30 +101,42 @@ static void ClampStick(s8* px, s8* py, s8 max, s8 xy, s8 min) {
     *py = (s8)(signY * y);
 }
 
-static void ClampCircle(s8* px, s8* py, s8 radius, s8 min) {
+static void ClampCircle(s8* px, s8* py, s8 radius, s8 min)
+{
     int x = *px;
     int y = *py;
     int squared;
     int length;
 
-    if (-min < x && x < min) {
+    if (-min < x && x < min)
+    {
         x = 0;
-    } else if (0 < x) {
+    }
+    else if (0 < x)
+    {
         x -= min;
-    } else {
+    }
+    else
+    {
         x += min;
     }
 
-    if (-min < y && y < min) {
+    if (-min < y && y < min)
+    {
         y = 0;
-    } else if (0 < y) {
+    }
+    else if (0 < y)
+    {
         y -= min;
-    } else {
+    }
+    else
+    {
         y += min;
     }
 
     squared = x * x + y * y;
-    if (radius * radius < squared) {
+    if (radius * radius < squared)
+    {
         length = sqrtf(squared);
         x = (x * radius) / length;
         y = (y * radius) / length;
@@ -115,22 +146,30 @@ static void ClampCircle(s8* px, s8* py, s8 radius, s8 min) {
     *py = y;
 }
 
-static void ClampTrigger(u8* trigger, u8 min, u8 max) {
-    if (*trigger <= min) {
+static void ClampTrigger(u8* trigger, u8 min, u8 max)
+{
+    if (*trigger <= min)
+    {
         *trigger = 0;
-    } else {
-        if (max < *trigger) {
+    }
+    else
+    {
+        if (max < *trigger)
+        {
             *trigger = max;
         }
         *trigger -= min;
     }
 }
 
-void PADClamp(PADStatus * status) {
+void PADClamp(PADStatus* status)
+{
     int i;
 
-    for (i = 0; i < 4; i++, status++) {
-        if (status->err == PAD_ERR_NONE) {
+    for (i = 0; i < 4; i++, status++)
+    {
+        if (status->err == PAD_ERR_NONE)
+        {
             ClampStick(&status->stickX, &status->stickY, ClampRegion.maxStick, ClampRegion.xyStick, ClampRegion.minStick);
             ClampStick(&status->substickX, &status->substickY, ClampRegion.maxSubstick, ClampRegion.xySubstick, ClampRegion.minSubstick);
             ClampTrigger(&status->triggerLeft, ClampRegion.minTrigger, ClampRegion.maxTrigger);
@@ -139,10 +178,13 @@ void PADClamp(PADStatus * status) {
     }
 }
 
-void PADClampCircle(PADStatus* status) {
+void PADClampCircle(PADStatus* status)
+{
     int i;
-    for (i = 0; i < 4; ++i, status++) {
-        if (status->err == PAD_ERR_NONE) {
+    for (i = 0; i < 4; ++i, status++)
+    {
+        if (status->err == PAD_ERR_NONE)
+        {
             ClampCircle(&status->stickX, &status->stickY, ClampRegion.radStick, ClampRegion.minStick);
             ClampCircle(&status->substickX, &status->substickY, ClampRegion.radSubstick, ClampRegion.minSubstick);
             ClampTrigger(&status->triggerLeft, ClampRegion.minTrigger, ClampRegion.maxTrigger);
