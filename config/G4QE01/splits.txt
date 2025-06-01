@@ -5466,111 +5466,111 @@ mtx.a/quat.c:
 Dolphin/OdenotStub/odenotstub.c:
 	.text       start:0x8025318C end:0x80253194
 
-Dolphin/OS/OS.c:
+Dolphin/os/OS.c:
 	.text       start:0x80253194 end:0x80253C60
 	.data       start:0x80305C60 end:0x80305E58
 	.bss        start:0x80347D00 end:0x80347D70
 	.sdata      start:0x80373570 end:0x80373580
 	.sbss       start:0x803746E8 end:0x80374720
 
-Dolphin/OS/OSAlarm.c:
+Dolphin/os/OSAlarm.c:
 	.text       start:0x80253C60 end:0x802543BC
 	.data       start:0x80305E58 end:0x80305E68
 	.sbss       start:0x80374720 end:0x80374728
 
-Dolphin/OS/OSAlloc.c:
+Dolphin/os/OSAlloc.c:
 	.text       start:0x802543BC end:0x802546CC
 	.sdata      start:0x80373580 end:0x80373588
 	.sbss       start:0x80374728 end:0x80374738
 
-Dolphin/OS/OSArena.c:
+Dolphin/os/OSArena.c:
 	.text       start:0x802546CC end:0x80254718
 	.sdata      start:0x80373588 end:0x80373590
 	.sbss       start:0x80374738 end:0x80374740
 
-Dolphin/OS/OSAudioSystem.c:
+Dolphin/os/OSAudioSystem.c:
 	.text       start:0x80254718 end:0x802549AC
 	.data       start:0x80305E68 end:0x80305EE8
 
-Dolphin/OS/OSCache.c:
+Dolphin/os/OSCache.c:
 	.text       start:0x802549AC end:0x80255024
 	.data       start:0x80305EE8 end:0x80306118
 
-Dolphin/OS/OSContext.c:
+Dolphin/os/OSContext.c:
 	.text       start:0x80255024 end:0x802557D8
 	.data       start:0x80306118 end:0x803062F0
 
-Dolphin/OS/OSError.c:
+Dolphin/os/OSError.c:
 	.text       start:0x802557D8 end:0x80255E84
 	.data       start:0x803062F0 end:0x80306610
 	.bss        start:0x80347D70 end:0x80347DC0
 	.sdata      start:0x80373590 end:0x80373598
 
-Dolphin/OS/OSExec.c:
+Dolphin/os/OSExec.c:
 	.text       start:0x80255E84 end:0x802567E4
 	.data       start:0x80306610 end:0x80306620
 	.sdata      start:0x80373598 end:0x803735A0
 	.sbss       start:0x80374740 end:0x80374748
 
-Dolphin/OS/OSFont.c:
+Dolphin/os/OSFont.c:
 	.text       start:0x802567E4 end:0x80256AF8
 	.data       start:0x80306620 end:0x80307130
 	.sdata      start:0x803735A0 end:0x803735A8
 	.sbss       start:0x80374748 end:0x80374758
 
-Dolphin/OS/OSInterrupt.c:
+Dolphin/os/OSInterrupt.c:
 	.text       start:0x80256AF8 end:0x80257364
 	.data       start:0x80307130 end:0x80307160
 	.sbss       start:0x80374758 end:0x80374770
 
-Dolphin/OS/OSLink.c:
+Dolphin/os/OSLink.c:
 	.text       start:0x80257364 end:0x8025737C
 
-Dolphin/OS/OSMemory.c:
+Dolphin/os/OSMemory.c:
 	.text       start:0x8025737C end:0x80257654
 	.data       start:0x80307160 end:0x80307170
 
-Dolphin/OS/OSMutex.c:
+Dolphin/os/OSMutex.c:
 	.text       start:0x80257654 end:0x802576C4
 
-Dolphin/OS/OSReboot.c:
+Dolphin/os/OSReboot.c:
 	.text       start:0x802576C4 end:0x80257748
 	.sbss       start:0x80374770 end:0x80374778
 
-Dolphin/OS/OSReset.c:
+Dolphin/os/OSReset.c:
 	.text       start:0x80257748 end:0x80257BCC
 	.data       start:0x80307170 end:0x803071C0
 	.sbss       start:0x80374778 end:0x80374788
 
-Dolphin/OS/OSResetSW.c:
+Dolphin/os/OSResetSW.c:
 	.text       start:0x80257BCC end:0x80257F58
 	.sbss       start:0x80374788 end:0x803747A8
 
-Dolphin/OS/OSRtc.c:
+Dolphin/os/OSRtc.c:
 	.text       start:0x80257F58 end:0x80258C68
 	.bss        start:0x80347DC0 end:0x80347E18
 
-Dolphin/OS/OSSync.c:
+Dolphin/os/OSSync.c:
 	.text       start:0x80258C68 end:0x80258CEC
 
-Dolphin/OS/OSThread.c:
+Dolphin/os/OSThread.c:
 	.text       start:0x80258CEC end:0x80259C2C
 	.bss        start:0x80347E18 end:0x80348810
 	.sdata      start:0x803735A8 end:0x803735B0
 	.sbss       start:0x803747A8 end:0x803747B8
 
-Dolphin/OS/OSTime.c:
+Dolphin/os/OSTime.c:
 	.text       start:0x80259C2C end:0x8025A050
 	.data       start:0x803071C0 end:0x80307220
 
 PowerPC_EABI_Support/Runtime/__mem.c:
 	.init       start:0x800050B4 end:0x800051EC
 
-Dolphin/OS/__start.c:
+Dolphin/os/__start.c:
 	.init       start:0x800051EC end:0x800054EC
 	.sbss       start:0x803747B8 end:0x803747C0
 
-Dolphin/OS/__ppc_eabi_init.cpp:
+Dolphin/os/__ppc_eabi_init.cpp:
 	.init       start:0x800054EC end:0x80005544
 	.text       start:0x8025A050 end:0x8025A0E4
 
