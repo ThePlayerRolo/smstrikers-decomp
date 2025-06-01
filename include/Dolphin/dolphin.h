@@ -12,7 +12,7 @@
 #include <dolphin/card.h>
 #include <dolphin/perf.h>
 #include <dolphin/ar.h>
-#include <dolphin/base/PPCArch.h>
+#include <dolphin/PPCArch.h>
 #include <dolphin/db.h>
 #include <dolphin/pad.h>
 #include <dolphin/dtk.h>

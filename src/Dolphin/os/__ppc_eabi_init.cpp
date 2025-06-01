@@ -1,4 +1,4 @@
-#include <dolphin/base/PPCArch.h>
+#include <dolphin/PPCArch.h>
 #include <dolphin/os/__ppc_eabi_init.h>
 
 #ifdef __cplusplus

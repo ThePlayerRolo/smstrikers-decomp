@@ -1,5 +1,5 @@
 #include <dolphin.h>
-#include <dolphin/base/PPCArch.h>
+#include <dolphin/PPCArch.h>
 
 // clang-format off
 

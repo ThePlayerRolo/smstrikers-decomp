@@ -254,9 +254,10 @@ cflags_musyx = [
     "-nodefaults",
     "-nosyspath",
     "-i include",
-    "-i extern/musyx/include",
-    "-i libc",
-    "-inline auto,depth=4",
+    # "-i extern/musyx/include",
+    # "-i libc",
+    # "-inline auto,depth=4",
+    "-inline auto",
     "-O4,p",
     "-fp hard",
     "-enum int",
@@ -273,8 +274,8 @@ cflags_musyx_debug = [
     "-nodefaults",
     "-nosyspath",
     "-i include",
-    "-i extern/musyx/include",
-    "-i libc",
+    # "-i extern/musyx/include",
+    # "-i libc",
     "-g",
     "-sym on",
     "-D_DEBUG=1",
@@ -427,6 +428,28 @@ def DolphinTrkLib(lib_name: str, objects: Objects, cflags=cflags_trk_minnow_dolp
         category="sdk",
     )
 
+def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, patch=3) -> Library:
+    cflags = cflags_musyx if not debug else cflags_musyx_debug
+    return Lib (
+        lib_name,
+        objects,
+        includes=[
+            *includes_base,
+            "src/Dolphin",
+        ],
+        system_includes=[
+            *system_includes_base,
+            "include/Dolphin",
+        ],
+        mw_version="GC/1.3.2",
+        cflags=[
+            *cflags,
+            f"-DMUSY_VERSION_MAJOR={major}",
+            f"-DMUSY_VERSION_MINOR={minor}",
+            f"-DMUSY_VERSION_PATCH={patch}",
+        ],
+        category="third_party",
+    )
 
 Matching = True                   # Object matches and should be linked
 NonMatching = False               # Object does not match and should not be linked
@@ -595,11 +618,48 @@ config.libs = [
         ],
         cflags=cflags_odemuexi,
     ),
+
     DolphinLib(
         "OdenotStub",
         [
             Object(Matching, "Dolphin/OdenotStub/odenotstub.c"),
         ],
+    ),        
+    MusyxLib(
+        "Musyx",
+        [
+            Object(Matching, "Musyx/runtime/seq.c"),
+            Object(Matching, "Musyx/runtime/synth.c"),
+            Object(Matching, "Musyx/runtime/seq_api.c"),
+            Object(Matching, "Musyx/runtime/snd_synthapi.c"),
+            Object(NonMatching, "Musyx/runtime/stream.c"),
+            Object(Matching, "Musyx/runtime/synthdata.c"),
+            Object(NonMatching, "Musyx/runtime/synthmacros.c"),
+            Object(NonMatching, "Musyx/runtime/synthvoice.c"),
+            Object(Matching, "Musyx/runtime/synth_ac.c"),
+            Object(Matching, "Musyx/runtime/synth_dbtab.c"),
+            Object(Matching, "Musyx/runtime/synth_adsr.c"),
+            Object(NonMatching, "Musyx/runtime/synth_vsamples.c"),
+            Object(NonMatching, "Musyx/runtime/s_data.c"),
+            Object(NonMatching, "Musyx/runtime/hw_dspctrl.c"),
+            Object(Matching, "Musyx/runtime/hw_volconv.c"),
+            Object(Matching, "Musyx/runtime/snd3d.c"),
+            Object(Matching, "Musyx/runtime/snd_init.c"),
+            Object(Matching, "Musyx/runtime/snd_math.c"),
+            Object(Matching, "Musyx/runtime/snd_midictrl.c"),
+            Object(Matching, "Musyx/runtime/snd_service.c"),
+            Object(Matching, "Musyx/runtime/hardware.c"),
+            Object(Matching, "Musyx/runtime/dsp_import.c"),
+            Object(Matching, "Musyx/runtime/hw_aramdma.c"),
+            Object(Matching, "Musyx/runtime/hw_dolphin.c"),
+            Object(Matching, "Musyx/runtime/hw_memory.c"),
+            Object(Matching, "Musyx/runtime/CheapReverb/creverb_fx.c"),
+            Object(Matching, "Musyx/runtime/CheapReverb/creverb.c"),
+            Object(Matching, "Musyx/runtime/StdReverb/reverb_fx.c"),
+            Object(Matching, "Musyx/runtime/StdReverb/reverb.c"),
+            Object(Matching, "Musyx/runtime/Delay/delay_fx.c"),
+            Object(Matching, "Musyx/runtime/Chorus/chorus_fx.c"),
+        ]
     ),        
     DolphinTrkLib(
         "TRK_MINNOW_DOLPHIN",

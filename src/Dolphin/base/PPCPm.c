@@ -1,5 +1,5 @@
 #include <dolphin.h>
-#include <dolphin/base/PPCArch.h>
+#include <dolphin/PPCArch.h>
 
 void PMBegin(void) {
     PPCMtmmcr0(0);

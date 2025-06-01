@@ -1,5 +1,5 @@
 #include "PowerPC_EABI_Support/MetroTRK/trk.h"
-#include "Dolphin/base/PPCArch.h"
+#include "Dolphin/PPCArch.h"
 #include "Dolphin/os.h"
 
 BOOL _MetroTRK_Has_Framing;
