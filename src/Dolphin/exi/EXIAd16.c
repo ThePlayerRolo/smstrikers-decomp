@@ -3,20 +3,24 @@
 
 static BOOL Initialized;
 
-int AD16Init(void) {
+int AD16Init(void)
+{
     int err;
     u32 cmd;
     u32 id;
 
-    if (Initialized) {
+    if (Initialized)
+    {
         return 1;
     }
 
-    if (!EXILock(2, 0, NULL)) {
+    if (!EXILock(2, 0, NULL))
+    {
         return 0;
     }
 
-    if (!EXISelect(2, 0, EXI_FREQ_1M)) {
+    if (!EXISelect(2, 0, EXI_FREQ_1M))
+    {
         EXIUnlock(2);
         return 0;
     }
@@ -30,7 +34,8 @@ int AD16Init(void) {
     err |= !EXIDeselect(2);
 
     EXIUnlock(2);
-    if (err != 0 || (id - 0x04120000) != 0) {
+    if (err != 0 || (id - 0x04120000) != 0)
+    {
         return 0;
     }
 
@@ -38,15 +43,18 @@ int AD16Init(void) {
     return 1;
 }
 
-int AD16WriteReg(u32 word) {
+int AD16WriteReg(u32 word)
+{
     int err;
     u32 cmd;
 
-    if (!Initialized || !EXILock(2, 0, NULL)) {
+    if (!Initialized || !EXILock(2, 0, NULL))
+    {
         return 0;
     }
 
-    if (!EXISelect(2, 0, EXI_FREQ_8M)) {
+    if (!EXISelect(2, 0, EXI_FREQ_8M))
+    {
         EXIUnlock(2);
         return 0;
     }
@@ -60,22 +68,26 @@ int AD16WriteReg(u32 word) {
     err |= !EXIDeselect(2);
 
     EXIUnlock(2);
-    if (err != 0) {
+    if (err != 0)
+    {
         return 0;
     }
 
     return 1;
 }
 
-int AD16ReadReg(u32* word) {
+int AD16ReadReg(u32* word)
+{
     int err;
     u32 cmd;
 
-    if (!Initialized || !EXILock(2, 0, NULL)) {
+    if (!Initialized || !EXILock(2, 0, NULL))
+    {
         return 0;
     }
 
-    if (!EXISelect(2, 0, EXI_FREQ_8M)) {
+    if (!EXISelect(2, 0, EXI_FREQ_8M))
+    {
         EXIUnlock(2);
         return 0;
     }
@@ -89,13 +101,15 @@ int AD16ReadReg(u32* word) {
     err |= !EXIDeselect(2);
 
     EXIUnlock(2);
-    if (err != 0) {
+    if (err != 0)
+    {
         return 0;
     }
 
     return 1;
 }
 
-BOOL AD16Probe(void) {
+BOOL AD16Probe(void)
+{
     return Initialized;
 }

@@ -5,7 +5,8 @@
 #include "__gx.h"
 
 // GXLightObj private data
-typedef struct {
+typedef struct
+{
     u32 reserved[3];
     u32 Color;
     f32 a[3];
@@ -14,7 +15,8 @@ typedef struct {
     f32 ldir[3];
 } __GXLightObjInt_struct;
 
-void GXInitLightAttn(GXLightObj* lt_obj, f32 a0, f32 a1, f32 a2, f32 k0, f32 k1, f32 k2) {
+void GXInitLightAttn(GXLightObj* lt_obj, f32 a0, f32 a1, f32 a2, f32 k0, f32 k1, f32 k2)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(129, lt_obj != NULL, "Light Object Pointer is null");
@@ -28,7 +30,8 @@ void GXInitLightAttn(GXLightObj* lt_obj, f32 a0, f32 a1, f32 a2, f32 k0, f32 k1,
     obj->k[2] = k2;
 }
 
-void GXInitLightAttnA(GXLightObj* lt_obj, f32 a0, f32 a1, f32 a2) {
+void GXInitLightAttnA(GXLightObj* lt_obj, f32 a0, f32 a1, f32 a2)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(143, lt_obj != NULL, "Light Object Pointer is null");
@@ -39,7 +42,8 @@ void GXInitLightAttnA(GXLightObj* lt_obj, f32 a0, f32 a1, f32 a2) {
     obj->a[2] = a2;
 }
 
-void GXGetLightAttnA(const GXLightObj* lt_obj, f32* a0, f32* a1, f32* a2) {
+void GXGetLightAttnA(const GXLightObj* lt_obj, f32* a0, f32* a1, f32* a2)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(153, lt_obj != NULL, "Light Object Pointer is null");
@@ -50,7 +54,8 @@ void GXGetLightAttnA(const GXLightObj* lt_obj, f32* a0, f32* a1, f32* a2) {
     *a2 = obj->a[2];
 }
 
-void GXInitLightAttnK(GXLightObj* lt_obj, f32 k0, f32 k1, f32 k2) {
+void GXInitLightAttnK(GXLightObj* lt_obj, f32 k0, f32 k1, f32 k2)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(163, lt_obj != NULL, "Light Object Pointer is null");
@@ -61,7 +66,8 @@ void GXInitLightAttnK(GXLightObj* lt_obj, f32 k0, f32 k1, f32 k2) {
     obj->k[2] = k2;
 }
 
-void GXGetLightAttnK(const GXLightObj* lt_obj, f32* k0, f32* k1, f32* k2) {
+void GXGetLightAttnK(const GXLightObj* lt_obj, f32* k0, f32* k1, f32* k2)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(173, lt_obj != NULL, "Light Object Pointer is null");
@@ -72,7 +78,8 @@ void GXGetLightAttnK(const GXLightObj* lt_obj, f32* k0, f32* k1, f32* k2) {
     *k2 = obj->k[2];
 }
 
-void GXInitLightSpot(GXLightObj* lt_obj, f32 cutoff, GXSpotFn spot_func) {
+void GXInitLightSpot(GXLightObj* lt_obj, f32 cutoff, GXSpotFn spot_func)
+{
     f32 a0, a1, a2;
     f32 r;
     f32 d;
@@ -89,7 +96,8 @@ void GXInitLightSpot(GXLightObj* lt_obj, f32 cutoff, GXSpotFn spot_func) {
     r = (3.1415927f * cutoff) / 180.0f;
     cr = cosf(r);
 
-    switch (spot_func) {
+    switch (spot_func)
+    {
     case GX_SP_FLAT:
         a0 = -1000.0f * cr;
         a1 = 1000.0f;
@@ -135,7 +143,8 @@ void GXInitLightSpot(GXLightObj* lt_obj, f32 cutoff, GXSpotFn spot_func) {
     obj->a[2] = a2;
 }
 
-void GXInitLightDistAttn(GXLightObj* lt_obj, f32 ref_dist, f32 ref_br, GXDistAttnFn dist_func) {
+void GXInitLightDistAttn(GXLightObj* lt_obj, f32 ref_dist, f32 ref_br, GXDistAttnFn dist_func)
+{
     f32 k0, k1, k2;
     __GXLightObjInt_struct* obj;
 
@@ -148,7 +157,8 @@ void GXInitLightDistAttn(GXLightObj* lt_obj, f32 ref_dist, f32 ref_br, GXDistAtt
     if (ref_br <= 0.0f || ref_br >= 1.0f)
         dist_func = GX_DA_OFF;
 
-    switch (dist_func) {
+    switch (dist_func)
+    {
     case GX_DA_GENTLE:
         k0 = 1.0f;
         k1 = (1.0f - ref_br) / (ref_br * ref_dist);
@@ -177,7 +187,8 @@ void GXInitLightDistAttn(GXLightObj* lt_obj, f32 ref_dist, f32 ref_br, GXDistAtt
     obj->k[2] = k2;
 }
 
-void GXInitLightPos(GXLightObj* lt_obj, f32 x, f32 y, f32 z) {
+void GXInitLightPos(GXLightObj* lt_obj, f32 x, f32 y, f32 z)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(328, lt_obj != NULL, "Light Object Pointer is null");
@@ -189,7 +200,8 @@ void GXInitLightPos(GXLightObj* lt_obj, f32 x, f32 y, f32 z) {
     obj->lpos[2] = z;
 }
 
-void GXGetLightPos(const GXLightObj* lt_obj, f32* x, f32* y, f32* z) {
+void GXGetLightPos(const GXLightObj* lt_obj, f32* x, f32* y, f32* z)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(339, lt_obj != NULL, "Light Object Pointer is null");
@@ -201,7 +213,8 @@ void GXGetLightPos(const GXLightObj* lt_obj, f32* x, f32* y, f32* z) {
     *z = obj->lpos[2];
 }
 
-void GXInitLightDir(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz) {
+void GXInitLightDir(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(360, lt_obj != NULL, "Light Object Pointer is null");
@@ -212,7 +225,8 @@ void GXInitLightDir(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz) {
     obj->ldir[2] = -nz;
 }
 
-void GXGetLightDir(const GXLightObj* lt_obj, f32* nx, f32* ny, f32* nz) {
+void GXGetLightDir(const GXLightObj* lt_obj, f32* nx, f32* ny, f32* nz)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(372, lt_obj != NULL, "Light Object Pointer is null");
@@ -223,7 +237,8 @@ void GXGetLightDir(const GXLightObj* lt_obj, f32* nx, f32* ny, f32* nz) {
     *nz = -obj->ldir[2];
 }
 
-void GXInitSpecularDir(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz) {
+void GXInitSpecularDir(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz)
+{
     f32 mag;
     f32 vx;
     f32 vy;
@@ -239,10 +254,11 @@ void GXInitSpecularDir(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz) {
     vz = -nz + 1.0f;
 
     mag = (vx * vx) + (vy * vy) + (vz * vz);
-    if (mag != 0.0f) {
+    if (mag != 0.0f)
+    {
         mag = 1.0f / sqrtf(mag);
     }
-    
+
     obj->ldir[0] = vx * mag;
     obj->ldir[1] = vy * mag;
     obj->ldir[2] = vz * mag;
@@ -251,7 +267,8 @@ void GXInitSpecularDir(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz) {
     obj->lpos[2] = nz * -1000000000000000000.0f;
 }
 
-void GXInitSpecularDirHA(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz, f32 hx, f32 hy, f32 hz) {
+void GXInitSpecularDirHA(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz, f32 hx, f32 hy, f32 hz)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(436, lt_obj != NULL, "Light Object Pointer is null");
@@ -266,7 +283,8 @@ void GXInitSpecularDirHA(GXLightObj* lt_obj, f32 nx, f32 ny, f32 nz, f32 hx, f32
     obj->lpos[2] = nz * -1000000000000000000.0f;
 }
 
-void GXInitLightColor(GXLightObj* lt_obj, GXColor color) {
+void GXInitLightColor(GXLightObj* lt_obj, GXColor color)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(462, lt_obj != NULL, "Light Object Pointer is null");
@@ -276,7 +294,8 @@ void GXInitLightColor(GXLightObj* lt_obj, GXColor color) {
     *(u32*)&obj->Color = *(u32*)&color;
 }
 
-void GXGetLightColor(const GXLightObj* lt_obj, GXColor* color) {
+void GXGetLightColor(const GXLightObj* lt_obj, GXColor* color)
+{
     __GXLightObjInt_struct* obj;
 
     ASSERTMSGLINE(476, lt_obj != NULL, "Light Object Pointer is null");
@@ -288,42 +307,56 @@ void GXGetLightColor(const GXLightObj* lt_obj, GXColor* color) {
 
 #if DEBUG
 #define WRITE_SOME_LIGHT_REG1(val, addr) \
-do {  \
-    u32 xfData = val; \
-    GX_WRITE_U32(val); \
-    VERIF_MTXLIGHT(addr, xfData); \
-} while (0)
+    do                                   \
+    {                                    \
+        u32 xfData = val;                \
+        GX_WRITE_U32(val);               \
+        VERIF_MTXLIGHT(addr, xfData);    \
+    } while (0)
 
-#define WRITE_SOME_LIGHT_REG2(val, addr) \
-do {  \
-    f32 xfData = val; \
-    GX_WRITE_F32(val); \
-    VERIF_MTXLIGHT(addr, *(u32 *)&xfData); \
-} while (0)
+#define WRITE_SOME_LIGHT_REG2(val, addr)      \
+    do                                        \
+    {                                         \
+        f32 xfData = val;                     \
+        GX_WRITE_F32(val);                    \
+        VERIF_MTXLIGHT(addr, *(u32*)&xfData); \
+    } while (0)
 #else
 #define WRITE_SOME_LIGHT_REG1(val, addr) GX_WRITE_U32(val)
 #define WRITE_SOME_LIGHT_REG2(val, addr) GX_WRITE_F32(val)
 #endif
 
-static inline u32 ConvLightID2Num(GXLightID id) {
-    switch (id) {
-    case GX_LIGHT0: return 0;
-    case GX_LIGHT1: return 1;
-    case GX_LIGHT2: return 2;
-    case GX_LIGHT3: return 3;
-    case GX_LIGHT4: return 4;
-    case GX_LIGHT5: return 5;
-    case GX_LIGHT6: return 6;
-    case GX_LIGHT7: return 7;
-    default:        return 8;
+static inline u32 ConvLightID2Num(GXLightID id)
+{
+    switch (id)
+    {
+    case GX_LIGHT0:
+        return 0;
+    case GX_LIGHT1:
+        return 1;
+    case GX_LIGHT2:
+        return 2;
+    case GX_LIGHT3:
+        return 3;
+    case GX_LIGHT4:
+        return 4;
+    case GX_LIGHT5:
+        return 5;
+    case GX_LIGHT6:
+        return 6;
+    case GX_LIGHT7:
+        return 7;
+    default:
+        return 8;
     }
 }
 
-static inline void PushLight(const register GXLightObj* lt_obj, register void* dest) {
+static inline void PushLight(const register GXLightObj* lt_obj, register void* dest)
+{
     register u32 zero, color;
     register f32 a0_a1, a2_k0, k1_k2;
     register f32 px_py, pz_dx, dy_dz;
-#ifdef __MWERKS__  // clang-format off
+#ifdef __MWERKS__ // clang-format off
 	asm {
 		lwz     color, 12(lt_obj)
 		xor     zero, zero, zero
@@ -345,10 +378,11 @@ static inline void PushLight(const register GXLightObj* lt_obj, register void* d
 		psq_st  pz_dx, 0(dest), 0, 0
 		psq_st  dy_dz, 0(dest), 0, 0
 	}
-#endif  // clang-format on
+#endif // clang-format on
 }
 
-void GXLoadLightObjImm(const GXLightObj* lt_obj, GXLightID light) {
+void GXLoadLightObjImm(const GXLightObj* lt_obj, GXLightID light)
+{
     u32 addr;
     u32 idx;
     __GXLightObjInt_struct* obj;
@@ -394,7 +428,8 @@ void GXLoadLightObjImm(const GXLightObj* lt_obj, GXLightID light) {
     __GXData->bpSentNot = 1;
 }
 
-void GXLoadLightObjIndx(u32 lt_obj_indx, GXLightID light) {
+void GXLoadLightObjIndx(u32 lt_obj_indx, GXLightID light)
+{
     u32 reg;
     u32 addr;
     u32 idx;
@@ -425,14 +460,16 @@ void GXLoadLightObjIndx(u32 lt_obj_indx, GXLightID light) {
 
 #define GXCOLOR_AS_U32(color) (*((u32*)&(color)))
 
-void GXSetChanAmbColor(GXChannelID chan, GXColor amb_color) {
+void GXSetChanAmbColor(GXChannelID chan, GXColor amb_color)
+{
     u32 reg;
     u32 rgb;
     u32 colIdx;
 
     CHECK_GXBEGIN(661, "GXSetChanAmbColor");
 
-    switch (chan) {
+    switch (chan)
+    {
     case GX_COLOR0:
         reg = __GXData->ambColor[GX_COLOR0];
         rgb = GXCOLOR_AS_U32(amb_color) >> 8;
@@ -473,14 +510,16 @@ void GXSetChanAmbColor(GXChannelID chan, GXColor amb_color) {
     __GXData->ambColor[colIdx] = reg;
 }
 
-void GXSetChanMatColor(GXChannelID chan, GXColor mat_color) {
+void GXSetChanMatColor(GXChannelID chan, GXColor mat_color)
+{
     u32 reg;
     u32 rgb;
     u32 colIdx;
 
     CHECK_GXBEGIN(762, "GXSetChanMatColor");
 
-    switch (chan) {
+    switch (chan)
+    {
     case GX_COLOR0:
         reg = __GXData->matColor[GX_COLOR0];
         rgb = GXCOLOR_AS_U32(mat_color) >> 8;
@@ -521,7 +560,8 @@ void GXSetChanMatColor(GXChannelID chan, GXColor mat_color) {
     __GXData->matColor[colIdx] = reg;
 }
 
-void GXSetNumChans(u8 nChans) {
+void GXSetNumChans(u8 nChans)
+{
     CHECK_GXBEGIN(857, "GXSetNumChans");
     ASSERTMSGLINE(858, nChans <= 2, "GXSetNumChans: nChans > 2");
 
@@ -530,7 +570,9 @@ void GXSetNumChans(u8 nChans) {
     __GXData->dirtyState |= 4;
 }
 
-void GXSetChanCtrl(GXChannelID chan, GXBool enable, GXColorSrc amb_src, GXColorSrc mat_src, u32 light_mask, GXDiffuseFn diff_fn, GXAttnFn attn_fn) {
+void GXSetChanCtrl(GXChannelID chan, GXBool enable, GXColorSrc amb_src, GXColorSrc mat_src, u32 light_mask, GXDiffuseFn diff_fn,
+                   GXAttnFn attn_fn)
+{
     u32 reg;
     u32 idx;
 
@@ -553,7 +595,7 @@ void GXSetChanCtrl(GXChannelID chan, GXBool enable, GXColorSrc amb_src, GXColorS
     SET_REG_FIELD(907, reg, 1, 1, enable);
     SET_REG_FIELD(908, reg, 1, 0, mat_src);
     SET_REG_FIELD(909, reg, 1, 6, amb_src);
-    
+
     SET_REG_FIELD(911, reg, 2, 7, (attn_fn == 0) ? 0 : diff_fn);
     SET_REG_FIELD(912, reg, 1, 9, (attn_fn != 2));
     SET_REG_FIELD(913, reg, 1, 10, (attn_fn != 0));
@@ -562,10 +604,13 @@ void GXSetChanCtrl(GXChannelID chan, GXBool enable, GXColorSrc amb_src, GXColorS
     SET_REG_FIELD(926, reg, 4, 11, (light_mask >> 4) & 0xF);
 
     GX_WRITE_XF_REG(idx + 14, reg);
-    
-    if (chan == GX_COLOR0A0) {
+
+    if (chan == GX_COLOR0A0)
+    {
         GX_WRITE_XF_REG(16, reg);
-    } else if (chan == GX_COLOR1A1) {
+    }
+    else if (chan == GX_COLOR1A1)
+    {
         GX_WRITE_XF_REG(17, reg);
     }
 

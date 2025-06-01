@@ -5387,7 +5387,7 @@ Dolphin/exi/EXIUart.c:
 	.text       start:0x8024A8E4 end:0x8024AE9C
 	.sbss       start:0x80374678 end:0x80374688
 
-gx.a/GXInit.c:
+Dolphin/gx/GXInit.c:
 	.text       start:0x8024AE9C end:0x8024C228
 	.data       start:0x80305480 end:0x803056C0
 	.bss        start:0x803476C8 end:0x80347D00
@@ -5395,71 +5395,71 @@ gx.a/GXInit.c:
 	.sbss       start:0x80374688 end:0x803746B0
 	.sdata2     start:0x80377B28 end:0x80377B50
 
-gx.a/GXFifo.c:
+Dolphin/gx/GXFifo.c:
 	.text       start:0x8024C228 end:0x8024C858
 	.sbss       start:0x803746B0 end:0x803746D0
 
-gx.a/GXAttr.c:
+Dolphin/gx/GXAttr.c:
 	.text       start:0x8024C858 end:0x8024D550
 	.data       start:0x803056C0 end:0x80305820
 	.sdata      start:0x80373518 end:0x80373528
 
-gx.a/GXMisc.c:
+Dolphin/gx/GXMisc.c:
 	.text       start:0x8024D550 end:0x8024DCA0
 	.sbss       start:0x803746D0 end:0x803746E8
 
-gx.a/GXGeometry.c:
+Dolphin/gx/GXGeometry.c:
 	.text       start:0x8024DCA0 end:0x8024DFC0
 
-gx.a/GXFrameBuf.c:
+Dolphin/gx/GXFrameBuf.c:
 	.text       start:0x8024DFC0 end:0x8024ECA0
 	.data       start:0x80305820 end:0x80305950
 	.sdata2     start:0x80377B50 end:0x80377B60
 
-gx.a/GXLight.c:
+Dolphin/gx/GXLight.c:
 	.text       start:0x8024ECA0 end:0x8024F1D4
 	.sdata2     start:0x80377B60 end:0x80377B88
 
-gx.a/GXTexture.c:
+Dolphin/gx/GXTexture.c:
 	.text       start:0x8024F1D4 end:0x802500CC
 	.data       start:0x80305950 end:0x80305A80
 	.sdata      start:0x80373528 end:0x80373568
 	.sdata2     start:0x80377B88 end:0x80377BB0
 
-gx.a/GXBump.c:
+Dolphin/gx/GXBump.c:
 	.text       start:0x802500CC end:0x80250608
 	.sdata2     start:0x80377BB0 end:0x80377BB8
 
-gx.a/GXTev.c:
+Dolphin/gx/GXTev.c:
 	.text       start:0x80250608 end:0x80250D28
 	.data       start:0x80305A80 end:0x80305AF8
 
-gx.a/GXPixel.c:
+Dolphin/gx/GXPixel.c:
 	.text       start:0x80250D28 end:0x80251510
 	.data       start:0x80305AF8 end:0x80305B18
 	.sdata2     start:0x80377BB8 end:0x80377C18
 
-gx.a/GXDisplayList.c:
+Dolphin/gx/GXDisplayList.c:
 	.text       start:0x80251510 end:0x80251580
 
-gx.a/GXTransform.c:
+Dolphin/gx/GXTransform.c:
 	.text       start:0x80251580 end:0x80251C54
 	.sdata2     start:0x80377C18 end:0x80377C28
 
-gx.a/GXPerf.c:
+Dolphin/gx/GXPerf.c:
 	.text       start:0x80251C54 end:0x80252654
 	.data       start:0x80305B18 end:0x80305C60
 
-mtx.a/mtx.c:
+Dolphin/mtx/mtx.c:
 	.text       start:0x80252654 end:0x80252870
 	.sdata      start:0x80373568 end:0x80373570
 	.sdata2     start:0x80377C28 end:0x80377C30
 
-mtx.a/mtx44.c:
+Dolphin/mtx/mtx44.c:
 	.text       start:0x80252870 end:0x80252FDC
 	.sdata2     start:0x80377C30 end:0x80377C48
 
-mtx.a/quat.c:
+Dolphin/mtx/quat.c:
 	.text       start:0x80252FDC end:0x8025318C
 	.sdata2     start:0x80377C48 end:0x80377C58
 

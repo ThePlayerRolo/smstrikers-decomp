@@ -246,6 +246,7 @@ cflags_dolphin = [
     f"-DVERSION={version_num}",
     "-D__GEKKO__",
     "-DSDK_REVISION=2",
+    # "-DSDK_REVISION=1",
 ]
 
 cflags_musyx = [
@@ -544,10 +545,30 @@ config.libs = [
             Object(Matching, "Dolphin/dvd/fstload.c"),         
 
             # Dolphin/EXI
-            Object(NonMatching, "Dolphin/exi/EXIBios.c"),
+            Object(NonMatching, "Dolphin/exi/EXIBios.c", extra_cflags=["-O3,p"]),
             Object(Matching, "Dolphin/exi/EXIUart.c"),
 
-            # Dolphin/fileCache
+            # Dolphin/GX
+            Object(NonMatching, "Dolphin/gx/GXInit.c", extra_cflags=["-opt nopeephole"]),
+            Object(NonMatching, "Dolphin/gx/GXFifo.c"),
+            Object(NonMatching, "Dolphin/gx/GXAttr.c"),
+            Object(NonMatching, "Dolphin/gx/GXMisc.c"),
+            Object(NonMatching, "Dolphin/gx/GXGeometry.c"),
+            Object(NonMatching, "Dolphin/gx/GXFrameBuf.c"),
+            Object(NonMatching, "Dolphin/gx/GXLight.c", extra_cflags=["-fp_contract off"]),
+            Object(NonMatching, "Dolphin/gx/GXTexture.c"),
+            Object(NonMatching, "Dolphin/gx/GXBump.c"),
+            Object(NonMatching, "Dolphin/gx/GXTev.c"),
+            Object(NonMatching, "Dolphin/gx/GXPixel.c"),
+            Object(NonMatching, "Dolphin/gx/GXDisplayList.c"),
+            Object(NonMatching, "Dolphin/gx/GXTransform.c", extra_cflags=["-fp_contract off"]),
+            Object(Matching, "Dolphin/gx/GXPerf.c"),
+
+            # Dolphin/MTX
+            Object(NonMatching, "Dolphin/mtx/mtx.c", extra_cflags=["-char signed"]),
+            Object(NonMatching, "Dolphin/mtx/mtx44.c", extra_cflags=["-char signed"]),
+            Object(NonMatching, "Dolphin/mtx/quat.c"),
+
         ],
     ),
 

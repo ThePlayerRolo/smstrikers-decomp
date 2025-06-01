@@ -1,8 +1,9 @@
 #include "types.h"
 
+// clang-format off
 ASM void TRK_flush_cache(u32 param_1, int param_2)
 {
-#ifdef __MWERKS__ // clang-format off
+#ifdef __MWERKS__
 	nofralloc
 	lis r5, 0xFFFFFFF1@h
 	ori r5, r5, 0xFFFFFFF1@l
@@ -19,5 +20,6 @@ loop:
 	bge loop
 	isync
 	blr
-#endif // clang-format on
+#endif
 }
+// clang-format on

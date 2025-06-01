@@ -9,9 +9,12 @@ static DVDDiskID* idTmp;
 // prototypes
 static void cb(s32 result, DVDCommandBlock* block);
 
-static void cb(s32 result, DVDCommandBlock* block) {
-    if (result > 0) {
-        switch(status) {
+static void cb(s32 result, DVDCommandBlock* block)
+{
+    if (result > 0)
+    {
+        switch (status)
+        {
         case 0:
             status = 1;
             DVDReadAbsAsyncForBS(block, bb2, 0x20, 0x420, cb);
@@ -24,16 +27,20 @@ static void cb(s32 result, DVDCommandBlock* block) {
         }
     }
 
-    if (result == -1) {
+    if (result == -1)
+    {
         return;
-    } else if (result == -4) {
+    }
+    else if (result == -4)
+    {
         status = 0;
         DVDReset();
         DVDReadDiskID(block, idTmp, cb);
     }
 }
 
-void __fstLoad(void) {
+void __fstLoad(void)
+{
     OSBootInfo* bootInfo;
     DVDDiskID* id;
     u8 idTmpBuf[63];
@@ -49,21 +56,32 @@ void __fstLoad(void) {
     DVDReset();
     DVDReadDiskID(&block, idTmp, cb);
 
-    while (1) {
+    while (1)
+    {
         state = DVDGetDriveStatus();
-        if (state == 0) {
+        if (state == 0)
+        {
             break;
         }
 
-        // weird switch that seemingly wont do anything but break out of its own switch. What was this for? Early DVD development pre-hardware?
-        switch(state) {
-        case DVD_STATE_FATAL_ERROR: break;
-        case DVD_STATE_BUSY: break;
-        case DVD_STATE_WAITING: break;
-        case DVD_STATE_COVER_CLOSED: break;
-        case DVD_STATE_NO_DISK: break;
-        case DVD_STATE_COVER_OPEN: break;
-        case DVD_STATE_MOTOR_STOPPED: break;
+        // weird switch that seemingly wont do anything but break out of its own switch. What was this for? Early DVD development
+        // pre-hardware?
+        switch (state)
+        {
+        case DVD_STATE_FATAL_ERROR:
+            break;
+        case DVD_STATE_BUSY:
+            break;
+        case DVD_STATE_WAITING:
+            break;
+        case DVD_STATE_COVER_CLOSED:
+            break;
+        case DVD_STATE_NO_DISK:
+            break;
+        case DVD_STATE_COVER_OPEN:
+            break;
+        case DVD_STATE_MOTOR_STOPPED:
+            break;
         }
     }
 
