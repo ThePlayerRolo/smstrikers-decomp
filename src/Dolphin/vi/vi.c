@@ -397,10 +397,6 @@ void __VIInit(VITVMode mode) {
     __VIRegs[54] = 1;
 }
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define CLAMP(val, min, max) ((val) > (max) ? (max) : (val) < (min) ? (min) : (val))
-
 static void AdjustPosition(u16 acv) {
     s32 coeff;
     s32 frac;

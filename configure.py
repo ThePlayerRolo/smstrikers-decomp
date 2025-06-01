@@ -577,6 +577,8 @@ config.libs = [
             Object(Matching, "Dolphin/si/SIBios.c"),
             Object(Matching, "Dolphin/si/SISamplingRate.c"),
 
+            # Dolphin/VI
+            Object(Matching, "Dolphin/vi/vi.c"),
         ],
     ),
 

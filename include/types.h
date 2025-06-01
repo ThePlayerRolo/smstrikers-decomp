@@ -83,12 +83,26 @@ typedef u16 wchar_t;
 
 // Random and useful macros
 #define PATH_MAX  (256)                     // Max path length
+
+#ifndef MAX
 #define MAX(a, b) (((a) > (b)) ? (a) : (b)) // Returns the maximum of a and b
+#endif
+
+#ifndef MIN
 #define MIN(a, b) (((a) < (b)) ? (a) : (b)) // Returns the minimum of a and b
+#endif
 
+#ifndef CLAMP
+#define CLAMP(val, min, max) ((val) > (max) ? (max) : (val) < (min) ? (min) : (val))
+#endif
 
+#ifndef ALIGN_DECL
 #define ALIGN_DECL(ALIGNMENT) __attribute__((aligned(ALIGNMENT)))
+#endif
+
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(o) (sizeof((o)) / sizeof(*(o)))
+#endif
 
 // Flag manipulation macros
 #define SET_FLAG(x, val)                (x |= (val))                     // Sets specific flag to 1
