@@ -1,16 +1,19 @@
-#ifndef _MSL_MEM_FUNCS_H
-#define _MSL_MEM_FUNCS_H
+#ifndef _MSL_COMMON_MEM_FUNCS_H
+#define _MSL_COMMON_MEM_FUNCS_H
 
-#include "types.h"
+#include "stddef.h"
 
-void __copy_longs_aligned(void* dst, const void* src, size_t len);
-void __copy_longs_rev_aligned(void* dst, const void* src, size_t len);
-void __copy_longs_unaligned(void* dst, const void* src, size_t len);
-void __copy_longs_rev_unaligned(void* dst, const void* src, size_t len);
-
-#define srcCharPtr  ((u8*)pSrc)
-#define destCharPtr ((u8*)pDest)
-#define srcLongPtr  ((u32*)pSrc)
-#define destLongPtr ((u32*)pDest)
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+void __copy_longs_rev_unaligned(void* dst, const void* src, size_t n);
+void __copy_longs_unaligned(void* dst, const void* src, size_t n);
+void __copy_longs_rev_aligned(void* dst, const void* src, size_t n);
+void __copy_longs_aligned(void* dst, const void* src, size_t n);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _MSL_COMMON_MEM_FUNCS_H */

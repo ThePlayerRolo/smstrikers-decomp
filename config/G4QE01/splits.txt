@@ -4994,21 +4994,21 @@ SDK/TRK_MINNOW_DOLPHIN/MWTrace.c:
 SDK/TRK_MINNOW_DOLPHIN/MWCriticalSection_gc.cpp:
 	.text       start:0x8022AF0C end:0x8022AF64
 
-msl_c.ppceabi.bare.h.a/abort_exit.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/abort_exit.c:
 	.text       start:0x8022AF64 end:0x8022B0F0
 	.bss        start:0x80346D70 end:0x80346E70
 	.sbss       start:0x803744B8 end:0x803744C8
 
-msl_c.ppceabi.bare.h.a/alloc.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/alloc.c:
 	.text       start:0x8022B0F0 end:0x8022BFC8
 	.rodata     start:0x802A1198 end:0x802A11B0
 	.bss        start:0x80346E70 end:0x80346EA8
 	.sbss       start:0x803744C8 end:0x803744D0
 
-msl_c.ppceabi.bare.h.a/errno.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/errno.c:
 	.sbss       start:0x803744D0 end:0x803744D8
 
-msl_c.ppceabi.bare.h.a/ansi_files.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ansi_files.c:
 	.text       start:0x8022BFC8 end:0x8022C2D8
 	.data       start:0x80303DC0 end:0x80303F00
 	.bss        start:0x80346EA8 end:0x803471A8
@@ -5052,7 +5052,7 @@ msl_c.ppceabi.bare.h.a/mbstring.c:
 	.text       start:0x802312D4 end:0x802315F8
 	.sdata2     start:0x80377788 end:0x80377790
 
-msl_c.ppceabi.bare.h.a/mem.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem.c:
 	.text       start:0x802315F8 end:0x80231768
 
 msl_c.ppceabi.bare.h.a/mem_funcs.c:
@@ -5068,7 +5068,7 @@ msl_c.ppceabi.bare.h.a/printf.c:
 	.sdata      start:0x80373450 end:0x80373458
 	.sdata2     start:0x80377790 end:0x80377798
 
-msl_c.ppceabi.bare.h.a/float.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/float.c:
 	.sdata      start:0x80373458 end:0x80373490
 
 msl_c.ppceabi.bare.h.a/qsort.c:

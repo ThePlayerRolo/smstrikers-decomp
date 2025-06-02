@@ -1,10 +1,18 @@
-#ifndef _MSL_FILE_IO_H
-#define _MSL_FILE_IO_H
+#ifndef _MSL_COMMON_FILE_IO_H
+#define _MSL_COMMON_FILE_IO_H
 
-#include "types.h"
-#include "PowerPC_EABI_Support/MSL_C/MSL_Common/ansi_files.h"
+#include "ansi_files.h"
 
-int fclose(FILE* file);
-int fflush(FILE* file);
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+int __msl_strnicmp(const char* str1, const char* str2, int n);
+int fflush(FILE* file);
+int fclose(FILE* file);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _MSL_COMMON_FILE_IO_H */

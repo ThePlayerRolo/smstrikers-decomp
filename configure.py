@@ -228,6 +228,28 @@ cflags_runtime = [
     "-inline auto",
 ]
 
+cflags_runtime_MSL_C = [
+    "-nodefaults",
+    "-proc gekko",
+    "-align powerpc",
+    "-enum int",
+    "-fp hardware",
+    "-Cpp_exceptions off",
+    "-O4,p",
+    "-inline auto",
+    "-maxerrors 1",
+    "-nosyspath",
+    "-fp_contract off",
+    "-multibyte",
+    '-pragma "cats off"',
+    '-pragma "warn_notinlined off"',
+    "-RTTI off",
+    "-str reuse",
+    f"-i build/{config.version}/include",
+    f"-DBUILD_VERSION={version_num}",
+    f"-DVERSION_{config.version}",
+]
+
 cflags_dolphin = [
     "-nodefaults",
     "-proc gekko",
@@ -382,6 +404,19 @@ def RuntimeLib(lib_name: str, objects: Objects) -> Library:
         category="runtime",
     )
 
+def RuntimeLib_MSL_C(lib_name: str, objects: Objects) -> Library:
+    return Lib(
+        lib_name,
+        objects,
+        # mw_version="GC/1.3",
+        cflags=[
+            *cflags_runtime_MSL_C,
+            "-fp_contract on", 
+            "-inline auto,deferred", 
+            "-str pool,readonly"
+        ],
+        category="runtime",
+    )
 
 def GameLib(lib_name: str, objects: Objects) -> Library:
     return Lib(
@@ -428,7 +463,8 @@ def DolphinTrkLib(lib_name: str, objects: Objects, cflags=cflags_trk_minnow_dolp
         category="sdk",
     )
 
-def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, patch=3) -> Library:
+# def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, patch=3) -> Library:
+def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, patch=2) -> Library:
     cflags = cflags_musyx if not debug else cflags_musyx_debug
     return Lib (
         lib_name,
@@ -467,7 +503,7 @@ config.warn_missing_source = False
 
 config.libs = [
     RuntimeLib(
-        "Gekko runtime",
+        "Runtime.PPCEABI.H",
         [
             Object(Matching, "PowerPC_EABI_Support/Runtime/__init_cpp_exceptions.cpp"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/__mem.c"),
@@ -477,6 +513,50 @@ config.libs = [
             Object(Matching, "PowerPC_EABI_Support/Runtime/runtime.c"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/Gecko_ExceptionPPC.cpp"),
             Object(NonMatching, "PowerPC_EABI_Support/Runtime/NMWException.cpp"),
+        ],
+    ),
+    RuntimeLib_MSL_C(
+        "MSL_C.PPCEABI.bare.H",
+        [
+            # Object(NonMatching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/alloc.c"),
+            Object(NonMatching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ansi_files.c"),
+            Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/abort_exit.c"),
+            Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/errno.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ansi_fp.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/arith.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/buffer_io.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/critical_regions.ppc_eabi.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ctype.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/locale.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/direct_io.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mbstring.c"),
+            Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem_funcs.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/misc_io.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/printf.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/rand.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/scanf.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/string.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/strtold.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/strtoul.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/uart_console_io.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/wchar_io.c"),
+            Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/float.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_asin.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_atan2.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_pow.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/fminmaxdim.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_atan.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_copysign.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_frexp.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_ldexp.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/w_atan2.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/w_pow.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/hyperbolicsf.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/inverse_trig.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/trigf.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/math_inlines.c"),
+            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/common_float_tables.c"),
         ],
     ),
     GameLib(

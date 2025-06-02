@@ -1,10 +1,17 @@
-#ifndef _MSL_DIRECT_IO_H
-#define _MSL_DIRECT_IO_H
+#ifndef _MSL_COMMON_DIRECT_IO_H
+#define _MSL_COMMON_DIRECT_IO_H
 
-#include "types.h"
-#include "PowerPC_EABI_Support/MSL_C/MSL_Common/ansi_files.h"
+#include "ansi_files.h"
 
-// fread
-size_t fwrite(const void* pPtr, size_t memb_size, size_t num_memb, FILE* pFile);
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+size_t __fwrite(const void* buffer, size_t size, size_t count, FILE* stream);
+size_t fwrite(const void* buffer, size_t size, size_t count, FILE* stream);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _MSL_COMMON_DIRECT_IO_H */
