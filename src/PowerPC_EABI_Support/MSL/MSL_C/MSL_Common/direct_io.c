@@ -2,8 +2,17 @@
 #include "critical_regions.h"
 #include "wchar_io.h"
 
-/* 80365494-803657A0 35FDD4 030C+00 1/1 0/0 0/0 .text            __fwrite */
-size_t fwrite(const void* buffer, size_t size, size_t count, FILE* stream) {
+size_t __fread(const void* buffer, size_t size, size_t count, FILE* stream)
+{
+    
+}
+size_t fread(const void* buffer, size_t size, size_t count, FILE* stream)
+{
+
+}
+
+size_t fwrite(const void* buffer, size_t size, size_t count, FILE* stream) 
+{
     size_t retval;
 
     __begin_critical_region(stdin_access);
@@ -13,8 +22,8 @@ size_t fwrite(const void* buffer, size_t size, size_t count, FILE* stream) {
     return (retval);
 }
 
-/* 803657A0-8036581C 3600E0 007C+00 0/0 1/1 0/0 .text            fwrite */
-size_t __fwrite(const void* buffer, size_t size, size_t count, FILE* stream) {
+size_t __fwrite(const void* buffer, size_t size, size_t count, FILE* stream) 
+{
     unsigned char* write_ptr;
     size_t num_bytes, bytes_to_go, bytes_written;
     int ioresult, always_buffer;

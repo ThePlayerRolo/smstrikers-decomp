@@ -1,15 +1,16 @@
 #ifndef _MSL_COMMON_SCANF_H
 #define _MSL_COMMON_SCANF_H
 
+#include "stdio_api.h"
 #include "ansi_files.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum __ReadProcActions { __GetAChar, __UngetAChar, __TestForError };
+// enum __ReadProcActions { __GetAChar, __UngetAChar, __TestForError };
 
-enum __WReadProcActions { __GetAwChar, __UngetAwChar, __TestForwcsError };
+// enum __WReadProcActions { __GetAwChar, __UngetAwChar, __TestForwcsError };
 
 typedef struct {
 	char* CharStr;

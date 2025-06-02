@@ -97,22 +97,6 @@ char* strncpy(char* dst, const char* src, size_t n) {
     return dst;
 }
 
-/* 80368ABC-80368AE8 3633FC 002C+00 0/0 20/20 8/8 .text            strcat */
-char* strcat(char* dst, const char* src) {
-    const unsigned char* p = (unsigned char*)src - 1;
-    unsigned char* q = (unsigned char*)dst - 1;
-
-    while (*++q) {
-    }
-
-    q--;
-
-    while (*++q = *++p) {
-    }
-
-    return dst;
-}
-
 /* 80368994-80368ABC 3632D4 0128+00 0/0 155/155 279/279 .text            strcmp */
 int strcmp(const char* str1, const char* str2) {
     register unsigned char* left = (unsigned char*)str1;
@@ -225,22 +209,28 @@ char* strchr(const char* str, int c) {
     return chr ? NULL : (char*)p;
 }
 
-/* 803688DC-80368924 36321C 0048+00 0/0 1/1 0/0 .text            strrchr */
-char* strrchr(const char* str, int c) {
-    const unsigned char* p = (unsigned char*)str - 1;
-    const unsigned char* q = NULL;
-    unsigned long chr = (c & 0xFF);
+char* strstr(const char* str, const char* pat)
+{
+	const unsigned char* s1 = (const unsigned char*)str - 1;
+	const unsigned char* p1 = (const unsigned char*)pat - 1;
+	unsigned long firstc, c1, c2;
 
-    unsigned long ch;
-    while (ch = *++p) {
-        if (ch == chr) {
-            q = p;
-        }
-    }
+	if ((pat == 0) || (!(firstc = *++p1))) {
+		return (char*)str;
+	}
 
-    if (q != NULL) {
-        return (char*)q;
-    }
+	while (c1 = *++s1) {
+		if (c1 == firstc) {
+			const unsigned char* s2 = s1 - 1;
+			const unsigned char* p2 = p1 - 1;
 
-    return chr ? NULL : (char*)p;
+			while ((c1 = *++s2) == (c2 = *++p2) && c1)
+				;
+
+			if (!c2)
+				return (char*)s1;
+		}
+	}
+
+	return NULL;
 }

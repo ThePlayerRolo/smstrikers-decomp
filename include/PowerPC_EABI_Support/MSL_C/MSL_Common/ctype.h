@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#define EOF -1L
+// #define EOF -1L
 
 extern unsigned char __ctype_map[];
 extern unsigned char __lower_map[];
