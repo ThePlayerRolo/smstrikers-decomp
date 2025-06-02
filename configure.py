@@ -518,6 +518,7 @@ config.libs = [
     RuntimeLib_MSL_C(
         "MSL_C.PPCEABI.bare.H",
         [
+            Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/extras.c"),
             # Object(NonMatching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/alloc.c"),
             Object(NonMatching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ansi_files.c"),
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/abort_exit.c"),
@@ -526,8 +527,8 @@ config.libs = [
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/arith.c"),
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/buffer_io.c"),
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/critical_regions.ppc_eabi.c"),
-            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ctype.c"),
-            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/locale.c"),
+            Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ctype.c"),
+            Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/locale.c"),
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/direct_io.c"),
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mbstring.c"),
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem.c"),

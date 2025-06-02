@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-int strnicmp(const char* str1, const char* str2, int n);
-int stricmp(const char* str1, const char* str2);
+// int strnicmp(const char* str1, const char* str2, int n);
+int strcmpi(const char* str1, const char* str2);
 
 #ifdef __cplusplus
 }

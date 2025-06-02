@@ -5013,42 +5013,42 @@ PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ansi_files.c:
 	.data       start:0x80303DC0 end:0x80303F00
 	.bss        start:0x80346EA8 end:0x803471A8
 
-msl_c.ppceabi.bare.h.a/ansi_fp.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ansi_fp.c:
 	.text       start:0x8022C2D8 end:0x8022F8B4
 	.rodata     start:0x802A11B0 end:0x802A1290
 	.data       start:0x80303F00 end:0x80304068
 	.sdata2     start:0x80377758 end:0x80377788
 
-msl_c.ppceabi.bare.h.a/arith.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/arith.c:
 	.text       start:0x8022F8B4 end:0x8022F8C4
 
-msl_c.ppceabi.bare.h.a/buffer_io.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/buffer_io.c:
 	.text       start:0x8022F8C4 end:0x8022FC30
 
-msl_c.ppceabi.bare.h.a/char_io.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/char_io.c:
 	.text       start:0x8022FC30 end:0x802300D0
 
-msl_c.ppceabi.bare.h.a/critical_regions.gamecube.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/critical_regions.gamecube.c:
 	.text       start:0x802300D0 end:0x802300DC
 
-msl_c.ppceabi.bare.h.a/ctype.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ctype.c:
 	.text       start:0x802300DC end:0x80230100
 	.data       start:0x80304068 end:0x80304368
 
-msl_c.ppceabi.bare.h.a/locale.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/locale.c:
 	.rodata     start:0x802A1290 end:0x802A1298
 	.data       start:0x80304368 end:0x803043A0
 
-msl_c.ppceabi.bare.h.a/direct_io.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/direct_io.c:
 	.text       start:0x80230100 end:0x80230854
 
-msl_c.ppceabi.bare.h.a/file_io.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/file_io.c:
 	.text       start:0x80230854 end:0x80230F14
 
-msl_c.ppceabi.bare.h.a/FILE_POS.C:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/FILE_POS.C:
 	.text       start:0x80230F14 end:0x802312D4
 
-msl_c.ppceabi.bare.h.a/mbstring.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mbstring.c:
 	.text       start:0x802312D4 end:0x802315F8
 	.sdata2     start:0x80377788 end:0x80377790
 
@@ -5071,138 +5071,138 @@ PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/printf.c:
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/float.c:
 	.sdata      start:0x80373458 end:0x80373490
 
-msl_c.ppceabi.bare.h.a/qsort.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/qsort.c:
 	.text       start:0x80233B4C end:0x80233CB8
 
-msl_c.ppceabi.bare.h.a/scanf.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/scanf.c:
 	.text       start:0x80233CB8 end:0x80234D00
 	.rodata     start:0x802A12C0 end:0x802A12E8
 	.data       start:0x803045D0 end:0x803046A0
 
-msl_c.ppceabi.bare.h.a/signal.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/signal.c:
 	.text       start:0x80234D00 end:0x80234DC0
 	.bss        start:0x803471A8 end:0x803471C0
 
-msl_c.ppceabi.bare.h.a/string.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/string.c:
 	.text       start:0x80234DC0 end:0x802350D8
 
-msl_c.ppceabi.bare.h.a/strtold.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/strtold.c:
 	.text       start:0x802350D8 end:0x80236170
 	.rodata     start:0x802A12E8 end:0x802A1320
 	.sdata2     start:0x80377798 end:0x803777B0
 
-msl_c.ppceabi.bare.h.a/strtoul.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/strtoul.c:
 	.text       start:0x80236170 end:0x802369B4
 	.data       start:0x803046A0 end:0x80304728
 
-msl_c.ppceabi.bare.h.a/wcstoul.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/wcstoul.c:
 	.text       start:0x802369B4 end:0x80236E54
 	.data       start:0x80304728 end:0x80304770
 
-msl_c.ppceabi.bare.h.a/wctype.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/wctype.c:
 	.data       start:0x80304770 end:0x80304B70
 
-msl_c.ppceabi.bare.h.a/wscanf.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/wscanf.c:
 	.text       start:0x80236E54 end:0x80236EEC
 
-msl_c.ppceabi.bare.h.a/wchar_io.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/wchar_io.c:
 	.text       start:0x80236EEC end:0x80236F74
 
-msl_c.ppceabi.bare.h.a/uart_console_io_gcn.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/uart_console_io_gcn.c:
 	.text       start:0x80236F74 end:0x80237044
 	.sbss       start:0x803744D8 end:0x803744E0
 
-msl_c.ppceabi.bare.h.a/e_acos.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_acos.c:
 	.text       start:0x80237044 end:0x80237280
 	.sdata2     start:0x803777B0 end:0x80377838
 
-msl_c.ppceabi.bare.h.a/e_fmod.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_fmod.c:
 	.text       start:0x80237280 end:0x802375BC
 	.rodata     start:0x802A1320 end:0x802A1330
 
-msl_c.ppceabi.bare.h.a/e_pow.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_pow.c:
 	.text       start:0x802375BC end:0x80237DEC
 	.rodata     start:0x802A1330 end:0x802A1360
 	.sdata2     start:0x80377838 end:0x80377948
 
-msl_c.ppceabi.bare.h.a/e_rem_pio2.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_rem_pio2.c:
 	.text       start:0x80237DEC end:0x8023818C
 	.rodata     start:0x802A1360 end:0x802A14E8
 	.sdata2     start:0x80377948 end:0x803779A0
 
-msl_c.ppceabi.bare.h.a/k_cos.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/k_cos.c:
 	.text       start:0x8023818C end:0x80238280
 	.sdata2     start:0x803779A0 end:0x803779E8
 
-msl_c.ppceabi.bare.h.a/k_rem_pio2.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/k_rem_pio2.c:
 	.text       start:0x80238280 end:0x802390D4
 	.rodata     start:0x802A14E8 end:0x802A1538
 	.sdata2     start:0x803779E8 end:0x80377A28
 
-msl_c.ppceabi.bare.h.a/k_sin.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/k_sin.c:
 	.text       start:0x802390D4 end:0x80239174
 	.sdata2     start:0x80377A28 end:0x80377A60
 
-msl_c.ppceabi.bare.h.a/k_tan.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/k_tan.c:
 	.text       start:0x80239174 end:0x80239388
 	.rodata     start:0x802A1538 end:0x802A15A0
 	.sdata2     start:0x80377A60 end:0x80377A98
 
-msl_c.ppceabi.bare.h.a/s_atan.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_atan.c:
 	.text       start:0x80239388 end:0x802395A0
 	.rodata     start:0x802A15A0 end:0x802A1638
 	.sdata2     start:0x80377A98 end:0x80377AC0
 
-msl_c.ppceabi.bare.h.a/s_ceil.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_ceil.c:
 	.text       start:0x802395A0 end:0x802396E4
 	.sdata2     start:0x80377AC0 end:0x80377AD0
 
-msl_c.ppceabi.bare.h.a/s_copysign.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_copysign.c:
 	.text       start:0x802396E4 end:0x8023970C
 
-msl_c.ppceabi.bare.h.a/s_floor.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_floor.c:
 	.text       start:0x8023970C end:0x80239854
 	.sdata2     start:0x80377AD0 end:0x80377AE0
 
-msl_c.ppceabi.bare.h.a/s_frexp.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_frexp.c:
 	.text       start:0x80239854 end:0x802398E0
 	.sdata2     start:0x80377AE0 end:0x80377AE8
 
-msl_c.ppceabi.bare.h.a/s_ldexp.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_ldexp.c:
 	.text       start:0x802398E0 end:0x80239AA4
 	.sdata2     start:0x80377AE8 end:0x80377B10
 
-msl_c.ppceabi.bare.h.a/s_modf.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_modf.c:
 	.text       start:0x80239AA4 end:0x80239BA0
 
-msl_c.ppceabi.bare.h.a/s_sin.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_sin.c:
 	.text       start:0x80239BA0 end:0x80239C78
 	.sdata2     start:0x80377B10 end:0x80377B18
 
-msl_c.ppceabi.bare.h.a/s_tan.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/s_tan.c:
 	.text       start:0x80239C78 end:0x80239CF0
 	.sdata2     start:0x80377B18 end:0x80377B20
 
-msl_c.ppceabi.bare.h.a/w_acos.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/w_acos.c:
 	.text       start:0x80239CF0 end:0x80239D10
 
-msl_c.ppceabi.bare.h.a/w_fmod.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/w_fmod.c:
 	.text       start:0x80239D10 end:0x80239D30
 
-msl_c.ppceabi.bare.h.a/w_pow.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/w_pow.c:
 	.text       start:0x80239D30 end:0x80239D50
 
-msl_c.ppceabi.bare.h.a/e_sqrt.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_sqrt.c:
 	.text       start:0x80239D50 end:0x80239F74
 	.sdata2     start:0x80377B20 end:0x80377B28
 
-msl_c.ppceabi.bare.h.a/math_ppc.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/math_ppc.c:
 	.text       start:0x80239F74 end:0x80239FE0
 
-msl_c.ppceabi.bare.h.a/w_sqrt.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/w_sqrt.c:
 	.text       start:0x80239FE0 end:0x8023A000
 
-msl_c.ppceabi.bare.h.a/extras.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/extras.c:
 	.text       start:0x8023A000 end:0x8023A08C
 
 PowerPC_EABI_Support/Runtime/__va_arg.c:
