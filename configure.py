@@ -461,6 +461,7 @@ config.libs = [
             Object(NonMatching, "Game/main.cpp"),
             Object(NonMatching, "Game/Ball.cpp"),
             Object(NonMatching, "Game/Math/rotation.c"),
+            Object(NonMatching, "Game/Team.cpp")
         ],
     ),
     GameLib(
