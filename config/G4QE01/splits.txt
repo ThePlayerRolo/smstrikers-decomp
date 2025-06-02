@@ -452,7 +452,7 @@ StatsGatherer.o:
 	.text       start:0x800643AC end:0x800643AC
 	.data       start:0x802A7CA8 end:0x802A7CC0
 
-Team.o:
+Game/Team.cpp:
 	.text       start:0x800643AC end:0x800661D4
 	.text       start:0x800661D4 end:0x800661D4
 	.text       start:0x800661D4 end:0x800661D4
