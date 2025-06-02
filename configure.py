@@ -276,10 +276,10 @@ cflags_musyx = [
     "-nodefaults",
     "-nosyspath",
     "-i include",
-    # "-i extern/musyx/include",
+    "-i extern/musyx/include",
     # "-i libc",
-    # "-inline auto,depth=4",
-    "-inline auto",
+    "-inline auto,depth=4",
+    # "-inline auto",
     "-O4,p",
     "-fp hard",
     "-enum int",
@@ -296,7 +296,7 @@ cflags_musyx_debug = [
     "-nodefaults",
     "-nosyspath",
     "-i include",
-    # "-i extern/musyx/include",
+    "-i extern/musyx/include",
     # "-i libc",
     "-g",
     "-sym on",
@@ -404,6 +404,7 @@ def RuntimeLib(lib_name: str, objects: Objects) -> Library:
         category="runtime",
     )
 
+
 def RuntimeLib_MSL_C(lib_name: str, objects: Objects) -> Library:
     return Lib(
         lib_name,
@@ -418,6 +419,7 @@ def RuntimeLib_MSL_C(lib_name: str, objects: Objects) -> Library:
         category="runtime",
     )
 
+
 def GameLib(lib_name: str, objects: Objects) -> Library:
     return Lib(
         lib_name,
@@ -430,6 +432,7 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
         ],
         category="game",
     )
+
 
 def DolphinLib(lib_name: str, objects: Objects, cflags=cflags_dolphin) -> Library:
     return Lib (
@@ -447,6 +450,7 @@ def DolphinLib(lib_name: str, objects: Objects, cflags=cflags_dolphin) -> Librar
         cflags=cflags,
         category="sdk",
     )
+
 
 def DolphinTrkLib(lib_name: str, objects: Objects, cflags=cflags_trk_minnow_dolphin) -> Library:
     src_dir = None
@@ -469,14 +473,15 @@ def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, pat
     return Lib (
         lib_name,
         objects,
+        src_dir="extern/musyx/src",
         includes=[
             *includes_base,
             "src/Dolphin",
         ],
-        system_includes=[
-            *system_includes_base,
-            "include/Dolphin",
-        ],
+        # system_includes=[
+        #     *system_includes_base,
+        #     "include/Dolphin",
+        # ],
         mw_version="GC/1.3.2",
         cflags=[
             *cflags,
@@ -486,6 +491,7 @@ def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, pat
         ],
         category="third_party",
     )
+
 
 Matching = True                   # Object matches and should be linked
 NonMatching = False               # Object does not match and should not be linked

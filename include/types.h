@@ -92,10 +92,6 @@ typedef u16 wchar_t;
 #define MIN(a, b) (((a) < (b)) ? (a) : (b)) // Returns the minimum of a and b
 #endif
 
-#ifndef CLAMP
-#define CLAMP(val, min, max) ((val) > (max) ? (max) : (val) < (min) ? (min) : (val))
-#endif
-
 #ifndef ALIGN_DECL
 #define ALIGN_DECL(ALIGNMENT) __attribute__((aligned(ALIGNMENT)))
 #endif

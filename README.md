@@ -79,6 +79,12 @@ Building
   git clone --recursive https://github.com/yannicksuter/smstrikers-decomp
   ```
 
+  If you've already cloned the repository without --recursive, initialize the submodule manually:
+
+  ```sh
+  git submodule update --init --recursive
+  ```
+
 - To update the repository and its submodules in one go:
 
   ```sh

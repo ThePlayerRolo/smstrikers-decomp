@@ -8,6 +8,8 @@
 #include "__os.h"
 #include "__vi.h"
 
+#define CLAMP(val, min, max) ((val) > (max) ? (max) : (val) < (min) ? (min) : (val))
+
 #ifdef DEBUG
 const char* __VIVersion = "<< Dolphin SDK - VI\tdebug build: Apr  7 2004 03:55:59 (0x2301) >>";
 #else
