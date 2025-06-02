@@ -1,5 +1,5 @@
 #include <types.h>
-#include "Game/Ball.h"
+#include "Ball.h"
 
 void cBall::PredictLandingSpotAndTime(nlVector3&)
 {

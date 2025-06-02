@@ -2,37 +2,32 @@
 #define _CBALL_H_
 
 #include <types.h>
+#include "Player.h"
+#include "../NL/nlMath.h"
 
-class cPlayer;
-
-struct nlVector3 {
-    float x;
-    float y;
-    float z;
-
-    nlVector3() : x(0.0f), y(0.0f), z(0.0f) {}
-    nlVector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
-};
-
-enum eSpinType {
+enum eSpinType
+{
     eSpinType_None = 0,
     eSpinType_Topspin = 1,
     eSpinType_Backspin = 2,
 };
 
-enum eBallShotEffectType {
+enum eBallShotEffectType
+{
     eBallShotEffectType_None = 0,
     eBallShotEffectType_BuzzerBeater = 1,
     eBallShotEffectType_Pass = 2,
     eBallShotEffectType_Shot = 3,
 };
 
-struct _something {
+struct _something
+{
     u8 padding2[0x8c];
     u32 m_ix8c;
 };
 
-class cBall {
+class cBall
+{
 public:
     // u8 padding1[0x20];
     // _something* m_ix20;
