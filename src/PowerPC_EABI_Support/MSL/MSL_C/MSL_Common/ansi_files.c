@@ -1,17 +1,14 @@
 #include "ansi_files.h"
 #include "critical_regions.h"
 
-/* 8044D778-8044D878 07A498 0100+00 1/0 0/0 0/0 .bss             stdin_buff */
 static unsigned char stdin_buff[0x100];
 
-/* 8044D678-8044D778 07A398 0100+00 1/0 0/0 0/0 .bss             stdout_buff */
 static unsigned char stdout_buff[0x100];
 
-/* 8044D578-8044D678 07A298 0100+00 1/0 0/0 0/0 .bss             stderr_buff */
 static unsigned char stderr_buff[0x100];
 
-/* 803D29B0-803D2AF0 -00001 0140+00 3/2 15/15 0/0 .data            __files */
-extern files __files = {
+extern files __files = 
+{
     {
         0,
         0,
@@ -212,8 +209,6 @@ unsigned int __flush_all(void)
 
     return ret;
 }
-
-#define	EOF	(-1)
 
 int __flush_line_buffered_output_files(void)
 {

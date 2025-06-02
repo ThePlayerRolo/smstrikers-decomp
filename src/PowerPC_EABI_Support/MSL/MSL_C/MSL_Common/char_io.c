@@ -1,10 +1,39 @@
 #include "char_io.h"
 #include "critical_regions.h"
 #include "misc_io.h"
+#include "buffer_io.h"
 #include "wchar_io.h"
 
-/* 803652AC-80365464 35FBEC 01B8+00 1/1 0/0 0/0 .text            __put_char */
-int __put_char(int c, FILE* stream) {
+char * fgets(char * s, int n, FILE * file)
+{
+	char *	p = s;
+	int			c;
+	
+	if (--n < 0)
+		return(NULL);
+	
+	if (n)
+		do
+		{
+			c = getc(file);
+			
+			if (c == EOF)
+				if (file->file_state.eof && p != s)
+					break;
+				else
+					return(NULL);
+			
+			*p++ = c;
+		}
+		while (c != '\n' && --n);
+	
+	*p = 0;
+	
+	return(s);    
+}
+
+int __put_char(int c, FILE* stream) 
+{
     int ret;
 
     int file_kind = stream->file_mode.file_kind;
@@ -62,8 +91,8 @@ exit:
     return ret;
 }
 
-/* 803651D8-803652AC 35FB18 00D4+00 0/0 1/1 0/0 .text            fputs */
-int fputs(const char* s, FILE* stream) {
+int fputs(const char* s, FILE* stream) 
+{
     char c;
     int var_r3;
     unsigned long len;

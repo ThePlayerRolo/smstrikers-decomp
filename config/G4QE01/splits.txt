@@ -5028,7 +5028,7 @@ PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/buffer_io.c:
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/char_io.c:
 	.text       start:0x8022FC30 end:0x802300D0
 
-PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/critical_regions.gamecube.c:
+PowerPC_EABI_Support/MSL/MSL_C/PPC_EABI/critical_regions.gamecube.c:
 	.text       start:0x802300D0 end:0x802300DC
 
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/ctype.c:

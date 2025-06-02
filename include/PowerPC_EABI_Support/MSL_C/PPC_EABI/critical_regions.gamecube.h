@@ -3,4 +3,4 @@
 
 
 
-#endif /* PPC_EABI_SRC_CRITICAL_REGIONSGAMECUBE_H */
+#endif

@@ -1,5 +1,5 @@
-#include "PowerPC_EABI_Support/MSL_C/MSL_Common/alloc.h"
-#include "PowerPC_EABI_Support/MSL_C/MSL_Common/critical_regions.h"
+#include "alloc.h"
+#include "critical_regions.h"
 
 // #if __MIPS__
 	// typedef size_t mem_size;  /* must be same size as void* */
