@@ -1,4 +1,4 @@
-#include "FILE_POS.h"
+#include "file_pos.h"
 #include "critical_regions.h"
 #include "errno.h"
 
@@ -12,7 +12,7 @@ long ftell(FILE* stream) {
     return retval;
 }
 
-int _ftell(FILE* file) {
+inline int _ftell(FILE* file) {
     int charsInUndoBuffer = 0;
     int position;
 

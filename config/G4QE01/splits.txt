@@ -5045,7 +5045,7 @@ PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/direct_io.c:
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/file_io.c:
 	.text       start:0x80230854 end:0x80230F14
 
-PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/FILE_POS.C:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/file_pos.c:
 	.text       start:0x80230F14 end:0x802312D4
 
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mbstring.c:
@@ -5108,7 +5108,7 @@ PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/wscanf.c:
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/wchar_io.c:
 	.text       start:0x80236EEC end:0x80236F74
 
-PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/uart_console_io_gcn.c:
+PowerPC_EABI_Support/MSL/MSL_C/PPC_EABI/uart_console_io_gcn.c:
 	.text       start:0x80236F74 end:0x80237044
 	.sbss       start:0x803744D8 end:0x803744E0
 
@@ -5196,7 +5196,7 @@ PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/e_sqrt.c:
 	.text       start:0x80239D50 end:0x80239F74
 	.sdata2     start:0x80377B20 end:0x80377B28
 
-PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/math_ppc.c:
+PowerPC_EABI_Support/MSL/MSL_C/PPC_EABI/math_ppc.c:
 	.text       start:0x80239F74 end:0x80239FE0
 
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/w_sqrt.c:
