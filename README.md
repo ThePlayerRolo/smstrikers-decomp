@@ -73,13 +73,19 @@ Linux
 Building
 ========
 
-- Clone the repository:
+- Clone the repository (including the `musyx` submodule):
 
   ```sh
-  git clone https://github.com/my/repo.git
+  git clone --recursive https://github.com/yannicksuter/smstrikers-decomp
   ```
 
-- Copy your game's disc image to `orig/GAMEID`.
+- To update the repository and its submodules in one go:
+
+  ```sh
+  git pull --recurse-submodules
+  ```
+
+- Copy your game's disc image to `orig/G4QE01`.
   - Supported formats: ISO (GCM), RVZ, WIA, WBFS, CISO, NFS, GCZ, TGC
   - After the initial build, the disc image can be deleted to save space.
 
@@ -105,5 +111,3 @@ Once the initial build succeeds, an `objdiff.json` should exist in the project r
 Download the latest release from [encounter/objdiff](https://github.com/encounter/objdiff). Under project settings, set `Project directory`. The configuration should be loaded automatically.
 
 Select an object from the left sidebar to begin diffing. Changes to the project will rebuild automatically: changes to source files, headers, `configure.py`, `splits.txt` or `symbols.txt`.
-
-![](assets/objdiff.png)
