@@ -1,4 +1,4 @@
-#include "mem_funcs.h"
+#include "PowerPC_EABI_Support/MSL_C/MSL_Common/mem_funcs.h"
 
 #define cps ((unsigned char*)src)
 #define cpd ((unsigned char*)dst)

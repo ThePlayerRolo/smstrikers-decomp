@@ -5055,10 +5055,10 @@ msl_c.ppceabi.bare.h.a/mbstring.c:
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem.c:
 	.text       start:0x802315F8 end:0x80231768
 
-msl_c.ppceabi.bare.h.a/mem_funcs.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem_funcs.c:
 	.text       start:0x80231768 end:0x80231A38
 
-msl_c.ppceabi.bare.h.a/misc_io.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/misc_io.c:
 	.text       start:0x80231A38 end:0x80231A58
 
 msl_c.ppceabi.bare.h.a/printf.c:
