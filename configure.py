@@ -512,6 +512,7 @@ config.libs = [
             Object(Matching, "PowerPC_EABI_Support/Runtime/runtime.c"),
             Object(Matching, "PowerPC_EABI_Support/Runtime/Gecko_ExceptionPPC.cpp"),
             Object(NonMatching, "PowerPC_EABI_Support/Runtime/NMWException.cpp"),
+            Object(Matching, "PowerPC_EABI_Support/Runtime/GCN_mem_alloc.c"),
         ],
     ),
     RuntimeLib_MSL_C(
