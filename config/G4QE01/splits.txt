@@ -5061,7 +5061,7 @@ PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem_funcs.c:
 PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/misc_io.c:
 	.text       start:0x80231A38 end:0x80231A58
 
-msl_c.ppceabi.bare.h.a/printf.c:
+PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/printf.c:
 	.text       start:0x80231A58 end:0x80233B4C
 	.rodata     start:0x802A1298 end:0x802A12C0
 	.data       start:0x803043A0 end:0x803045D0

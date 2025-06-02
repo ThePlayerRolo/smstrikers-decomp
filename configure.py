@@ -343,7 +343,8 @@ cflags_trk_minnow_dolphin = [
 
 includes_base = [
     "include",
-    "include/libc",
+    # "include/libc",
+    "include/PowerPC_EABI_Support/MSL_C/MSL_Common/", #instead of libc, which is a copy of it...
 ]
 
 system_includes_base = [
@@ -385,9 +386,6 @@ def Lib(
         "progress_category": category,
         "objects": objects,
     }
-
-    if fix_trk:
-        lib["mw_version"] = "GC/1.1p1"
 
     if src_dir is not None:
         lib["src_dir"] = src_dir
@@ -467,8 +465,7 @@ def DolphinTrkLib(lib_name: str, objects: Objects, cflags=cflags_trk_minnow_dolp
         category="sdk",
     )
 
-# def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, patch=3) -> Library:
-def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, patch=2) -> Library:
+def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, patch=3) -> Library:
     cflags = cflags_musyx if not debug else cflags_musyx_debug
     return Lib (
         lib_name,
@@ -478,10 +475,6 @@ def MusyxLib(lib_name: str, objects: Objects, debug=False, major=2, minor=0, pat
             *includes_base,
             "src/Dolphin",
         ],
-        # system_includes=[
-        #     *system_includes_base,
-        #     "include/Dolphin",
-        # ],
         mw_version="GC/1.3.2",
         cflags=[
             *cflags,
@@ -539,7 +532,7 @@ config.libs = [
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem.c"),
             Object(NonMatching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/mem_funcs.c"),
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/misc_io.c"),
-            # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/printf.c"),
+            # Object(NonMatching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/printf.c"),
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/rand.c"),
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/scanf.c"),
             # Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/string.c"),
@@ -792,7 +785,7 @@ config.libs = [
             Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/__exception.s"),
 
             Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/targimpl.c"),
-            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/mslsupp.c"),
+            Object(NonMatching, "SDK/TRK_MINNOW_DOLPHIN/mslsupp.c", extra_cflags=["-enum int"]),
         ]
     ),  
 ]

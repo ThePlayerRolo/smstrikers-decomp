@@ -1,103 +1,229 @@
-#ifndef MSL_MATH_H_
-#define MSL_MATH_H_
+#ifndef _MATH_H_
+#define _MATH_H_
 
-#include "float.h"
-
-#define NAN (*(float*) __float_nan)
-#define HUGE_VALF (*(float*) __float_huge)
-
-#define M_PI 3.14159265358979323846f
-#define M_SQRT3 1.73205f
-
-#define DEG_TO_RAD(degrees) (degrees * (M_PI / 180.0f))
-#define RAD_TO_DEG(radians) (radians / (180.0f / M_PI))
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int abs(int);
-double acos(double);
-float acosf(float);
-double asin(double);
-double atan(double);
-double atan2(double, double);
+#define M_PI 3.141592653589793
 
-double ceil(double);
-inline float ceilf(float num) {
-    return ceil(num);
+#ifndef _MATH_INLINE
+#define _MATH_INLINE static inline
+#endif
+
+#ifdef __MWERKS__
+
+/* Metrowerks */
+#if __option(little_endian)
+#define __IEEE_LITTLE_ENDIAN
+#else
+#define __IEEE_BIG_ENDIAN
+#endif
+
+#else
+
+/* GCC */
+#ifdef __BIG_ENDIAN__
+#define __IEEE_BIG_ENDIAN
+#endif
+#ifdef __LITTLE_ENDIAN__
+#define __IEEE_LITTLE_ENDIAN
+#endif
+
+#endif
+
+#ifndef __IEEE_BIG_ENDIAN
+#ifndef __IEEE_LITTLE_ENDIAN
+#error Must define endianness
+#endif
+#endif
+
+#ifndef _INT32
+typedef int _INT32;
+typedef unsigned int _UINT32;
+#endif
+
+#ifdef __MWERKS__
+#define abs(n) __abs(n)
+#define labs(n) __labs(n)
+_MATH_INLINE double fabs(double x) { return __fabs(x); }
+#else
+int abs(int n);
+long labs(long n);
+#endif
+
+extern _INT32 __float_huge[];
+extern _INT32 __float_nan[];
+extern _INT32 __double_huge[];
+extern _INT32 __extended_huge[];
+extern _INT32 __extended_min[];
+extern _INT32 __extended_max[];
+extern _INT32 __extended_epsilon[];
+extern _INT32 __double_min[];
+extern _INT32 __double_max[];
+
+#define HUGE_VAL (*(double*)__double_huge)
+#define INFINITY (*(float*)__float_huge)
+#define NAN (*(float*)__float_nan)
+#define HUGE_VALF (*(float*)__float_huge)
+#define HUGE_VALL (*(long double*)__extended_huge)
+
+double fabs(double x);
+double fmod(double x, double m);
+double sin(double x);
+double cos(double x);
+double atan(double x);
+double atan2(double y, double x);
+double tan(double x);
+double ceil(double x);
+
+_MATH_INLINE float fabsf(float x) { return (float)fabs((double)x); }
+_MATH_INLINE float sinf(float x) { return (float)sin((double)x); }
+_MATH_INLINE float cosf(float x) { return (float)cos((double)x); }
+_MATH_INLINE float atan2f(float y, float x) { return (float)atan2((double)y, (double)x); }
+_MATH_INLINE float fmodf(float x, float m) { return (float)fmod((double)x, (double)m); }
+float tanf(float x);
+double asin(double x);
+double acos(double x);
+_MATH_INLINE float acosf(float x) { return (float)acos((double)x); }
+double log(double x);
+double exp(double x);
+
+double ldexp(double x, int exp);
+
+double copysign(double x, double y);
+
+double floor(double x);
+_MATH_INLINE float floorf(float x) { return floor(x); }
+
+double fabs(double x);
+double pow(double x, double y);
+_MATH_INLINE float powf(float __x, float __y) { return pow(__x, __y); }
+
+#ifdef __MWERKS__
+#pragma cplusplus on
+#endif
+
+#ifdef __IEEE_LITTLE_ENDIAN
+#define __HI(x) (sizeof(x) == 8 ? *(1 + (_INT32*)&x) : (*(_INT32*)&x))
+#define __LO(x) (*(_INT32*)&x)
+#define __UHI(x) (sizeof(x) == 8 ? *(1 + (_UINT32*)&x) : (*(_UINT32*)&x))
+#define __ULO(x) (*(_UINT32*)&x)
+#else
+#define __LO(x) (sizeof(x) == 8 ? *(1 + (_INT32*)&x) : (*(_INT32*)&x))
+#define __HI(x) (*(_INT32*)&x)
+#define __ULO(x) (sizeof(x) == 8 ? *(1 + (_UINT32*)&x) : (*(_UINT32*)&x))
+#define __UHI(x) (*(_UINT32*)&x)
+#endif
+
+#define signbit(x)((int)(__HI(x)&0x80000000))
+
+#define FP_NAN 1
+#define FP_INFINITE 2
+#define FP_ZERO 3
+#define FP_NORMAL 4
+#define FP_SUBNORMAL 5
+
+static inline int __fpclassifyf(float x) {
+  switch ((*(_INT32*)&x) & 0x7f800000) {
+  case 0x7f800000: {
+    if ((*(_INT32*)&x) & 0x007fffff)
+      return FP_NAN;
+    else
+      return FP_INFINITE;
+    break;
+  }
+  case 0: {
+    if ((*(_INT32*)&x) & 0x007fffff)
+      return FP_SUBNORMAL;
+    else
+      return FP_ZERO;
+    break;
+  }
+  }
+  return FP_NORMAL;
 }
 
-double copysign(double, double);
-double cos(double);
-float cosf(float);
-double exp(double);
-
-extern double __frsqrte(double);
-extern float __fres(float);
-
-extern double __fabs(double);
-extern float __fabsf(float);
-inline double fabs(double f) {
-    return __fabs(f);
-}
-inline double fabsf2(float f) {
-    return __fabsf(f);
-}
-inline float fabsf(float f) {
-    return fabsf2(f);
-}
-
-double floor(double);
-inline float floorf(float num) {
-    return floor(num);
+static inline int __fpclassifyd(double x) {
+  switch (__HI(x) & 0x7ff00000) {
+  case 0x7ff00000: {
+    if ((__HI(x) & 0x000fffff) || (__LO(x) & 0xffffffff))
+      return FP_NAN;
+    else
+      return FP_INFINITE;
+    break;
+  }
+  case 0: {
+    if ((__HI(x) & 0x000fffff) || (__LO(x) & 0xffffffff))
+      return FP_SUBNORMAL;
+    else
+      return FP_ZERO;
+    break;
+  }
+  }
+  return FP_NORMAL;
 }
 
-double fmod(double, double);
-inline float fmodf(float f1, float f2) {
-    return fmod(f1, f2);
+#define fpclassify(x)                                                                              \
+  (sizeof(x) == sizeof(float) ? __fpclassifyf((float)(x)) : __fpclassifyd((double)(x)))
+#define isnormal(x) (fpclassify(x) == FP_NORMAL)
+#define isnan(x) (fpclassify(x) == FP_NAN)
+#define isinf(x) (fpclassify(x) == FP_INFINITE)
+#define isfinite(x) ((fpclassify(x) > FP_INFINITE))
+
+#ifdef __MWERKS__
+
+extern inline float sqrtf(float x) {
+  static const double _half = .5;
+  static const double _three = 3.0;
+  volatile float y;
+
+  if (x > 0.0f) {
+    double guess = __frsqrte((double)x);                  // returns an approximation to
+    guess = _half * guess * (_three - guess * guess * x); // now have 12 sig bits
+    guess = _half * guess * (_three - guess * guess * x); // now have 24 sig bits
+    guess = _half * guess * (_three - guess * guess * x); // now have 32 sig bits
+    y = (float)(x * guess);
+    return y;
+  }
+  return x;
 }
 
-double frexp(double, int*);
-double ldexp(double, int);
-double modf(double, double*);
-double pow(double, double);
-double sin(double);
-float sinf(float);
-double sqrt(double);
-double tan(double);
-float tanf(float);
-
-inline double sqrt_step(double tmpd, float mag) {
-    return tmpd * 0.5 * (3.0 - mag * (tmpd * tmpd));
+_MATH_INLINE double sqrt(double x) {
+  if (x > 0.0) {
+    double guess = __frsqrte(x);                    /* returns an approximation to  */
+    guess = .5 * guess * (3.0 - guess * guess * x); /* now have 8 sig bits          */
+    guess = .5 * guess * (3.0 - guess * guess * x); /* now have 16 sig bits         */
+    guess = .5 * guess * (3.0 - guess * guess * x); /* now have 32 sig bits         */
+    guess = .5 * guess * (3.0 - guess * guess * x); /* now have > 53 sig bits       */
+    return x * guess;
+  } else if (x == 0.0) {
+    return 0;
+  } else if (x) {
+    return NAN;
+  }
+  return INFINITY;
 }
+#else
+float sqrtf(float x);
+double sqrt(double x);
+#endif
 
-inline float sqrtf(float mag) {
-    if (mag > 0.0f) {
-        double tmpd = __frsqrte(mag);
-        tmpd = sqrt_step(tmpd, mag);
-        tmpd = sqrt_step(tmpd, mag);
-        tmpd = sqrt_step(tmpd, mag);
-        return mag * tmpd;
-    } else if (mag < 0.0) {
-        return NAN;
-    } else if (fpclassify(mag) == 1) {
-        return NAN;
-    } else {
-        return mag;
-    }
-}
+#ifdef __MWERKS__
+#pragma cplusplus reset
+#endif
 
-inline float atan2f(float y, float x) {
-    return (float)atan2(y, x);
-}
+static inline float ldexpf(float x, int exp) { return (float)ldexp((double)x, exp); }
+double frexp(double, int *exp);
+static inline double scalbn(double x, int n) { return ldexp(x, n); }
+static inline float scalbnf(float x, int n) { return (float)ldexpf(x, n); }
+double nextafter(double, double);
 
-inline float i_sinf(float x) { return sin(x); }
-inline float i_cosf(float x) { return cos(x); }
-inline float i_tanf(float x) { return tan(x); }
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif

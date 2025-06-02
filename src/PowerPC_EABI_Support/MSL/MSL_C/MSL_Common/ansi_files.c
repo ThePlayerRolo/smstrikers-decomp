@@ -1,5 +1,5 @@
-#include "PowerPC_EABI_Support/MSL_C/MSL_Common/ansi_files.h"
-#include "PowerPC_EABI_Support/MSL_C/MSL_Common/critical_regions.h"
+#include "ansi_files.h"
+#include "critical_regions.h"
 
 /* 8044D778-8044D878 07A498 0100+00 1/0 0/0 0/0 .bss             stdin_buff */
 static unsigned char stdin_buff[0x100];

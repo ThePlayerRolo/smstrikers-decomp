@@ -8,6 +8,8 @@
 #include "__os.h"
 #include "__vi.h"
 
+#include "types.h"
+
 #define CLAMP(val, min, max) ((val) > (max) ? (max) : (val) < (min) ? (min) : (val))
 
 #ifdef DEBUG
