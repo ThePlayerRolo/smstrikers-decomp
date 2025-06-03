@@ -1,5 +1,9 @@
 #include "types.h"
 
+static float fUnk_504 = 0.0000000004656613f;
+
+extern void seedMT(u32 p);
+
 /* 
  * Calculates a Bezier curve point using input parameters and stores result in out array
  * Address: 0x801D1474, Size: 0x1D4, Scope: global 
@@ -91,29 +95,37 @@ void nlRandomf(float in1, unsigned int *out)
 }
 
 /* 
- * Generates a random integer between 0 and in1, stores result in out
+ * Generates a random integer ...
  * Address: 0x801D1E60, Size: 0x34, Scope: global 
  */
-void nlRandom(unsigned int in1, unsigned int *out)
+int nlRandom(uint param_1,uint *param_2)
 {
-// todo
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  
+  uVar1 = *param_2;
+  uVar2 = uVar1 ^ 0x1d872b41;
+  uVar3 = uVar2 ^ (uVar2 >> 5);
+  *param_2 = uVar2 ^ uVar3 ^ (uVar3 << 0x1b);
+  return uVar1 - (uVar1 / param_1) * param_1;
 }
 
 /* 
  * Sets the random number generator seed
  * Address: 0x801D1E94, Size: 0x2C, Scope: global 
  */
-void nlSetRandomSeed(unsigned int initialSeed, unsigned int *seedStorage)
+void nlSetRandomSeed(uint initialSeed, uint *seedStorage)
 {
-    unsigned int mixedValue;
-    unsigned int shiftedValue;
+    uint shiftedValue;
+    uint mixedValue;
     
     *seedStorage = initialSeed;
     
     mixedValue = *seedStorage ^ 0x1d872b41;  // Mix with constant   
     shiftedValue = mixedValue ^ (mixedValue >> 5);  // Mix with right-shifted value
     
-    *seedStorage = mixedValue ^ shiftedValue ^ (shiftedValue << 0x1b);  // Final mixing
+    *seedStorage = shiftedValue ^ (mixedValue ^ (shiftedValue << 0x1b));  // Final mixing
 }
 
 /* 
@@ -122,5 +134,5 @@ void nlSetRandomSeed(unsigned int initialSeed, unsigned int *seedStorage)
  */
 void nlInitRandom()
 {
-// todo
+    seedMT(0x1105);
 }
