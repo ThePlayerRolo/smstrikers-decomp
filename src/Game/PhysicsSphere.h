@@ -11,7 +11,7 @@ public:
     PhysicsSphere(CollisionSpace*, PhysicsWorld*, float);
 
     void SetRadius(float);
-    float GetRadius();
+    void GetRadius(float *);
 };
 
 #endif

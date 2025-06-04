@@ -21,4 +21,22 @@ struct nlVector3
     }
 };
 
+struct nlMatrix4
+{
+    float m[4][4];
+
+    nlMatrix4()
+    {
+    }
+};
+
+struct nlMatrix3
+{
+    float m[3][4];
+
+    nlMatrix3()
+    {
+    }
+};
+
 #endif

@@ -14,6 +14,11 @@ typedef union {
     float a[12];      // flat array representation
 } Matrix3x4; 
 
+typedef union {
+    float m[4][4];    // 3x4 matrix representation
+    float a[16];      // flat array representation
+} Matrix4; 
+
 typedef struct {
   float x;
   float y;
