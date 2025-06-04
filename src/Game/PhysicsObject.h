@@ -1,15 +1,21 @@
 #ifndef _PHYSICSOBJECT_H_
 #define _PHYSICSOBJECT_H_
 
-#include "nlMath.h"
+#include "../NL/nlMath.h"
 
 class dContact;
+class dxSpace;
+class PhysicsWorld;
 
 void ConvertDMat3ToNLMat4(const float*, nlMatrix4*);
 
 class PhysicsObject
 {
 public:
+    enum CoordinateType {
+        option0 = 0,
+    };
+
     void CloneObject(const PhysicsObject&);
     void Contact(PhysicsObject*, dContact*, int, PhysicsObject*);
     void Contact(PhysicsObject*, dContact*, int);
@@ -34,7 +40,7 @@ public:
     void SetRotation(const nlMatrix3&);
     void GetPosition();
     void GetPosition(nlVector3*) const;
-    void SetPosition(const nlVector3&, PhysicsObject::CoordinateType);
+    void SetPosition(const nlVector3&, CoordinateType);
     void PostUpdate();
     void PreUpdate();
     void CheckForNaN();

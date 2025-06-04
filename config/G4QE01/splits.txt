@@ -4442,7 +4442,7 @@ PhysicsFinitePlane.o:
 	.text       start:0x801FFCFC end:0x801FFCFC
 	.sdata2     start:0x80377458 end:0x80377460
 
-PhysicsObject.o:
+Game/PhysicsObject.cpp:
 	.text       start:0x801FFCFC end:0x80201130
 	.text       start:0x80201130 end:0x80201130
 	.text       start:0x80201130 end:0x80201198
@@ -4827,7 +4827,7 @@ joint.o:
 	.data       start:0x80303C00 end:0x80303C18
 	.sdata2     start:0x803776B8 end:0x803776C0
 
-matrix.o:
+ode/matrix.cpp:
 	.text       start:0x8021EADC end:0x8021F8B4
 	.sdata2     start:0x803776C0 end:0x803776C8
 
@@ -4835,7 +4835,7 @@ memory.o:
 	.text       start:0x8021F8B4 end:0x8021F944
 	.sbss       start:0x80374490 end:0x803744A0
 
-mass.o:
+ode/mass.cpp:
 	.text       start:0x8021F944 end:0x802201EC
 	.sdata2     start:0x803776C8 end:0x803776F0
 
@@ -4843,11 +4843,11 @@ obstack.o:
 	.text       start:0x802201EC end:0x80220508
 	.data       start:0x80303C18 end:0x80303C30
 
-odemath.o:
+ode/odemath.cpp:
 	.text       start:0x80220508 end:0x80220894
 	.sdata2     start:0x803776F0 end:0x80377700
 
-ode.o:
+ode/ode.cpp:
 	.text       start:0x80220894 end:0x80221A74
 	.data       start:0x80303C30 end:0x80303C68
 	.sdata2     start:0x80377700 end:0x80377718
@@ -4856,7 +4856,7 @@ quickstep.o:
 	.text       start:0x80221A74 end:0x80223658
 	.sdata2     start:0x80377718 end:0x80377720
 
-Game/Math/rotation.c:
+ode/rotation.cpp:
 	.text       start:0x80223658 end:0x80223A4C
 	.sdata2     start:0x80377720 end:0x80377730
 

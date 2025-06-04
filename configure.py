@@ -275,6 +275,30 @@ cflags_dolphin = [
     # "-DSDK_REVISION=1",
 ]
 
+cflags_ode = [
+    "-nodefaults",
+    "-proc gekko",
+    "-align powerpc",
+    "-enum int",
+    "-fp hardware",
+    "-Cpp_exceptions off",
+    "-O4,p",
+    # "-inline off",
+    "-inline auto, deferred",
+    "-maxerrors 1",
+    "-nosyspath",
+    "-fp_contract off",
+    "-multibyte",
+    '-pragma "cats off"',
+    '-pragma "warn_notinlined off"',
+    "-RTTI off",
+    "-char signed",
+    "-use_lmw_stmw on",
+    "-str reuse,pool,readonly",
+    "-common off",
+    "-cwd source",
+]
+
 cflags_musyx = [
     "-proc gekko",
     "-nodefaults",
@@ -436,6 +460,33 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
     )
 
 
+def ODELib(lib_name: str, objects: Objects, cflags=cflags_ode) -> Library:
+    return Lib(
+        lib_name,
+        objects,
+        includes=[
+            *includes_base,
+            "include/ode"
+        ],
+        system_includes=[
+            *system_includes_base,
+            "include/PowerPC_EABI_Support/MSL_C++/MSL_Common/", #instead of libc, which is a copy of it...
+
+        ],
+        mw_version="GC/1.3.2",
+        cflags=[
+            *cflags,
+            "-DdNODEBUG=ON",
+            "-DdIDESINGLE",
+            "-DdSINGLE=1",
+            # "-DdTRIMESH_ENABLED",
+            "-DdTHREADING_INTF_DISABLED",
+            "-DHAVE_MALLOC_H=1",
+        ],        
+        category="third_party",
+    )
+
+
 def DolphinLib(lib_name: str, objects: Objects, cflags=cflags_dolphin) -> Library:
     return Lib (
         lib_name,
@@ -577,8 +628,8 @@ config.libs = [
         [
             Object(NonMatching, "Game/main.cpp"),
             Object(NonMatching, "Game/Ball.cpp"),
-            Object(NonMatching, "Game/Math/rotation.c"),
-            Object(NonMatching, "Game/Team.cpp")
+            Object(NonMatching, "Game/Team.cpp"),
+            Object(NonMatching, "Game/PhysicsObject.cpp"),
         ],
     ),
     GameLib(
@@ -587,7 +638,16 @@ config.libs = [
             Object(NonMatching, "NL/nlMath.cpp"),
         ],
     ),
-
+    ODELib(
+        "Open Dynamics Engine (ODE)",
+        [
+            Object(NonMatching, "ode/ode.cpp"),
+            Object(NonMatching, "ode/odemath.cpp", extra_cflags=["-inline off"]),
+            Object(NonMatching, "ode/matrix.cpp"),
+            Object(NonMatching, "ode/mass.cpp"),
+            Object(NonMatching, "ode/rotation.cpp", extra_cflags=["-inline off"]),
+        ],
+    ),
     DolphinLib(
         "Dolfin SDK",
         [

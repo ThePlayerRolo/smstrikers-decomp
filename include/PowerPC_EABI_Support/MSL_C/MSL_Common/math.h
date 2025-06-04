@@ -70,6 +70,7 @@ extern _INT32 __double_max[];
 #define HUGE_VALF (*(float*)__float_huge)
 #define HUGE_VALL (*(long double*)__extended_huge)
 
+double fmax(double x, double y);
 double fabs(double x);
 double fmod(double x, double m);
 double sin(double x);
@@ -79,6 +80,7 @@ double atan2(double y, double x);
 double tan(double x);
 double ceil(double x);
 
+_MATH_INLINE float fmaxf(float x, float y) { return (float)fmax((double)x, (double)y); }
 _MATH_INLINE float fabsf(float x) { return (float)fabs((double)x); }
 _MATH_INLINE float sinf(float x) { return (float)sin((double)x); }
 _MATH_INLINE float cosf(float x) { return (float)cos((double)x); }
@@ -94,6 +96,7 @@ double exp(double x);
 double ldexp(double x, int exp);
 
 double copysign(double x, double y);
+float  copysignf( float mag, float sgn );
 
 double floor(double x);
 _MATH_INLINE float floorf(float x) { return floor(x); }
@@ -221,6 +224,26 @@ static inline double scalbn(double x, int n) { return ldexp(x, n); }
 static inline float scalbnf(float x, int n) { return (float)ldexpf(x, n); }
 double nextafter(double, double);
 
+
+// inline float remainder(float x, float y)
+//   {return remainderf(x, y);}
+// inline float copysign(float x, float y)
+//   {return copysignf(x, y);}
+// inline float remquo(float x, float y, int *quo)
+//   {return remquof(x, y, quo);}
+// inline float fdim(float x, float y)
+//   {return fdimf(x, y);}
+// inline float fmax(float x, float y)
+//   {return fmaxf(x, y);}
+// inline float fmin(float x, float y)
+//   {return fminf(x, y);}
+
+// #if (!__MIPS__) || (__MIPS_processor__ != __MIPS_R5900__)
+// 	inline float fmaxf(float x, float y)
+// 		{return (float)fmax((double_t)x, (double_t)y);}
+// 	inline float fminf(float x, float y)
+// 		{return (float)fmin((double_t)x, (double_t)y);}
+// #endif	
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
-#ifndef _PHYSICALSPHERE_H_
-#define _PHYSICALSPHERE_H_
+#ifndef _PHYSICSSPHERE_H_
+#define _PHYSICSSPHERE_H_
 
 #include "PhysicsObject.h"
 #include "CollisionSpace.h"
