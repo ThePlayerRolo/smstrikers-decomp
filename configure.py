@@ -645,6 +645,7 @@ config.libs = [
             Object(Matching, "ode/collision_space.cpp"),
             Object(NonMatching, "ode/collision_std.cpp"),
             Object(NonMatching, "ode/collision_transform.cpp"),
+            Object(NonMatching, "ode/collision_util.cpp"),
             Object(NonMatching, "ode/error.cpp", extra_cflags=["-inline off"]),
             Object(NonMatching, "ode/joint.cpp"),
             Object(Matching, "ode/memory.cpp"),
@@ -652,10 +653,18 @@ config.libs = [
             Object(NonMatching, "ode/odemath.cpp", extra_cflags=["-inline off"]),
             Object(NonMatching, "ode/matrix.cpp"),
             Object(NonMatching, "ode/mass.cpp"),
+            Object(NonMatching, "ode/obstack.cpp"),
+            Object(NonMatching, "ode/quickstep.cpp"),
             Object(NonMatching, "ode/rotation.cpp", extra_cflags=["-inline off"]),
-
             Object(NonMatching, "ode/util.cpp"),
         ],
+    ),
+    DolphinLib(
+        "THP",
+        [
+            Object(Matching, "Dolphin/thp/THPDec.c"),
+            Object(Matching, "Dolphin/thp/THPAudio.c"),
+        ]
     ),
     DolphinLib(
         "Dolfin SDK",

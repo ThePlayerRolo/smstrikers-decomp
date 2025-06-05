@@ -4796,7 +4796,7 @@ ode/collision_transform.cpp:
 	.text       start:0x8021B91C end:0x8021BF4C
 	.data       start:0x80303BB8 end:0x80303BD0
 
-collision_util.o:
+ode/collision_util.cpp:
 	.text       start:0x8021BF4C end:0x8021CE2C
 	.sdata2     start:0x80377648 end:0x80377660
 
@@ -4839,7 +4839,7 @@ ode/mass.cpp:
 	.text       start:0x8021F944 end:0x802201EC
 	.sdata2     start:0x803776C8 end:0x803776F0
 
-obstack.o:
+ode/obstack.cpp:
 	.text       start:0x802201EC end:0x80220508
 	.data       start:0x80303C18 end:0x80303C30
 
@@ -4852,7 +4852,7 @@ ode/ode.cpp:
 	.data       start:0x80303C30 end:0x80303C68
 	.sdata2     start:0x80377700 end:0x80377718
 
-quickstep.o:
+ode/quickstep.cpp:
 	.text       start:0x80221A74 end:0x80223658
 	.sdata2     start:0x80377718 end:0x80377720
 
@@ -5780,7 +5780,7 @@ musyx/runtime/Chorus/chorus_fx.c:
 	.data       start:0x8030CCB0 end:0x8030D4B0
 	.sdata2     start:0x80377EC8 end:0x80377ED0
 
-thp.a/THPDec.c:
+Dolphin/thp/THPDec.c:
 	.text       start:0x802857AC end:0x8028CD14
 	.rodata     start:0x802A1950 end:0x802A19E0
 	.data       start:0x8030D4B0 end:0x8030D4F5
@@ -5789,5 +5789,5 @@ thp.a/THPDec.c:
 	.sbss       start:0x80374AC0 end:0x80374BD8
 	.sdata2     start:0x80377ED0 end:0x80377EEC
 
-thp.a/THPAudio.c:
+Dolphin/thp/THPAudio.c:
 	.text       start:0x8028CD14 end:0x8028D244
