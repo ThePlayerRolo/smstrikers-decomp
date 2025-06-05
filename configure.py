@@ -641,11 +641,20 @@ config.libs = [
     ODELib(
         "Open Dynamics Engine (ODE)",
         [
+            Object(NonMatching, "ode/collision_kernel.cpp"),
+            Object(Matching, "ode/collision_space.cpp"),
+            Object(NonMatching, "ode/collision_std.cpp"),
+            Object(NonMatching, "ode/collision_transform.cpp"),
+            Object(NonMatching, "ode/error.cpp", extra_cflags=["-inline off"]),
+            Object(NonMatching, "ode/joint.cpp"),
+            Object(Matching, "ode/memory.cpp"),
             Object(NonMatching, "ode/ode.cpp"),
             Object(NonMatching, "ode/odemath.cpp", extra_cflags=["-inline off"]),
             Object(NonMatching, "ode/matrix.cpp"),
             Object(NonMatching, "ode/mass.cpp"),
             Object(NonMatching, "ode/rotation.cpp", extra_cflags=["-inline off"]),
+
+            Object(NonMatching, "ode/util.cpp"),
         ],
     ),
     DolphinLib(

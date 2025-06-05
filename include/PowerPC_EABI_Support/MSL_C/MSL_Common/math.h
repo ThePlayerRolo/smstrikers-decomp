@@ -63,11 +63,15 @@ extern _INT32 __extended_max[];
 extern _INT32 __extended_epsilon[];
 extern _INT32 __double_min[];
 extern _INT32 __double_max[];
+extern _INT32 __float_max[];
 
 #define HUGE_VAL (*(double*)__double_huge)
 #define INFINITY (*(float*)__float_huge)
+// #define INFINITY (*(float*)__float_max)
+
 #define NAN (*(float*)__float_nan)
-#define HUGE_VALF (*(float*)__float_huge)
+#define HUGE_VALF (*(float*)__float_max)
+// #define HUGE_VALF (*(float*)__float_huge)
 #define HUGE_VALL (*(long double*)__extended_huge)
 
 double fmax(double x, double y);

@@ -4776,23 +4776,23 @@ AnimTagScript.o:
 	.text       start:0x80214594 end:0x80214620
 	.sdata2     start:0x80377608 end:0x80377610
 
-collision_kernel.o:
+ode/collision_kernel.cpp:
 	.text       start:0x80214620 end:0x80216118
 	.data       start:0x80303A80 end:0x80303AF0
 	.bss        start:0x80343938 end:0x80344090
 	.sbss       start:0x80374480 end:0x80374488
 
-collision_space.o:
+ode/collision_space.cpp:
 	.text       start:0x80216118 end:0x80216D30
 	.text       start:0x80216D30 end:0x80216E08
 	.data       start:0x80303AF0 end:0x80303B50
 
-collision_std.o:
+ode/collision_std.cpp:
 	.text       start:0x80216E08 end:0x8021B91C
 	.data       start:0x80303B50 end:0x80303BB8
 	.sdata2     start:0x80377610 end:0x80377648
 
-collision_transform.o:
+ode/collision_transform.cpp:
 	.text       start:0x8021B91C end:0x8021BF4C
 	.data       start:0x80303BB8 end:0x80303BD0
 
@@ -4815,14 +4815,14 @@ dRoundedCorner.o:
 	.sdata      start:0x80373438 end:0x80373440
 	.sdata2     start:0x80377698 end:0x803776B8
 
-error.o:
+ode/error.cpp:
 	.text       start:0x8021E0BC end:0x8021E2A8
 	.text       start:0x8021E2A8 end:0x8021E2A8
 	.data       start:0x80303BD0 end:0x80303C00
 	.sdata      start:0x80373440 end:0x80373450
 	.sbss       start:0x80374488 end:0x80374490
 
-joint.o:
+ode/joint.cpp:
 	.text       start:0x8021E2A8 end:0x8021EADC
 	.data       start:0x80303C00 end:0x80303C18
 	.sdata2     start:0x803776B8 end:0x803776C0
@@ -4831,7 +4831,7 @@ ode/matrix.cpp:
 	.text       start:0x8021EADC end:0x8021F8B4
 	.sdata2     start:0x803776C0 end:0x803776C8
 
-memory.o:
+ode/memory.cpp:
 	.text       start:0x8021F8B4 end:0x8021F944
 	.sbss       start:0x80374490 end:0x803744A0
 
@@ -4860,7 +4860,7 @@ ode/rotation.cpp:
 	.text       start:0x80223658 end:0x80223A4C
 	.sdata2     start:0x80377720 end:0x80377730
 
-util.o:
+ode/util.cpp:
 	.text       start:0x80223A4C end:0x802242C8
 	.sdata2     start:0x80377730 end:0x80377748
 

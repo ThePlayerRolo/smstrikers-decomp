@@ -48,37 +48,31 @@ void dSetFreeHandler (dFreeFunction *fn)
   freefn = fn;
 }
 
-
-dAllocFunction *dGetAllocHandler()
+inline dAllocFunction *dGetAllocHandler()
 {
   return allocfn;
 }
 
-
-dReallocFunction *dGetReallocHandler()
+inline dReallocFunction *dGetReallocHandler()
 {
   return reallocfn;
 }
 
-
-dFreeFunction *dGetFreeHandler()
+inline dFreeFunction *dGetFreeHandler()
 {
   return freefn;
 }
-
 
 void * dAlloc (size_t size)
 {
   if (allocfn) return allocfn (size); else return malloc (size);
 }
 
-
-void * dRealloc (void *ptr, size_t oldsize, size_t newsize)
-{
-  if (reallocfn) return reallocfn (ptr,oldsize,newsize);
-  else return realloc (ptr,newsize);
-}
-
+// void * dRealloc (void *ptr, size_t oldsize, size_t newsize)
+// {
+//   if (reallocfn) return reallocfn (ptr,oldsize,newsize);
+//   else return realloc (ptr,newsize);
+// }
 
 void dFree (void *ptr, size_t size)
 {
