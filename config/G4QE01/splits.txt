@@ -3943,22 +3943,22 @@ mtRandom.o:
 	.bss        start:0x8032F700 end:0x803300C0
 	.sdata      start:0x80373058 end:0x80373060
 
-nlAVLTree.o:
+NL/nlAVLTree.cpp:
 	.text       start:0x801CE120 end:0x801CE948
 
-nlDebug.o:
+NL/nlDebug.cpp:
 	.text       start:0x801CE948 end:0x801CE954
 	.text       start:0x801CE954 end:0x801CE954
 
-nlDebugFile.o:
+NL/nlDebugFile.cpp:
 	.text       start:0x801CE954 end:0x801CEA30
 	.sdata      start:0x80373060 end:0x80373070
 
-nlFile.o:
+NL/nlFile.cpp:
 	.text       start:0x801CEA30 end:0x801CED54
 	.data       start:0x802FD658 end:0x802FD670
 
-nlFileGC.o:
+NL/nlFileGC.cpp:
 	.text       start:0x801CED54 end:0x801D0BD4
 	.text       start:0x801D0BD4 end:0x801D0E4C
 	.text       start:0x801D0E4C end:0x801D0E4C
@@ -3970,39 +3970,39 @@ nlFileGC.o:
 	.sdata      start:0x80373070 end:0x80373078
 	.sbss       start:0x80374278 end:0x803742A8
 
-nlMain.o:
+NL/nlMain.cpp:
 	.text       start:0x801D1040 end:0x801D1474
 	.data       start:0x802FD880 end:0x802FDC80
 
-NL/nlMath.cpp:
+NL/NL/nlMath.cpp:
 	.text       start:0x801D1474 end:0x801D1EE4
 	.rodata     start:0x802A0528 end:0x802A0568
 	.data       start:0x802FDC80 end:0x802FDCA0
 	.sdata      start:0x80373078 end:0x80373080
 	.sdata2     start:0x80376FE0 end:0x803770A0
 
-nlMemory.o:
+NL/nlMemory.cpp:
 	.text       start:0x801D1EE4 end:0x801D20A0
 	.text       start:0x801D20A0 end:0x801D22F8
 	.data       start:0x802FDCA0 end:0x802FDCE0
 	.sbss       start:0x803742A8 end:0x803742B8
 
-nlPrint.o:
+NL/nlPrint.cpp:
 	.text       start:0x801D22F8 end:0x801D23F8
 
-nlSlotPool.o:
+NL/nlSlotPool.cpp:
 	.text       start:0x801D23F8 end:0x801D25E8
 	.text       start:0x801D25E8 end:0x801D2638
 
-nlString.o:
+NL/nlString.cpp:
 	.text       start:0x801D2638 end:0x801D2854
 	.text       start:0x801D2854 end:0x801D2874
 
-nlTicker.o:
+NL/nlTicker.cpp:
 	.text       start:0x801D2874 end:0x801D28FC
 	.sdata2     start:0x803770A0 end:0x803770B0
 
-nlTask.o:
+NL/nlTask.cpp:
 	.text       start:0x801D28FC end:0x801D2B9C
 	.text       start:0x801D2B9C end:0x801D2B9C
 	.text       start:0x801D2B9C end:0x801D2C38
@@ -4010,12 +4010,12 @@ nlTask.o:
 	.sbss       start:0x803742B8 end:0x803742C8
 	.sdata2     start:0x803770B0 end:0x803770B8
 
-nlEndian.o:
+NL/nlEndian.cpp:
 	.text       start:0x801D2C38 end:0x801D2C64
 	.text       start:0x801D2C64 end:0x801D2C64
 	.text       start:0x801D2C64 end:0x801D2C64
 
-nlConfig.o:
+NL/nlConfig.cpp:
 	.text       start:0x801D2C64 end:0x801D5814
 	.text       start:0x801D5814 end:0x801D5850
 	.text       start:0x801D5850 end:0x801D5850
@@ -4029,7 +4029,7 @@ nlConfig.o:
 	.sbss       start:0x803742C8 end:0x803742D0
 	.sdata2     start:0x803770B8 end:0x803770C0
 
-nlBind.o:
+NL/nlBind.cpp:
 	.text       start:0x801D6770 end:0x801D6770
 	.sdata2     start:0x803770C0 end:0x803770C8
 
@@ -4194,7 +4194,7 @@ LoadingManager.o:
 	.data       start:0x803022E8 end:0x803023E0
 	.sdata2     start:0x80377188 end:0x80377190
 
-nlBundleFile.o:
+NL/nlBundleFile.cpp:
 	.text       start:0x801E85CC end:0x801E9000
 	.text       start:0x801E9000 end:0x801E9000
 	.text       start:0x801E9000 end:0x801E9000
@@ -4690,7 +4690,7 @@ fePresentation.o:
 	.text       start:0x802107AC end:0x802107AC
 	.sdata2     start:0x80377580 end:0x80377588
 
-nlLocalization.o:
+NL/nlLocalization.cpp:
 	.text       start:0x802107AC end:0x8021093C
 	.text       start:0x8021093C end:0x8021093C
 	.rodata     start:0x802A07A0 end:0x802A0828
@@ -4699,7 +4699,7 @@ nlLocalization.o:
 	.sbss       start:0x80374460 end:0x80374468
 	.sdata2     start:0x80377588 end:0x80377590
 
-nlFont.o:
+NL/nlFont.cpp:
 	.text       start:0x8021093C end:0x80211BD4
 	.text       start:0x80211BD4 end:0x80211BD4
 	.text       start:0x80211BD4 end:0x80211BF4
@@ -4715,14 +4715,14 @@ nlFont.o:
 	.sdata2     start:0x80377590 end:0x803775B0
 	.sbss2      start:0x80377FB8 end:0x80377FC8
 
-nlTextBox.o:
+NL/nlTextBox.cpp:
 	.text       start:0x80211F28 end:0x8021251C
 	.text       start:0x8021251C end:0x8021251C
 	.text       start:0x8021251C end:0x8021251C
 	.text       start:0x8021251C end:0x8021251C
 	.sdata2     start:0x803775B0 end:0x803775C8
 
-nlTextEscape.o:
+NL/nlTextEscape.cpp:
 	.text       start:0x8021251C end:0x80212740
 	.text       start:0x80212740 end:0x802128B8
 	.ctors      start:0x8028D57C end:0x8028D580
@@ -4745,7 +4745,7 @@ clock.o:
 	.sbss       start:0x80374468 end:0x80374478
 	.sdata2     start:0x803775D0 end:0x803775D8
 
-nlTimer.o:
+NL/nlTimer.cpp:
 	.text       start:0x80212F6C end:0x80213148
 	.sdata2     start:0x803775D8 end:0x803775F0
 

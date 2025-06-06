@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-#include "../NL/nlMath.h"
+#include "NL/nlMath.h"
 
 #include "GameTweaks.h"
 #include "Fielder.h"

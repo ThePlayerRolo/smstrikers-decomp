@@ -1,7 +1,7 @@
 #ifndef _PHYSICSOBJECT_H_
 #define _PHYSICSOBJECT_H_
 
-#include "../NL/nlMath.h"
+#include "NL/nlMath.h"
 
 class dContact;
 class dxSpace;

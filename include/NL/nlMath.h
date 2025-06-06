@@ -1,6 +1,23 @@
 #ifndef _NLMATH_H_
 #define _NLMATH_H_
 
+struct nlVector2
+{
+    float x;
+    float y;
+
+    nlVector2()
+        : x(0.0f)
+        , y(0.0f)
+    {
+    }
+    nlVector2(float _x, float _y)
+        : x(_x)
+        , y(_y)
+    {
+    }
+};
+
 struct nlVector3
 {
     float x;

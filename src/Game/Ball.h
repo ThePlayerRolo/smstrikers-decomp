@@ -3,7 +3,8 @@
 
 #include <types.h>
 #include "Player.h"
-#include "../NL/nlMath.h"
+
+#include "NL/nlMath.h"
 
 enum eSpinType
 {
