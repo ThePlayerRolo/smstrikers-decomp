@@ -27,6 +27,9 @@ build.ninja
 ctx.*
 *.ctx
 
+#class_gen output
+src/_class_gen/
+
 # Generated configs
 objdiff.json
 compile_commands.json
