@@ -3,11 +3,18 @@
 
 #include "NL/nlMath.h"
 
-class dContact;
-class dxSpace;
+#include "ode/objects.h"
+#include "ode/collision.h"
+
+
+float _DefaultGravity = -9.8f;
+
+
+// class dContact;
+// class dxSpace;
 class PhysicsWorld;
 
-void ConvertDMat3ToNLMat4(const float*, nlMatrix4*);
+// void ConvertDMat3ToNLMat4(const nlMatrix3*, nlMatrix4*);
 
 class PhysicsObject
 {
@@ -50,6 +57,11 @@ public:
 
     ~PhysicsObject();
     PhysicsObject(PhysicsWorld*);
+
+    u8 _padding[4];
+    /* 0x04 */ dBodyID _bodyID;
+    /* 0x08 */ dGeomID _geomID;
+    /* 0x10 */ float _gravity;
 };
 
 #endif

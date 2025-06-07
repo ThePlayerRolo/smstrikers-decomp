@@ -1,11 +1,28 @@
 #include "PhysicsObject.h"
+#include "ode/collision.h"
+#include "types.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801FFCFC | size: 0x70
  */
-void ConvertDMat3ToNLMat4(const float* fpIn, nlMatrix4* pMat)
+void ConvertDMat3ToNLMat4(const float* mat3, nlMatrix4* mat4)
 {
-
+    mat4->v[0] = (f32) mat3[0];
+    mat4->v[4] = (f32) mat3[1];
+    mat4->v[8] = (f32) mat3[2];
+    mat4->v[1] = (f32) mat3[4];
+    mat4->v[5] = (f32) mat3[5];
+    mat4->v[9] = (f32) mat3[6];
+    mat4->v[2] = (f32) mat3[8];
+    mat4->v[6] = (f32) mat3[9];
+    mat4->v[10] = (f32) mat3[10];
+    mat4->v[12] = 1.0f;
+    mat4->v[13] = 1.0f;
+    mat4->v[14] = 1.0f;
+    mat4->v[15] = 0.0f;
+    mat4->v[3] = 1.0f;
+    mat4->v[7] = 1.0f;
+    mat4->v[11] = 1.0f;
 }
 
 /**
@@ -37,23 +54,45 @@ void PhysicsObject::Contact(PhysicsObject*, dContact*, int)
  */
 void PhysicsObject::MakeStatic()
 {
-
+    if (_bodyID != NULL) 
+    {
+        dBodyDestroy(_bodyID);
+        _bodyID = NULL;
+    }
+    dGeomSetBody(_geomID, NULL);
 }
+
+
+    // /* 0x04 */ dBodyID _bodyID;
+    // /* 0x08 */ dGeomID _geomID;
+    // /* 0x10 */ float _gravity;
 
 /**
  * Offset/Address/Size: 0x2D8 | 0x801FFFD4 | size: 0x6C
  */
-void PhysicsObject::SetMass(float)
+void PhysicsObject::SetMass(float mass)
 {
-
+    dMass m;
+    if (_bodyID != nullptr) 
+    {
+        dMassSetZero(&m);
+        dBodyGetMass(_bodyID, &m);
+        dMassAdjust(&m, mass);
+        dBodySetMass(_bodyID, &m);
+    }
 }
 
 /**
  * Offset/Address/Size: 0x344 | 0x80200040 | size: 0x50
  */
-void PhysicsObject::Reconnect(dxSpace*)
+void PhysicsObject::Reconnect(dxSpace* space)
 {
-
+    dSpaceAdd(space,_geomID);
+    dGeomSetBody(_geomID,_bodyID);
+    if (_bodyID != 0) 
+    {
+        dBodyEnable(_bodyID);
+    }
 }
 
 /**
@@ -61,7 +100,17 @@ void PhysicsObject::Reconnect(dxSpace*)
  */
 void PhysicsObject::Disconnect()
 {
-
+    dSpaceID space;
+    space = dGeomGetSpace(_geomID);
+    if (space != nullptr)
+    {
+        dSpaceRemove(space, _geomID);
+    }
+    dGeomSetBody(_geomID, 0);
+    if (_bodyID != nullptr)
+    {
+        dBodyDisable(_bodyID);
+    }
 }
 
 /**
@@ -69,7 +118,7 @@ void PhysicsObject::Disconnect()
  */
 void PhysicsObject::EnableCollisions()
 {
-
+    dGeomEnable(_geomID);
 }
 
 /**
@@ -77,7 +126,7 @@ void PhysicsObject::EnableCollisions()
  */
 void PhysicsObject::DisableCollisions()
 {
-
+    dGeomDisable(_geomID);
 }
 
 /**
@@ -261,13 +310,56 @@ void PhysicsObject::SetDefaultCollideBits()
  */
 PhysicsObject::~PhysicsObject()
 {
+//   if (this != (PhysicsObject *)0x0) {
+//     *(undefined1 **)this = &__vt;
+//     if (*(int *)(this + 4) != 0) {
+    
+    if (_bodyID != nullptr)
+    {
+      dBodyDestroy(_bodyID);
+      _bodyID = nullptr;
+    }
 
+    if (_geomID != nullptr)
+    {
+        dGeomDestroy(_geomID);
+        _geomID = nullptr;
+    }
+
+    // if (0 < in_r4) {
+    //   nlMemory::operator_delete(this);
+    // }
+//   }
 }
 
 /**
  * Offset/Address/Size: 0x13B8 | 0x802010B4 | size: 0x7C
  */
-PhysicsObject::PhysicsObject(PhysicsWorld*)
+PhysicsObject::PhysicsObject(PhysicsWorld* pWorld)
 {
+//   undefined4 uVar1;
+//   *(undefined1 **)this = &__vt;
+//   *(undefined4 *)(this + 4) = 0;
+  _bodyID = nullptr;
+//   *(undefined4 *)(this + 8) = 0;
+  _geomID = nullptr;
 
+//   *(undefined4 *)(this + 0xc) = 0;
+
+//   *(undefined4 *)(this + 0x10) = _DefaultGravity;
+    _gravity = _DefaultGravity;
+
+//   if (param_1 != (PhysicsWorld *)0x0) {
+    if (pWorld != nullptr)
+    {
+    // uVar1 = ode::dBodyCreate(*(undefined4 *)param_1);
+    // *(undefined4 *)(this + 4) = uVar1;
+        // _bodyID = dBodyCreate(pWorld);
+
+    // ode::dBodySetData(*(undefined4 *)(this + 4),this);
+        dBodySetData(_bodyID,this);
+
+    // ode::dBodySetGravityMode(*(undefined4 *)(this + 4),0);
+        dBodySetGravityMode(_bodyID,0);
+    }
 }

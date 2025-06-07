@@ -134,7 +134,7 @@ void dGeomRayGetParams (dGeomID g, int *FirstContact, int *BackfaceCull);
 void dGeomRaySetClosestHit (dGeomID g, int closestHit);
 int dGeomRayGetClosestHit (dGeomID g);
 
-#include "collision_trimesh.h"
+#include "ode/collision_trimesh.h"
 
 dGeomID dCreateGeomTransform (dSpaceID space);
 void dGeomTransformSetGeom (dGeomID g, dGeomID obj);

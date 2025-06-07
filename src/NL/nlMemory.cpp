@@ -21,6 +21,7 @@ void nlMalloc(unsigned long, unsigned int, bool)
  */
 void* nlMalloc(unsigned long)
 {
+    return nullptr;
 }
 
 /**

@@ -456,6 +456,16 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
         system_includes=[
             *system_includes_base,
         ],
+        mw_version="GC/1.3.2",
+        # mw_version="GC/1.2.5n",
+        cflags=[
+            *cflags_base,
+            "-DdNODEBUG=ON",
+            "-DdIDESINGLE",
+            "-DdSINGLE=1",
+            "-DdTHREADING_INTF_DISABLED",
+            "-DHAVE_MALLOC_H=1",
+        ],            
         category="game",
     )
 
@@ -470,8 +480,8 @@ def ODELib(lib_name: str, objects: Objects, cflags=cflags_ode) -> Library:
         ],
         system_includes=[
             *system_includes_base,
-            "include/PowerPC_EABI_Support/MSL_C++/MSL_Common/", #instead of libc, which is a copy of it...
-
+             #TODO: revisite. instead of libc, which is a copy of MSL
+            "include/PowerPC_EABI_Support/MSL_C++/MSL_Common/",
         ],
         mw_version="GC/1.3.2",
         cflags=[
@@ -479,7 +489,6 @@ def ODELib(lib_name: str, objects: Objects, cflags=cflags_ode) -> Library:
             "-DdNODEBUG=ON",
             "-DdIDESINGLE",
             "-DdSINGLE=1",
-            # "-DdTRIMESH_ENABLED",
             "-DdTHREADING_INTF_DISABLED",
             "-DHAVE_MALLOC_H=1",
         ],        

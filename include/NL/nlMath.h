@@ -40,20 +40,12 @@ struct nlVector3
 
 struct nlMatrix4
 {
-    float m[4][4];
-
-    nlMatrix4()
-    {
-    }
+    float v[4*4];      // Flat array access
 };
 
 struct nlMatrix3
 {
-    float m[3][4];
-
-    nlMatrix3()
-    {
-    }
+    float v[4*3];      // Flat array access
 };
 
 #endif
