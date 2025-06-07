@@ -6,7 +6,9 @@
 #include "ode/objects.h"
 #include "ode/collision.h"
 
+// #include "PhysicsWorld.h"
 
+// todo: it is at the wrong place.... needs to be in the class
 float _DefaultGravity = -9.8f;
 
 
