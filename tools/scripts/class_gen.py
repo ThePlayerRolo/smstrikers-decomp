@@ -5,7 +5,6 @@ import re
 import sys
 import argparse
 
-print("Script started")
 
 def parse_function_metadata(comment_line):
     # Parse: # .text:0x0 | 0x801FFCFC | size: 0x70
@@ -36,6 +35,25 @@ def get_class_name(declaration):
     return None
 
 
+def is_constructor_or_destructor(declaration):
+    class_name = get_class_name(declaration)
+    if not class_name:
+        return False
+    
+    # Get the function name without the class name and parameters
+    func_name = declaration.split('::')[-1].split('(')[0]
+    return func_name == class_name or func_name == f"~{class_name}"
+
+
+def add_return_type(declaration):
+    # If it already has a return type, return as is
+    if declaration.split()[0] in ['void', 'int', 'float', 'double', 'char', 'bool', 'long', 'short', 'unsigned']:
+        return declaration
+    
+    # Add void as default return type
+    return f"void {declaration}"
+
+
 def generate_cpp_content(filename, functions):
     content = []
     content.append(f"#include \"{filename}.h\"\n")
@@ -44,7 +62,10 @@ def generate_cpp_content(filename, functions):
         content.append("/**")
         content.append(f" * Offset/Address/Size: {func['offset']} | {func['address']} | size: {func['size']}")
         content.append(" */")
-        content.append(f"{func['declaration']}")
+        if is_constructor_or_destructor(func['declaration']):
+            content.append(func['declaration'])
+        else:
+            content.append(add_return_type(func['declaration']))
         content.append("{")
         content.append("}\n")
     
@@ -74,7 +95,7 @@ def generate_header_content(filename, functions):
     
     # Add forward declarations for standalone functions
     for func in standalone_functions:
-        content.append(f"{func['declaration']};")
+        content.append(f"{add_return_type(func['declaration'])};")
     
     # Add class declarations with their methods
     for class_name, methods in class_methods.items():
@@ -82,7 +103,16 @@ def generate_header_content(filename, functions):
         content.append("{")
         content.append("public:")
         for method in methods:
-            content.append(f"    {method['declaration']};")
+            # Remove the class_name:: prefix for class method declarations
+            decl = method['declaration']
+            if decl.startswith(f"{class_name}::"):
+                decl = decl[len(f"{class_name}::"):]
+            
+            # Handle constructors/destructors differently from regular methods
+            if is_constructor_or_destructor(method['declaration']):
+                content.append(f"    {decl};")
+            else:
+                content.append(f"    {add_return_type(decl)};")
         content.append("};\n")
     
     content.append(f"#endif // _{guard_name}_H_")

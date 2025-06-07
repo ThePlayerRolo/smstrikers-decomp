@@ -2,16 +2,16 @@
 #define _PHYSICSSPHERE_H_
 
 #include "PhysicsObject.h"
-#include "CollisionSpace.h"
-#include "PhysicsWorld.h"
+
+class CollisionSpace;
+class PhysicsWorld;
 
 class PhysicsSphere : public PhysicsObject
 {
 public:
-    PhysicsSphere(CollisionSpace*, PhysicsWorld*, float);
-
     void SetRadius(float);
-    void GetRadius(float *);
+    void GetRadius();
+    PhysicsSphere(CollisionSpace*, PhysicsWorld*, float);
 };
 
-#endif
+#endif // _PHYSICSSPHERE_H_

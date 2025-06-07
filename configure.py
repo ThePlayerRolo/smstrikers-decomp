@@ -637,8 +637,12 @@ config.libs = [
         [
             Object(NonMatching, "Game/main.cpp"),
             Object(NonMatching, "Game/Ball.cpp"),
+            Object(NonMatching, "Game/Net.cpp"),
+            Object(NonMatching, "Game/Player.cpp"),
+            Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
             Object(NonMatching, "Game/PhysicsObject.cpp"),
+            Object(NonMatching, "Game/CollisionSpace.cpp"),
             Object(NonMatching, "Game/PhysicsTransform.cpp"),
             Object(NonMatching, "Game/PhysicsWorld.cpp"),
         ],

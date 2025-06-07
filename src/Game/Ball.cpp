@@ -153,6 +153,8 @@ cBall::~cBall()
 {
 }
 
-cBall::cBall()
+cBall::cBall() 
+: PhysicsSphere(nullptr, nullptr, 0.1f)
 {
+    // Additional ball initialization code can go here
 }

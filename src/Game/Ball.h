@@ -2,23 +2,20 @@
 #define _CBALL_H_
 
 #include <types.h>
-#include "Player.h"
-
 #include "NL/nlMath.h"
+
+#include "PhysicsSphere.h"
+
+class cPlayer;
 
 enum eSpinType
 {
-    eSpinType_None = 0,
-    eSpinType_Topspin = 1,
-    eSpinType_Backspin = 2,
+    eSpinType_0 = 0
 };
 
 enum eBallShotEffectType
 {
-    eBallShotEffectType_None = 0,
-    eBallShotEffectType_BuzzerBeater = 1,
-    eBallShotEffectType_Pass = 2,
-    eBallShotEffectType_Shot = 3,
+    eBallShotEffectType_0 = 0
 };
 
 struct _something
@@ -27,7 +24,7 @@ struct _something
     u32 m_ix8c;
 };
 
-class cBall
+class cBall : public PhysicsSphere
 {
 public:
     // u8 padding1[0x20];

@@ -48,4 +48,12 @@ struct nlMatrix3
     float v[4*3];      // Flat array access
 };
 
+struct nlQuaternion
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
 #endif

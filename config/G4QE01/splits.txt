@@ -301,7 +301,7 @@ GameTweaks.o:
 	.sdata      start:0x803711C0 end:0x803711D0
 	.sdata2     start:0x80375300 end:0x803753D0
 
-Goalie.o:
+Game/Goalie.cpp:
 	.text       start:0x80042AFC end:0x8004E534
 	.text       start:0x8004E534 end:0x8004E534
 	.text       start:0x8004E534 end:0x8004E534
@@ -374,13 +374,13 @@ HeadTrack.o:
 	.sbss       start:0x80373778 end:0x80373780
 	.sdata2     start:0x80375658 end:0x80375690
 
-Net.o:
+Game/Net.cpp:
 	.text       start:0x80057434 end:0x80057550
 	.sdata      start:0x80371200 end:0x80371210
 	.sbss       start:0x80373780 end:0x80373788
 	.sdata2     start:0x80375690 end:0x803756A0
 
-Player.o:
+Game/Player.cpp:
 	.text       start:0x80057550 end:0x8005A8B0
 	.text       start:0x8005A8B0 end:0x8005A8B4
 	.text       start:0x8005A8B4 end:0x8005A8B4
@@ -4387,7 +4387,7 @@ FrameCounter.o:
 CharacterPhysicsElement.o:
 	.text       start:0x801FE13C end:0x801FE3E8
 
-CollisionSpace.o:
+Game/CollisionSpace.cpp:
 	.text       start:0x801FE3E8 end:0x801FE628
 	.text       start:0x801FE628 end:0x801FE628
 	.data       start:0x80303020 end:0x80303048
