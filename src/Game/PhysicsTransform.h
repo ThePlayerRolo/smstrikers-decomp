@@ -19,6 +19,14 @@ public:
 
     ~PhysicsTransform();
     PhysicsTransform();
+
+    u8 _padding[4];
+    /* 0x04 */ dBodyID _bodyID;
+    /* 0x08 */ dGeomID _geomID;
+
+    u8 _padding2[29];
+    // /* 0x2c */ int _unk_2c;
+    PhysicsObject *_unk_2c;
 };
 
 #endif // _PHYSICSTRANSFORM_H_
