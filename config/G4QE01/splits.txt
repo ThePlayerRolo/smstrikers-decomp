@@ -4864,7 +4864,7 @@ ode/util.cpp:
 	.text       start:0x80223A4C end:0x802242C8
 	.sdata2     start:0x80377730 end:0x80377748
 
-NLGAdditions.o:
+ode/NLGAdditions.cpp:
 	.text       start:0x802242C8 end:0x802248C0
 	.text       start:0x802248C0 end:0x802248C0
 	.data       start:0x80303C68 end:0x80303C80

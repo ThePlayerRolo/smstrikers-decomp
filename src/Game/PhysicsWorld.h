@@ -14,7 +14,7 @@ class PhysicsWorld
 {
 public:
     // void DoCollisions(PhysicsObject*, nlListContainer<PhysicsObject*>&);
-    void SpaceCollideCallback(void*, dxGeom*, dxGeom*);
+    static void SpaceCollideCallback(void*, dxGeom*, dxGeom*);
     void Update(float, bool);
     void PostUpdate();
     void PreUpdate();
@@ -33,6 +33,9 @@ public:
     PhysicsWorld();
 
     /* 0x00 */ dWorldID m_worldID;
+    /* 0x04 */ dJointGroupID m_jointGroupID;
+    /* 0x08 */ CollisionSpace* m_collisionSpace;//* m_UNK0x08;
+    /* 0x08 */ void* m_UNK0x0C;
 };
 
 #endif // _PHYSICSWORLD_H_

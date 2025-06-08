@@ -44,8 +44,8 @@ public:
     nlVector3* GetPosition();
     void GetPosition(nlVector3*) const;
     void SetPosition(const nlVector3&, CoordinateType);
-    virtual void PostUpdate();
     virtual void PreUpdate();
+    virtual void PostUpdate();
     void CheckForNaN();
     void SetCategory(unsigned int);
     void SetCollide(unsigned int);
@@ -55,7 +55,7 @@ public:
     ~PhysicsObject();
     PhysicsObject(PhysicsWorld*);
 
-    /* 0x00 */ u8 m_padding[4];
+    // /* 0x00 */ u8 m_padding[4];
     /* 0x04 */ dBodyID m_bodyID;
     /* 0x08 */ dGeomID m_geomID;
     /* 0x0c */ PhysicsObject *m_parentObject;

@@ -10,6 +10,7 @@ SimpleCollisionSpace::SimpleCollisionSpace(PhysicsWorld* world)
 {
     m_physicsWorld = world;
     world->AddCollisionSpace(this);
+    // m_spaceID = dSimpleSpaceCreate((dxSpace *)world->m_UNK0x0C);
     m_spaceID = dSimpleSpaceCreate(NULL);
 }
 
@@ -28,14 +29,14 @@ void CollisionSpace::PreCollide()
 {
     void (PhysicsObject::*pmf)() = &PhysicsObject::PreCollide;
     int numGeoms = dSpaceGetNumGeoms(m_spaceID);
-    for (int i=0; i<numGeoms; i++)
+    for (int i = 0; i < numGeoms; i++)
     {
-       dGeomID geomID = dSpaceGetGeom(m_spaceID, i);
-       if (dGeomGetClass(geomID) != dRayClass)
-       {
+        dGeomID geomID = dSpaceGetGeom(m_spaceID, i);
+        if (dGeomGetClass(geomID) != dRayClass)
+        {
             PhysicsObject* obj = (PhysicsObject*)dGeomGetData(geomID);
             (obj->*pmf)();
-       }
+        }
     }
 }
 

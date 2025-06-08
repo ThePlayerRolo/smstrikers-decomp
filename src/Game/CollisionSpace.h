@@ -17,8 +17,8 @@ public:
 
     virtual ~CollisionSpace();
 
-    // /* 0x00 */ u8 m_padding[4];
-    /* 0x04 */ dSpaceID m_spaceID;
+    /* 0x00 */ dSpaceID m_spaceID;
+    /* 0x04 */ CollisionSpace *m_nextCollisionSpace;
 };
 
 class SimpleCollisionSpace : public CollisionSpace
@@ -27,7 +27,6 @@ public:
     SimpleCollisionSpace(PhysicsWorld*);
     virtual ~SimpleCollisionSpace();
 
-    // /* 0x00 */ u8 m_padding[0xc];
     /* 0x0c */ PhysicsWorld *m_physicsWorld;
 };
 

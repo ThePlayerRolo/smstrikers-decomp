@@ -335,12 +335,12 @@ cflags_musyx_debug = [
     "-DMUSY_TARGET=MUSY_TARGET_DOLPHIN",
 ]
 
-# REL flags
-cflags_rel = [
-    *cflags_base,
-    "-sdata 0",
-    "-sdata2 0",
-]
+# # REL flags
+# cflags_rel = [
+#     *cflags_base,
+#     "-sdata 0",
+#     "-sdata2 0",
+# ]
 
 cflags_nl = [
     *cflags_base,
@@ -681,6 +681,7 @@ config.libs = [
     ODELib(
         "Open Dynamics Engine (ODE)",
         [
+            Object(NonMatching, "ode/NLGAdditions.cpp", extra_cflags=["-inline off"]),
             Object(NonMatching, "ode/collision_kernel.cpp"),
             Object(Matching, "ode/collision_space.cpp"),
             Object(NonMatching, "ode/collision_std.cpp"),

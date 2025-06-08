@@ -1,6 +1,8 @@
 #include "PhysicsWorld.h"
-
+#include "CollisionSpace.h"
 #include "PhysicsObject.h"
+
+#include "ode/NLGAdditions.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x80201700 | size: 0x78
@@ -19,8 +21,12 @@ void PhysicsWorld::SpaceCollideCallback(void*, dxGeom*, dxGeom*)
 /**
  * Offset/Address/Size: 0x29C | 0x8020199C | size: 0x60
  */
-void PhysicsWorld::Update(float, bool)
+void PhysicsWorld::Update(float quickStepSize, bool doClear)
 {
+    int pp = (u32)(-doClear | doClear) >> 0x1FU; // a convoluted way to convert a boolean to an integer
+    dWorldSetClearAccumulators(m_worldID, pp);
+    dWorldQuickStep(m_worldID, quickStepSize);
+    dJointGroupEmpty(m_jointGroupID);
 }
 
 /**
@@ -28,6 +34,12 @@ void PhysicsWorld::Update(float, bool)
  */
 void PhysicsWorld::PostUpdate()
 {
+    void (PhysicsObject::*pmf)() = &PhysicsObject::PostUpdate;
+    for (dBodyID bodyID = dWorldGetFirstBody(m_worldID); bodyID != NULL; bodyID = dBodyGetNextBody(bodyID))
+    {
+        PhysicsObject* obj = (PhysicsObject*)dBodyGetData(bodyID);
+        (obj->*pmf)();
+    }
 }
 
 /**
@@ -47,64 +59,74 @@ void PhysicsWorld::Collide()
 /**
  * Offset/Address/Size: 0x584 | 0x80201C84 | size: 0x34
  */
-void PhysicsWorld::DoCollide(CollisionSpace*)
+void PhysicsWorld::DoCollide(CollisionSpace* collisionSpace)
 {
+    collisionSpace->DoCollide(this, &SpaceCollideCallback);
 }
 
 /**
  * Offset/Address/Size: 0x5B8 | 0x80201CB8 | size: 0x30
  */
-void PhysicsWorld::PostUpdate(PhysicsObject*)
+void PhysicsWorld::PostUpdate(PhysicsObject* object)
 {
+    object->PostUpdate();
 }
 
 /**
  * Offset/Address/Size: 0x5E8 | 0x80201CE8 | size: 0x30
  */
-void PhysicsWorld::PreUpdate(PhysicsObject*)
+void PhysicsWorld::PreUpdate(PhysicsObject* object)
 {
+    object->PreUpdate();
 }
 
 /**
  * Offset/Address/Size: 0x618 | 0x80201D18 | size: 0x24
  */
-void PhysicsWorld::PreUpdate(CollisionSpace*)
+void PhysicsWorld::PreUpdate(CollisionSpace* collisionSpace)
 {
+    collisionSpace->PreUpdate();
 }
 
 /**
  * Offset/Address/Size: 0x63C | 0x80201D3C | size: 0x30
  */
-void PhysicsWorld::PreCollide(PhysicsObject*)
+void PhysicsWorld::PreCollide(PhysicsObject* object)
 {
+    object->PreCollide();
 }
 
 /**
  * Offset/Address/Size: 0x66C | 0x80201D6C | size: 0x24
  */
-void PhysicsWorld::PreCollide(CollisionSpace*)
+void PhysicsWorld::PreCollide(CollisionSpace* collisionSpace)
 {
+    collisionSpace->PreCollide();
 }
 
 /**
  * Offset/Address/Size: 0x690 | 0x80201D90 | size: 0x10
  */
-void PhysicsWorld::AddCollisionSpace(CollisionSpace*)
+void PhysicsWorld::AddCollisionSpace(CollisionSpace* collisionSpace)
 {
+    collisionSpace->m_nextCollisionSpace = m_collisionSpace;
+    m_collisionSpace = collisionSpace;
 }
 
 /**
  * Offset/Address/Size: 0x6A0 | 0x80201DA0 | size: 0x24
  */
-void PhysicsWorld::SetERP(float)
+void PhysicsWorld::SetERP(float erp)
 {
+    dWorldSetERP(m_worldID, erp);
 }
 
 /**
  * Offset/Address/Size: 0x6C4 | 0x80201DC4 | size: 0x24
  */
-void PhysicsWorld::SetCFM(float)
+void PhysicsWorld::SetCFM(float cfm)
 {
+    dWorldSetCFM(m_worldID, cfm);
 }
 
 /**
@@ -112,6 +134,8 @@ void PhysicsWorld::SetCFM(float)
  */
 PhysicsWorld::~PhysicsWorld()
 {
+    dJointGroupDestroy(m_jointGroupID);
+    dWorldDestroy(m_worldID);
 }
 
 /**
@@ -119,4 +143,8 @@ PhysicsWorld::~PhysicsWorld()
  */
 PhysicsWorld::PhysicsWorld()
 {
+    m_worldID = dWorldCreate();
+    m_jointGroupID = dJointGroupCreate(0);
+    m_collisionSpace = NULL;
+    m_UNK0x0C = NULL;
 }
