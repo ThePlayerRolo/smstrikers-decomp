@@ -465,6 +465,7 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
             "-DdSINGLE=1",
             "-DdTHREADING_INTF_DISABLED",
             "-DHAVE_MALLOC_H=1",
+            "-DdODE_SMStricker_Patch"
         ],            
         category="game",
     )
@@ -641,6 +642,7 @@ config.libs = [
             Object(NonMatching, "Game/Player.cpp"),
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
+            Object(NonMatching, "Game/PhysicsSphere.cpp"),
             Object(NonMatching, "Game/PhysicsObject.cpp"),
             Object(NonMatching, "Game/CollisionSpace.cpp"),
             Object(NonMatching, "Game/PhysicsTransform.cpp"),

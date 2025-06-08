@@ -23,6 +23,7 @@ struct nlVector3
     float x;
     float y;
     float z;
+    // float w;
 
     nlVector3()
         : x(0.0f)
@@ -35,6 +36,12 @@ struct nlVector3
         , y(_y)
         , z(_z)
     {
+    }
+    static void Set(nlVector3 *v, float x, float y, float z)
+    {
+        v->x = x;
+        v->y = y;
+        v->z = z;
     }
 };
 

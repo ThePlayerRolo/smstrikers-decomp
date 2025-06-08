@@ -3,6 +3,7 @@
 
 // #include "NL/nlMath.h"
 
+#include "ode/common.h"
 #include "ode/objects.h"
 #include "ode/collision.h"
 
@@ -30,6 +31,8 @@ public:
 
     ~PhysicsWorld();
     PhysicsWorld();
+
+    /* 0x00 */ dWorldID m_worldID;
 };
 
 #endif // _PHYSICSWORLD_H_

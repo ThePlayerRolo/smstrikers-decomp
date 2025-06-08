@@ -10,7 +10,7 @@ class PhysicsSphere : public PhysicsObject
 {
 public:
     void SetRadius(float);
-    void GetRadius();
+    float GetRadius();
     PhysicsSphere(CollisionSpace*, PhysicsWorld*, float);
 };
 

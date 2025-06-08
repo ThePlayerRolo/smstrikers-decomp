@@ -4455,7 +4455,7 @@ PhysicsPlane.o:
 	.text       start:0x80201240 end:0x80201240
 	.text       start:0x80201240 end:0x80201240
 
-PhysicsSphere.o:
+Game/PhysicsSphere.cpp:
 	.text       start:0x80201240 end:0x80201350
 	.text       start:0x80201350 end:0x80201350
 	.text       start:0x80201350 end:0x80201350

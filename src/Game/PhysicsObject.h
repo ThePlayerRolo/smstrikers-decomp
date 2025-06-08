@@ -6,14 +6,6 @@
 #include "ode/objects.h"
 #include "ode/collision.h"
 
-// #include "PhysicsWorld.h"
-
-// todo: it is at the wrong place.... needs to be in the class
-float _DefaultGravity = -9.8f;
-
-
-// class dContact;
-// class dxSpace;
 class PhysicsWorld;
 
 // void ConvertDMat3ToNLMat4(const nlMatrix3*, nlMatrix4*);
@@ -21,8 +13,9 @@ class PhysicsWorld;
 class PhysicsObject
 {
 public:
+    static const float DefaultGravity;
     enum CoordinateType {
-        option0 = 0,
+        CoordinateType_0 = 0,
     };
 
     void CloneObject(const PhysicsObject&);
@@ -35,19 +28,20 @@ public:
     void EnableCollisions();
     void DisableCollisions();
     void SetWorldMatrix(const nlMatrix4&);
-    void SetContactInfo(dContact*, PhysicsObject*, bool);
+    BOOL SetContactInfo(dContact*, PhysicsObject*, bool);
     void SetDefaultContactInfo(dContact*);
     void ZeroForceAccumulators();
     void AddForceAtCentreOfMass(const nlVector3&);
     void GetAngularVelocity(nlVector3*) const;
     void SetAngularVelocity(const nlVector3&);
     void GetLinearVelocity();
+    void GetLinearVelocity2(nlVector3*) const;
     void GetLinearVelocity(nlVector3*) const;
     void SetLinearVelocity(const nlVector3&);
     void GetRotation(nlMatrix4*) const;
     void SetRotation(const nlMatrix4&);
     void SetRotation(const nlMatrix3&);
-    void GetPosition();
+    nlVector3* GetPosition();
     void GetPosition(nlVector3*) const;
     void SetPosition(const nlVector3&, CoordinateType);
     void PostUpdate();
@@ -60,10 +54,18 @@ public:
     ~PhysicsObject();
     PhysicsObject(PhysicsWorld*);
 
-    u8 _padding[4];
-    /* 0x04 */ dBodyID _bodyID;
-    /* 0x08 */ dGeomID _geomID;
-    /* 0x10 */ float _gravity;
+    /* 0x00 */ u8 m_padding[4];
+    /* 0x04 */ dBodyID m_bodyID;
+    /* 0x08 */ dGeomID m_geomID;
+    /* 0x0c */ PhysicsObject *m_parentObject;
+    /* 0x10 */ float m_gravity;
+    /* 0x14 */ nlVector3 *m_position;
+
+    // /* 0x20 */ nlVector3 m_linearVelocity;
+    // /* 0x2C */ nlMatrix4 m_worldMatrix;
+    // /* 0x4C */ nlMatrix4 m_worldMatrixInv;
+    // /* 0x6C */ nlMatrix4 m_worldMatrixInvTrans;
+    // /* 0x8C */ nlMatrix4 m_worldMatrixInvTransTrans;
 };
 
 #endif

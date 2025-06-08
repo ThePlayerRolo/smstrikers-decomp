@@ -74,8 +74,10 @@ struct dMass {
   dMatrix3 I;
 
 #ifdef __cplusplus
+#ifndef dODE_SMStricker_Patch
   dMass()
     { dMassSetZero (this); }
+#endif
   void setZero()
     { dMassSetZero (this); }
   void setParameters (dReal themass, dReal cgx, dReal cgy, dReal cgz,
