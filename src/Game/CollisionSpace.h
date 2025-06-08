@@ -5,14 +5,7 @@
 
 class PhysicsWorld;
 class PhysicsObject;
-
-class SimpleCollisionSpace
-{
-public:
-    SimpleCollisionSpace(PhysicsWorld*);
-    ~SimpleCollisionSpace();
-};
-
+class CollisionSpace;
 
 class CollisionSpace
 {
@@ -20,12 +13,22 @@ public:
     void PreUpdate();
     void PreCollide();
     void CallPreCollide(PhysicsObject*);
-    void DoCollide(void*, void (*)(void*, dxGeom*, dxGeom*));
+    void DoCollide(void* data, dNearCallback *callback);
 
-    ~CollisionSpace();
+    virtual ~CollisionSpace();
 
-    /* 0x00 */ u8 m_padding[4];
+    // /* 0x00 */ u8 m_padding[4];
     /* 0x04 */ dSpaceID m_spaceID;
+};
+
+class SimpleCollisionSpace : public CollisionSpace
+{
+public:
+    SimpleCollisionSpace(PhysicsWorld*);
+    virtual ~SimpleCollisionSpace();
+
+    // /* 0x00 */ u8 m_padding[0xc];
+    /* 0x0c */ PhysicsWorld *m_physicsWorld;
 };
 
 #endif // _COLLISIONSPACE_H_

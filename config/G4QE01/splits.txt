@@ -1747,7 +1747,7 @@ PhysicsAIBall.o:
 	.sdata      start:0x80372370 end:0x80372378
 	.sdata2     start:0x803761A0 end:0x803761E8
 
-PhysicsBall.o:
+Game/PhysicsBall.cpp:
 	.text       start:0x80134D14 end:0x80135A34
 	.text       start:0x80135A34 end:0x80135A34
 	.text       start:0x80135A34 end:0x80135A34
@@ -4427,7 +4427,7 @@ PhysicsCharacterBase.o:
 	.data       start:0x80303070 end:0x80303100
 	.sdata2     start:0x80377438 end:0x80377458
 
-PhysicsCompositeObject.o:
+Game/PhysicsCompositeObject.cpp:
 	.text       start:0x801FF6A8 end:0x801FF970
 	.text       start:0x801FF970 end:0x801FF978
 	.text       start:0x801FF978 end:0x801FF978
@@ -4450,7 +4450,7 @@ Game/PhysicsObject.cpp:
 	.sdata      start:0x80373318 end:0x80373320
 	.sdata2     start:0x80377460 end:0x80377480
 
-PhysicsPlane.o:
+Game/PhysicsPlane.cpp:
 	.text       start:0x80201198 end:0x80201240
 	.text       start:0x80201240 end:0x80201240
 	.text       start:0x80201240 end:0x80201240
