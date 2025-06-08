@@ -115,14 +115,16 @@ Config::~Config()
 /**
  * Offset/Address/Size: 0x2998 | 0x801D55FC | size: 0x218
  */
-// SetTagValuePair::TagValuePair(const BasicString<char, Detail::TempStringAllocator>&, const BasicString<char, Detail::TempStringAllocator>&)
+// SetTagValuePair::TagValuePair(const BasicString<char, Detail::TempStringAllocator>&, const BasicString<char,
+// Detail::TempStringAllocator>&)
 // {
 // }
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D5814 | size: 0x4
  */
-// Config::Parser::TagValuePair(const BasicString<char, Detail::TempStringAllocator>&, const BasicString<char, Detail::TempStringAllocator>&)
+// Config::Parser::TagValuePair(const BasicString<char, Detail::TempStringAllocator>&, const BasicString<char,
+// Detail::TempStringAllocator>&)
 // {
 // }
 
@@ -178,13 +180,15 @@ Config::~Config()
 /**
  * Offset/Address/Size: 0xC80 | 0x801D64D0 | size: 0xBC
  */
-// BasicString<char, Detail::TempStringAllocator>::Append<Detail::TempStringAllocator>(const BasicString<char, Detail::TempStringAllocator>&) const
+// BasicString<char, Detail::TempStringAllocator>::Append<Detail::TempStringAllocator>(const BasicString<char,
+// Detail::TempStringAllocator>&) const
 // {
 // }
 
 /**
  * Offset/Address/Size: 0xD3C | 0x801D658C | size: 0x1E4
  */
-// BasicString<char, Detail::TempStringAllocator>::AppendInPlace<Detail::TempStringAllocator>(const BasicString<char, Detail::TempStringAllocator>&)
+// BasicString<char, Detail::TempStringAllocator>::AppendInPlace<Detail::TempStringAllocator>(const BasicString<char,
+// Detail::TempStringAllocator>&)
 // {
 // }

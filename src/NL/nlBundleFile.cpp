@@ -7,7 +7,6 @@ void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long)
 {
 }
 
-
 /**
  * Offset/Address/Size: 0x0 | 0x801E85CC | size: 0xD4
  */
@@ -46,7 +45,7 @@ void BundleFile::ReadFile(unsigned long, void*, unsigned long)
 /**
  * Offset/Address/Size: 0x45C | 0x801E8A28 | size: 0x118
  */
- void BundleFile::ReadFile(const char*, void*, unsigned long)
+void BundleFile::ReadFile(const char*, void*, unsigned long)
 {
 }
 

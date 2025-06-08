@@ -10,6 +10,7 @@ void nlTextBox::DrawString(const nlTextBox::StringDrawInfo&, const nlVector2&, c
 /**
  * Offset/Address/Size: 0x244 | 0x8021216C | size: 0x3B0
  */
-void nlTextBox::ProcessString(const FontCharString*, const nlFont*, const nlVector2&, unsigned long, const nlMatrix4*, nlTextBox::StringDrawInfo&)
+void nlTextBox::ProcessString(const FontCharString*, const nlFont*, const nlVector2&, unsigned long, const nlMatrix4*,
+                              nlTextBox::StringDrawInfo&)
 {
 }

@@ -41,23 +41,33 @@ void PhysicsObject::CloneObject(const PhysicsObject&)
 /**
  * Offset/Address/Size: 0x218 | 0x801FFF14 | size: 0x44
  */
-void PhysicsObject::Contact(PhysicsObject*, dContact*, int, PhysicsObject*)
+int PhysicsObject::Contact(PhysicsObject* obj1, dContact* contact, int param, PhysicsObject* obj2)
 {
-//   undefined4 uVar1;
-  
-//   if (this->m_parentObject == (PhysicsObject *)0x0) {
-//     uVar1 = 3;
-//   }
-//   else {
-//     uVar1 = (**(code **)(*(int *)this->m_parentObject->padding + 0x24))();
-//   }
-//   return uVar1;    
+    //   undefined4 uVar1;
+
+    //   if (this->m_parentObject == (PhysicsObject *)0x0) {
+    //     uVar1 = 3;
+    //   }
+    //   else {
+    //     uVar1 = (**(code **)(*(int *)this->m_parentObject->padding + 0x24))();
+    //   }
+    //   return uVar1;
+    int ret;
+    if (m_parentObject == NULL)
+    {
+        ret = 3;
+    }
+    else
+    {
+        ret = this->m_parentObject->Contact(obj1, contact, param, obj2);
+    }
+    return ret;
 }
 
 /**
  * Offset/Address/Size: 0x25C | 0x801FFF58 | size: 0x30
  */
-void PhysicsObject::Contact(PhysicsObject*, dContact*, int)
+int PhysicsObject::Contact(PhysicsObject*, dContact*, int)
 {
     // (**(code **)(*(int *)this->padding + 0x24))();
 }
@@ -197,10 +207,11 @@ BOOL PhysicsObject::SetContactInfo(dContact* contact, PhysicsObject* otherObject
         }
         uVar3 = 1;
     }
-      else {
+    else
+    {
         // uVar3 = (**(code **)(**(int **)(this + 0xc) + 0x10))();
         uVar3 = 1;
-      }
+    }
     return uVar3;
 }
 

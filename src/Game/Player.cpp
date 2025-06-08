@@ -269,7 +269,8 @@ cPlayer::~cPlayer()
 /**
  * Offset/Address/Size: 0x2FAC | 0x8005A4FC | size: 0x380
  */
-cPlayer::cPlayer(int, eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, PlayerTweaks*, AnimRetargetList*, eClassTypes)
+cPlayer::cPlayer(int, eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, PlayerTweaks*,
+                 AnimRetargetList*, eClassTypes)
 {
 }
 

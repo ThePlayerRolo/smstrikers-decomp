@@ -19,8 +19,8 @@ public:
     };
 
     void CloneObject(const PhysicsObject&);
-    void Contact(PhysicsObject*, dContact*, int, PhysicsObject*);
-    void Contact(PhysicsObject*, dContact*, int);
+    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*);
+    virtual int Contact(PhysicsObject*, dContact*, int);
     void MakeStatic();
     void SetMass(float);
     void Reconnect(dxSpace*);
@@ -28,7 +28,7 @@ public:
     void EnableCollisions();
     void DisableCollisions();
     void SetWorldMatrix(const nlMatrix4&);
-    BOOL SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual BOOL SetContactInfo(dContact*, PhysicsObject*, bool);
     void SetDefaultContactInfo(dContact*);
     void ZeroForceAccumulators();
     void AddForceAtCentreOfMass(const nlVector3&);
@@ -44,12 +44,13 @@ public:
     nlVector3* GetPosition();
     void GetPosition(nlVector3*) const;
     void SetPosition(const nlVector3&, CoordinateType);
-    void PostUpdate();
-    void PreUpdate();
+    virtual void PostUpdate();
+    virtual void PreUpdate();
     void CheckForNaN();
     void SetCategory(unsigned int);
     void SetCollide(unsigned int);
     void SetDefaultCollideBits();
+    virtual void PreCollide() = 0;
 
     ~PhysicsObject();
     PhysicsObject(PhysicsWorld*);
@@ -60,12 +61,6 @@ public:
     /* 0x0c */ PhysicsObject *m_parentObject;
     /* 0x10 */ float m_gravity;
     /* 0x14 */ nlVector3 *m_position;
-
-    // /* 0x20 */ nlVector3 m_linearVelocity;
-    // /* 0x2C */ nlMatrix4 m_worldMatrix;
-    // /* 0x4C */ nlMatrix4 m_worldMatrixInv;
-    // /* 0x6C */ nlMatrix4 m_worldMatrixInvTrans;
-    // /* 0x8C */ nlMatrix4 m_worldMatrixInvTransTrans;
 };
 
 #endif

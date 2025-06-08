@@ -15,7 +15,7 @@ void PhysicsSphere::SetRadius(float radius)
  */
 float PhysicsSphere::GetRadius()
 {
-  return dGeomSphereGetRadius(m_geomID);
+    return dGeomSphereGetRadius(m_geomID);
 }
 
 /**

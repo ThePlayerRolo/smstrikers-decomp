@@ -44,7 +44,8 @@ void operator delete[](void* ptr)
  */
 void operator delete(void* ptr)
 {
-    if (ptr != nullptr) {
+    if (ptr != nullptr)
+    {
         nlFree(ptr);
     }
 }

@@ -63,4 +63,18 @@ struct nlQuaternion
     float w;
 };
 
+void nlBezier(float*, int, float);
+void nlATan2f(float, float);
+void nlTan(unsigned short);
+void nlACos(float);
+void nlSinCos(float*, float*, unsigned short);
+void nlSin(unsigned short);
+void nlRecipSqrt(float, bool);
+float nlSqrt(float, bool);
+void nlRandomf(float, float, unsigned int*);
+void nlRandomf(float, unsigned int*);
+void nlRandom(unsigned int, unsigned int*);
+void nlSetRandomSeed(unsigned int, unsigned int*);
+void nlInitRandom();
+
 #endif
