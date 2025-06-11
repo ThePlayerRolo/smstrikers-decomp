@@ -45,10 +45,18 @@ struct nlVector3
     }
 };
 
-struct nlMatrix4
+struct nlVector4
 {
-    float v[4*4];      // Flat array access
+    float x;
+    float y;
+    float z;
+    float w;
 };
+
+// struct nlMatrix4
+// {
+//     float v[4*4];      // Flat array access
+// };
 
 struct nlMatrix3
 {
@@ -76,5 +84,7 @@ void nlRandomf(float, unsigned int*);
 void nlRandom(unsigned int, unsigned int*);
 void nlSetRandomSeed(unsigned int, unsigned int*);
 void nlInitRandom();
+
+#include "NL/platvmath.h"
 
 #endif

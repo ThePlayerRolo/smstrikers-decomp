@@ -16,9 +16,9 @@ class PhysicsCompositeObject
 public:
     void AdjustTransform(int, nlMatrix4&);
     void AddObject(PhysicsObject*);
-    ~PhysicsCompositeObject();
+    virtual ~PhysicsCompositeObject();
     PhysicsCompositeObject(PhysicsWorld*);
-    void GetObjectType() const;
+    int GetObjectType() const;
 };
 
 

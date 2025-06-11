@@ -34,8 +34,9 @@ PhysicsCompositeObject::PhysicsCompositeObject(PhysicsWorld*)
 /**
  * Offset/Address/Size: 0x0 | 0x801FF970 | size: 0x8
  */
-void PhysicsCompositeObject::GetObjectType() const
+int PhysicsCompositeObject::GetObjectType() const
 {
+    return 0x9;
 }
 
 // /**

@@ -19,12 +19,14 @@ public:
     };
 
     void CloneObject(const PhysicsObject&);
+    virtual void UnknownMethod_8(int) = 0;
+    virtual int GetObjectType() = 0; // position not so clear, must be on 0xC offset
     virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*);
     virtual int Contact(PhysicsObject*, dContact*, int);
     void MakeStatic();
     void SetMass(float);
-    void Reconnect(dxSpace*);
-    void Disconnect();
+    void Reconnect(dSpaceID);
+    dSpaceID Disconnect();
     void EnableCollisions();
     void DisableCollisions();
     void SetWorldMatrix(const nlMatrix4&);
@@ -51,6 +53,7 @@ public:
     void SetCollide(unsigned int);
     void SetDefaultCollideBits();
     virtual void PreCollide() = 0;
+
 
     ~PhysicsObject();
     PhysicsObject(PhysicsWorld*);

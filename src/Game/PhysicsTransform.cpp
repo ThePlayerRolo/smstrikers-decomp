@@ -7,11 +7,11 @@
  */
 void PhysicsTransform::SetSubObjectTransform(const nlMatrix4& transform, PhysicsObject::CoordinateType coordinateType)
 {
-    _unk_2c->SetRotation(transform);
+    m_unk_2c->SetRotation(transform);
 
-    nlVector3 v = nlVector3(transform.v[12], transform.v[13], transform.v[14]);
+    nlVector3 v = nlVector3(transform.m[3][0], transform.m[3][1], transform.m[3][2]);
 
-    _unk_2c->SetPosition(v, coordinateType);
+    m_unk_2c->SetPosition(v, coordinateType);
 }
 
 /**
@@ -19,7 +19,7 @@ void PhysicsTransform::SetSubObjectTransform(const nlMatrix4& transform, Physics
  */
 void PhysicsTransform::SetSubObjectPosition(const nlVector3& position, PhysicsObject::CoordinateType coordinateType)
 {
-    _unk_2c->SetPosition(position, coordinateType);
+    m_unk_2c->SetPosition(position, coordinateType);
 }
 
 /**
@@ -27,48 +27,41 @@ void PhysicsTransform::SetSubObjectPosition(const nlVector3& position, PhysicsOb
  */
 void PhysicsTransform::Release()
 {
-    // dxSpace *pdVar1;
-    // float local_78;
-    // float local_74;
-    // float local_70;
-    // nlVector3 anStack_6c [12];
-    // float local_60;
-    // float local_5c;
-    // float local_58;
-    // nlMatrix4 anStack_54 [76];
+    nlMatrix4 mat;
+    nlVector3 v1, v2, v;
 
-    // if (*(int *)(this + 0x2c) != 0) {
-    // x   *(undefined4 *)(*(int *)(this + 0x2c) + 0xc) = 0;
-    // x   PhysicsObject::GetPosition((PhysicsObject *)this,(nlVector3 *)&local_60);
-    //   PhysicsObject::GetPosition(*(PhysicsObject **)(this + 0x2c),anStack_6c);
-    //   pdVar1 = (dxSpace *)collision_kernel::dGeomGetSpace(*(undefined4 *)(this + 8));
-    //   if (pdVar1 != (dxSpace *)0x0) {
-    //     collision_space::dSpaceRemove(pdVar1,*(undefined4 *)(this + 8));
-    //   }
-    //   *(undefined4 *)(this + 4) = 0;
-    //   collision_transform::dGeomTransformSetGeom(*(undefined4 *)(this + 8),0);
-    //   PhysicsObject::Reconnect(*(PhysicsObject **)(this + 0x2c),pdVar1);
-    //   PhysicsObject::GetRotation((PhysicsObject *)this,anStack_54);
-    //   platvmath::nlMultPosVectorMatrix(&local_78,anStack_6c,anStack_54);
-    //   local_58 = local_58 + local_70;
-    //   local_5c = local_5c + local_74;
-    //   local_60 = local_60 + local_78;
-    //   PhysicsObject::SetPosition(*(PhysicsObject **)(this + 0x2c),&local_60,0);
-    //   local_60 = @285;
-    //   local_5c = @285;
-    //   local_58 = @285;
-    //   PhysicsObject::SetLinearVelocity(*(PhysicsObject **)(this + 0x2c),(nlVector3 *)&local_60);
-    //   PhysicsObject::SetAngularVelocity(*(PhysicsObject **)(this + 0x2c),(nlVector3 *)&local_60);
-    //   PhysicsObject::ZeroForceAccumulators(*(PhysicsObject **)(this + 0x2c));
-    //   *(undefined4 *)(this + 0x2c) = 0;
-    //   PhysicsObject::DisableCollisions((PhysicsObject *)this);
-    // }
-
-    nlVector3 vec3;
-    if (_unk_2c != NULL)
+    if (m_unk_2c != NULL)
     {
-        _unk_2c = NULL;
-        // GetPosition(&vec3);
+        m_unk_2c->m_parentObject = NULL;
+
+        GetPosition(&v1);
+        m_unk_2c->GetPosition(&v2);
+
+        dSpaceID space = dGeomGetSpace(m_geomID);
+        if (space != NULL)
+        {
+            dSpaceRemove(space, m_geomID);
+        }
+        m_bodyID = NULL;
+
+        dGeomTransformSetGeom(m_geomID, NULL);
+
+        m_unk_2c->Reconnect(space);
+        GetRotation(&mat);
+
+        nlMultPosVectorMatrix(v, v2, mat);
+        v1.z = v1.z + v.z;
+        v1.y = v1.y + v.y;
+        v1.x = v1.x + v.x;
+        m_unk_2c->SetPosition(v1, CoordinateType_0);
+        v1.x = 0.f;
+        v1.y = 0.f;
+        v1.z = 0.f;
+        m_unk_2c->SetLinearVelocity(v1);
+        m_unk_2c->SetAngularVelocity(v1);
+        m_unk_2c->ZeroForceAccumulators();
+        m_unk_2c = NULL;
+        DisableCollisions();
     }
 }
 
@@ -77,32 +70,29 @@ void PhysicsTransform::Release()
  */
 void PhysicsTransform::Attach(PhysicsObject* obj1, PhysicsObject* obj2)
 {
-    // if (*(int*)(this + 0x2c) == 0)
-    // {
-    //     if (param_2 != (PhysicsObject*)0x0)
-    //     {
-    //         *(int*)(this + 4) = param_2->m_bodyID;
-    //     }
-    //     collision_kernel::dGeomSetData(*(undefined4*)(this + 8), param_1);
-    //     uVar1 = collision_kernel::dGeomGetCategoryBits(param_1->m_geomID);
-    //     collision_kernel::dGeomSetCategoryBits(*(undefined4*)(this + 8), uVar1);
-    //     uVar1 = collision_kernel::dGeomGetCollideBits(param_1->m_geomID);
-    //     collision_kernel::dGeomSetCollideBits(*(undefined4*)(this + 8), uVar1);
-    //     uVar1 = PhysicsObject::Disconnect(param_1);
-    //     collision_transform::dGeomTransformSetGeom(*(undefined4*)(this + 8), param_1->m_geomID);
-    //     PhysicsObject::EnableCollisions((PhysicsObject*)this);
-    //     collision_space::dSpaceAdd(uVar1, *(undefined4*)(this + 8));
-    //     collision_kernel::dGeomSetBody(*(undefined4*)(this + 8), *(undefined4*)(this + 4));
-    //     param_1->m_parentObject = param_2;
-    //     *(PhysicsObject**)(this + 0x2c) = param_1;
-    // }
-
-    if (_unk_2c == NULL)
+    if (m_unk_2c == NULL)
     {
         if (obj2 != NULL)
         {
-            _bodyID = obj2->m_bodyID;
+            m_bodyID = obj2->m_bodyID;
         }
+
+        dGeomSetData(m_geomID, obj1);
+
+        dGeomSetCategoryBits(m_geomID, dGeomGetCategoryBits(obj1->m_geomID));
+
+        dGeomSetCollideBits(m_geomID, dGeomGetCollideBits(obj1->m_geomID));
+
+        dSpaceID space = obj1->Disconnect();
+        dGeomTransformSetGeom(m_geomID, obj1->m_geomID);
+
+        EnableCollisions();
+
+        dSpaceAdd(space, m_geomID);
+        dGeomSetBody(m_geomID, m_bodyID);
+
+        obj1->m_parentObject = obj2;
+        m_unk_2c = obj1;
     }
 }
 
@@ -111,39 +101,30 @@ void PhysicsTransform::Attach(PhysicsObject* obj1, PhysicsObject* obj2)
  */
 PhysicsTransform::~PhysicsTransform()
 {
-    //   if (this != (PhysicsTransform *)0x0) {
-    //     *(undefined1 **)this = &__vt;
-    //     piVar1 = *(int **)(this + 0x2c);
-    //     if (piVar1 != (int *)0x0) {
-    //       (**(code **)(*piVar1 + 8))(piVar1,1);
-    //     }
-    //     PhysicsObject::~PhysicsObject((PhysicsObject *)this);
-    //     if (0 < in_r4) {
-    //       nlMemory::operator_delete(this);
-    //     }
-    //   }
+    if (m_unk_2c != NULL)
+    {
+        // TODO: call to a virtual method.. not clear what is it...
+        m_unk_2c->UnknownMethod_8(1);
+        //   (**(code **)(*m_unk_2c + 8))(piVar1,1);
+    }
 }
 
 /**
  * Offset/Address/Size: 0x320 | 0x80201670 | size: 0x60
  */
 PhysicsTransform::PhysicsTransform()
-// : PhysicsObject(const PhysicsObject&)
+    : PhysicsObject(NULL)
 {
-    //   undefined4 uVar1;
-    //   PhysicsObject::PhysicsObject((PhysicsObject *)this,(PhysicsWorld *)0x0);
-    //   *(undefined1 **)this = &__vt;
-    //   uVar1 = dCreateGeomTransform(0);
-    _geomID = dCreateGeomTransform(NULL);
+    m_geomID = dCreateGeomTransform(NULL);
+    dGeomTransformSetInfo(m_geomID, 1);
 
-    //   *(undefined4 *)(this + 8) = uVar1;
-    dGeomTransformSetInfo(_geomID, 1);
-    _unk_2c = nullptr;
+    m_unk_2c = nullptr;
 }
 
 /**
  * Offset/Address/Size: 0x0 | 0x802016D0 | size: 0x30
  */
-void PhysicsTransform::GetObjectType() const
+int PhysicsTransform::GetObjectType() const
 {
+    return m_unk_2c->GetObjectType();
 }

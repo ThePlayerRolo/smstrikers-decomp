@@ -13,22 +13,22 @@ const float PhysicsObject::DefaultGravity = -9.8f;
 void ConvertDMat3ToNLMat4(const float* mat3, nlMatrix4* mat4)
 {
     // todo: regswaps all over the place...
-    mat4->v[0] = (f32)mat3[0];
-    mat4->v[4] = (f32)mat3[1];
-    mat4->v[8] = (f32)mat3[2];
-    mat4->v[1] = (f32)mat3[4];
-    mat4->v[5] = (f32)mat3[5];
-    mat4->v[9] = (f32)mat3[6];
-    mat4->v[2] = (f32)mat3[8];
-    mat4->v[6] = (f32)mat3[9];
-    mat4->v[10] = (f32)mat3[10];
-    mat4->v[12] = 1.0f;
-    mat4->v[13] = 1.0f;
-    mat4->v[14] = 1.0f;
-    mat4->v[15] = 0.0f;
-    mat4->v[3] = 1.0f;
-    mat4->v[7] = 1.0f;
-    mat4->v[11] = 1.0f;
+    mat4->m[0][0] = (f32)mat3[0];
+    mat4->m[1][0] = (f32)mat3[1];
+    mat4->m[2][0] = (f32)mat3[2];
+    mat4->m[0][1] = (f32)mat3[4];
+    mat4->m[1][1] = (f32)mat3[5];
+    mat4->m[2][1] = (f32)mat3[6];
+    mat4->m[0][2] = (f32)mat3[8];
+    mat4->m[1][2] = (f32)mat3[9];
+    mat4->m[2][2] = (f32)mat3[10];
+    mat4->m[0][3] = 1.0f;
+    mat4->m[1][3] = 1.0f;
+    mat4->m[2][3] = 1.0f;
+    mat4->m[3][3] = 0.0f;
+    mat4->m[0][3] = 1.0f;
+    mat4->m[1][3] = 1.0f;
+    mat4->m[2][3] = 1.0f;
 }
 
 /**
@@ -107,7 +107,7 @@ void PhysicsObject::SetMass(float mass)
 /**
  * Offset/Address/Size: 0x344 | 0x80200040 | size: 0x50
  */
-void PhysicsObject::Reconnect(dxSpace* space)
+void PhysicsObject::Reconnect(dSpaceID space)
 {
     dSpaceAdd(space, m_geomID);
     dGeomSetBody(m_geomID, m_bodyID);
@@ -120,7 +120,7 @@ void PhysicsObject::Reconnect(dxSpace* space)
 /**
  * Offset/Address/Size: 0x344 | 0x80200040 | size: 0x50
  */
-void PhysicsObject::Disconnect()
+dSpaceID PhysicsObject::Disconnect()
 {
     dSpaceID space;
     space = dGeomGetSpace(m_geomID);
@@ -133,6 +133,7 @@ void PhysicsObject::Disconnect()
     {
         dBodyDisable(m_bodyID);
     }
+    return space;
 }
 
 /**
@@ -158,18 +159,18 @@ void PhysicsObject::SetWorldMatrix(const nlMatrix4& in)
 {
     // todo: regswaps all over the place...
     dMatrix3 mat;
-    mat[0] = in.v[0];
-    mat[1] = in.v[4];
-    mat[2] = in.v[8];
-    mat[3] = in.v[12];
-    mat[4] = in.v[1];
-    mat[5] = in.v[5];
-    mat[6] = in.v[9];
-    mat[7] = in.v[13];
-    mat[8] = in.v[2];
-    mat[9] = in.v[6];
-    mat[10] = in.v[10];
-    mat[11] = in.v[14];
+    mat[0] = in.m[0][0];
+    mat[1] = in.m[1][0];
+    mat[2] = in.m[2][0];
+    mat[3] = in.m[3][0];
+    mat[4] = in.m[0][1];
+    mat[5] = in.m[1][1];
+    mat[6] = in.m[2][1];
+    mat[7] = in.m[3][1];
+    mat[8] = in.m[0][2];
+    mat[9] = in.m[1][2];
+    mat[10] = in.m[2][2];
+    mat[11] = in.m[3][2];
 
     if ((m_geomID == 0) && (m_bodyID != 0))
     {
@@ -180,7 +181,7 @@ void PhysicsObject::SetWorldMatrix(const nlMatrix4& in)
         dGeomSetRotation(m_geomID, mat);
     }
 
-    nlVector3* pos = (nlVector3*)&(in.v[12]);
+    nlVector3* pos = (nlVector3*)&(in.m[0][3]);
     SetPosition(*pos, CoordinateType_0);
 }
 

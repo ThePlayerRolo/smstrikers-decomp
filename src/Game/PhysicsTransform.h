@@ -8,23 +8,20 @@
 
 #include "PhysicsObject.h"
 
-class PhysicsTransform //: public PhysicsObject
+class PhysicsTransform : public PhysicsObject
 {
 public:
     void SetSubObjectTransform(const nlMatrix4&, PhysicsObject::CoordinateType);
     void SetSubObjectPosition(const nlVector3&, PhysicsObject::CoordinateType);
     void Release();
     void Attach(PhysicsObject*, PhysicsObject*);
-    void GetObjectType() const;
+    virtual int GetObjectType() const;
 
-    ~PhysicsTransform();
+    virtual ~PhysicsTransform();
     PhysicsTransform();
 
-    u8 _padding[4];
-    /* 0x04 */ dBodyID _bodyID;
-    /* 0x08 */ dGeomID _geomID;
-    u8 _padding2[29];
-    /* 0x2c */ PhysicsObject *_unk_2c;
+    u8 _padding[20];
+    /* 0x2c */ PhysicsObject *m_unk_2c;
 };
 
 #endif // _PHYSICSTRANSFORM_H_
