@@ -4,7 +4,7 @@
 #include "ode/common.h"
 #include "ode/objects.h"
 #include "ode/collision.h"
-#include "ode/joint.h"
+#include "joint.h"
 
 class dxJointCharacter;
 
@@ -22,7 +22,7 @@ void dMultiplyMatrix3Vector3(float*, const float*, const float*, bool);
 void dGeomSetGFlags(dxGeom*, int);
 void dGeomGetGFlags(dxGeom*);
 void dJointSetCharacterNoMotionDirection(dxJoint*, float*);
-void dJointCreateCharacter(dxWorld*, dxJointGroup*);
+dxJoint *dJointCreateCharacter(dxWorld*, dxJointGroup*);
 void characterInit(dxJointCharacter*);
 void dClearCachedData();
 void dWorldSetClearAccumulators(dxWorld*, int);

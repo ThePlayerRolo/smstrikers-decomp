@@ -452,6 +452,7 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
         objects,
         includes=[
             *includes_base,
+            "src/ode",
         ],
         system_includes=[
             *system_includes_base,
@@ -477,7 +478,7 @@ def ODELib(lib_name: str, objects: Objects, cflags=cflags_ode) -> Library:
         objects,
         includes=[
             *includes_base,
-            "include/ode"
+            "include/ode",
         ],
         system_includes=[
             *system_includes_base,
@@ -642,6 +643,7 @@ config.libs = [
             Object(NonMatching, "Game/Player.cpp"),
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
+            Object(NonMatching, "Game/PhysicsColumn.cpp"),
             Object(NonMatching, "Game/PhysicsCapsule.cpp"),
             Object(NonMatching, "Game/PhysicsBall.cpp"),
             Object(NonMatching, "Game/PhysicsSphere.cpp"),
@@ -686,7 +688,7 @@ config.libs = [
     ODELib(
         "Open Dynamics Engine (ODE)",
         [
-            Object(NonMatching, "ode/NLGAdditions.cpp", extra_cflags=["-inline off"]),
+            Object(NonMatching, "ode/NLGAdditions.cpp", extra_cflags=["-inline auto, deferred"]),
             Object(NonMatching, "ode/collision_kernel.cpp"),
             Object(Matching, "ode/collision_space.cpp"),
             Object(NonMatching, "ode/collision_std.cpp"),

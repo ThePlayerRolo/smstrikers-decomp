@@ -1,6 +1,10 @@
 #include "ode/NLGAdditions.h"
 
+#include "NL/nlMath.h"
 #include "objects.h"
+#include "joint.h"
+
+static dxJoint *createJoint (dWorldID w, dJointGroupID group, dxJoint::Vtable *vtable);
 
 /**
  * Offset/Address/Size: 0x0 | 0x802242C8 | size: 0x140
@@ -96,15 +100,20 @@ void dGeomGetGFlags(dxGeom*)
 /**
  * Offset/Address/Size: 0x3D8 | 0x802246A0 | size: 0x1C
  */
-void dJointSetCharacterNoMotionDirection(dxJoint*, float*)
+void dJointSetCharacterNoMotionDirection(dxJoint* joint, nlVector3* v3)
 {
+    // *(undefined4 *)(param_1 + 0x50) = *param_2;
+    // *(undefined4 *)(param_1 + 0x54) = param_2[1];
+    // *(undefined4 *)(param_1 + 0x58) = param_2[2];
+    // joint->node[0].
 }
 
 /**
  * Offset/Address/Size: 0x3F4 | 0x802246BC | size: 0x28
  */
-void dJointCreateCharacter(dxWorld*, dxJointGroup*)
+dxJoint *dJointCreateCharacter(dxWorld* world, dxJointGroup* jointGroup)
 {
+    return createJoint(world, jointGroup, NULL);
 }
 
 /**

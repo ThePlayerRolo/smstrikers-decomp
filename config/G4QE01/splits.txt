@@ -4403,7 +4403,7 @@ Game/PhysicsCapsule.cpp:
 	.text       start:0x801FE888 end:0x801FE888
 	.sdata2     start:0x80377420 end:0x80377428
 
-PhysicsColumn.o:
+Game/PhysicsColumn.cpp:
 	.text       start:0x801FE888 end:0x801FEA34
 	.text       start:0x801FEA34 end:0x801FEA3C
 	.text       start:0x801FEA3C end:0x801FEA3C
