@@ -2,6 +2,7 @@
 #define _PHYSICSCOMPOSITEOBJECT_H_
 
 #include "NL/nlMath.h"
+#include "PhysicsObject.h"
 
 // void nlDLRingIsEnd<DLListEntry<PhysicsTransform*>>(DLListEntry<PhysicsTransform*>*, DLListEntry<PhysicsTransform*>*);
 // void nlDLRingGetStart<DLListEntry<PhysicsTransform*>>(DLListEntry<PhysicsTransform*>*);
@@ -11,14 +12,14 @@
 class PhysicsObject;
 class PhysicsWorld;
 
-class PhysicsCompositeObject
+class PhysicsCompositeObject : public PhysicsObject
 {
 public:
     void AdjustTransform(int, nlMatrix4&);
     void AddObject(PhysicsObject*);
     virtual ~PhysicsCompositeObject();
     PhysicsCompositeObject(PhysicsWorld*);
-    int GetObjectType() const;
+    virtual int GetObjectType() const;
 };
 
 

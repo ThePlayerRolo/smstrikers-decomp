@@ -644,6 +644,8 @@ config.libs = [
             Object(NonMatching, "Game/Team.cpp"),
             Object(NonMatching, "Game/PhysicsBall.cpp"),
             Object(NonMatching, "Game/PhysicsSphere.cpp"),
+            Object(NonMatching, "Game/PhysicsFinitePlane.cpp"),
+            Object(NonMatching, "Game/PhysicsGroundPlane.cpp"),
             Object(Matching, "Game/PhysicsPlane.cpp"),
             Object(NonMatching, "Game/PhysicsWall.cpp"),
             Object(NonMatching, "Game/PhysicsObject.cpp"),

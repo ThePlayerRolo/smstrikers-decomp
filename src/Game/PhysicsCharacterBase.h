@@ -1,6 +1,8 @@
 #ifndef _PHYSICSCHARACTERBASE_H_
 #define _PHYSICSCHARACTERBASE_H_
 
+#include "PhysicsObject.h"
+#include "CollisionSpace.h"
 
 class PhysicsCharacterBase
 {
@@ -18,7 +20,7 @@ public:
     PhysicsCharacterBase(CollisionSpace*, PhysicsWorld*, float);
     void GetBoneVolumePoints(nlVector3*, bool);
     void GetNumBoneVolumePoints(bool) const;
-    void GetObjectType() const;
+    virtual int GetObjectType() const;
     void PhysicsCapsuleBone::GetObjectType() const;
     void PhysicsSphereBone::~PhysicsSphereBone();
     void PhysicsSphereBone::GetObjectType() const;

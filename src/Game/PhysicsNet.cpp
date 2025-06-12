@@ -1,4 +1,5 @@
 #include "PhysicsNet.h"
+#include "PhysicsFinitePlane.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x8013A3F0 | size: 0x5C
@@ -67,27 +68,23 @@ PhysicsNet::PhysicsNet(CollisionSpace*, bool)
 /**
  * Offset/Address/Size: 0x0 | 0x8013B490 | size: 0x8
  */
-void PhysicsNet::GetObjectType() const
+int PhysicsNet::GetObjectType() const
 {
+    return 0x1b;
 }
 
 /**
  * Offset/Address/Size: 0x0 | 0x8013B498 | size: 0x8
  */
-void PhysicsFinitePlane::GetObjectType() const
+int PhysicsFinitePlane::GetObjectType() const
 {
+    return 0x7;
 }
 
 /**
  * Offset/Address/Size: 0x0 | 0x8013B4A0 | size: 0x8
  */
-void PhysicsCapsule::GetObjectType() const
+int PhysicsCapsule::GetObjectType() const
 {
-}
-
-/**
- * Offset/Address/Size: 0x0 | 0x8013B4A8 | size: 0x10
- */
-void 0x8028D2E8..0x8028D2EC | size : 0x4
-{
+    return 0x2;
 }

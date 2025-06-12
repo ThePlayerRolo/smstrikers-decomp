@@ -2,15 +2,17 @@
 #define _PHYSICSNPC_H_
 
 
-class PhysicsNPC
+#include "PhysicsObject.h"
+
+class PhysicsNPC : public PhysicsObject
 {
 public:
     ~PhysicsNPC();
-    void SetContactInfo(dContact*, PhysicsObject*, bool);
-    void Contact(PhysicsObject*, dContact*, int);
+    virtual void SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual void Contact(PhysicsObject*, dContact*, int);
     void SetCallbackFunction(void (*)(PhysicsObject*, PhysicsObject*, const nlVector3&));
     PhysicsNPC(float);
-    void GetObjectType() const;
+    virtual int GetObjectType() const;
 };
 
 #endif // _PHYSICSNPC_H_

@@ -1,7 +1,7 @@
 #ifndef _PHYSICSWALL_H_
 #define _PHYSICSWALL_H_
 
-#include "NL/nlMath.h"
+// #include "NL/nlMath.h"
 #include "CollisionSpace.h"
 #include "PhysicsPlane.h"
 

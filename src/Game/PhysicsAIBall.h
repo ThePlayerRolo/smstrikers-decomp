@@ -1,6 +1,8 @@
 #ifndef _PHYSICSAIBALL_H_
 #define _PHYSICSAIBALL_H_
 
+#include "NL/nlMath.h"
+#include "PhysicsObject.h"
 
 class PhysicsAIBall
 {
@@ -13,7 +15,7 @@ public:
     void PreUpdate();
     void Contact(PhysicsObject*, dContact*, int);
     PhysicsAIBall(float);
-    void GetObjectType() const;
+    virtual int GetObjectType() const;
 };
 
 

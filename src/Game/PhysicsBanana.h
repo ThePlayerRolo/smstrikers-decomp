@@ -1,8 +1,9 @@
 #ifndef _PHYSICSBANANA_H_
 #define _PHYSICSBANANA_H_
 
+#include "PhysicsObject.h"
 
-class PhysicsBanana
+class PhysicsBanana // : public PhysicsObject
 {
 public:
     ~PhysicsBanana();
@@ -11,7 +12,7 @@ public:
     void PreCollide();
     void PreUpdate();
     PhysicsBanana(float);
-    void GetObjectType() const;
+    virtual int GetObjectType() const;
 };
 
 

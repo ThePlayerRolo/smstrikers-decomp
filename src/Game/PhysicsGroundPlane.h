@@ -1,13 +1,15 @@
 #ifndef _PHYSICSGROUNDPLANE_H_
 #define _PHYSICSGROUNDPLANE_H_
 
+#include "CollisionSpace.h"
+#include "PhysicsPlane.h"
 
 class PhysicsGroundPlane
 {
 public:
     PhysicsGroundPlane(CollisionSpace*);
-    ~PhysicsGroundPlane();
-    void GetObjectType() const;
+    virtual ~PhysicsGroundPlane();
+    virtual int GetObjectType() const;
 };
 
 #endif // _PHYSICSGROUNDPLANE_H_

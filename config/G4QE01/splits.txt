@@ -1842,7 +1842,7 @@ PhysicsShell.o:
 	.data       start:0x802AFDD0 end:0x802AFE40
 	.sdata2     start:0x80376330 end:0x80376358
 
-PhysicsGroundPlane.o:
+Game/PhysicsGroundPlane.cpp:
 	.text       start:0x8013C390 end:0x8013C3DC
 	.text       start:0x8013C3DC end:0x8013C3DC
 	.text       start:0x8013C3DC end:0x8013C44C
@@ -4436,7 +4436,7 @@ Game/PhysicsCompositeObject.cpp:
 	.text       start:0x801FFA84 end:0x801FFAE4
 	.data       start:0x80303100 end:0x80303138
 
-PhysicsFinitePlane.o:
+Game/PhysicsFinitePlane.cpp:
 	.text       start:0x801FFAE4 end:0x801FFCFC
 	.text       start:0x801FFCFC end:0x801FFCFC
 	.text       start:0x801FFCFC end:0x801FFCFC
