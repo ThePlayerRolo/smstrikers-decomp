@@ -2,10 +2,11 @@
 #define _PHYSICSPLANE_H_
 
 #include "PhysicsObject.h"
+#include "CollisionSpace.h"
 
 class CollisionSpace;
 
-class PhysicsPlane
+class PhysicsPlane : public PhysicsObject
 {
 public:
     PhysicsPlane(CollisionSpace*, float, float, float, float);

@@ -17,8 +17,9 @@ public:
 
     virtual ~CollisionSpace();
 
-    /* 0x00 */ dSpaceID m_spaceID;
+    /* 0x00 */ dSpaceID m_spaceID; // is this 0x04 because of the virtual tables now?
     /* 0x04 */ CollisionSpace *m_nextCollisionSpace;
+    /* 0x0c */ PhysicsWorld *m_physicsWorld;
 };
 
 class SimpleCollisionSpace : public CollisionSpace
@@ -26,8 +27,6 @@ class SimpleCollisionSpace : public CollisionSpace
 public:
     SimpleCollisionSpace(PhysicsWorld*);
     virtual ~SimpleCollisionSpace();
-
-    /* 0x0c */ PhysicsWorld *m_physicsWorld;
 };
 
 #endif // _COLLISIONSPACE_H_
