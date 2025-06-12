@@ -19,6 +19,11 @@ public:
     float GetBallMaxVelocity();
 
     PhysicsBall(CollisionSpace*, PhysicsWorld*, float);
+
+    u8 _padding0[14];
+    /* 0x3a */ u8 m_unk_0x3a;
+    /* 0x3b */ u8 m_unk_0x3b;
+    /* 0x3c */ float m_angularVelocity;
 };
 
 #endif // _PHYSICSBALL_H_

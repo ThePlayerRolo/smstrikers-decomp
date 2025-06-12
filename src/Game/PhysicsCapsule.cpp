@@ -26,5 +26,5 @@ PhysicsCapsule::PhysicsCapsule(CollisionSpace* collisionSpace, PhysicsWorld* wor
     }
 
     dGeomSetData(m_geomID, this);
-    SetDefaultCollideBits();    
+    SetDefaultCollideBits();
 }

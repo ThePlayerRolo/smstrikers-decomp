@@ -26,9 +26,9 @@ struct nlVector3
     // float w;
 
     nlVector3()
-        : x(0.0f)
-        , y(0.0f)
-        , z(0.0f)
+        // : x(0.0f)
+        // , y(0.0f)
+        // , z(0.0f)
     {
     }
     nlVector3(float _x, float _y, float _z)

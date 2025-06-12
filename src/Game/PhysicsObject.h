@@ -36,8 +36,7 @@ public:
     void AddForceAtCentreOfMass(const nlVector3&);
     void GetAngularVelocity(nlVector3*) const;
     void SetAngularVelocity(const nlVector3&);
-    void GetLinearVelocity();
-    void GetLinearVelocity2(nlVector3*) const;
+    nlVector3* GetLinearVelocity();
     void GetLinearVelocity(nlVector3*) const;
     void SetLinearVelocity(const nlVector3&);
     void GetRotation(nlMatrix4*) const;
@@ -62,7 +61,8 @@ public:
     /* 0x08 */ dGeomID m_geomID;
     /* 0x0c */ PhysicsObject *m_parentObject;
     /* 0x10 */ float m_gravity;
-    /* 0x14 */ nlVector3 *m_position;
+    /* 0x14 */ nlVector3 m_position;
+    /* 0x20 */ nlVector3 m_linearVelocity;
 };
 
 #endif

@@ -6,7 +6,7 @@
 
 #include <joint.h>
 
-static dxJoint *createJoint (dWorldID w, dJointGroupID group, dxJoint::Vtable *vtable);
+static dxJoint* createJoint(dWorldID w, dJointGroupID group, dxJoint::Vtable* vtable);
 
 /**
  * Offset/Address/Size: 0x0 | 0x801FE888 | size: 0x24
@@ -23,8 +23,8 @@ PhysicsColumn::PhysicsColumn(CollisionSpace* collisionSpace, PhysicsWorld* world
     : PhysicsObject(world)
 {
     dMass m;
-    dMassSetZero(&m); 
-    
+    dMassSetZero(&m);
+
     dSpaceID spaceID = NULL;
     if (collisionSpace != NULL)
     {

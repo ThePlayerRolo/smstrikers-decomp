@@ -265,8 +265,10 @@ void PhysicsObject::SetAngularVelocity(const nlVector3& velocity)
 /**
  * Offset/Address/Size: 0x820 | 0x8020051C | size: 0x34
  */
-void PhysicsObject::GetLinearVelocity()
+nlVector3* PhysicsObject::GetLinearVelocity()
 {
+    GetLinearVelocity(&m_linearVelocity);
+    return &m_linearVelocity;
 }
 
 /**
@@ -451,8 +453,8 @@ void PhysicsObject::SetRotation(const nlMatrix3& m3_in)
  */
 nlVector3* PhysicsObject::GetPosition()
 {
-    GetPosition((nlVector3*)m_position);
-    return this->m_position;
+    GetPosition(&m_position);
+    return &m_position;
 }
 
 /**

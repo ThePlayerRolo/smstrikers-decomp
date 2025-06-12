@@ -5,25 +5,67 @@
 #include "NL/nlMath.h"
 #include "PhysicsObject.h"
 
+float g_BallFriction = 3.f;
+float g_BallFrictionWall = 4.f;
+float g_BallBounce = 0.25f;
+float g_BallBounceGround = 0.375f;
+float g_BallBounceWall = 0.45f;
+float g_BallRollingResistance = 5.f;
+float g_BallAirResistance = 0.1f;
+
 /**
  * Offset/Address/Size: 0x0 | 0x80134D14 | size: 0xD4
  */
-void PhysicsBall::CalcAngularFromLinearVelocity(nlVector3&)
+void PhysicsBall::CalcAngularFromLinearVelocity(nlVector3& v)
 {
+    nlVector3 t2, t1;
+    nlVector3 velocity;
+    GetLinearVelocity(&velocity);
+    t1 = nlVector3(0.f, 0.f, 0.f);
+    float dVar1 = 1.f / GetRadius();
+    t2 = nlVector3(0.f, 0.f, 0.f);
+
+    v.x = (t1.y * t2.z) - (dVar1 * velocity.y);
+    v.y = (-t1.x * t2.z) + (dVar1 * velocity.x);
+    v.z = (t1.x * velocity.y) - (t1.y * velocity.x);
+
+    // nlVector3 velocity;
+    // nlVector3 temp(0.f, 0.f, 0.f);
+    // GetLinearVelocity(&velocity);
+    // float dVar1 = 1.f / GetRadius();
+    // v.x = - (dVar1 * velocity.y);
+    // v.y = (dVar1 * velocity.x);
+    // v.z = 0.f;
 }
 
 /**
  * Offset/Address/Size: 0xD4 | 0x80134DE8 | size: 0x28
  */
-void PhysicsBall::SetUseAngularVelocity(bool)
+void PhysicsBall::SetUseAngularVelocity(bool param_1)
 {
+    m_unk_0x3a = 0;
+    if (param_1)
+    {
+        m_angularVelocity = 0.08f;
+        return;
+    }
+    m_angularVelocity = 0.f;
 }
 
 /**
  * Offset/Address/Size: 0xFC | 0x80134E10 | size: 0x80
  */
-void PhysicsBall::ScaleAngularVelocity(float)
+void PhysicsBall::ScaleAngularVelocity(float scale)
 {
+    nlVector3 v;
+    if (m_unk_0x3a != 0)
+    {
+        GetAngularVelocity(&v);
+        v.z = scale * v.z;
+        v.x = scale * v.x;
+        v.y = scale * v.y;
+        SetAngularVelocity(v);
+    }
 }
 
 /**
