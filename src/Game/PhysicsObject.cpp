@@ -70,6 +70,7 @@ int PhysicsObject::Contact(PhysicsObject* obj1, dContact* contact, int param, Ph
 int PhysicsObject::Contact(PhysicsObject*, dContact*, int)
 {
     // (**(code **)(*(int *)this->padding + 0x24))();
+    return 0;
 }
 
 /**
@@ -372,15 +373,75 @@ void PhysicsObject::GetRotation(nlMatrix4*) const
 /**
  * Offset/Address/Size: 0xC10 | 0x8020090C | size: 0xAC
  */
-void PhysicsObject::SetRotation(const nlMatrix4&)
+void PhysicsObject::SetRotation(const nlMatrix4& m4_in)
 {
+    // f32 sp34;
+    // f32 sp30;
+    // f32 sp2C;
+    // f32 sp28;
+    // f32 sp24;
+    // f32 sp20;
+    // f32 sp1C;
+    // f32 sp18;
+    // f32 sp14;
+    // f32 sp10;
+    // f32 spC;
+    // f32 sp8;
+
+    dMatrix3 mat;
+    mat[0] = m4_in.m[0][0];
+    mat[1] = m4_in.m[1][0];
+    mat[2] = m4_in.m[2][0];
+    mat[3] = m4_in.m[3][0];
+    mat[4] = m4_in.m[0][1];
+    mat[5] = m4_in.m[1][1];
+    mat[6] = m4_in.m[2][1];
+    mat[7] = m4_in.m[3][1];
+    mat[8] = m4_in.m[0][2];
+    mat[9] = m4_in.m[1][2];
+    mat[10] = m4_in.m[2][2];
+    mat[11] = m4_in.m[3][2];    
+    // sp8 = arg1->unk0;
+    // spC = arg1->unk10;
+    // sp10 = arg1->unk20;
+    // sp14 = arg1->unk30;
+    // sp18 = arg1->unk4;
+    // sp1C = arg1->unk14;
+    // sp20 = arg1->unk24;
+    // sp24 = arg1->unk34;
+    // sp28 = arg1->unk8;
+    // sp2C = arg1->unk18;
+    // sp30 = arg1->unk28;
+    // sp34 = arg1->unk38;
+
+    if ((m_geomID == NULL) && (m_bodyID != NULL)) {
+        dBodySetRotation(m_bodyID, mat);
+        return;
+    }
+    dGeomSetRotation(m_geomID, mat);    
 }
 
 /**
  * Offset/Address/Size: 0xCBC | 0x802009B8 | size: 0x94
  */
-void PhysicsObject::SetRotation(const nlMatrix3&)
+void PhysicsObject::SetRotation(const nlMatrix3& m3_in)
 {
+    dMatrix3 mat; 
+    mat[1] = m3_in.m[3];
+    mat[2] = m3_in.m[6];
+    mat[0] = m3_in.m[0];
+    mat[6] = m3_in.m[7];
+    mat[5] = m3_in.m[4];
+    mat[4] = m3_in.m[1];
+    mat[10] = m3_in.m[8];
+    mat[9] = m3_in.m[5];
+    mat[8] = m3_in.m[2];
+
+    if ((m_geomID == NULL) && (m_bodyID != NULL)) {
+        dBodySetRotation(m_bodyID, mat);
+        return;
+    }
+    dGeomSetRotation(m_geomID, mat);    
 }
 
 /**

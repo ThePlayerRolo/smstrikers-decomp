@@ -12,7 +12,7 @@
 class PhysicsObject;
 class PhysicsWorld;
 
-class PhysicsCompositeObject : public PhysicsObject
+class PhysicsCompositeObject //: public PhysicsObject
 {
 public:
     void AdjustTransform(int, nlMatrix4&);

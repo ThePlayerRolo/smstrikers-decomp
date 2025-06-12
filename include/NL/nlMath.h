@@ -60,7 +60,7 @@ struct nlVector4
 
 struct nlMatrix3
 {
-    float v[4*3];      // Flat array access
+    float m[3*3];      // Flat array access
 };
 
 struct nlQuaternion

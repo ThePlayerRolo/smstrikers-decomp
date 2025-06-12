@@ -4,7 +4,7 @@
 #include "CollisionSpace.h"
 #include "PhysicsPlane.h"
 
-class PhysicsGroundPlane
+class PhysicsGroundPlane : public PhysicsPlane
 {
 public:
     PhysicsGroundPlane(CollisionSpace*);

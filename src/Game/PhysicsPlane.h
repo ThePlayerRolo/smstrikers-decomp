@@ -10,6 +10,7 @@ class PhysicsPlane : public PhysicsObject
 {
 public:
     PhysicsPlane(CollisionSpace*, float, float, float, float);
+    // virtual ~PhysicsPlane();
 };
 
 #endif // _PHYSICSPLANE_H_
