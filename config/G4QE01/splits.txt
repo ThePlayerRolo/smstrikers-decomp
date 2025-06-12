@@ -4397,7 +4397,7 @@ PhysicsBox.o:
 	.text       start:0x801FE7A0 end:0x801FE7A0
 	.text       start:0x801FE7A0 end:0x801FE7A0
 
-PhysicsCapsule.o:
+Game/PhysicsCapsule.cpp:
 	.text       start:0x801FE7A0 end:0x801FE888
 	.text       start:0x801FE888 end:0x801FE888
 	.text       start:0x801FE888 end:0x801FE888

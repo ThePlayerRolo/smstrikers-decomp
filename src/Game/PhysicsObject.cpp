@@ -400,7 +400,7 @@ void PhysicsObject::SetRotation(const nlMatrix4& m4_in)
     mat[8] = m4_in.m[0][2];
     mat[9] = m4_in.m[1][2];
     mat[10] = m4_in.m[2][2];
-    mat[11] = m4_in.m[3][2];    
+    mat[11] = m4_in.m[3][2];
     // sp8 = arg1->unk0;
     // spC = arg1->unk10;
     // sp10 = arg1->unk20;
@@ -414,11 +414,12 @@ void PhysicsObject::SetRotation(const nlMatrix4& m4_in)
     // sp30 = arg1->unk28;
     // sp34 = arg1->unk38;
 
-    if ((m_geomID == NULL) && (m_bodyID != NULL)) {
+    if ((m_geomID == NULL) && (m_bodyID != NULL))
+    {
         dBodySetRotation(m_bodyID, mat);
         return;
     }
-    dGeomSetRotation(m_geomID, mat);    
+    dGeomSetRotation(m_geomID, mat);
 }
 
 /**
@@ -426,7 +427,7 @@ void PhysicsObject::SetRotation(const nlMatrix4& m4_in)
  */
 void PhysicsObject::SetRotation(const nlMatrix3& m3_in)
 {
-    dMatrix3 mat; 
+    dMatrix3 mat;
     mat[1] = m3_in.m[3];
     mat[2] = m3_in.m[6];
     mat[0] = m3_in.m[0];
@@ -437,11 +438,12 @@ void PhysicsObject::SetRotation(const nlMatrix3& m3_in)
     mat[9] = m3_in.m[5];
     mat[8] = m3_in.m[2];
 
-    if ((m_geomID == NULL) && (m_bodyID != NULL)) {
+    if ((m_geomID == NULL) && (m_bodyID != NULL))
+    {
         dBodySetRotation(m_bodyID, mat);
         return;
     }
-    dGeomSetRotation(m_geomID, mat);    
+    dGeomSetRotation(m_geomID, mat);
 }
 
 /**

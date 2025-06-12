@@ -18,7 +18,6 @@ PhysicsFinitePlane::PhysicsFinitePlane(CollisionSpace* collision_space, nlVector
     m_vec4.x = -m_vec4.y;
     m_vec4.z = -m_vec4.w;
 
-
     float l = 1.f / m_vec4.y;
     v1.x = l * v1.x;
     v1.y = l * v1.y;
@@ -42,16 +41,16 @@ PhysicsFinitePlane::PhysicsFinitePlane(CollisionSpace* collision_space, nlVector
     mat.m[2] = v1.z;
     mat.m[3] = v2.x;
     mat.m[4] = v2.y;
-    mat.m[5] = v2.z;    
+    mat.m[5] = v2.z;
     mat.m[6] = (temp_f5 * temp_f4_2) - (temp_f3_2 * temp_f6);
     mat.m[7] = (-temp_f7 * temp_f4_2) + (temp_f3_2 * temp_f1_3);
     mat.m[8] = (temp_f7 * temp_f6) - (temp_f5 * temp_f1_3);
 
-   dSpaceID space = NULL;
+    dSpaceID space = NULL;
     if (collision_space != NULL)
     {
         space = collision_space->m_spaceID;
-    }    
+    }
 
     // m_geomID = dCreateFinitePlane(space, m_vec4.x, m_vec4.y, m_vec4.z, m_vec4.w, arg5, m_param);
     m_geomID = dCreateFinitePlane(space, m_vec4.y, m_vec4.z, m_vec4.w, m_param, arg5, m_param);

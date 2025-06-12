@@ -58,7 +58,6 @@ public:
     ~PhysicsObject();
     PhysicsObject(PhysicsWorld*);
 
-    // /* 0x00 */ u8 m_padding[4];
     /* 0x04 */ dBodyID m_bodyID;
     /* 0x08 */ dGeomID m_geomID;
     /* 0x0c */ PhysicsObject *m_parentObject;
