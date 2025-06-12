@@ -20,7 +20,6 @@ public:
     virtual ~PhysicsTransform();
     PhysicsTransform();
 
-    u8 _padding[20];
     /* 0x2c */ PhysicsObject *m_unk_2c;
 };
 

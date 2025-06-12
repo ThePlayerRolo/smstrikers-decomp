@@ -14,6 +14,7 @@ class PhysicsObject
 {
 public:
     static const float DefaultGravity;
+
     enum CoordinateType {
         CoordinateType_0 = 0,
     };

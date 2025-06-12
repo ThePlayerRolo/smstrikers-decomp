@@ -23,7 +23,6 @@ struct nlVector3
     float x;
     float y;
     float z;
-    // float w;
 
     nlVector3()
         // : x(0.0f)
@@ -52,11 +51,6 @@ struct nlVector4
     float z;
     float w;
 };
-
-// struct nlMatrix4
-// {
-//     float v[4*4];      // Flat array access
-// };
 
 struct nlMatrix3
 {
