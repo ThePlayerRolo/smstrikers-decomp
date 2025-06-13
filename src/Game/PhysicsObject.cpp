@@ -1,3 +1,5 @@
+#include "NL/math.h"
+#include "NL/nlMath.h"
 #include "types.h"
 #include "ode/objects.h"
 #include "ode/collision.h"
@@ -52,25 +54,22 @@ int PhysicsObject::Contact(PhysicsObject* obj1, dContact* contact, int param, Ph
     //     uVar1 = (**(code **)(*(int *)this->m_parentObject->padding + 0x24))();
     //   }
     //   return uVar1;
-    int ret;
-    if (m_parentObject == NULL)
+    if (m_parentObject != NULL)
     {
-        ret = 3;
+        // return this->m_parentObject->Contact(obj1, contact, param, obj2);
+        return this->m_parentObject->PreCollide();
     }
-    else
-    {
-        ret = this->m_parentObject->Contact(obj1, contact, param, obj2);
-    }
-    return ret;
+    return 3;
 }
 
 /**
  * Offset/Address/Size: 0x25C | 0x801FFF58 | size: 0x30
  */
-int PhysicsObject::Contact(PhysicsObject*, dContact*, int)
+int PhysicsObject::Contact(PhysicsObject* obj1, dContact* contact, int param)
 {
-    // (**(code **)(*(int *)this->padding + 0x24))();
-    return 0;
+    // return obj1->Contact(obj1, contact, param, NULL);
+    // return obj1->Contact(obj1, contact, param);
+    return obj1->PreCollide();
 }
 
 /**
@@ -368,8 +367,103 @@ void PhysicsObject::SetLinearVelocity(const nlVector3& velocity)
 /**
  * Offset/Address/Size: 0xA30 | 0x8020072C | size: 0x1E0
  */
-void PhysicsObject::GetRotation(nlMatrix4*) const
+
+// /* 0x04 */ dBodyID m_bodyID;
+// /* 0x08 */ dGeomID m_geomID;
+// /* 0x0c */ PhysicsObject *m_parentObject;
+// /* 0x10 */ float m_gravity;
+// /* 0x14 */ nlVector3 m_position;
+// /* 0x20 */ nlVector3 m_linearVelocity;
+// typedef dReal dMatrix3[4*3];
+void PhysicsObject::GetRotation(nlMatrix4* m_out) const
 {
+    volatile dMatrix3* rot;
+    if ((m_geomID == NULL) && (m_bodyID != NULL))
+    {
+        rot = (dMatrix3*)dBodyGetRotation(m_bodyID);
+    }
+    else
+    {
+        rot = (dMatrix3*)dGeomGetRotation(m_geomID);
+    }
+
+    // # .sdata2:0x0 | 0x80377460 | size: 0x4
+    // .obj "@442", local
+    // 	.float 0
+    // .endobj "@442"
+
+    // # .sdata2:0x4 | 0x80377464 | size: 0x4
+    // .obj "@443", local
+    // 	.float 1
+    // .endobj "@443"
+
+    m_out->m[0][0] = *rot[0];
+    m_out->m[1][0] = *rot[1];
+    m_out->m[2][0] = *rot[2];
+    m_out->m[0][1] = *rot[4];
+    m_out->m[1][1] = *rot[5];
+    m_out->m[2][1] = *rot[6];
+    m_out->m[0][2] = *rot[8];
+    m_out->m[1][2] = *rot[9];
+    m_out->m[2][2] = *rot[10];
+    m_out->m[3][0] = 0.f;
+    m_out->m[3][1] = 0.f;
+    m_out->m[3][2] = 0.f;
+    m_out->m[3][3] = 1.f;
+    m_out->m[0][3] = 0.f;
+    m_out->m[1][3] = 0.f;
+    m_out->m[2][3] = 0.f;
+
+    if (m_parentObject != NULL)
+    {
+        dMatrix3* parent_rot; // var_r30
+        if ((m_parentObject->m_geomID == NULL) && (m_parentObject->m_bodyID != NULL))
+        {
+            parent_rot = (dMatrix3*)dBodyGetRotation(m_parentObject->m_bodyID);
+        }
+        else
+        {
+            parent_rot = (dMatrix3*)dGeomGetRotation(m_parentObject->m_geomID);
+        }
+
+        nlMatrix4 sp88;
+        sp88.SetColumn(0, *(nlVector3*)parent_rot);
+        sp88.SetColumn(1, *(nlVector3*)parent_rot[4]);
+        sp88.SetColumn(2, *(nlVector3*)parent_rot[8]);
+        sp88.m[3][0] = 0.f;
+        sp88.m[3][1] = 0.f;
+        sp88.m[3][2] = 0.f;
+        sp88.m[3][3] = 1.f;
+        sp88.m[0][3] = 0.f;
+        sp88.m[1][3] = 0.f;
+        sp88.m[2][3] = 0.f;
+
+        PhysicsObject* temp_r29_2 = m_parentObject;
+        if (temp_r29_2 != NULL)
+        {
+            dGeomID temp_r0_3 = temp_r29_2->m_geomID;
+            dMatrix3* parent_parent_rot; // var_r30
+            if ((temp_r0_3 == 0U) && ((u32)temp_r29_2->m_bodyID != 0U))
+            {
+                parent_parent_rot = (dMatrix3*)dBodyGetRotation(temp_r29_2->m_bodyID);
+            }
+            else
+            {
+                parent_parent_rot = (dMatrix3*)dGeomGetRotation(temp_r0_3);
+            }
+
+            nlMatrix4 sp48;
+            ConvertDMat3ToNLMat4((float*)parent_parent_rot, &sp48);
+            if (temp_r29_2->m_parentObject != 0U)
+            {
+                nlMatrix4 sp8;
+                GetRotation(&sp8);
+                nlMultMatrices(sp48, sp48, sp8);
+            }
+            nlMultMatrices(sp88, sp88, sp48);
+        }
+        nlMultMatrices(*m_out, *m_out, sp88);
+    }
 }
 
 /**
@@ -600,8 +694,39 @@ void PhysicsObject::GetPosition(nlVector3* position) const
 /**
  * Offset/Address/Size: 0x10B0 | 0x80200DAC | size: 0x118
  */
-void PhysicsObject::SetPosition(const nlVector3&, PhysicsObject::CoordinateType)
+void PhysicsObject::SetPosition(const nlVector3& pos, PhysicsObject::CoordinateType type)
 {
+    nlMatrix4 rot;         // sp54
+    nlMatrix4 inv_rot;     // sp14
+    nlVector3* p;          // temp_r3
+    volatile nlVector4 v4; // sp84...sp90
+    nlVector3 _pos;        // sp8...sp10
+
+    if ((m_parentObject != NULL) && (type == 0))
+    {
+        m_parentObject->GetRotation(&rot);
+        p = m_parentObject->GetPosition();
+        v4.w = 1.f;
+        v4.z = p->z;
+        v4.y = p->y;
+        v4.x = p->x;
+        nlInvertRotTransMatrix(inv_rot, rot);
+        nlMultPosVectorMatrix(_pos, pos, inv_rot);
+        if ((m_geomID == NULL) && (m_bodyID != NULL))
+        {
+            dBodySetPosition(m_bodyID, _pos.x, _pos.y, _pos.z);
+            return;
+        }
+        dGeomSetPosition(m_geomID, _pos.x, _pos.y, _pos.z);
+        return;
+    }
+
+    if ((m_geomID == NULL) && (m_bodyID != NULL))
+    {
+        dBodySetPosition(m_bodyID, pos.x, pos.y, pos.z);
+        return;
+    }
+    dGeomSetPosition(m_geomID, pos.x, pos.y, pos.z);
 }
 
 /**
@@ -690,9 +815,6 @@ PhysicsObject::~PhysicsObject()
  */
 PhysicsObject::PhysicsObject(PhysicsWorld* world)
 {
-    //   undefined4 uVar1;
-    //   *(undefined1 **)this = &__vt;
-
     m_bodyID = NULL;
     m_geomID = NULL;
     m_parentObject = NULL;
@@ -704,4 +826,34 @@ PhysicsObject::PhysicsObject(PhysicsWorld* world)
         dBodySetData(m_bodyID, this);
         dBodySetGravityMode(m_bodyID, 0);
     }
+}
+
+/**
+ * Offset/Address/Size: 0x0 | 0x80201130 | size: 0x10
+ */
+void nlVector3::Set(float x, float y, float z)
+{
+    this->x = x;
+    this->y = y;
+    this->z = z;
+}
+
+/**
+ * Offset/Address/Size: 0x10 | 0x80201140 | size: 0x24
+ */
+void nlMatrix4::SetColumn(int col, const nlVector3& v)
+{
+    m[0][col] = v.x;
+    m[1][col] = v.y;
+    m[2][col] = v.z;
+}
+
+/**
+ * Offset/Address/Size: 0x34 | 0x80201164 | size: 0x34
+ */
+void nlVecAdd(nlVector3& v0, const nlVector3& v1, const nlVector3& v2)
+{
+    v0.x = v1.x + v2.x;
+    v0.y = v1.y + v2.y;
+    v0.z = v1.z + v2.z;
 }

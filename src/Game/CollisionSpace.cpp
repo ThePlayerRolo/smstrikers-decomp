@@ -27,7 +27,7 @@ void CollisionSpace::PreUpdate()
  */
 void CollisionSpace::PreCollide()
 {
-    void (PhysicsObject::*pmf)() = &PhysicsObject::PreCollide;
+    int (PhysicsObject::*pmf)() = &PhysicsObject::PreCollide;
     int numGeoms = dSpaceGetNumGeoms(m_spaceID);
     for (int i = 0; i < numGeoms; i++)
     {

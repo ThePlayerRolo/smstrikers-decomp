@@ -653,7 +653,7 @@ config.libs = [
             Object(NonMatching, "Game/PhysicsGroundPlane.cpp"),
             Object(Matching, "Game/PhysicsPlane.cpp"),
             Object(NonMatching, "Game/PhysicsWall.cpp"),
-            Object(NonMatching, "Game/PhysicsObject.cpp"),
+            Object(NonMatching, "Game/PhysicsObject.cpp", extra_cflags=["-inline noauto"]),
             Object(NonMatching, "Game/PhysicsCompositeObject.cpp"),
             Object(NonMatching, "Game/CollisionSpace.cpp"),
             Object(NonMatching, "Game/PhysicsTransform.cpp"),

@@ -2,6 +2,7 @@
 #define _TYPES_H
 
 // #include "global.h"
+#define NO_INLINE __attribute__((noinline))
 
 // Custom types
 typedef int BOOL;

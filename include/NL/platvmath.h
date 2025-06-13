@@ -8,6 +8,7 @@ class nlMatrix4
 {
 public:
     void SetIdentity();
+    void SetColumn(int col, const nlVector3& v);
 
     Mtx44 m;
 };

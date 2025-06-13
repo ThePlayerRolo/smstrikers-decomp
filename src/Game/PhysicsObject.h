@@ -22,16 +22,16 @@ public:
     void CloneObject(const PhysicsObject&);
     virtual void UnknownMethod_8(int) = 0;
     virtual int GetObjectType() = 0; // position not so clear, must be on 0xC offset
-    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*);
-    virtual int Contact(PhysicsObject*, dContact*, int);
-    void MakeStatic();
-    void SetMass(float);
-    void Reconnect(dSpaceID);
-    dSpaceID Disconnect();
+    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*); //0x10
+    virtual int Contact(PhysicsObject*, dContact*, int); //0x14
+    void MakeStatic(); 
+    void SetMass(float); 
+    void Reconnect(dSpaceID); 
+    dSpaceID Disconnect(); 
     void EnableCollisions();
     void DisableCollisions();
     void SetWorldMatrix(const nlMatrix4&);
-    virtual BOOL SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual BOOL SetContactInfo(dContact*, PhysicsObject*, bool); //0x18
     void SetDefaultContactInfo(dContact*);
     void ZeroForceAccumulators();
     void AddForceAtCentreOfMass(const nlVector3&);
@@ -46,13 +46,13 @@ public:
     nlVector3* GetPosition();
     void GetPosition(nlVector3*) const;
     void SetPosition(const nlVector3&, CoordinateType);
-    virtual void PreUpdate();
-    virtual void PostUpdate();
+    virtual void PreUpdate();//0x1c
+    virtual void PostUpdate();//0x20
     void CheckForNaN();
     void SetCategory(unsigned int);
     void SetCollide(unsigned int);
     void SetDefaultCollideBits();
-    virtual void PreCollide() = 0;
+    virtual int PreCollide() = 0; //0x24
 
 
     ~PhysicsObject();

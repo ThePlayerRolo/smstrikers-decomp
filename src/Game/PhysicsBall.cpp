@@ -370,6 +370,7 @@ void PhysicsBall::PreUpdate()
  */
 void PhysicsBall::PreCollide()
 {
+    m_unk_0x39 = 0;
 }
 
 /**
