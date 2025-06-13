@@ -1830,7 +1830,7 @@ PhysicsNPC.o:
 	.data       start:0x802AFD60 end:0x802AFDD0
 	.sdata2     start:0x80376320 end:0x80376330
 
-PhysicsShell.o:
+Game/PhysicsShell.cpp:
 	.text       start:0x8013B968 end:0x8013C388
 	.text       start:0x8013C388 end:0x8013C390
 	.text       start:0x8013C390 end:0x8013C390

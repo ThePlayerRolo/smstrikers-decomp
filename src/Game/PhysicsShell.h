@@ -1,16 +1,22 @@
 #ifndef _PHYSICSSHELL_H_
 #define _PHYSICSSHELL_H_
 
-#include "PhysicsObject.h"
+#include "PhysicsSphere.h"
 
-class PhysicsShell : public PhysicsObject
+class PhysicsShell : public PhysicsSphere
 {
 public:
-    void SetContactInfo(dContact*, PhysicsObject*, bool);
-    void PostUpdate();
-    void Contact(PhysicsObject*, dContact*, int);
+    virtual BOOL SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual void PostUpdate();
+    virtual int Contact(PhysicsObject*, dContact*, int);
     PhysicsShell(float);
     virtual int GetObjectType() const;
+
+    /* 0x2c */ void *m_unk_0x2c;
+    /* 0x30 */ void *m_unk_0x30;
+    /* 0x34 */ void *m_unk_0x34;
+    /* 0x38 */ u8 m_unk_0x38;
+    /* 0x39 */ u8 m_unk_0x39;
 };
 
 #endif // _PHYSICSSHELL_H_

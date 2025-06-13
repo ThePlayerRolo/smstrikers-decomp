@@ -1,9 +1,12 @@
 #include "PhysicsShell.h"
 
+extern CollisionSpace* g_CollisionSpace;
+extern PhysicsWorld* g_PhysicsWorld;
+
 /**
  * Offset/Address/Size: 0x0 | 0x8013B968 | size: 0x94
  */
-void PhysicsShell::SetContactInfo(dContact*, PhysicsObject*, bool)
+BOOL PhysicsShell::SetContactInfo(dContact*, PhysicsObject*, bool)
 {
 }
 
@@ -17,20 +20,31 @@ void PhysicsShell::PostUpdate()
 /**
  * Offset/Address/Size: 0x10C | 0x8013BA74 | size: 0x898
  */
-void PhysicsShell::Contact(PhysicsObject*, dContact*, int)
+int PhysicsShell::Contact(PhysicsObject*, dContact*, int)
 {
 }
 
 /**
  * Offset/Address/Size: 0x9A4 | 0x8013C30C | size: 0x7C
  */
-PhysicsShell::PhysicsShell(float)
+PhysicsShell::PhysicsShell(float radius)
+: PhysicsSphere(g_CollisionSpace, g_PhysicsWorld, radius)
 {
+
+    m_unk_0x2c = 0;
+    m_unk_0x30 = 0;
+    m_unk_0x34 = 0;
+    m_unk_0x38 = 0;
+    m_unk_0x39 = 0;
+    SetCollide(0xef);
+    SetCategory(0x20);
+    m_gravity = -32.f;
 }
 
 /**
  * Offset/Address/Size: 0x0 | 0x8013C388 | size: 0x8
  */
-void PhysicsShell::GetObjectType() const
+int PhysicsShell::GetObjectType() const
 {
+    return 0x13;
 }
