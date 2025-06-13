@@ -1,8 +1,10 @@
 #ifndef _PHYSICSBOX_H_
 #define _PHYSICSBOX_H_
 
+#include "PhysicsObject.h"
+#include "CollisionSpace.h" 
 
-class PhysicsBox
+class PhysicsBox : PhysicsObject
 {
 public:
     void SetDensity(float);

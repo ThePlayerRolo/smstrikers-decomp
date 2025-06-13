@@ -182,7 +182,7 @@ void dGeomBoxSetLengths (dGeomID g, dReal lx, dReal ly, dReal lz)
 }
 
 
-void dGeomBoxGetLengths (dGeomID g, dVector3 result)
+void dGeomBoxGetLengths (dGeomID g, dVector3& result)
 {
   dUASSERT (g && g->type == dBoxClass,"argument not a box");
   dxBox *b = (dxBox*) g;
