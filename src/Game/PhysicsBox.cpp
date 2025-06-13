@@ -36,7 +36,7 @@ PhysicsBox::PhysicsBox(CollisionSpace* collisionSpace, PhysicsWorld* world, floa
     if (m_bodyID != NULL)
     {
         dGeomSetBody(m_geomID, m_bodyID);
-        dMassSetBoxTotal(&m, lx*ly*lz, lx, ly, lz);
+        dMassSetBoxTotal(&m, lx * ly * lz, lx, ly, lz);
         dBodySetMass(m_bodyID, &m);
     }
 

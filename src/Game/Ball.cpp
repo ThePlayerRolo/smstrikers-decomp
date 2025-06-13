@@ -1,7 +1,7 @@
 #include <types.h>
 #include "Ball.h"
 
-static cBall *g_pBall = NULL;
+static cBall* g_pBall = NULL;
 
 void cBall::PredictLandingSpotAndTime(nlVector3&)
 {

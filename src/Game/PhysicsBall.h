@@ -1,6 +1,7 @@
 #ifndef _PHYSICSBALL_H_
 #define _PHYSICSBALL_H_
 
+#include "NL/nlMath.h"
 #include "PhysicsSphere.h"
 
 class PhysicsBall : public PhysicsSphere
@@ -20,8 +21,7 @@ public:
 
     PhysicsBall(CollisionSpace*, PhysicsWorld*, float);
 
-    u8 _padding0[10];
-    /* 0x37 */ u8 m_unk_0x37;
+    /* 0x2c */ nlVector3 m_unk_v3;
     /* 0x38 */ u8 m_unk_0x38;
     /* 0x39 */ u8 m_unk_0x39;
     /* 0x3a */ u8 m_unk_0x3a;

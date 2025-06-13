@@ -28,7 +28,7 @@ int PhysicsShell::Contact(PhysicsObject*, dContact*, int)
  * Offset/Address/Size: 0x9A4 | 0x8013C30C | size: 0x7C
  */
 PhysicsShell::PhysicsShell(float radius)
-: PhysicsSphere(g_CollisionSpace, g_PhysicsWorld, radius)
+    : PhysicsSphere(g_CollisionSpace, g_PhysicsWorld, radius)
 {
 
     m_unk_0x2c = 0;

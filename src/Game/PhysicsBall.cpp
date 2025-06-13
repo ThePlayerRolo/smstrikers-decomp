@@ -393,6 +393,17 @@ float PhysicsBall::GetBallMaxVelocity()
 PhysicsBall::PhysicsBall(CollisionSpace* space, PhysicsWorld* world, float radius)
     : PhysicsSphere(space, world, radius)
 {
+    m_unk_0x38 = 0;
+    m_unk_0x39 = 0;
+    m_unk_0x3a = 0;
+    m_unk_0x3b = 0;
+    m_angularVelocity = 0.f;
+
     SetCategory(0x20);
     SetCollide(0xaf);
+
+    m_gravity = -14.f;
+    m_unk_v3.x = 0.f;
+    m_unk_v3.y = 0.f;
+    m_unk_v3.z = 0.f;
 }
