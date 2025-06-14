@@ -36,8 +36,67 @@ void ConvertDMat3ToNLMat4(const float* mat3, nlMatrix4* mat4)
 /**
  * Offset/Address/Size: 0x70 | 0x801FFD6C | size: 0x1A8
  */
-void PhysicsObject::CloneObject(const PhysicsObject&)
+void PhysicsObject::CloneObject(const PhysicsObject& obj)
 {
+    dMass m2; 
+    dMass m1;
+    nlMatrix4 rot;
+    dMatrix3 _rot; // 4x3 sp2C...sp58
+    nlVector3 pos;
+    nlVector3 linVelocity; // f32 sp14, sp18, sp1C;
+    nlVector3 angVelocity; // f32 sp8, spC, sp10;
+    f32 mass;
+
+    obj.GetPosition(&pos);
+    SetPosition(pos, CoordinateType_0);
+    
+    obj.GetRotation( &rot);
+    _rot[0]  = rot.m[0][0];
+    _rot[1]  = rot.m[1][0];
+    _rot[2]  = rot.m[2][0];
+    _rot[3]  = rot.m[3][0];
+    _rot[4]  = rot.m[0][1];
+    _rot[5]  = rot.m[1][1];
+    _rot[6]  = rot.m[2][1];
+    _rot[7]  = rot.m[3][1];
+    _rot[8]  = rot.m[0][2];
+    _rot[9]  = rot.m[1][2];
+    _rot[10] = rot.m[2][2];
+    _rot[11] = rot.m[3][2];
+
+    if ((m_geomID == NULL) && (m_bodyID != NULL))
+    {
+        dBodySetRotation(m_bodyID, _rot);
+    }
+    else
+    {
+        dGeomSetRotation(m_geomID, _rot);
+    }
+
+    obj.GetLinearVelocity( &linVelocity);
+    dBodySetLinearVel(m_bodyID, linVelocity.x, linVelocity.y, linVelocity.z);
+    obj.GetAngularVelocity(&angVelocity);
+    dBodySetAngularVel(m_bodyID, angVelocity.x, angVelocity.y, angVelocity.z);
+    m_gravity = obj.m_gravity;
+
+    if (obj.m_bodyID != NULL)
+    {
+        dMassSetZero(&m1);
+        dBodyGetMass(obj.m_bodyID, &m1);
+        mass = m1.mass;
+    }
+    else
+    {
+        mass = -1.f;
+    }
+
+    if (m_bodyID != NULL)
+    {
+        dMassSetZero(&m2);
+        dBodyGetMass(m_bodyID, &m2);
+        dMassAdjust(&m2, mass);
+        dBodySetMass(m_bodyID, &m2);
+    }
 }
 
 /**
@@ -45,15 +104,6 @@ void PhysicsObject::CloneObject(const PhysicsObject&)
  */
 int PhysicsObject::Contact(PhysicsObject* obj1, dContact* contact, int param, PhysicsObject* obj2)
 {
-    //   undefined4 uVar1;
-
-    //   if (this->m_parentObject == (PhysicsObject *)0x0) {
-    //     uVar1 = 3;
-    //   }
-    //   else {
-    //     uVar1 = (**(code **)(*(int *)this->m_parentObject->padding + 0x24))();
-    //   }
-    //   return uVar1;
     if (m_parentObject != NULL)
     {
         // return this->m_parentObject->Contact(obj1, contact, param, obj2);
@@ -84,10 +134,6 @@ void PhysicsObject::MakeStatic()
     }
     dGeomSetBody(m_geomID, NULL);
 }
-
-// /* 0x04 */ dBodyID m_bodyID;
-// /* 0x08 */ dGeomID m_geomID;
-// /* 0x10 */ float _gravity;
 
 /**
  * Offset/Address/Size: 0x2D8 | 0x801FFFD4 | size: 0x6C
@@ -367,14 +413,6 @@ void PhysicsObject::SetLinearVelocity(const nlVector3& velocity)
 /**
  * Offset/Address/Size: 0xA30 | 0x8020072C | size: 0x1E0
  */
-
-// /* 0x04 */ dBodyID m_bodyID;
-// /* 0x08 */ dGeomID m_geomID;
-// /* 0x0c */ PhysicsObject *m_parentObject;
-// /* 0x10 */ float m_gravity;
-// /* 0x14 */ nlVector3 m_position;
-// /* 0x20 */ nlVector3 m_linearVelocity;
-// typedef dReal dMatrix3[4*3];
 void PhysicsObject::GetRotation(nlMatrix4* m_out) const
 {
     volatile dMatrix3* rot;
@@ -386,16 +424,6 @@ void PhysicsObject::GetRotation(nlMatrix4* m_out) const
     {
         rot = (dMatrix3*)dGeomGetRotation(m_geomID);
     }
-
-    // # .sdata2:0x0 | 0x80377460 | size: 0x4
-    // .obj "@442", local
-    // 	.float 0
-    // .endobj "@442"
-
-    // # .sdata2:0x4 | 0x80377464 | size: 0x4
-    // .obj "@443", local
-    // 	.float 1
-    // .endobj "@443"
 
     m_out->m[0][0] = *rot[0];
     m_out->m[1][0] = *rot[1];
@@ -471,19 +499,6 @@ void PhysicsObject::GetRotation(nlMatrix4* m_out) const
  */
 void PhysicsObject::SetRotation(const nlMatrix4& m4_in)
 {
-    // f32 sp34;
-    // f32 sp30;
-    // f32 sp2C;
-    // f32 sp28;
-    // f32 sp24;
-    // f32 sp20;
-    // f32 sp1C;
-    // f32 sp18;
-    // f32 sp14;
-    // f32 sp10;
-    // f32 spC;
-    // f32 sp8;
-
     dMatrix3 mat;
     mat[0] = m4_in.m[0][0];
     mat[1] = m4_in.m[1][0];
@@ -497,18 +512,6 @@ void PhysicsObject::SetRotation(const nlMatrix4& m4_in)
     mat[9] = m4_in.m[1][2];
     mat[10] = m4_in.m[2][2];
     mat[11] = m4_in.m[3][2];
-    // sp8 = arg1->unk0;
-    // spC = arg1->unk10;
-    // sp10 = arg1->unk20;
-    // sp14 = arg1->unk30;
-    // sp18 = arg1->unk4;
-    // sp1C = arg1->unk14;
-    // sp20 = arg1->unk24;
-    // sp24 = arg1->unk34;
-    // sp28 = arg1->unk8;
-    // sp2C = arg1->unk18;
-    // sp30 = arg1->unk28;
-    // sp34 = arg1->unk38;
 
     if ((m_geomID == NULL) && (m_bodyID != NULL))
     {
