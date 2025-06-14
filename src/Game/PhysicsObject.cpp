@@ -1044,7 +1044,16 @@ void nlMatrix4::SetColumn(int col, const nlVector3& v)
  */
 void nlVecAdd(nlVector3& v0, const nlVector3& v1, const nlVector3& v2)
 {
-    v0.x = v1.x + v2.x;
-    v0.y = v1.y + v2.y;
-    v0.z = v1.z + v2.z;
+    // v0.x = v1.x + v2.x;
+    // v0.y = v1.y + v2.y;
+    // v0.z = v1.z + v2.z;
+    float x1 = v1.x;
+    float y1 = v1.y;
+    float x2 = v2.x;
+    float z1 = v1.z;
+    float y2 = v2.y;
+    float z2 = v2.z;
+    v0.x = x1 + x2;
+    v0.y = y1 + y2;
+    v0.z = z1 + z2;
 }
