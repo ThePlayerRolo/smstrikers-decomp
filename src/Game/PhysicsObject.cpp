@@ -311,6 +311,14 @@ void PhysicsObject::AddForceAtCentreOfMass(const nlVector3& force)
     dBodyAddForce(m_bodyID, force.x, force.y, force.z);
 }
 
+#define GAV_REGSWAP(out, v) \
+    float z = (v)->z;       \
+    float y = (v)->y;       \
+    float x = (v)->x;       \
+    (out)->x = x;           \
+    (out)->y = y;           \
+    (out)->z = z;
+
 /**
  * Offset/Address/Size: 0x644 | 0x80200340 | size: 0x1AC
  */
@@ -363,45 +371,52 @@ void PhysicsObject::GetAngularVelocity(nlVector3* arg1) const
                                 return;
                             }
                             temp_r3_5 = (nlVector3*)dBodyGetAngularVel(temp_r3_3->m_bodyID);
-                            arg1->x = (f32)temp_r3_5->x;
-                            arg1->y = (f32)temp_r3_5->y;
-                            arg1->z = (f32)temp_r3_5->z;
+                            // arg1->x = (f32)temp_r3_5->x;
+                            // arg1->y = (f32)temp_r3_5->y;
+                            // arg1->z = (f32)temp_r3_5->z;
+                            GAV_REGSWAP(arg1, temp_r3_5);
                             return;
                         }
                         temp_r3_6 = (nlVector3*)dBodyGetAngularVel(temp_r5_3->m_bodyID);
-                        arg1->x = (f32)temp_r3_6->x;
-                        arg1->y = (f32)temp_r3_6->y;
-                        arg1->z = (f32)temp_r3_6->z;
+                        // arg1->x = (f32)temp_r3_6->x;
+                        // arg1->y = (f32)temp_r3_6->y;
+                        // arg1->z = (f32)temp_r3_6->z;
+                        GAV_REGSWAP(arg1, temp_r3_6);
                         return;
                     }
                     temp_r3_7 = (nlVector3*)dBodyGetAngularVel(temp_r3_2->m_bodyID);
-                    arg1->x = (f32)temp_r3_7->x;
-                    arg1->y = (f32)temp_r3_7->y;
-                    arg1->z = (f32)temp_r3_7->z;
+                    // arg1->x = (f32)temp_r3_7->x;
+                    // arg1->y = (f32)temp_r3_7->y;
+                    // arg1->z = (f32)temp_r3_7->z;
+                    GAV_REGSWAP(arg1, temp_r3_7);
                     return;
                 }
                 temp_r3_8 = (nlVector3*)dBodyGetAngularVel(temp_r5_2->m_bodyID);
-                arg1->x = (f32)temp_r3_8->x;
-                arg1->y = (f32)temp_r3_8->y;
-                arg1->z = (f32)temp_r3_8->z;
+                // arg1->x = (f32)temp_r3_8->x;
+                // arg1->y = (f32)temp_r3_8->y;
+                // arg1->z = (f32)temp_r3_8->z;
+                GAV_REGSWAP(arg1, temp_r3_8);
                 return;
             }
             temp_r3_9 = (nlVector3*)dBodyGetAngularVel(temp_r3->m_bodyID);
-            arg1->x = (f32)temp_r3_9->x;
-            arg1->y = (f32)temp_r3_9->y;
-            arg1->z = (f32)temp_r3_9->z;
+            // arg1->x = (f32)temp_r3_9->x;
+            // arg1->y = (f32)temp_r3_9->y;
+            // arg1->z = (f32)temp_r3_9->z;
+            GAV_REGSWAP(arg1, temp_r3_9);
             return;
         }
         temp_r3_10 = (nlVector3*)dBodyGetAngularVel(temp_r5->m_bodyID);
-        arg1->x = (f32)temp_r3_10->x;
-        arg1->y = (f32)temp_r3_10->y;
-        arg1->z = (f32)temp_r3_10->z;
+        // arg1->x = (f32)temp_r3_10->x;
+        // arg1->y = (f32)temp_r3_10->y;
+        // arg1->z = (f32)temp_r3_10->z;
+        GAV_REGSWAP(arg1, temp_r3_10);
         return;
     }
     temp_r3_11 = (nlVector3*)dBodyGetAngularVel(this->m_bodyID);
-    arg1->x = (f32)temp_r3_11->x;
-    arg1->y = (f32)temp_r3_11->y;
-    arg1->z = (f32)temp_r3_11->z;
+    // arg1->x = (f32)temp_r3_11->x;
+    // arg1->y = (f32)temp_r3_11->y;
+    // arg1->z = (f32)temp_r3_11->z;
+    GAV_REGSWAP(arg1, temp_r3_11);
 }
 
 /**
@@ -676,6 +691,14 @@ nlVector3* PhysicsObject::GetPosition()
     return &m_position;
 }
 
+#define GP_REGSWAP(out, v) \
+    float z = (v)->z;       \
+    float y = (v)->y;       \
+    float x = (v)->x;       \
+    (out)->x = x;           \
+    (out)->y = y;           \
+    (out)->z = z;
+
 /**
  * Offset/Address/Size: 0xD84 | 0x80200A80 | size: 0x32C
  */
@@ -712,13 +735,6 @@ void PhysicsObject::GetPosition(nlVector3* position) const
     nlVector3* var_r3_2;
     nlVector3* var_r4;
 
-    // /* 0x04 */ dBodyID m_bodyID;
-    // /* 0x08 */ dGeomID m_geomID;
-    // /* 0x0c */ PhysicsObject *m_parentObject;
-    // /* 0x10 */ float m_gravity;
-    // /* 0x14 */ nlVector3 m_position;
-    // /* 0x20 */ nlVector3 m_linearVelocity;
-
     if ((m_geomID == NULL) && (m_bodyID != NULL))
     {
         var_r3 = (nlVector3*)dBodyGetPosition(m_bodyID);
@@ -733,6 +749,7 @@ void PhysicsObject::GetPosition(nlVector3* position) const
     // position->x = var_r3->x;
     // position->y = var_r3->y;
     // position->z = var_r3->z;
+    // GP_REGSWAP(position, var_r3);
     float x = var_r3->x;
     float y = var_r3->y;
     float z = var_r3->z;
@@ -756,6 +773,7 @@ void PhysicsObject::GetPosition(nlVector3* position) const
         // sp20.z = var_r3_2->z;
         // sp20.y = var_r3_2->y;
         // sp20.x = var_r3_2->x;
+        // GP_REGSWAP(&sp20, var_r3_2);
         float y = var_r3_2->y;
         float x = var_r3_2->x;
         float z = var_r3_2->z;
