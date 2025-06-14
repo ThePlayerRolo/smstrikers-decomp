@@ -1,5 +1,6 @@
 #include "NL/math.h"
 #include "NL/nlMath.h"
+#include "NL/platvmath.h"
 #include "types.h"
 #include "ode/objects.h"
 #include "ode/collision.h"
@@ -9,28 +10,30 @@
 
 const float PhysicsObject::DefaultGravity = -9.8f;
 
+void nlVecAdd(nlVector3& v0, const nlVector3& v1, const nlVector3& v2);
+
 /**
  * Offset/Address/Size: 0x0 | 0x801FFCFC | size: 0x70
  */
-void ConvertDMat3ToNLMat4(const float* mat3, nlMatrix4* mat4)
+void ConvertDMat3ToNLMat4(const float* in, nlMatrix4* out)
 {
     // todo: regswaps all over the place...
-    mat4->m[0][0] = (f32)mat3[0];
-    mat4->m[1][0] = (f32)mat3[1];
-    mat4->m[2][0] = (f32)mat3[2];
-    mat4->m[0][1] = (f32)mat3[4];
-    mat4->m[1][1] = (f32)mat3[5];
-    mat4->m[2][1] = (f32)mat3[6];
-    mat4->m[0][2] = (f32)mat3[8];
-    mat4->m[1][2] = (f32)mat3[9];
-    mat4->m[2][2] = (f32)mat3[10];
-    mat4->m[0][3] = 1.0f;
-    mat4->m[1][3] = 1.0f;
-    mat4->m[2][3] = 1.0f;
-    mat4->m[3][3] = 0.0f;
-    mat4->m[0][3] = 1.0f;
-    mat4->m[1][3] = 1.0f;
-    mat4->m[2][3] = 1.0f;
+    out->m[0][0] = (f32)in[0];
+    out->m[1][0] = (f32)in[1];
+    out->m[2][0] = (f32)in[2];
+    out->m[0][1] = (f32)in[4];
+    out->m[1][1] = (f32)in[5];
+    out->m[2][1] = (f32)in[6];
+    out->m[0][2] = (f32)in[8];
+    out->m[1][2] = (f32)in[9];
+    out->m[2][2] = (f32)in[10];
+    out->m[0][3] = 1.0f;
+    out->m[1][3] = 1.0f;
+    out->m[2][3] = 1.0f;
+    out->m[3][3] = 0.0f;
+    out->m[0][3] = 1.0f;
+    out->m[1][3] = 1.0f;
+    out->m[2][3] = 1.0f;
 }
 
 /**
@@ -38,7 +41,7 @@ void ConvertDMat3ToNLMat4(const float* mat3, nlMatrix4* mat4)
  */
 void PhysicsObject::CloneObject(const PhysicsObject& obj)
 {
-    dMass m2; 
+    dMass m2;
     dMass m1;
     nlMatrix4 rot;
     dMatrix3 _rot; // 4x3 sp2C...sp58
@@ -49,18 +52,18 @@ void PhysicsObject::CloneObject(const PhysicsObject& obj)
 
     obj.GetPosition(&pos);
     SetPosition(pos, CoordinateType_0);
-    
-    obj.GetRotation( &rot);
-    _rot[0]  = rot.m[0][0];
-    _rot[1]  = rot.m[1][0];
-    _rot[2]  = rot.m[2][0];
-    _rot[3]  = rot.m[3][0];
-    _rot[4]  = rot.m[0][1];
-    _rot[5]  = rot.m[1][1];
-    _rot[6]  = rot.m[2][1];
-    _rot[7]  = rot.m[3][1];
-    _rot[8]  = rot.m[0][2];
-    _rot[9]  = rot.m[1][2];
+
+    obj.GetRotation(&rot);
+    _rot[0] = rot.m[0][0];
+    _rot[1] = rot.m[1][0];
+    _rot[2] = rot.m[2][0];
+    _rot[3] = rot.m[3][0];
+    _rot[4] = rot.m[0][1];
+    _rot[5] = rot.m[1][1];
+    _rot[6] = rot.m[2][1];
+    _rot[7] = rot.m[3][1];
+    _rot[8] = rot.m[0][2];
+    _rot[9] = rot.m[1][2];
     _rot[10] = rot.m[2][2];
     _rot[11] = rot.m[3][2];
 
@@ -73,7 +76,7 @@ void PhysicsObject::CloneObject(const PhysicsObject& obj)
         dGeomSetRotation(m_geomID, _rot);
     }
 
-    obj.GetLinearVelocity( &linVelocity);
+    obj.GetLinearVelocity(&linVelocity);
     dBodySetLinearVel(m_bodyID, linVelocity.x, linVelocity.y, linVelocity.z);
     obj.GetAngularVelocity(&angVelocity);
     dBodySetAngularVel(m_bodyID, angVelocity.x, angVelocity.y, angVelocity.z);
@@ -252,7 +255,6 @@ int PhysicsObject::SetContactInfo(dContact* contact, PhysicsObject* otherObject,
     }
     return 1;
 
-
     // float fVar1;
     // float fVar2;
     // BOOL uVar3;
@@ -314,84 +316,92 @@ void PhysicsObject::AddForceAtCentreOfMass(const nlVector3& force)
  */
 void PhysicsObject::GetAngularVelocity(nlVector3* arg1) const
 {
-    PhysicsObject *temp_r3;
-    nlVector3 *temp_r3_10;
-    nlVector3 *temp_r3_11;
-    PhysicsObject *temp_r3_2;
-    PhysicsObject *temp_r3_3;
-    nlVector3 *temp_r3_4;
-    nlVector3 *temp_r3_5;
-    nlVector3 *temp_r3_6;
-    nlVector3 *temp_r3_7;
-    nlVector3 *temp_r3_8;
-    nlVector3 *temp_r3_9;
-    PhysicsObject *temp_r5;
-    PhysicsObject *temp_r5_2;
-    PhysicsObject *temp_r5_3;
-    PhysicsObject *temp_r5_4;
+    PhysicsObject* temp_r3;
+    nlVector3* temp_r3_10;
+    nlVector3* temp_r3_11;
+    PhysicsObject* temp_r3_2;
+    PhysicsObject* temp_r3_3;
+    nlVector3* temp_r3_4;
+    nlVector3* temp_r3_5;
+    nlVector3* temp_r3_6;
+    nlVector3* temp_r3_7;
+    nlVector3* temp_r3_8;
+    nlVector3* temp_r3_9;
+    PhysicsObject* temp_r5;
+    PhysicsObject* temp_r5_2;
+    PhysicsObject* temp_r5_3;
+    PhysicsObject* temp_r5_4;
 
     temp_r5 = this->m_parentObject;
-    if (temp_r5 != NULL) {
+    if (temp_r5 != NULL)
+    {
         temp_r3 = temp_r5->m_parentObject;
-        if (temp_r3 != NULL) {
+        if (temp_r3 != NULL)
+        {
             temp_r5_2 = temp_r3->m_parentObject;
-            if (temp_r5_2 != NULL) {
+            if (temp_r5_2 != NULL)
+            {
                 temp_r3_2 = temp_r5_2->m_parentObject;
-                if (temp_r3_2 != NULL) {
+                if (temp_r3_2 != NULL)
+                {
                     temp_r5_3 = temp_r3_2->m_parentObject;
-                    if (temp_r5_3 != NULL) {
+                    if (temp_r5_3 != NULL)
+                    {
                         temp_r3_3 = temp_r5_3->m_parentObject;
-                        if (temp_r3_3 != NULL) {
+                        if (temp_r3_3 != NULL)
+                        {
                             temp_r5_4 = temp_r3_3->m_parentObject;
-                            if (temp_r5_4 != NULL) {
-                                if (temp_r5_4->m_parentObject != NULL) {
+                            if (temp_r5_4 != NULL)
+                            {
+                                if (temp_r5_4->m_parentObject != NULL)
+                                {
                                     temp_r5_4->m_parentObject->GetAngularVelocity(arg1);
                                     return;
                                 }
                                 temp_r3_4 = (nlVector3*)dBodyGetAngularVel(temp_r5_4->m_bodyID);
-                                arg1->Set( temp_r3_4->x, temp_r3_4->y, temp_r3_4->z);
+                                arg1->Set(temp_r3_4->x, temp_r3_4->y, temp_r3_4->z);
                                 return;
                             }
                             temp_r3_5 = (nlVector3*)dBodyGetAngularVel(temp_r3_3->m_bodyID);
-                            arg1->x = (f32) temp_r3_5->x;
-                            arg1->y = (f32) temp_r3_5->y;
-                            arg1->z = (f32) temp_r3_5->z;
+                            arg1->x = (f32)temp_r3_5->x;
+                            arg1->y = (f32)temp_r3_5->y;
+                            arg1->z = (f32)temp_r3_5->z;
                             return;
                         }
                         temp_r3_6 = (nlVector3*)dBodyGetAngularVel(temp_r5_3->m_bodyID);
-                        arg1->x = (f32) temp_r3_6->x;
-                        arg1->y = (f32) temp_r3_6->y;
-                        arg1->z = (f32) temp_r3_6->z;
+                        arg1->x = (f32)temp_r3_6->x;
+                        arg1->y = (f32)temp_r3_6->y;
+                        arg1->z = (f32)temp_r3_6->z;
                         return;
                     }
                     temp_r3_7 = (nlVector3*)dBodyGetAngularVel(temp_r3_2->m_bodyID);
-                    arg1->x = (f32) temp_r3_7->x;
-                    arg1->y = (f32) temp_r3_7->y;
-                    arg1->z = (f32) temp_r3_7->z;
+                    arg1->x = (f32)temp_r3_7->x;
+                    arg1->y = (f32)temp_r3_7->y;
+                    arg1->z = (f32)temp_r3_7->z;
                     return;
                 }
                 temp_r3_8 = (nlVector3*)dBodyGetAngularVel(temp_r5_2->m_bodyID);
-                arg1->x = (f32) temp_r3_8->x;
-                arg1->y = (f32) temp_r3_8->y;
-                arg1->z = (f32) temp_r3_8->z;
+                arg1->x = (f32)temp_r3_8->x;
+                arg1->y = (f32)temp_r3_8->y;
+                arg1->z = (f32)temp_r3_8->z;
                 return;
             }
             temp_r3_9 = (nlVector3*)dBodyGetAngularVel(temp_r3->m_bodyID);
-            arg1->x = (f32) temp_r3_9->x;
-            arg1->y = (f32) temp_r3_9->y;
-            arg1->z = (f32) temp_r3_9->z;
+            arg1->x = (f32)temp_r3_9->x;
+            arg1->y = (f32)temp_r3_9->y;
+            arg1->z = (f32)temp_r3_9->z;
             return;
         }
         temp_r3_10 = (nlVector3*)dBodyGetAngularVel(temp_r5->m_bodyID);
-        arg1->x = (f32) temp_r3_10->x;
-        arg1->y = (f32) temp_r3_10->y;
-        arg1->z = (f32) temp_r3_10->z;
+        arg1->x = (f32)temp_r3_10->x;
+        arg1->y = (f32)temp_r3_10->y;
+        arg1->z = (f32)temp_r3_10->z;
         return;
     }
     temp_r3_11 = (nlVector3*)dBodyGetAngularVel(this->m_bodyID);
-    arg1->x = (f32) temp_r3_11->x;
-    arg1->y = (f32) temp_r3_11->y;
-    arg1->z = (f32) temp_r3_11->z;
+    arg1->x = (f32)temp_r3_11->x;
+    arg1->y = (f32)temp_r3_11->y;
+    arg1->z = (f32)temp_r3_11->z;
 }
 
 /**
@@ -410,6 +420,14 @@ nlVector3* PhysicsObject::GetLinearVelocity()
     GetLinearVelocity(&m_linearVelocity);
     return &m_linearVelocity;
 }
+
+#define GLV_REGSWAP(out, v) \
+    float z = (v)[2];       \
+    float y = (v)[1];       \
+    float x = (v)[0];       \
+    (out)->x = x;           \
+    (out)->y = y;           \
+    (out)->z = z;
 
 /**
  * Offset/Address/Size: 0x854 | 0x80200550 | size: 0x1AC
@@ -457,45 +475,53 @@ void PhysicsObject::GetLinearVelocity(nlVector3* out) const
                                 return;
                             }
                             float* v = (float*)dBodyGetLinearVel(temp_r3_3->m_bodyID);
-                            out->x = v[0];
-                            out->y = v[1];
-                            out->z = v[2];
+                            // just to fix regswap
+                            // out->x = v[0];
+                            // out->y = v[1];
+                            // out->z = v[2];
+                            GLV_REGSWAP(out, v);
                             return;
                         }
                         float* v = (float*)dBodyGetLinearVel(temp_r5_3->m_bodyID);
-                        out->x = v[0];
-                        out->y = v[1];
-                        out->z = v[2];
+                        // out->x = v[0];
+                        // out->y = v[1];
+                        // out->z = v[2];
+                        GLV_REGSWAP(out, v);
                         return;
                     }
                     float* v = (float*)dBodyGetLinearVel(temp_r3_2->m_bodyID);
-                    out->x = v[0];
-                    out->y = v[1];
-                    out->z = v[2];
+                    // out->x = v[0];
+                    // out->y = v[1];
+                    // out->z = v[2];
+                    GLV_REGSWAP(out, v);
                     return;
                 }
                 float* v = (float*)dBodyGetLinearVel(temp_r5_2->m_bodyID);
-                out->x = v[0];
-                out->y = v[1];
-                out->z = v[2];
+                // out->x = v[0];
+                // out->y = v[1];
+                // out->z = v[2];
+                GLV_REGSWAP(out, v);
                 return;
             }
             float* v = (float*)dBodyGetLinearVel(temp_r3->m_bodyID);
-            out->x = v[0];
-            out->y = v[1];
-            out->z = v[2];
+            // out->x = v[0];
+            // out->y = v[1];
+            // out->z = v[2];
+            GLV_REGSWAP(out, v);
             return;
         }
         float* v = (float*)dBodyGetLinearVel(temp_r5->m_bodyID);
-        out->x = v[0];
-        out->y = v[1];
-        out->z = v[2];
+        // out->x = v[0];
+        // out->y = v[1];
+        // out->z = v[2];
+        GLV_REGSWAP(out, v);
         return;
     }
     float* v = (float*)dBodyGetLinearVel(m_bodyID);
-    out->x = v[0];
-    out->y = v[1];
-    out->z = v[2];
+    // out->x = v[0];
+    // out->y = v[1];
+    // out->z = v[2];
+    GLV_REGSWAP(out, v);
 }
 
 /**
@@ -655,139 +681,191 @@ nlVector3* PhysicsObject::GetPosition()
  */
 void PhysicsObject::GetPosition(nlVector3* position) const
 {
-
-    //   undefined4 uVar1;
-    //   undefined4 *puVar2;
-    //   float *pfVar3;
-    //   undefined4 uVar4;
-    //   nlVector3 *pnVar5;
-    //   int iVar6;
-    //   int iVar7;
-    //   nlVector3 anStack_1b8 [12];
-    //   float local_1ac;
-    //   float local_1a8;
-    //   float local_1a4;
-    //   float local_1a0;
-    //   float local_19c;
-    //   float local_198;
-    //   nlMatrix4 anStack_194 [64];
-    //   nlMatrix4 anStack_154 [64];
-    //   nlMatrix4 anStack_114 [64];
-    //   undefined1 auStack_d4 [64];
-    //   undefined1 auStack_94 [64];
-    //   nlMatrix4 anStack_54 [12];
-    //   float local_48;
-    //   float local_38;
-    //   float local_28;
-    //   float local_24;
-    //   float local_20;
-    //   float local_1c;
-    //   float local_18;
-
-    //   if ((*(int *)(this + 8) == 0) && (*(int *)(this + 4) != 0)) {
-    //     puVar2 = (undefined4 *)ode::dBodyGetPosition();
-    //   }
-    //   else {
-    //     puVar2 = (undefined4 *)collision_kernel::dGeomGetPosition(*(int *)(this + 8));
-    //   }
+    f32 sp1A8;
+    f32 sp1A4;
+    f32 sp1A0;
+    f32 sp19C;
+    f32 sp198;
+    f32 sp188;
+    f32 sp178;
+    nlMatrix4 sp16C;
+    nlMatrix4 sp12C;
+    nlMatrix4 spEC;
+    nlMatrix4 spAC;
+    nlMatrix4 sp6C;
+    nlMatrix4 sp2C;
+    nlVector3 sp20; // sp20 sp24 sp28
+    nlVector3 sp14; // sp14 sp18 sp1C
+    nlVector3 sp8;  // sp8 spC sp10
+    float* r;
+    dGeomID temp_r0_2;
+    dGeomID temp_r0_3;
+    dGeomID temp_r0_4;
+    dGeomID temp_r0_5;
+    dGeomID temp_r0_6;
+    PhysicsObject* temp_r28;
+    PhysicsObject* temp_r28_2;
+    PhysicsObject* temp_r29;
+    PhysicsObject* temp_r29_2;
+    PhysicsObject* temp_r29_3;
+    nlVector3* var_r3;
+    nlVector3* var_r3_2;
+    nlVector3* var_r4;
 
     // /* 0x04 */ dBodyID m_bodyID;
     // /* 0x08 */ dGeomID m_geomID;
+    // /* 0x0c */ PhysicsObject *m_parentObject;
+    // /* 0x10 */ float m_gravity;
+    // /* 0x14 */ nlVector3 m_position;
+    // /* 0x20 */ nlVector3 m_linearVelocity;
 
-    const float* pos;
-    if (m_geomID == NULL && m_bodyID != NULL)
+    if ((m_geomID == NULL) && (m_bodyID != NULL))
     {
-        pos = dBodyGetPosition(m_bodyID);
+        var_r3 = (nlVector3*)dBodyGetPosition(m_bodyID);
     }
     else
     {
-        pos = dGeomGetPosition(m_geomID);
+        var_r3 = (nlVector3*)dGeomGetPosition(m_geomID);
     }
+    temp_r29 = m_parentObject;
 
-    //   uVar4 = puVar2[2];
-    //   uVar1 = puVar2[1];
-    //   iVar7 = *(int *)(this + 0xc);
-    //   *(undefined4 *)param_1 = *puVar2;
-    //   *(undefined4 *)(param_1 + 4) = uVar1;
-    //   *(undefined4 *)(param_1 + 8) = uVar4;
-    //   if (iVar7 != 0) {
-    //     if ((*(int *)(iVar7 + 8) == 0) && (*(int *)(iVar7 + 4) != 0)) {
-    //       pfVar3 = (float *)ode::dBodyGetPosition();
-    //     }
-    //     else {
-    //       pfVar3 = (float *)collision_kernel::dGeomGetPosition(*(int *)(iVar7 + 8));
-    //     }
-    //     local_198 = pfVar3[2];
-    //     local_19c = pfVar3[1];
-    //     local_1a0 = *pfVar3;
-    //     iVar6 = *(int *)(iVar7 + 0xc);
-    //     if (iVar6 != 0) {
-    //       if ((*(int *)(iVar6 + 8) == 0) && (*(int *)(iVar6 + 4) != 0)) {
-    //         pfVar3 = (float *)ode::dBodyGetPosition();
-    //       }
-    //       else {
-    //         pfVar3 = (float *)collision_kernel::dGeomGetPosition(*(int *)(iVar6 + 8));
-    //       }
-    //       ::nlVector3::Set((nlVector3 *)&local_1ac,*pfVar3,pfVar3[1],pfVar3[2]);
-    //       if (*(PhysicsObject **)(iVar6 + 0xc) != NULL) {
-    //         GetPosition(*(PhysicsObject **)(iVar6 + 0xc),anStack_1b8);
-    //         GetRotation(*(PhysicsObject **)(iVar6 + 0xc),anStack_114);
-    //         platvmath::nlMultPosVectorMatrix(&local_1ac,&local_1ac,anStack_114);
-    //         nlVecAdd(&local_1ac,anStack_1b8,&local_1ac);
-    //       }
-    //       iVar7 = *(int *)(iVar7 + 0xc);
-    //       if ((*(int *)(iVar7 + 8) == 0) && (*(int *)(iVar7 + 4) != 0)) {
-    //         uVar4 = ode::dBodyGetRotation();
-    //       }
-    //       else {
-    //         uVar4 = collision_kernel::dGeomGetRotation(*(int *)(iVar7 + 8));
-    //       }
-    //       ConvertDMat3ToNLMat4(uVar4,auStack_94);
-    //       if (*(PhysicsObject **)(iVar7 + 0xc) != NULL) {
-    //         GetRotation(*(PhysicsObject **)(iVar7 + 0xc),anStack_154);
-    //         platvmath::nlMultMatrices(auStack_94,auStack_94,anStack_154);
-    //       }
-    //       platvmath::nlMultPosVectorMatrix(&local_1a0,&local_1a0,auStack_94);
-    //       ::nlVector3::Set((nlVector3 *)&local_1a0,local_1ac + local_1a0,local_1a8 + local_19c,
-    //                        local_1a4 + local_198);
-    //     }
-    //     iVar7 = *(int *)(this + 0xc);
-    //     if ((*(int *)(iVar7 + 8) == 0) && (*(int *)(iVar7 + 4) != 0)) {
-    //       pnVar5 = (nlVector3 *)ode::dBodyGetRotation();
-    //     }
-    //     else {
-    //       pnVar5 = (nlVector3 *)collision_kernel::dGeomGetRotation(*(int *)(iVar7 + 8));
-    //     }
-    //     ::nlMatrix4::SetColumn(anStack_54,0,pnVar5);
-    //     ::nlMatrix4::SetColumn(anStack_54,1,pnVar5 + 0x10);
-    //     ::nlMatrix4::SetColumn(anStack_54,2,pnVar5 + 0x20);
-    //     local_24 = @442;
-    //     local_20 = @442;
-    //     local_1c = @442;
-    //     local_18 = @443;
-    //     local_48 = @442;
-    //     local_38 = @442;
-    //     local_28 = @442;
-    //     iVar7 = *(int *)(iVar7 + 0xc);
-    //     if (iVar7 != 0) {
-    //       if ((*(int *)(iVar7 + 8) == 0) && (*(int *)(iVar7 + 4) != 0)) {
-    //         uVar4 = ode::dBodyGetRotation();
-    //       }
-    //       else {
-    //         uVar4 = collision_kernel::dGeomGetRotation(*(int *)(iVar7 + 8));
-    //       }
-    //       ConvertDMat3ToNLMat4(uVar4,auStack_d4);
-    //       if (*(PhysicsObject **)(iVar7 + 0xc) != NULL) {
-    //         GetRotation(*(PhysicsObject **)(iVar7 + 0xc),anStack_194);
-    //         platvmath::nlMultMatrices(auStack_d4,auStack_d4,anStack_194);
-    //       }
-    //       platvmath::nlMultMatrices(anStack_54,anStack_54,auStack_d4);
-    //     }
-    //     platvmath::nlMultPosVectorMatrix(param_1,param_1,anStack_54);
-    //     *(float *)param_1 = local_1a0 + *(float *)param_1;
-    //     *(float *)(param_1 + 4) = local_19c + *(float *)(param_1 + 4);
-    //     *(float *)(param_1 + 8) = local_198 + *(float *)(param_1 + 8);
-    //   }
+    // just for regswap fixing...
+    // position->x = var_r3->x;
+    // position->y = var_r3->y;
+    // position->z = var_r3->z;
+    float x = var_r3->x;
+    float y = var_r3->y;
+    float z = var_r3->z;
+    position->x = x;
+    position->y = y;
+    position->z = z;
+
+    if (temp_r29 != NULL)
+    {
+        temp_r0_2 = temp_r29->m_geomID;
+        if ((temp_r0_2 == NULL) && (temp_r29->m_bodyID != NULL))
+        {
+            var_r3_2 = (nlVector3*)dBodyGetPosition(temp_r29->m_bodyID);
+        }
+        else
+        {
+            var_r3_2 = (nlVector3*)dGeomGetPosition(temp_r0_2);
+        }
+
+        // just for regswap fixing...
+        // sp20.z = var_r3_2->z;
+        // sp20.y = var_r3_2->y;
+        // sp20.x = var_r3_2->x;
+        float y = var_r3_2->y;
+        float x = var_r3_2->x;
+        float z = var_r3_2->z;
+        sp20.x = x;
+        sp20.y = y;
+        sp20.z = z;
+
+        temp_r28 = temp_r29->m_parentObject;
+        if (temp_r28 != NULL)
+        {
+            temp_r0_3 = temp_r28->m_geomID;
+            if ((temp_r0_3 == NULL) && ((u32)temp_r28->m_bodyID != NULL))
+            {
+                var_r4 = (nlVector3*)dBodyGetPosition(temp_r28->m_bodyID);
+            }
+            else
+            {
+                var_r4 = (nlVector3*)dGeomGetPosition(temp_r0_3);
+            }
+            sp14.Set(var_r4->x, var_r4->y, var_r4->z);
+            if (temp_r28->m_parentObject != NULL)
+            {
+                temp_r28->m_parentObject->GetPosition(&sp8);
+                temp_r28->m_parentObject->GetRotation(&spAC);
+                nlMultPosVectorMatrix(sp14, sp14, spAC);
+                nlVecAdd(sp14, sp8, sp14);
+            }
+            temp_r29_2 = temp_r29->m_parentObject;
+            temp_r0_4 = temp_r29_2->m_geomID;
+
+            if ((temp_r0_4 == NULL) && ((u32)temp_r29_2->m_bodyID != NULL))
+            {
+                r = (float*)dBodyGetRotation(temp_r29_2->m_bodyID);
+            }
+            else
+            {
+                r = (float*)dGeomGetRotation(temp_r0_4);
+            }
+            ConvertDMat3ToNLMat4(r, &sp12C);
+
+            if (temp_r29_2->m_parentObject != NULL)
+            {
+                temp_r29_2->m_parentObject->GetRotation(&sp6C);
+                nlMultMatrices(sp12C, sp12C, sp6C);
+            }
+            nlMultPosVectorMatrix(sp20, sp20, sp12C);
+            sp20.Set(sp14.x + sp20.x, sp14.y + sp20.y, sp14.z + sp20.z);
+        }
+        temp_r29_3 = m_parentObject;
+        temp_r0_5 = temp_r29_3->m_geomID;
+        if ((temp_r0_5 == NULL) && ((u32)temp_r29_3->m_bodyID != NULL))
+        {
+            // var_r30 = (dMatrix3*)dBodyGetRotation(temp_r29_3->m_bodyID);
+            r = (float*)dBodyGetRotation(temp_r29_3->m_bodyID);
+        }
+        else
+        {
+            // var_r30 = (dMatrix3*)dGeomGetRotation(temp_r0_5);
+            r = (float*)dGeomGetRotation(temp_r0_5);
+        }
+
+        // sp16C.SetColumn(0, *(nlVector3*)var_r30);
+        // sp16C.SetColumn(1, *(nlVector3*)var_r30[4]);
+        // sp16C.SetColumn(2, *(nlVector3*)var_r30[8]);
+        sp16C.SetColumn(0, *(nlVector3*)&r[0]);
+        sp16C.SetColumn(1, *(nlVector3*)&r[4]);
+        sp16C.SetColumn(2, *(nlVector3*)&r[8]);
+        sp16C.m[3][0] = 0.f;
+        sp16C.m[3][1] = 0.f;
+        sp16C.m[3][2] = 0.f;
+        sp16C.m[3][3] = 1.f;
+        sp16C.m[0][3] = 0.f;
+        sp16C.m[1][3] = 0.f;
+        sp16C.m[2][3] = 0.f;
+
+        temp_r28_2 = temp_r29_3->m_parentObject;
+        if (temp_r28_2 != NULL)
+        {
+            temp_r0_6 = temp_r28_2->m_geomID;
+            if ((temp_r0_6 == NULL) && (temp_r28_2->m_bodyID != NULL))
+            {
+                r = (float*)dBodyGetRotation(temp_r28_2->m_bodyID);
+            }
+            else
+            {
+                r = (float*)dGeomGetRotation(temp_r0_6);
+            }
+            ConvertDMat3ToNLMat4(r, &spEC);
+            if (temp_r28_2->m_parentObject != NULL)
+            {
+                temp_r28_2->m_parentObject->GetRotation(&sp2C);
+                nlMultMatrices(spEC, spEC, sp2C);
+            }
+            nlMultMatrices(sp16C, sp16C, spEC);
+        }
+        nlMultPosVectorMatrix(*position, *position, sp16C);
+        // just for regswap fixing...
+        // position->x += sp20.x;
+        // position->y += sp20.y;
+        // position->z += sp20.z;
+        float z1 = position->z;
+        float y1 = position->y;
+        float x1 = position->x;
+        x = sp20.x;
+        y = sp20.y;
+        z = sp20.z;
+        position->x = x + x1;
+        position->z = z + z1;
+        position->y = y + y1;
+    }
 }
 
 /**
@@ -858,8 +936,8 @@ void PhysicsObject::CheckForNaN()
 {
     dBodyGetForce(m_bodyID);
     dBodyGetTorque(m_bodyID);
-    // GetPosition();
-    // GetLinearVelocity();
+    GetPosition();
+    GetLinearVelocity();
 }
 
 /**
@@ -892,10 +970,6 @@ void PhysicsObject::SetDefaultCollideBits()
  */
 PhysicsObject::~PhysicsObject()
 {
-    //   if (this != NULL) {
-    //     *(undefined1 **)this = &__vt;
-    //     if (*(int *)(this + 4) != 0) {
-
     if (m_bodyID != nullptr)
     {
         dBodyDestroy(m_bodyID);

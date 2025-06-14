@@ -59,7 +59,7 @@ void nlMultVectorMatrix(nlVector4&, const nlVector4&, const nlMatrix4&)
 /**
  * Offset/Address/Size: 0x4F4 | 0x801C4070 | size: 0x54
  */
-void nlMultPosVectorMatrix(nlVector3&, const nlVector3&, const nlMatrix4&)
+void nlMultPosVectorMatrix(nlVector3& v_out, const nlVector3& v_in, const nlMatrix4& m)
 {
 }
 
