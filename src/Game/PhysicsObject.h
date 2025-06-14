@@ -31,7 +31,7 @@ public:
     void EnableCollisions();
     void DisableCollisions();
     void SetWorldMatrix(const nlMatrix4&);
-    virtual BOOL SetContactInfo(dContact*, PhysicsObject*, bool); //0x18
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool); //0x18
     void SetDefaultContactInfo(dContact*);
     void ZeroForceAccumulators();
     void AddForceAtCentreOfMass(const nlVector3&);

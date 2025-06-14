@@ -2,7 +2,9 @@
 #define _PHYSICSCHARACTER_H_
 
 
-class PhysicsCharacter
+#include "PhysicsObject.h"
+
+class PhysicsCharacter : public PhysicsObject
 {
 public:
     void SetCharacterVelocityXY(const nlVector3&);
@@ -11,12 +13,12 @@ public:
     void GetCharacterPositionXY(nlVector3*);
     void PostUpdate();
     void ResolvePhysicsBoneIDFromName(const char*);
-    void PreCollide();
-    void Contact(PhysicsObject*, dContact*, int, PhysicsObject*);
-    void SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual int PreCollide();
+    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*);
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool);
     void GetRadius(float*);
     PhysicsCharacter(float, float);
-    void GetObjectType() const;
+    virtual void GetObjectType() const;
 };
 
 #endif // _PHYSICSCHARACTER_H_

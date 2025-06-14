@@ -325,7 +325,7 @@ void PhysicsBall::AddResistanceForces()
 /**
  * Offset/Address/Size: 0x698 | 0x801353AC | size: 0x250
  */
-void PhysicsBall::Contact(PhysicsObject*, dContact*, int)
+int PhysicsBall::Contact(PhysicsObject*, dContact*, int)
 {
 }
 
@@ -368,16 +368,18 @@ void PhysicsBall::PreUpdate()
 /**
  * Offset/Address/Size: 0xB70 | 0x80135884 | size: 0xC
  */
-void PhysicsBall::PreCollide()
+int PhysicsBall::PreCollide()
 {
     m_unk_0x39 = 0;
+    return 0;
 }
 
 /**
  * Offset/Address/Size: 0xB7C | 0x80135890 | size: 0x114
  */
-void PhysicsBall::SetContactInfo(dContact*, PhysicsObject*, bool)
+int PhysicsBall::SetContactInfo(dContact*, PhysicsObject*, bool)
 {
+    return 0;
 }
 
 /**

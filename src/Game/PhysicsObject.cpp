@@ -234,32 +234,49 @@ void PhysicsObject::SetWorldMatrix(const nlMatrix4& in)
 /**
  * Offset/Address/Size: 0x518 | 0x80200214 | size: 0x78
  */
-BOOL PhysicsObject::SetContactInfo(dContact* contact, PhysicsObject* otherObject, bool param3)
+int PhysicsObject::SetContactInfo(dContact* contact, PhysicsObject* otherObject, bool param3)
 {
-    float fVar1;
-    float fVar2;
-    BOOL uVar3;
+    if (m_parentObject != NULL)
+    {
+        return m_parentObject->Contact(otherObject, contact, param3, this);
+        // return m_parentObject->Contact(this, contact, param3, otherObject);
+    }
+    if (param3 != 0)
+    {
+        (contact->surface).mode = 0x14;
+        (contact->surface).soft_cfm = 0.0001f;
+        (contact->surface).mu = 0.9f;
+        (contact->surface).mu2 = 0.0f;
+        (contact->surface).bounce = 0.2f;
+        (contact->surface).bounce_vel = 0.1f;
+    }
+    return 1;
 
-    fVar1 = 0.0001f;
-    if (m_parentObject == NULL)
-    {
-        if (param3)
-        {
-            (contact->surface).mode = 0x14;
-            (contact->surface).soft_cfm = 0.0001f;
-            (contact->surface).mu = 0.9f;
-            (contact->surface).mu2 = 0.0f;
-            (contact->surface).bounce = 0.2f;
-            (contact->surface).bounce_vel = 0.1f;
-        }
-        uVar3 = 1;
-    }
-    else
-    {
-        // uVar3 = (**(code **)(**(int **)(this + 0xc) + 0x10))();
-        uVar3 = 1;
-    }
-    return uVar3;
+
+    // float fVar1;
+    // float fVar2;
+    // BOOL uVar3;
+
+    // fVar1 = 0.0001f;
+    // if (m_parentObject == NULL)
+    // {
+    //     if (param3)
+    //     {
+    //         (contact->surface).mode = 0x14;
+    //         (contact->surface).soft_cfm = 0.0001f;
+    //         (contact->surface).mu = 0.9f;
+    //         (contact->surface).mu2 = 0.0f;
+    //         (contact->surface).bounce = 0.2f;
+    //         (contact->surface).bounce_vel = 0.1f;
+    //     }
+    //     uVar3 = 1;
+    // }
+    // else
+    // {
+    //     // uVar3 = (**(code **)(**(int **)(this + 0xc) + 0x10))();
+    //     uVar3 = 1;
+    // }
+    // return uVar3;
 }
 
 /**
@@ -295,8 +312,86 @@ void PhysicsObject::AddForceAtCentreOfMass(const nlVector3& force)
 /**
  * Offset/Address/Size: 0x644 | 0x80200340 | size: 0x1AC
  */
-void PhysicsObject::GetAngularVelocity(nlVector3*) const
+void PhysicsObject::GetAngularVelocity(nlVector3* arg1) const
 {
+    PhysicsObject *temp_r3;
+    nlVector3 *temp_r3_10;
+    nlVector3 *temp_r3_11;
+    PhysicsObject *temp_r3_2;
+    PhysicsObject *temp_r3_3;
+    nlVector3 *temp_r3_4;
+    nlVector3 *temp_r3_5;
+    nlVector3 *temp_r3_6;
+    nlVector3 *temp_r3_7;
+    nlVector3 *temp_r3_8;
+    nlVector3 *temp_r3_9;
+    PhysicsObject *temp_r5;
+    PhysicsObject *temp_r5_2;
+    PhysicsObject *temp_r5_3;
+    PhysicsObject *temp_r5_4;
+
+    temp_r5 = this->m_parentObject;
+    if (temp_r5 != NULL) {
+        temp_r3 = temp_r5->m_parentObject;
+        if (temp_r3 != NULL) {
+            temp_r5_2 = temp_r3->m_parentObject;
+            if (temp_r5_2 != NULL) {
+                temp_r3_2 = temp_r5_2->m_parentObject;
+                if (temp_r3_2 != NULL) {
+                    temp_r5_3 = temp_r3_2->m_parentObject;
+                    if (temp_r5_3 != NULL) {
+                        temp_r3_3 = temp_r5_3->m_parentObject;
+                        if (temp_r3_3 != NULL) {
+                            temp_r5_4 = temp_r3_3->m_parentObject;
+                            if (temp_r5_4 != NULL) {
+                                if (temp_r5_4->m_parentObject != NULL) {
+                                    temp_r5_4->m_parentObject->GetAngularVelocity(arg1);
+                                    return;
+                                }
+                                temp_r3_4 = (nlVector3*)dBodyGetAngularVel(temp_r5_4->m_bodyID);
+                                arg1->Set( temp_r3_4->x, temp_r3_4->y, temp_r3_4->z);
+                                return;
+                            }
+                            temp_r3_5 = (nlVector3*)dBodyGetAngularVel(temp_r3_3->m_bodyID);
+                            arg1->x = (f32) temp_r3_5->x;
+                            arg1->y = (f32) temp_r3_5->y;
+                            arg1->z = (f32) temp_r3_5->z;
+                            return;
+                        }
+                        temp_r3_6 = (nlVector3*)dBodyGetAngularVel(temp_r5_3->m_bodyID);
+                        arg1->x = (f32) temp_r3_6->x;
+                        arg1->y = (f32) temp_r3_6->y;
+                        arg1->z = (f32) temp_r3_6->z;
+                        return;
+                    }
+                    temp_r3_7 = (nlVector3*)dBodyGetAngularVel(temp_r3_2->m_bodyID);
+                    arg1->x = (f32) temp_r3_7->x;
+                    arg1->y = (f32) temp_r3_7->y;
+                    arg1->z = (f32) temp_r3_7->z;
+                    return;
+                }
+                temp_r3_8 = (nlVector3*)dBodyGetAngularVel(temp_r5_2->m_bodyID);
+                arg1->x = (f32) temp_r3_8->x;
+                arg1->y = (f32) temp_r3_8->y;
+                arg1->z = (f32) temp_r3_8->z;
+                return;
+            }
+            temp_r3_9 = (nlVector3*)dBodyGetAngularVel(temp_r3->m_bodyID);
+            arg1->x = (f32) temp_r3_9->x;
+            arg1->y = (f32) temp_r3_9->y;
+            arg1->z = (f32) temp_r3_9->z;
+            return;
+        }
+        temp_r3_10 = (nlVector3*)dBodyGetAngularVel(temp_r5->m_bodyID);
+        arg1->x = (f32) temp_r3_10->x;
+        arg1->y = (f32) temp_r3_10->y;
+        arg1->z = (f32) temp_r3_10->z;
+        return;
+    }
+    temp_r3_11 = (nlVector3*)dBodyGetAngularVel(this->m_bodyID);
+    arg1->x = (f32) temp_r3_11->x;
+    arg1->y = (f32) temp_r3_11->y;
+    arg1->z = (f32) temp_r3_11->z;
 }
 
 /**
@@ -357,7 +452,8 @@ void PhysicsObject::GetLinearVelocity(nlVector3* out) const
                                     return;
                                 }
                                 float* v = (float*)dBodyGetLinearVel(temp_r5_4->m_bodyID);
-                                nlVector3::Set(out, v[0], v[1], v[2]);
+                                // nlVector3::Set(out, v[0], v[1], v[2]);
+                                out->Set(v[0], v[1], v[2]);
                                 return;
                             }
                             float* v = (float*)dBodyGetLinearVel(temp_r3_3->m_bodyID);

@@ -8,8 +8,8 @@ class PhysicsNPC : public PhysicsObject
 {
 public:
     ~PhysicsNPC();
-    virtual void SetContactInfo(dContact*, PhysicsObject*, bool);
-    virtual void Contact(PhysicsObject*, dContact*, int);
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual int Contact(PhysicsObject*, dContact*, int);
     void SetCallbackFunction(void (*)(PhysicsObject*, PhysicsObject*, const nlVector3&));
     PhysicsNPC(float);
     virtual int GetObjectType() const;

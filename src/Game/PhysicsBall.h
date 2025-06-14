@@ -11,12 +11,12 @@ public:
     void SetUseAngularVelocity(bool);
     void ScaleAngularVelocity(float);
     void AddResistanceForces();
-    virtual void Contact(PhysicsObject*, dContact*, int);
+    virtual int Contact(PhysicsObject*, dContact*, int);
     void CloneBall(const PhysicsBall&);
     virtual void PostUpdate();
     virtual void PreUpdate();
-    virtual void PreCollide();
-    virtual void SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual int PreCollide();
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool);
     float GetBallMaxVelocity();
 
     PhysicsBall(CollisionSpace*, PhysicsWorld*, float);

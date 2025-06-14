@@ -7,10 +7,10 @@ class PhysicsBanana // : public PhysicsObject
 {
 public:
     ~PhysicsBanana();
-    void SetContactInfo(dContact*, PhysicsObject*, bool);
-    void Contact(PhysicsObject*, dContact*, int);
-    void PreCollide();
-    void PreUpdate();
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual int Contact(PhysicsObject*, dContact*, int);
+    virtual int PreCollide();
+    virtual void PreUpdate();
     PhysicsBanana(float);
     virtual int GetObjectType() const;
 };

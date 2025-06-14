@@ -6,7 +6,7 @@
 class PhysicsShell : public PhysicsSphere
 {
 public:
-    virtual BOOL SetContactInfo(dContact*, PhysicsObject*, bool);
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool);
     virtual void PostUpdate();
     virtual int Contact(PhysicsObject*, dContact*, int);
     PhysicsShell(float);
