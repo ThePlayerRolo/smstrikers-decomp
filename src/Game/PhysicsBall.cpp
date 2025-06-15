@@ -4,8 +4,7 @@
 #include "NL/nlFont.h"
 #include "NL/nlMath.h"
 #include "PhysicsObject.h"
-
-extern PhysicsBall* g_pBall;
+#include "Ball.h"
 
 float g_BallFriction = 3.f;
 float g_BallFrictionWall = 4.f;
@@ -179,20 +178,21 @@ void PhysicsBall::AddResistanceForces()
         sp8C.z = temp_f3_2 * sp98.z; // sp94=z
         AddForceAtCentreOfMass(sp8C);
     }
-    /*
-        if ((this->m_unk_0x38 != 0) && (g_pBall->m_unk_0x30 == NULL))
-        {
-            var_r3 = 0;
-            if (((u32)g_pBall->m_geomID != NULL) && ((u8)g_pBall->unkA2 != 0))
-            {
-                var_r3 = 1;
-            }
-            if (var_r3 == 0)
-            {
-                AddForceAtCentreOfMass(this, this + 0x2C);
-            }
-        }
 
+    // // if (((u8) arg0->unk38 != 0) && ((u32) g_pBall->unk30 == 0U)) {
+    // if ((this->m_unk_0x38 != 0) && (g_pBall->m_unk_0x38 == NULL))
+    // {
+    //     var_r3 = 0;
+    //     if ((g_pBall->m_geomID != NULL) && (g_pBall->m_unk_0xA2 != 0))
+    //     {
+    //         var_r3 = 1;
+    //     }
+    //     if (var_r3 == 0)
+    //     {
+    //         AddForceAtCentreOfMass(m_unk_0x2c);
+    //     }
+    // }
+/*
         if (this->unk3C > @393)
         {
             this->unk3C = (f32)(this->unk3C - GetPhysicsUpdateTick());
@@ -379,7 +379,8 @@ PhysicsBall::PhysicsBall(CollisionSpace* space, PhysicsWorld* world, float radiu
 
     m_gravity = -14.f;
 
-    // m_unk_v3.x = 0.f;
-    // m_unk_v3.y = 0.f;
-    // m_unk_v3.z = 0.f;
+    float temp = 0.f;
+    m_unk_0x2c.x = temp;
+    m_unk_0x2c.y = temp;
+    m_unk_0x2c.z = temp;
 }

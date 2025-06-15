@@ -20,7 +20,7 @@ public:
     virtual ~PhysicsAIBall();
     PhysicsAIBall(float);
   
-    virtual int GetObjectType() const;
+    virtual int GetObjectType() const override;
 
     // /* 0x4C */ float m_unk_0x4c;
     /* 0x4C */ u8 m_padding[4];

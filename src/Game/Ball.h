@@ -6,6 +6,7 @@
 
 #include "PhysicsAIBall.h"
 #include "Player.h"
+#include "RayCollider.h"
 
 // void nlStrNCpy<char>(char*, const char*, unsigned long);
 // void 0x8028D270..0x8028D274 | size: 0x4;
@@ -26,7 +27,7 @@ struct _something
     u32 m_ix8c;
 };
 
-class cBall : public PhysicsAIBall
+class cBall //: public RayCollider//, protected PhysicsAIBall
 {
 public:
     void PredictLandingSpotAndTime(nlVector3&);
@@ -66,9 +67,15 @@ public:
     ~cBall();
     cBall();
 
-    /* 0x20 */ _something m_ix20[3];
+    // /* 0x20 */ _something m_ix20[3];
+    /*  */ PhysicsAIBall *m_aiBall;
+    /*  */ RayCollider *m_rayCollider;
+
+    u8 m_unk_0xA2;
+
 };
 
+extern cBall* g_pBall;
 
 // class BasicString<char, Detail
 // {

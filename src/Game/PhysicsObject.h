@@ -20,8 +20,8 @@ public:
     };
 
     void CloneObject(const PhysicsObject&);
-    virtual void UnknownMethod_8(int) = 0;
-    virtual int GetObjectType() = 0; // position not so clear, must be on 0xC offset
+    // virtual void UnknownMethod_8(int) = 0;
+    virtual int GetObjectType() const = 0; // position not so clear, must be on 0xC offset
     virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*); //0x10
     virtual int Contact(PhysicsObject*, dContact*, int); //0x14
     void MakeStatic(); 
@@ -54,8 +54,7 @@ public:
     void SetCollide(unsigned int);
     void SetDefaultCollideBits();
 
-
-    ~PhysicsObject();
+    virtual ~PhysicsObject();
     PhysicsObject(PhysicsWorld*);
 
     /* 0x04 */ dBodyID m_bodyID;

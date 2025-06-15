@@ -22,10 +22,10 @@ public:
     PhysicsBall(CollisionSpace*, PhysicsWorld*, float);
     ~PhysicsBall();
 
-    // /* ???? 0x2c */ nlVector3 m_unk_v3;
-    /* 0x2c */ nlVector3 *m_unk_0x2c;
-    /* 0x30 */ nlVector3 *m_unk_0x30;
-    /* 0x34 */ nlVector3 *m_unk_0x34;
+    /* ???? 0x2c */ nlVector3 m_unk_0x2c; // change this will break constructor
+    // /* 0x2c */ nlVector3 *m_unk_0x2c;
+    // /* 0x30 */ nlVector3 *m_unk_0x30;
+    // /* 0x34 */ nlVector3 *m_unk_0x34;
 
     /* 0x38 */ u8 m_unk_0x38;
     /* 0x39 */ u8 m_unk_0x39;

@@ -1,7 +1,9 @@
 #include "Ball.h"
 #include "NL/nlMath.h"
+#include "PhysicsAIBall.h"
+#include "RayCollider.h"
 
-static cBall* g_pBall = NULL;
+cBall* g_pBall = NULL;
 
 /**
  * Offset/Address/Size: 0x0 | 0x800099D4 | size: 0x10C
@@ -85,16 +87,16 @@ void cBall::Shoot(const nlVector3&, const nlVector3&, eSpinType, bool, bool, boo
  */
 void cBall::SetVisible(bool visible)
 {
-    // int iVar1;
-    // iVar1 = *(int*)(this + 0x20);
-    _something* _ix20 = &this->m_ix20[0];
-    if (visible)
-    {
-        _ix20->m_ix8c = _ix20->m_ix8c | 1;
-        return;
-    }
-    // *(uint*)(iVar1 + 0x8c) = *(uint*)(iVar1 + 0x8c) & 0xfffffffe;
-    _ix20->m_ix8c = _ix20->m_ix8c & 0xfffffffe;
+    // // int iVar1;
+    // // iVar1 = *(int*)(this + 0x20);    
+    // _something* _ix20 = &this->m_ix20[0];
+    // if (visible)
+    // {
+    //     _ix20->m_ix8c = _ix20->m_ix8c | 1;
+    //     return;
+    // }
+    // // *(uint*)(iVar1 + 0x8c) = *(uint*)(iVar1 + 0x8c) & 0xfffffffe;
+    // _ix20->m_ix8c = _ix20->m_ix8c & 0xfffffffe;
 }
 
 /**
@@ -254,6 +256,8 @@ void cBall::ClearOwner()
  */
 cBall::~cBall()
 {
+    delete m_aiBall;
+    delete m_rayCollider;
 }
 
 /**
@@ -267,8 +271,9 @@ PhysicsAIBall::~PhysicsAIBall()
  * Offset/Address/Size: 0x3908 | 0x8000D2DC | size: 0x260
  */
 cBall::cBall()
-    : PhysicsAIBall(0.18f)
 {
+    m_aiBall = new PhysicsAIBall(0.18f);
+    m_rayCollider = new RayCollider(1.f, nlVector3(0.f, 0.f, 0.f), nlVector3(1.f, 0.f, 0.f));
 }
 
 // /**

@@ -104,8 +104,8 @@ PhysicsTransform::~PhysicsTransform()
     if (m_unk_2c != NULL)
     {
         // TODO: call to a virtual method.. not clear what is it...
-        m_unk_2c->UnknownMethod_8(1);
-        //   (**(code **)(*m_unk_2c + 8))(piVar1,1);
+        // m_unk_2c->UnknownMethod_8(1);
+        m_unk_2c->GetObjectType();
     }
 }
 
