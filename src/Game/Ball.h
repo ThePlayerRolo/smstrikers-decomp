@@ -1,12 +1,14 @@
-#ifndef _CBALL_H_
-#define _CBALL_H_
+#ifndef _BALL_H_
+#define _BALL_H_
 
 #include <types.h>
 #include "NL/nlMath.h"
 
-#include "PhysicsSphere.h"
+#include "PhysicsAIBall.h"
+#include "Player.h"
 
-class cPlayer;
+// void nlStrNCpy<char>(char*, const char*, unsigned long);
+// void 0x8028D270..0x8028D274 | size: 0x4;
 
 enum eSpinType
 {
@@ -24,13 +26,9 @@ struct _something
     u32 m_ix8c;
 };
 
-class cBall : public PhysicsSphere
+class cBall : public PhysicsAIBall
 {
 public:
-    // u8 padding1[0x20];
-    // _something* m_ix20;
-    _something m_ix20[3];
-
     void PredictLandingSpotAndTime(nlVector3&);
     void KillBlurHandler();
     void ClearPassTarget();
@@ -47,7 +45,7 @@ public:
     void SetPerfectPass(bool, bool);
     void SetPosition(const nlVector3&);
     void SetOwner(cPlayer*);
-    bool IsBuzzerBeaterSet() const;
+    void IsBuzzerBeaterSet() const;
     void HandleBuzzerBeater(float);
     void ClearBallBlur();
     void ClearShotInProgress();
@@ -67,6 +65,60 @@ public:
 
     ~cBall();
     cBall();
+
+    /* 0x20 */ _something m_ix20[3];
 };
 
-#endif // _CBALL_H_
+
+// class BasicString<char, Detail
+// {
+// public:
+//     void TempStringAllocator>::AppendInPlace(const char*);
+//     void TempStringAllocator>::insert(char*, const char*, const char*);
+//     void TempStringAllocator>::~BasicString();
+// };
+
+
+// class FuzzyVariant
+// {
+// public:
+//     void Reset();
+// };
+
+
+// class Variant
+// {
+// public:
+//     void Reset();
+// };
+
+
+// class PhysicsSphere
+// {
+// public:
+//     void GetObjectType() const;
+//     ~PhysicsSphere();
+// };
+
+
+// class PhysicsObject
+// {
+// public:
+//     void PreCollide();
+// };
+
+
+// class PassBallData
+// {
+// public:
+//     void GetID();
+// };
+
+
+// class EventData
+// {
+// public:
+//     void GetID();
+// };
+
+#endif // _BALL_H_

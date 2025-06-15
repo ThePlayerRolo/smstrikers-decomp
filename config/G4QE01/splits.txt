@@ -1735,7 +1735,7 @@ Physics.o:
 	.sbss       start:0x80373AF8 end:0x80373B10
 	.sdata2     start:0x80376188 end:0x803761A0
 
-PhysicsAIBall.o:
+Game/PhysicsAIBall.cpp:
 	.text       start:0x80133A34 end:0x80134D0C
 	.text       start:0x80134D0C end:0x80134D14
 	.text       start:0x80134D14 end:0x80134D14

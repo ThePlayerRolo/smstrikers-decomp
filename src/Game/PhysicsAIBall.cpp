@@ -1,10 +1,39 @@
 #include "PhysicsAIBall.h"
+#include "Ball.h"
+
+extern cBall* g_pBall;
+extern CollisionSpace* g_CollisionSpace;
+extern PhysicsWorld* g_PhysicsWorld;
 
 /**
  * Offset/Address/Size: 0x0 | 0x80133A34 | size: 0x84
  */
 void PhysicsAIBall::IsBallOutsideNet(const nlVector3&)
 {
+
+    // uint extraout_r4;
+    // undefined4 uVar1;
+    // double dVar2;
+    // double dVar3;
+    // undefined8 in_f30;
+    // double dVar4;
+    // undefined8 in_f31;
+    // undefined1 auStack_18[16];
+    // undefined1 auStack_8[8];
+
+    // uVar1 = 0;
+    // __psq_st0(auStack_8, (int)((ulonglong)in_f31 >> 0x20), 0);
+    // __psq_st1(auStack_8, (int)in_f31, 0);
+    // __psq_st0(auStack_18, (int)((ulonglong)in_f30 >> 0x20), 0);
+    // __psq_st1(auStack_18, (int)in_f30, 0);
+    // dVar2 = (double)PhysicsSphere::GetRadius(*(PhysicsSphere**)(Ball::g_pBall + 0x38));
+    // dVar4 = ABS((double)*(float*)this);
+    // dVar3 = (double)cField::GetGoalLineX((cField*)0x1, extraout_r4);
+    // __psq_l0(auStack_8, uVar1);
+    // __psq_l1(auStack_8, uVar1);
+    // __psq_l0(auStack_18, uVar1);
+    // __psq_l1(auStack_18, uVar1);
+    // return ((uint)(byte)(((float)dVar4 < (float)(dVar2 + dVar3) - @875) << 3) << 0x1c) >> 0x1f;
 }
 
 /**
@@ -45,15 +74,22 @@ void PhysicsAIBall::PreUpdate()
 /**
  * Offset/Address/Size: 0xD84 | 0x801347B8 | size: 0x47C
  */
-void PhysicsAIBall::Contact(PhysicsObject*, dContact*, int)
+int PhysicsAIBall::Contact(PhysicsObject*, dContact*, int)
 {
 }
 
 /**
  * Offset/Address/Size: 0x1200 | 0x80134C34 | size: 0x68
  */
-PhysicsAIBall::PhysicsAIBall(float)
+PhysicsAIBall::PhysicsAIBall(float radius)
+    : PhysicsBall(g_CollisionSpace, g_PhysicsWorld, radius)
 {
+    m_unk_0x40 = 0;
+    m_unk_0x50 = 9999;
+    m_unk_0x58 = 0;
+    m_unk_0x44.x = 0.f;
+    m_unk_0x44.y = 0.f;
+    m_unk_0x44.z = 0.f;
 }
 
 /**
@@ -66,6 +102,7 @@ PhysicsBall::~PhysicsBall()
 /**
  * Offset/Address/Size: 0x0 | 0x80134D0C | size: 0x8
  */
-void PhysicsAIBall::GetObjectType() const
+int PhysicsAIBall::GetObjectType() const
 {
+    return 0xf;
 }

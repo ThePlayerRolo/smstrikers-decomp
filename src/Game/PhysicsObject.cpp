@@ -692,11 +692,11 @@ nlVector3* PhysicsObject::GetPosition()
 }
 
 #define GP_REGSWAP(out, v) \
-    float z = (v)->z;       \
-    float y = (v)->y;       \
-    float x = (v)->x;       \
-    (out)->x = x;           \
-    (out)->y = y;           \
+    float z = (v)->z;      \
+    float y = (v)->y;      \
+    float x = (v)->x;      \
+    (out)->x = x;          \
+    (out)->y = y;          \
     (out)->z = z;
 
 /**
