@@ -28,7 +28,7 @@ class SimpleCollisionSpace : public CollisionSpace
 {
 public:
     SimpleCollisionSpace(PhysicsWorld*);
-    virtual ~SimpleCollisionSpace();
+    ~SimpleCollisionSpace();
 };
 
 #endif // _COLLISIONSPACE_H_

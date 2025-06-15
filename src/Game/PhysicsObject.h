@@ -19,9 +19,16 @@ public:
         CoordinateType_0 = 0,
     };
 
+    virtual ~PhysicsObject();
+    PhysicsObject(PhysicsWorld*);
+
     void CloneObject(const PhysicsObject&);
     // virtual void UnknownMethod_8(int) = 0;
     virtual int GetObjectType() const = 0; // position not so clear, must be on 0xC offset
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool); //0x18
+    virtual void PreUpdate();//0x20
+    virtual void PostUpdate();//0x24
+    virtual int PreCollide() = 0; //0x1c, needs to be 1c, this is the offset called by CollisionSpace::CallPreCollide
     virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*); //0x10
     virtual int Contact(PhysicsObject*, dContact*, int); //0x14
     void MakeStatic(); 
@@ -31,7 +38,6 @@ public:
     void EnableCollisions();
     void DisableCollisions();
     void SetWorldMatrix(const nlMatrix4&);
-    virtual int SetContactInfo(dContact*, PhysicsObject*, bool); //0x18
     void SetDefaultContactInfo(dContact*);
     void ZeroForceAccumulators();
     void AddForceAtCentreOfMass(const nlVector3&);
@@ -46,16 +52,10 @@ public:
     nlVector3* GetPosition();
     void GetPosition(nlVector3*) const;
     void SetPosition(const nlVector3&, CoordinateType);
-    virtual int PreCollide() = 0; //0x1c, needs to be 1c, this is the offset called by CollisionSpace::CallPreCollide
-    virtual void PreUpdate();//0x20
-    virtual void PostUpdate();//0x24
     void CheckForNaN();
     void SetCategory(unsigned int);
     void SetCollide(unsigned int);
     void SetDefaultCollideBits();
-
-    virtual ~PhysicsObject();
-    PhysicsObject(PhysicsWorld*);
 
     /* 0x04 */ dBodyID m_bodyID;
     /* 0x08 */ dGeomID m_geomID;
