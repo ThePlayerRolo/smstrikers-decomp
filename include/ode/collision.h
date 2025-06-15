@@ -60,8 +60,7 @@ int dGeomIsEnabled (dGeomID);
 /* ************************************************************************ */
 /* collision detection */
 
-int dCollide (dGeomID o1, dGeomID o2, int flags, dContactGeom *contact,
-	      int skip);
+int dCollide (dGeomID o1, dGeomID o2, int flags, dContactGeom *contact, int skip);
 void dSpaceCollide (dSpaceID space, void *data, dNearCallback *callback);
 void dSpaceCollide2 (dGeomID o1, dGeomID o2, void *data,
 		     dNearCallback *callback);

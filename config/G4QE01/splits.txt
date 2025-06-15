@@ -4473,7 +4473,7 @@ Game/PhysicsWorld.cpp:
 	.text       start:0x80201E90 end:0x80201E90
 	.data       start:0x80303188 end:0x803031D0
 
-RayCollider.o:
+Game/RayCollider.cpp:
 	.text       start:0x80201E90 end:0x802020C4
 	.data       start:0x803031D0 end:0x803031E0
 

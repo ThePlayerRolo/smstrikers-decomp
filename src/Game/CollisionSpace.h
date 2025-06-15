@@ -2,6 +2,7 @@
 #define _COLLISIONSPACE_H_
 
 #include "ode/collision.h"
+#include "ode/common.h"
 
 
 class PhysicsWorld;
@@ -18,8 +19,8 @@ public:
 
     virtual ~CollisionSpace();
 
-    /* 0x00 */ dSpaceID m_spaceID; // is this 0x04 because of the virtual tables now?
-    /* 0x04 */ CollisionSpace *m_nextCollisionSpace;
+    /* 0x04 */ dSpaceID m_spaceID; // is this 0x04 because of the virtual tables now?
+    /* 0x08 */ CollisionSpace *m_nextCollisionSpace;
     /* 0x0c */ PhysicsWorld *m_physicsWorld;
 };
 

@@ -196,7 +196,7 @@ cPlayer* cBall::GetOwnerFielder() const
  */
 nlVector3 cBall::GetDrawablePosition() const
 {
-    return nlVector3(0,0,0);
+    return nlVector3(0, 0, 0);
 }
 
 /**
@@ -204,7 +204,7 @@ nlVector3 cBall::GetDrawablePosition() const
  */
 nlVector3 cBall::GetAIVelocity() const
 {
-    return nlVector3(0,0,0);
+    return nlVector3(0, 0, 0);
 }
 
 /**
