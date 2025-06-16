@@ -1,7 +1,6 @@
 #include "RayCollider.h"
 #include "ode/collision.h"
 
-
 /**
  * Offset/Address/Size: 0x0 | 0x80201E90 | size: 0x12C
  */
@@ -63,7 +62,7 @@ u8 RayCollider::DoCollide(CollisionSpace* space)
     // {
     //     var_r3 = *(&sp30 + temp_r8);
     // }
-    
+
     m_unk_0x08 = (PhysicsObject*)dGeomGetData(var_r3);
     return m_unk_0x28;
 }

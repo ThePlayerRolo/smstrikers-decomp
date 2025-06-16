@@ -155,18 +155,22 @@ def find_s_file(obj_filename, search_dir):
     # Get just the filename without path and extension
     base_name = os.path.splitext(os.path.basename(obj_filename))[0]
     s_filename = f"{base_name}.s"
-    
-    # Use the provided search directory
-    search_path = os.path.join(search_dir, s_filename)
-    
+
+    # Recursively search for the .s file in search_dir and its subdirectories
+    for root, dirs, files in os.walk(search_dir):
+        if s_filename in files:
+            search_path = os.path.join(root, s_filename)
+            print("Looking for .s file:")
+            print(f"  Base name: {base_name}")
+            print(f"  Search dir: {search_dir}")
+            print(f"  Full path: {search_path}")
+            print(f"  Path exists: {os.path.exists(search_path)}")
+            return search_path
+
     print("Looking for .s file:")
     print(f"  Base name: {base_name}")
     print(f"  Search dir: {search_dir}")
-    print(f"  Full path: {search_path}")
-    print(f"  Path exists: {os.path.exists(search_path)}")
-    
-    if os.path.exists(search_path):
-        return search_path
+    print(f"  Not found in any subdirectory.")
     return None
 
 

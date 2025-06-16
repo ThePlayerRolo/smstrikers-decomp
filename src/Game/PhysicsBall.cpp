@@ -192,105 +192,105 @@ void PhysicsBall::AddResistanceForces()
     //         AddForceAtCentreOfMass(m_unk_0x2c);
     //     }
     // }
-/*
-        if (this->unk3C > @393)
-        {
-            this->unk3C = (f32)(this->unk3C - GetPhysicsUpdateTick());
-            M2C_ERROR(unknown instruction: cror eq, lt, eq);
-            if (this->unk3C == @393)
+    /*
+            if (this->unk3C > @393)
             {
-                this->unk3A = 1U;
-            }
-        }
-        if (((u32)this->unkC == NULL) && ((u8)this->unk3A != 0))
-        {
-            temp_f29 = @576 + GetRadius(this);
-            if (GetPosition(this)->unk8 < temp_f29)
-            {
-                GetLinearVelocity(this, &sp20);
-                sp2C = @364.unk0;
-                sp30 = @364.unk4;
-                sp34 = @364.unk8;
-                temp_f6 = @411 / GetRadius(this, @364.unk4, @364.unk0, &@364);
-                temp_f3_3 = temp_f6 * sp24;
-                sp40 = @365.unk8;
-                temp_f2_4 = -sp2C;
-                temp_f1_4 = temp_f6 * sp20;
-                sp38 = @365.unk0;
-                sp3C = @365.unk4;
-                sp34 = temp_f6;
-                sp38 = sp20;
-                sp3C = sp24;
-                GetAngularVelocity(this, &sp80, @365.unk0, &@365, temp_f1_4, temp_f2_4, temp_f3_3, sp24, sp20,
-                                                                 temp_f6, sp40, sp30, sp2C);
-                temp_f29_2 = @577 * (((sp2C * sp24) - (sp30 * sp20)) - sp88);
-                temp_f30 = @577 * (((temp_f2_4 * sp40) + temp_f1_4) - sp84);
-                temp_f31 = @577 * (((sp30 * sp40) - temp_f3_3) - sp80);
-                dBodyAddTorque(this->unk4, temp_f31, temp_f30, temp_f29_2);
-                GetAngularVelocity(this, &sp8);
-                sp10 = @393;
-                sp14 = @369.unk0;
-                sp18 = @369.unk4;
-                sp1C = @369.unk8;
-                temp_f1_5 = GetRadius(this, @369.unk4, @369.unk0, &@369);
-                temp_f5 = (f32)temp_f1_5;
-                temp_f3_4 = -sp8;
-                sp1C = (f32)temp_f1_5;
-                temp_f2_5 = (temp_f3_4 * temp_f5) + (sp10 * sp14);
-                temp_f1_6 = (spC * temp_f5) - (sp10 * sp18);
-                sp7C = (sp8 * sp18) - (spC * sp14);
-                sp74 = temp_f1_6;
-                sp78 = temp_f2_5;
-                GetLinearVelocity(this, &sp68, temp_f1_6, temp_f2_5, temp_f3_4, sp10, temp_f5, spC, sp18, sp8);
-                temp_f4 = sp7C - sp70;
-                temp_f3_5 = sp78 - sp6C;
-                temp_f5_2 = @578 * temp_f4;
-                sp7C = temp_f4;
-                temp_f1_7 = sp74 - sp68;
-                temp_f2_6 = @578 * temp_f3_5;
-                sp78 = temp_f3_5;
-                sp74 = temp_f1_7;
-                sp78 = temp_f2_6;
-                sp74 = @578 * temp_f1_7;
-                sp7C = temp_f5_2;
-                AddForceAtCentreOfMass(this, &sp74, temp_f1_7, temp_f2_6, temp_f3_5, temp_f4, temp_f5_2);
-                sp7C = @393;
-                if ((((temp_f29_2 * temp_f29_2) + ((temp_f31 * temp_f31) + (temp_f30 * temp_f30))) < @579)
-                    && (((@393 * @393) + ((sp74 * sp74) + (sp78 * sp78))) < @580))
+                this->unk3C = (f32)(this->unk3C - GetPhysicsUpdateTick());
+                M2C_ERROR(unknown instruction: cror eq, lt, eq);
+                if (this->unk3C == @393)
                 {
-                    this->unk3A = NULL;
+                    this->unk3A = 1U;
                 }
             }
-        }
-        if (((u32)this->unkC == NULL) && ((u8)this->unk3B != 0))
-        {
-            temp_f29_3 = @576 + GetRadius(this);
-            if (GetPosition(this)->unk8 > temp_f29_3)
+            if (((u32)this->unkC == NULL) && ((u8)this->unk3A != 0))
             {
-                GetLinearVelocity(this, &sp5C);
-                if (((sp64 * sp64) + ((sp5C * sp5C) + (sp60 * sp60))) > @411)
+                temp_f29 = @576 + GetRadius(this);
+                if (GetPosition(this)->unk8 < temp_f29)
                 {
-                    GetAngularVelocity(this, &sp44);
-                    if (((sp4C * sp4C) + ((sp44 * sp44) + (sp48 * sp48))) > @411)
+                    GetLinearVelocity(this, &sp20);
+                    sp2C = @364.unk0;
+                    sp30 = @364.unk4;
+                    sp34 = @364.unk8;
+                    temp_f6 = @411 / GetRadius(this, @364.unk4, @364.unk0, &@364);
+                    temp_f3_3 = temp_f6 * sp24;
+                    sp40 = @365.unk8;
+                    temp_f2_4 = -sp2C;
+                    temp_f1_4 = temp_f6 * sp20;
+                    sp38 = @365.unk0;
+                    sp3C = @365.unk4;
+                    sp34 = temp_f6;
+                    sp38 = sp20;
+                    sp3C = sp24;
+                    GetAngularVelocity(this, &sp80, @365.unk0, &@365, temp_f1_4, temp_f2_4, temp_f3_3, sp24, sp20,
+                                                                     temp_f6, sp40, sp30, sp2C);
+                    temp_f29_2 = @577 * (((sp2C * sp24) - (sp30 * sp20)) - sp88);
+                    temp_f30 = @577 * (((temp_f2_4 * sp40) + temp_f1_4) - sp84);
+                    temp_f31 = @577 * (((sp30 * sp40) - temp_f3_3) - sp80);
+                    dBodyAddTorque(this->unk4, temp_f31, temp_f30, temp_f29_2);
+                    GetAngularVelocity(this, &sp8);
+                    sp10 = @393;
+                    sp14 = @369.unk0;
+                    sp18 = @369.unk4;
+                    sp1C = @369.unk8;
+                    temp_f1_5 = GetRadius(this, @369.unk4, @369.unk0, &@369);
+                    temp_f5 = (f32)temp_f1_5;
+                    temp_f3_4 = -sp8;
+                    sp1C = (f32)temp_f1_5;
+                    temp_f2_5 = (temp_f3_4 * temp_f5) + (sp10 * sp14);
+                    temp_f1_6 = (spC * temp_f5) - (sp10 * sp18);
+                    sp7C = (sp8 * sp18) - (spC * sp14);
+                    sp74 = temp_f1_6;
+                    sp78 = temp_f2_5;
+                    GetLinearVelocity(this, &sp68, temp_f1_6, temp_f2_5, temp_f3_4, sp10, temp_f5, spC, sp18, sp8);
+                    temp_f4 = sp7C - sp70;
+                    temp_f3_5 = sp78 - sp6C;
+                    temp_f5_2 = @578 * temp_f4;
+                    sp7C = temp_f4;
+                    temp_f1_7 = sp74 - sp68;
+                    temp_f2_6 = @578 * temp_f3_5;
+                    sp78 = temp_f3_5;
+                    sp74 = temp_f1_7;
+                    sp78 = temp_f2_6;
+                    sp74 = @578 * temp_f1_7;
+                    sp7C = temp_f5_2;
+                    AddForceAtCentreOfMass(this, &sp74, temp_f1_7, temp_f2_6, temp_f3_5, temp_f4, temp_f5_2);
+                    sp7C = @393;
+                    if ((((temp_f29_2 * temp_f29_2) + ((temp_f31 * temp_f31) + (temp_f30 * temp_f30))) < @579)
+                        && (((@393 * @393) + ((sp74 * sp74) + (sp78 * sp78))) < @580))
                     {
-                        temp_f4_2 = -sp44;
-                        temp_f2_7 = (sp44 * sp60) - (sp48 * sp5C);
-                        temp_f5_3 = (sp48 * sp64) - (sp4C * sp60);
-                        temp_f3_6 = (temp_f4_2 * sp64) + (sp4C * sp5C);
-                        sp58 = temp_f2_7;
-                        temp_f2_8 = temp_f5_3 * @581;
-                        sp50 = temp_f5_3;
-                        temp_f1_8 = temp_f3_6 * @581;
-                        sp54 = temp_f3_6;
-                        sp50 = temp_f2_8;
-                        sp54 = temp_f1_8;
-                        sp58 = temp_f2_7 * @582;
-                        AddForceAtCentreOfMass(this, &sp50, temp_f1_8, temp_f2_8, temp_f3_6, temp_f4_2, temp_f5_3, sp64);
+                        this->unk3A = NULL;
                     }
                 }
             }
-        }
-    */
+            if (((u32)this->unkC == NULL) && ((u8)this->unk3B != 0))
+            {
+                temp_f29_3 = @576 + GetRadius(this);
+                if (GetPosition(this)->unk8 > temp_f29_3)
+                {
+                    GetLinearVelocity(this, &sp5C);
+                    if (((sp64 * sp64) + ((sp5C * sp5C) + (sp60 * sp60))) > @411)
+                    {
+                        GetAngularVelocity(this, &sp44);
+                        if (((sp4C * sp4C) + ((sp44 * sp44) + (sp48 * sp48))) > @411)
+                        {
+                            temp_f4_2 = -sp44;
+                            temp_f2_7 = (sp44 * sp60) - (sp48 * sp5C);
+                            temp_f5_3 = (sp48 * sp64) - (sp4C * sp60);
+                            temp_f3_6 = (temp_f4_2 * sp64) + (sp4C * sp5C);
+                            sp58 = temp_f2_7;
+                            temp_f2_8 = temp_f5_3 * @581;
+                            sp50 = temp_f5_3;
+                            temp_f1_8 = temp_f3_6 * @581;
+                            sp54 = temp_f3_6;
+                            sp50 = temp_f2_8;
+                            sp54 = temp_f1_8;
+                            sp58 = temp_f2_7 * @582;
+                            AddForceAtCentreOfMass(this, &sp50, temp_f1_8, temp_f2_8, temp_f3_6, temp_f4_2, temp_f5_3, sp64);
+                        }
+                    }
+                }
+            }
+        */
 }
 
 /**

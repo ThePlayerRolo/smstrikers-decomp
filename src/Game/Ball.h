@@ -3,9 +3,11 @@
 
 #include <types.h>
 #include "NL/nlMath.h"
+#include "NL/nlTimer.h"
+
+#include "Player.h"
 
 #include "PhysicsAIBall.h"
-#include "Player.h"
 #include "RayCollider.h"
 
 // void nlStrNCpy<char>(char*, const char*, unsigned long);
@@ -66,10 +68,22 @@ public:
 
     ~cBall();
     cBall();
+   
+   /* 0x00 */ u8 m_unk_0x00;
+   /* 0x04 */ u8 m_unk_0x04;
 
-    // /* 0x20 */ _something m_ix20[3];
-    /*  */ PhysicsAIBall *m_aiBall;
-    /*  */ RayCollider *m_rayCollider;
+    /* 0x08 */ Timer *m_timer_0x08;
+    /* 0x0C */ Timer *m_timer_0x0C;
+    /* 0x10 */ Timer *m_timer_0x10;
+    /* 0x14 */ Timer *m_timer_0x14;
+    
+    /* 0x18 */ u8 m_unk_0x18[0x20];
+
+        // /* 0x20 */ _something m_ix20[3];
+
+    /* 0x38 */ PhysicsAIBall *m_aiBall;
+    /* 0x3C */ RayCollider *m_rayCollider;
+    /* 0x40 */ nlVector3 m_rayPosition;
 
     u8 m_unk_0xA2;
 

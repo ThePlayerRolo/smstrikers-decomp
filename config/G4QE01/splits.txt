@@ -2599,7 +2599,7 @@ PadMonkey.o:
 	.data       start:0x802C2A38 end:0x802C2A80
 	.sdata2     start:0x80376A90 end:0x80376AA8
 
-world.o:
+Game/World.cpp:
 	.text       start:0x80194CC4 end:0x80198C14
 	.text       start:0x80198C14 end:0x80198C1C
 	.text       start:0x80198C1C end:0x8019A8E4
@@ -2628,7 +2628,7 @@ WorldLoader.o:
 	.data       start:0x802C2CF0 end:0x802C2DC8
 	.sbss       start:0x80373EC0 end:0x80373EC8
 
-worldmanager.o:
+Game/WorldManager.cpp:
 	.text       start:0x8019AC60 end:0x8019ADCC
 	.sbss       start:0x80373EC8 end:0x80373ED0
 	.sdata2     start:0x80376B08 end:0x80376B10

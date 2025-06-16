@@ -2,8 +2,15 @@
 #include "NL/nlMath.h"
 #include "PhysicsAIBall.h"
 #include "RayCollider.h"
+#include "NL/nlMemory.h"
+
+#include "World.h"
+#include "AudioLoader.h"
 
 cBall* g_pBall = NULL;
+
+// Minimal placement new for MWCC (if <new> is not available)
+inline void* operator new(unsigned long, void* p) { return p; }
 
 /**
  * Offset/Address/Size: 0x0 | 0x800099D4 | size: 0x10C
@@ -88,7 +95,7 @@ void cBall::Shoot(const nlVector3&, const nlVector3&, eSpinType, bool, bool, boo
 void cBall::SetVisible(bool visible)
 {
     // // int iVar1;
-    // // iVar1 = *(int*)(this + 0x20);    
+    // // iVar1 = *(int*)(this + 0x20);
     // _something* _ix20 = &this->m_ix20[0];
     // if (visible)
     // {
@@ -272,8 +279,35 @@ PhysicsAIBall::~PhysicsAIBall()
  */
 cBall::cBall()
 {
-    m_aiBall = new PhysicsAIBall(0.18f);
-    m_rayCollider = new RayCollider(1.f, nlVector3(0.f, 0.f, 0.f), nlVector3(1.f, 0.f, 0.f));
+    m_unk_0x00 = 0;
+    m_unk_0x04 = 0;
+
+    m_timer_0x08->SetSeconds(0.f);
+    m_timer_0x0C->SetSeconds(0.f);
+    m_timer_0x10->SetSeconds(0.f);
+    m_timer_0x14->SetSeconds(0.f);
+
+
+    void* this_00 = nlMalloc(0x5c, 8, FALSE);
+    if (this_00 != NULL)
+    {
+        this_00 = new (this_00) PhysicsAIBall(0.18f);
+    }
+    m_aiBall = (PhysicsAIBall*)this_00;
+
+    m_timer_0x14->SetSeconds(0.f);
+
+    m_rayPosition = nlVector3(0.f, 0.f, 0.f);
+    nlVector3 m_rayDir = nlVector3(1.f, 0.f, 0.f);
+    void* this_01 = nlMalloc(0x2C, 8, FALSE);
+    if (this_01 != NULL) {
+        this_01 = new (this_01) RayCollider(1.f, m_rayPosition, m_rayDir);
+    }
+    m_rayCollider = (RayCollider*)this_01;    
+
+    if (AudioLoader::IsInited() != false) {
+        // gfPerfectPassSFXVol = GetSFXVol__8cGameSFXCFUl(&gStadGenSFX__5Audio, 0xBA);
+    }    
 }
 
 // /**

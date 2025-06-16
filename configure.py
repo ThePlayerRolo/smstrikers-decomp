@@ -660,6 +660,8 @@ config.libs = [
             Object(NonMatching, "Game/CollisionSpace.cpp"),
             Object(NonMatching, "Game/PhysicsTransform.cpp"),
             Object(NonMatching, "Game/PhysicsWorld.cpp"),
+            Object(NonMatching, "Game/World.cpp"),
+            Object(NonMatching, "Game/WorldManager.cpp"),
         ],
     ),
     GameLib(
