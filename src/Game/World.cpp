@@ -192,14 +192,16 @@ World::~World()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x80198C1C | size: 0x24
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::DeleteEntry(AVLTreeEntry<unsigned long, DrawableObject*>*)
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::DeleteEntry(AVLTreeEntry<unsigned long, DrawableObject*>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x24 | 0x80198C40 | size: 0x5C
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::~AVLTreeBase()
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::~AVLTreeBase()
 // {
 // }
 
@@ -213,7 +215,8 @@ World::~World()
 // /**
 //  * Offset/Address/Size: 0xE0 | 0x80198CFC | size: 0x5C
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::~AVLTreeBase()
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::~AVLTreeBase()
 // {
 // }
 
@@ -227,168 +230,200 @@ World::~World()
 // /**
 //  * Offset/Address/Size: 0x19C | 0x80198DB8 | size: 0x5C
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::~AVLTreeBase()
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::~AVLTreeBase()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1F8 | 0x80198E14 | size: 0x58
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::Clear()
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::Clear()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x250 | 0x80198E6C | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::DestroyTree(void (AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, HelperObject*>*))
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::DestroyTree(void (AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>,
+// DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, HelperObject*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x2B4 | 0x80198ED0 | size: 0x758
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::PostorderTraversal(AVLTreeEntry<unsigned long, HelperObject*>*, void (AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, HelperObject*>*))
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::PostorderTraversal(AVLTreeEntry<unsigned long, HelperObject*>*, void (AVLTreeBase<unsigned long, HelperObject*,
+// NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long,
+// HelperObject*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xA0C | 0x80199628 | size: 0x8
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::CastUp(AVLTreeNode*) const
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::CastUp(AVLTreeNode*) const
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xA14 | 0x80199630 | size: 0x58
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::Clear()
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::Clear()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xA6C | 0x80199688 | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::DestroyTree(void (AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LightObject*>*))
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::DestroyTree(void (AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>,
+// DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LightObject*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xAD0 | 0x801996EC | size: 0x758
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::PostorderTraversal(AVLTreeEntry<unsigned long, LightObject*>*, void (AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LightObject*>*))
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::PostorderTraversal(AVLTreeEntry<unsigned long, LightObject*>*, void (AVLTreeBase<unsigned long, LightObject*,
+// NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LightObject*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1228 | 0x80199E44 | size: 0x8
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::CastUp(AVLTreeNode*) const
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::CastUp(AVLTreeNode*) const
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1230 | 0x80199E4C | size: 0x58
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::Clear()
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::Clear()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1288 | 0x80199EA4 | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::DestroyTree(void (AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, DrawableObject*>*))
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::DestroyTree(void (AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>,
+// DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, DrawableObject*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x12EC | 0x80199F08 | size: 0x758
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::PostorderTraversal(AVLTreeEntry<unsigned long, DrawableObject*>*, void (AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, DrawableObject*>*))
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::PostorderTraversal(AVLTreeEntry<unsigned long, DrawableObject*>*, void (AVLTreeBase<unsigned long, DrawableObject*,
+// NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long,
+// DrawableObject*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1A44 | 0x8019A660 | size: 0x8
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::CastUp(AVLTreeNode*) const
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::CastUp(AVLTreeNode*) const
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1A4C | 0x8019A668 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1A78 | 0x8019A694 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::CompareKey(void*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::CompareKey(void*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1AA4 | 0x8019A6C0 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1AD0 | 0x8019A6EC | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::CompareKey(void*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::CompareKey(void*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1AFC | 0x8019A718 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1B28 | 0x8019A744 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::CompareKey(void*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::CompareKey(void*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1B54 | 0x8019A770 | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::AllocateEntry(void*, void*)
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::AllocateEntry(void*, void*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1BB8 | 0x8019A7D4 | size: 0x24
 //  */
-// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned long>>::DeleteEntry(AVLTreeEntry<unsigned long, LightObject*>*)
+// void AVLTreeBase<unsigned long, LightObject*, NewAdapter<AVLTreeEntry<unsigned long, LightObject*>>, DefaultKeyCompare<unsigned
+// long>>::DeleteEntry(AVLTreeEntry<unsigned long, LightObject*>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1BDC | 0x8019A7F8 | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned long>>::AllocateEntry(void*, void*)
+// void AVLTreeBase<unsigned long, DrawableObject*, NewAdapter<AVLTreeEntry<unsigned long, DrawableObject*>>, DefaultKeyCompare<unsigned
+// long>>::AllocateEntry(void*, void*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1C40 | 0x8019A85C | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::AllocateEntry(void*, void*)
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::AllocateEntry(void*, void*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x1CA4 | 0x8019A8C0 | size: 0x24
 //  */
-// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned long>>::DeleteEntry(AVLTreeEntry<unsigned long, HelperObject*>*)
+// void AVLTreeBase<unsigned long, HelperObject*, NewAdapter<AVLTreeEntry<unsigned long, HelperObject*>>, DefaultKeyCompare<unsigned
+// long>>::DeleteEntry(AVLTreeEntry<unsigned long, HelperObject*>*)
 // {
 // }
 
@@ -402,14 +437,17 @@ World::~World()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8019A908 | size: 0x24
 //  */
-// void DLListContainerBase<WorldAnimController*, NewAdapter<DLListEntry<WorldAnimController*>>>::DeleteEntry(DLListEntry<WorldAnimController*>*)
+// void DLListContainerBase<WorldAnimController*,
+// NewAdapter<DLListEntry<WorldAnimController*>>>::DeleteEntry(DLListEntry<WorldAnimController*>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8019A92C | size: 0x68
 //  */
-// void nlWalkList<ListEntry<LightObject*>, ListContainerBase<LightObject*, NewAdapter<ListEntry<LightObject*>>>>(ListEntry<LightObject*>*, ListContainerBase<LightObject*, NewAdapter<ListEntry<LightObject*>>>*, void (ListContainerBase<LightObject*, NewAdapter<ListEntry<LightObject*>>>::*)(ListEntry<LightObject*>*))
+// void nlWalkList<ListEntry<LightObject*>, ListContainerBase<LightObject*, NewAdapter<ListEntry<LightObject*>>>>(ListEntry<LightObject*>*,
+// ListContainerBase<LightObject*, NewAdapter<ListEntry<LightObject*>>>*, void (ListContainerBase<LightObject*,
+// NewAdapter<ListEntry<LightObject*>>>::*)(ListEntry<LightObject*>*))
 // {
 // }
 
@@ -423,7 +461,10 @@ World::~World()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8019A9BC | size: 0x3C
 //  */
-// void nlWalkDLRing<DLListEntry<WorldAnimController*>, DLListContainerBase<WorldAnimController*, NewAdapter<DLListEntry<WorldAnimController*>>>>(DLListEntry<WorldAnimController*>*, DLListContainerBase<WorldAnimController*, NewAdapter<DLListEntry<WorldAnimController*>>>*, void (DLListContainerBase<WorldAnimController*, NewAdapter<DLListEntry<WorldAnimController*>>>::*)(DLListEntry<WorldAnimController*>*))
+// void nlWalkDLRing<DLListEntry<WorldAnimController*>, DLListContainerBase<WorldAnimController*,
+// NewAdapter<DLListEntry<WorldAnimController*>>>>(DLListEntry<WorldAnimController*>*, DLListContainerBase<WorldAnimController*,
+// NewAdapter<DLListEntry<WorldAnimController*>>>*, void (DLListContainerBase<WorldAnimController*,
+// NewAdapter<DLListEntry<WorldAnimController*>>>::*)(DLListEntry<WorldAnimController*>*))
 // {
 // }
 
@@ -444,7 +485,10 @@ World::~World()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8019AA30 | size: 0x60
 //  */
-// void nlWalkRing<DLListEntry<WorldAnimController*>, DLListContainerBase<WorldAnimController*, NewAdapter<DLListEntry<WorldAnimController*>>>>(DLListEntry<WorldAnimController*>*, DLListContainerBase<WorldAnimController*, NewAdapter<DLListEntry<WorldAnimController*>>>*, void (DLListContainerBase<WorldAnimController*, NewAdapter<DLListEntry<WorldAnimController*>>>::*)(DLListEntry<WorldAnimController*>*))
+// void nlWalkRing<DLListEntry<WorldAnimController*>, DLListContainerBase<WorldAnimController*,
+// NewAdapter<DLListEntry<WorldAnimController*>>>>(DLListEntry<WorldAnimController*>*, DLListContainerBase<WorldAnimController*,
+// NewAdapter<DLListEntry<WorldAnimController*>>>*, void (DLListContainerBase<WorldAnimController*,
+// NewAdapter<DLListEntry<WorldAnimController*>>>::*)(DLListEntry<WorldAnimController*>*))
 // {
 // }
 

@@ -10,6 +10,8 @@
 #include "PhysicsAIBall.h"
 #include "RayCollider.h"
 
+#include "ObjectBlur.h"
+
 // void nlStrNCpy<char>(char*, const char*, unsigned long);
 // void 0x8028D270..0x8028D274 | size: 0x4;
 
@@ -29,10 +31,11 @@ struct _something
     u32 m_ix8c;
 };
 
+
 class cBall //: public RayCollider//, protected PhysicsAIBall
 {
 public:
-    void PredictLandingSpotAndTime(nlVector3&);
+    float PredictLandingSpotAndTime(nlVector3&);
     void KillBlurHandler();
     void ClearPassTarget();
     void SetPassTargetTimer(float);
@@ -69,23 +72,30 @@ public:
     ~cBall();
     cBall();
    
-   /* 0x00 */ u8 m_unk_0x00;
-   /* 0x04 */ u8 m_unk_0x04;
+   /* 0x00 */ u32 m_unk_0x00;
+   /* 0x04 */ u32 m_unk_0x04;
 
     /* 0x08 */ Timer *m_timer_0x08;
     /* 0x0C */ Timer *m_timer_0x0C;
-    /* 0x10 */ Timer *m_timer_0x10;
-    /* 0x14 */ Timer *m_timer_0x14;
-    
-    /* 0x18 */ u8 m_unk_0x18[0x20];
+    /* 0x10 */ Timer *m_passTargetTimer; // passTargetTimer
+    /* 0x14 */ Timer *m_timer_0x14;    
+    /* 0x18 */ float m_passTimeSeconds; // m_unk_0x18;
 
-        // /* 0x20 */ _something m_ix20[3];
-
+    /* 0x1C */ BlurHandler *m_blurHandler;
+    /* 0x20 */ u8 m_unk_0x20[0x10];
+    /* 0x30 */ cPlayer * m_passTargetPlayer;
+    /* 0x34 */ u8 m_unk_0x34[0x4];
     /* 0x38 */ PhysicsAIBall *m_aiBall;
     /* 0x3C */ RayCollider *m_rayCollider;
     /* 0x40 */ nlVector3 m_rayPosition;
+    /* 0x4C */ nlVector3 m_unk_0x4C;
+    /* 0x58 */ nlVector3 m_unk_0x58;
+    /* 0x64 */ nlVector3 m_unk_0x64; // passTargetPosition?
 
-    u8 m_unk_0xA2;
+// /* 0x20 */ u8 m_unk_0x20[0x18];
+
+// /* 0x20 */ u8 m_unk_0x20[0x18];
+//     u8 m_unk_0xA2;
 
 };
 

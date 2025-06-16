@@ -76,5 +76,6 @@ void nlSetRandomSeed(unsigned int, unsigned int*);
 void nlInitRandom();
 
 #include "NL/platvmath.h"
+#include "NL/utility.h"
 
 #endif

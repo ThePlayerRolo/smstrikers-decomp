@@ -179,19 +179,19 @@ void PhysicsBall::AddResistanceForces()
         AddForceAtCentreOfMass(sp8C);
     }
 
-    // // if (((u8) arg0->unk38 != 0) && ((u32) g_pBall->unk30 == 0U)) {
-    // if ((this->m_unk_0x38 != 0) && (g_pBall->m_unk_0x38 == NULL))
-    // {
-    //     var_r3 = 0;
-    //     if ((g_pBall->m_geomID != NULL) && (g_pBall->m_unk_0xA2 != 0))
-    //     {
-    //         var_r3 = 1;
-    //     }
-    //     if (var_r3 == 0)
-    //     {
-    //         AddForceAtCentreOfMass(m_unk_0x2c);
-    //     }
-    // }
+    // if (((u8) arg0->unk38 != 0) && ((u32) g_pBall->unk30 == 0U)) {
+    if ((this->m_unk_0x38 != 0) && (g_pBall->m_passTargetPlayer == NULL))
+    {
+        var_r3 = 0;
+        // if ((g_pBall->m_geomID != NULL) && (g_pBall->m_unk_0xA2 != 0))
+        // {
+        //     var_r3 = 1;
+        // }
+        if (var_r3 == 0)
+        {
+            AddForceAtCentreOfMass(m_unk_0x2c);
+        }
+    }
     /*
             if (this->unk3C > @393)
             {

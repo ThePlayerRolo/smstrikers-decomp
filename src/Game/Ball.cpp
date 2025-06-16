@@ -9,14 +9,68 @@
 
 cBall* g_pBall = NULL;
 
-// Minimal placement new for MWCC (if <new> is not available)
-inline void* operator new(unsigned long, void* p) { return p; }
+inline void* operator new(unsigned long, void* p)
+{
+    return p;
+}
 
 /**
  * Offset/Address/Size: 0x0 | 0x800099D4 | size: 0x10C
  */
-void cBall::PredictLandingSpotAndTime(nlVector3&)
+float cBall::PredictLandingSpotAndTime(nlVector3& landingSpot)
 {
+    float sp10;
+    float spC;
+    int sp8;
+    float dVar9;
+    float fVar5;
+    float pfVar7;
+    float dVar8;
+    float dVar10;
+
+    // m_unk_0x58.x = 0;
+    // m_unk_0x58.y = 0;
+    // m_unk_0x58.z = 0;
+
+    dVar8 = 0.1f;
+    if (m_rayPosition.z > 1.0f)
+    {
+        SolveQuadratic(dVar8, 0.5f * m_aiBall->m_gravity, m_unk_0x58.z, sp8, spC, sp10);
+
+        pfVar7 = spC;         // pfVar7 = &local_14;
+        dVar8 = 100000000.0f; // dVar8 = (double)Ball::@1409;
+        fVar5 = 0.f;
+        dVar10 = dVar8;
+        if (sp8 > 0)
+        {
+            do
+            {
+                dVar9 = pfVar7;
+                dVar8 = dVar10;
+                if ((0.f <= dVar9) && (dVar8 = dVar9, dVar10 <= dVar9))
+                {
+                    dVar8 = dVar10;
+                }
+                pfVar7 = pfVar7 + 1;
+                sp8 -= 1;
+                dVar10 = dVar8;
+            } while (sp8 != 0);
+        }
+
+        landingSpot.x = (dVar8 * m_unk_0x58.x) + m_rayPosition.x;
+        landingSpot.y = (dVar8 * m_unk_0x58.y) + m_rayPosition.y;
+        // landingSpot.z = (dVar8 * m_unk_0x58.z) + m_rayPosition.z;
+        landingSpot.z = 0.f;
+        return dVar8;
+    }
+
+    float x = m_rayPosition.x;
+    float y = m_rayPosition.y;
+    float z = m_rayPosition.z;
+    landingSpot.x = x;
+    landingSpot.y = y;
+    landingSpot.z = z;
+    return 0.f;
 }
 
 /**
@@ -24,6 +78,11 @@ void cBall::PredictLandingSpotAndTime(nlVector3&)
  */
 void cBall::KillBlurHandler()
 {
+    if (m_blurHandler != NULL)
+    {
+        m_blurHandler->Die(0.f);
+        m_blurHandler = NULL;
+    }
 }
 
 /**
@@ -36,15 +95,28 @@ void cBall::ClearPassTarget()
 /**
  * Offset/Address/Size: 0x33C | 0x80009D10 | size: 0x40
  */
-void cBall::SetPassTargetTimer(float)
+void cBall::SetPassTargetTimer(float seconds)
 {
+    m_passTargetTimer->SetSeconds(seconds);
+    m_passTimeSeconds = seconds;
 }
 
 /**
  * Offset/Address/Size: 0x37C | 0x80009D50 | size: 0x20
  */
-void cBall::SetPassTarget(cPlayer*, const nlVector3&, bool)
+void cBall::SetPassTarget(cPlayer* passTargetPlayer, const nlVector3& pos, bool)
 {
+    m_passTargetPlayer = passTargetPlayer;
+
+    // m_unk_0x64.x = pos.x;
+    // m_unk_0x64.y = pos.y;
+    // m_unk_0x64.z = pos.z;
+    u32 y = *(const u32*)&pos.y;
+    u32 x = *(const u32*)&pos.x;
+    *(u32*)&m_unk_0x64.x = x;
+    u32 z = *(const u32*)&pos.z;
+    *(u32*)&m_unk_0x64.y = y;
+    *(u32*)&m_unk_0x64.z = z;
 }
 
 /**
@@ -284,9 +356,8 @@ cBall::cBall()
 
     m_timer_0x08->SetSeconds(0.f);
     m_timer_0x0C->SetSeconds(0.f);
-    m_timer_0x10->SetSeconds(0.f);
+    m_passTargetTimer->SetSeconds(0.f);
     m_timer_0x14->SetSeconds(0.f);
-
 
     void* this_00 = nlMalloc(0x5c, 8, FALSE);
     if (this_00 != NULL)
@@ -300,14 +371,16 @@ cBall::cBall()
     m_rayPosition = nlVector3(0.f, 0.f, 0.f);
     nlVector3 m_rayDir = nlVector3(1.f, 0.f, 0.f);
     void* this_01 = nlMalloc(0x2C, 8, FALSE);
-    if (this_01 != NULL) {
+    if (this_01 != NULL)
+    {
         this_01 = new (this_01) RayCollider(1.f, m_rayPosition, m_rayDir);
     }
-    m_rayCollider = (RayCollider*)this_01;    
+    m_rayCollider = (RayCollider*)this_01;
 
-    if (AudioLoader::IsInited() != false) {
+    if (AudioLoader::IsInited() != false)
+    {
         // gfPerfectPassSFXVol = GetSFXVol__8cGameSFXCFUl(&gStadGenSFX__5Audio, 0xBA);
-    }    
+    }
 }
 
 // /**

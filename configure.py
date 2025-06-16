@@ -662,6 +662,7 @@ config.libs = [
             Object(NonMatching, "Game/PhysicsWorld.cpp"),
             Object(NonMatching, "Game/World.cpp"),
             Object(NonMatching, "Game/WorldManager.cpp"),
+            Object(NonMatching, "Game/ObjectBlur.cpp"),
         ],
     ),
     GameLib(

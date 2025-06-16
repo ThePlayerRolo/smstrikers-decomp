@@ -2150,7 +2150,7 @@ TimeRegions.o:
 	.sbss       start:0x80373C70 end:0x80373C90
 	.sdata2     start:0x80376770 end:0x80376778
 
-objectblur.o:
+Game/ObjectBlur.cpp:
 	.text       start:0x801627D4 end:0x8016331C
 	.text       start:0x8016331C end:0x8016342C
 	.text       start:0x8016342C end:0x8016358C

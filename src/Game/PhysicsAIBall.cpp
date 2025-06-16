@@ -1,7 +1,6 @@
 #include "PhysicsAIBall.h"
 #include "Ball.h"
 
-extern cBall* g_pBall;
 extern CollisionSpace* g_CollisionSpace;
 extern PhysicsWorld* g_PhysicsWorld;
 
@@ -13,10 +12,10 @@ void PhysicsAIBall::IsBallOutsideNet(const nlVector3&)
 
     // uint extraout_r4;
     // undefined4 uVar1;
-    // double dVar2;
+    float dVar2;
     // double dVar3;
     // undefined8 in_f30;
-    // double dVar4;
+    float dVar4;
     // undefined8 in_f31;
     // undefined1 auStack_18[16];
     // undefined1 auStack_8[8];
@@ -26,6 +25,9 @@ void PhysicsAIBall::IsBallOutsideNet(const nlVector3&)
     // __psq_st1(auStack_8, (int)in_f31, 0);
     // __psq_st0(auStack_18, (int)((ulonglong)in_f30 >> 0x20), 0);
     // __psq_st1(auStack_18, (int)in_f30, 0);
+
+    dVar2 = g_pBall->m_aiBall->GetRadius();
+
     // dVar2 = (double)PhysicsSphere::GetRadius(*(PhysicsSphere**)(Ball::g_pBall + 0x38));
     // dVar4 = ABS((double)*(float*)this);
     // dVar3 = (double)cField::GetGoalLineX((cField*)0x1, extraout_r4);
