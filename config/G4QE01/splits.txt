@@ -444,7 +444,7 @@ SpaceSearch.o:
 	.sdata2     start:0x803757D0 end:0x80375848
 	.sbss2      start:0x80377F10 end:0x80377F20
 
-StatsGatherer.o:
+NL/StatsGatherer.cpp:
 	.text       start:0x80064394 end:0x80064394
 	.text       start:0x80064394 end:0x80064398
 	.text       start:0x80064398 end:0x800643AC

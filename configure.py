@@ -668,7 +668,7 @@ config.libs = [
             # World
             Object(NonMatching, "Game/World.cpp"),
             Object(NonMatching, "Game/WorldManager.cpp"),
-            Object(NonMatching, "Game/WorldUpdateTask.cpp"),
+            Object(Matching, "Game/WorldUpdateTask.cpp"),
             Object(NonMatching, "Game/FixedUpdateTask.cpp"),
 
             # Frontend
@@ -702,7 +702,10 @@ config.libs = [
             Object(NonMatching, "NL/nlTextBox.cpp"),
             Object(NonMatching, "NL/nlTextEscape.cpp"),
             Object(NonMatching, "NL/nlTicker.cpp"),
-            Object(NonMatching, "NL/nlTimer.cpp"),        
+            Object(NonMatching, "NL/nlTimer.cpp"),     
+
+            # Ext/Game-Specific?
+            Object(NonMatching, "NL/StatsGatherer.cpp"),     
         ],
     ),
     ODELib(

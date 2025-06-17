@@ -3,13 +3,15 @@
 
 #include "types.h"
 
-class nlTask
-{
-public:
-	virtual void Run(float) = 0;
-	virtual const char* GetName() = 0;
-	virtual void StateTransition() = 0;
-};
+#include "NL/StatsGatherer.h"
+
+// class nlTask
+// {
+// public:
+// 	virtual void Run(float) = 0;
+// 	virtual const char* GetName() = 0;
+// 	virtual void StateTransition() = 0;
+// };
 
 
 // bool nlDLRingIsEnd<nlTask>(nlTask*, nlTask*);
