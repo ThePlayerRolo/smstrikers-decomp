@@ -61,7 +61,7 @@ void nlTan(unsigned short);
 void nlACos(float);
 void nlSinCos(float*, float*, unsigned short);
 void nlSin(unsigned short);
-void nlRecipSqrt(float, bool);
+float nlRecipSqrt(float, bool);
 float nlSqrt(float, bool);
 void nlRandomf(float, float, unsigned int*);
 void nlRandomf(float, unsigned int*);

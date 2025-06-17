@@ -28,8 +28,8 @@ public:
     virtual void PreUpdate();//0x14
     virtual void PostUpdate();//0x18
     virtual int PreCollide(); //0x1c
-    virtual int Contact(PhysicsObject*, dContact*, int); //0x14
-    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*); //0x10
+    virtual int Contact(PhysicsObject*, dContact*, int); //0x20
+    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*); //0x24
     void MakeStatic(); 
     void SetMass(float); 
     void Reconnect(dSpaceID); 

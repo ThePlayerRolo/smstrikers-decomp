@@ -4,6 +4,7 @@
 #include "NL/nlFont.h"
 #include "NL/nlMath.h"
 #include "PhysicsObject.h"
+#include "PhysicsFakeBall.h"
 #include "FixedUpdateTask.h"
 
 #include "Ball.h"
@@ -20,7 +21,7 @@ float g_BallAirResistance = 0.1f;
  * Offset/Address/Size: 0x0 | 0x80134D14 | size: 0xD4
  */
 
-const int z[3] = {0,0,0};
+const int z[3] = { 0, 0, 0 };
 
 void PhysicsBall::CalcAngularFromLinearVelocity(nlVector3& v)
 {
@@ -28,7 +29,7 @@ void PhysicsBall::CalcAngularFromLinearVelocity(nlVector3& v)
     nlVector3 velocity;
     GetLinearVelocity(&velocity);
 
-// u32* src = (u32*)&other.m_unk_0x2c;
+    // u32* src = (u32*)&other.m_unk_0x2c;
     u32* dst_t1 = (u32*)&t1;
     dst_t1[0] = z[0];
     dst_t1[1] = z[1];
@@ -248,9 +249,114 @@ void PhysicsBall::AddResistanceForces()
 /**
  * Offset/Address/Size: 0x698 | 0x801353AC | size: 0x250
  */
-int PhysicsBall::Contact(PhysicsObject*, dContact*, int)
+int PhysicsBall::Contact(PhysicsObject* other, dContact* contact, int param)
 {
-    return 1;
+    nlVector3 pos;
+    // f32 sp14;
+    // f32 sp10;
+    // s32 spC;
+
+    // s32 sp8;
+    nlVector3 _pos;
+
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f29;
+    f32 temp_f2;
+    f32 temp_f30;
+    f32 temp_f31;
+    s32 objType;
+    s32 temp_r6;
+    s32 var_ctr;
+    void** temp_r3;
+    nlVector3* temp_r3_2;
+    void* var_r3;
+
+    objType = other->GetObjectType();
+    GetPosition(&pos);
+
+    if (objType == 0x11)
+    {
+        // do {
+        // if (((this_00->geom).pos.field0_0x0[2] <= local_54) &&
+        //     (@632 < (this_00->geom).normal.field0_0x0[2])) {
+        //     this->field_0x39 = 1;
+        //     break;
+        // }
+        // this_00 = this_00 + 1;
+        // iVar5 = iVar5 + -1;
+        // } while (iVar5 != 0);
+
+        var_r3 = (void*)contact;
+        var_ctr = param;
+        if (param > 0)
+        {
+        loop_2:
+        //     M2C_ERROR(/* unknown instruction: cror eq, lt, eq */);
+            if ((((dContact*)var_r3)->geom.pos[2] == pos.z) && (((dContact*)var_r3)->geom.normal[2] > 0.9f))
+            {
+                m_unk_0x39 = 1;
+            }
+            else
+            {
+                // var_r3 += 0x68;
+                var_r3 = (void*)((char*)var_r3 + 0x68);
+                var_ctr -= 1;
+                if (var_ctr != 0)
+                {
+                    goto loop_2;
+                }
+            }
+        }
+    }
+
+    if (m_parentObject != NULL)
+    {
+        if (objType == 0x11)
+        {
+            GetPosition(&pos);
+            if ((contact->geom.normal[2] > 0.f) && ((contact->geom.pos[2] + GetRadius()) < pos.z))
+            {
+                u32* src = (u32*)GetPosition();
+                u32* dst = (u32*)&_pos;
+                dst[0] = src[0];
+                dst[1] = src[1];
+                dst[2] = src[2];
+
+                temp_f2 = contact->geom.normal[2]; //unk44
+                temp_f1 = contact->geom.depth; // unk4C
+                temp_f29 = temp_f2 * temp_f1;
+                _pos.z += temp_f29;
+                SetPosition(_pos, CoordinateType_0); // , temp_r6, temp_f1, temp_f2
+
+                if (contact->geom.depth > 0.95f)
+                {
+                    return 0;
+                }
+
+                temp_f30 = contact->geom.normal[1]; // arg2->unk40;
+                temp_f31 = contact->geom.normal[0]; // arg2->unk3C;
+                temp_f1_2 = nlRecipSqrt(0.f + (temp_f31 * temp_f31) + (temp_f30 * temp_f30), true);
+                contact->geom.normal[0] = (f32)(temp_f1_2 * temp_f31);  //  unk3C 
+                contact->geom.normal[1] = (f32)(temp_f1_2 * temp_f30);  //  unk40
+                contact->geom.normal[2] = (f32)(temp_f1_2 * 0.f);       //  unk44
+                contact->geom.depth = (f32)(contact->geom.depth - temp_f29); //  unk4C
+            }
+        }
+        return m_parentObject->Contact(other, contact, param);
+    }
+
+    if ((objType != 0x11) && (objType != 0xD) && (objType != 0xE) && (objType != 8))
+    {
+        m_unk_0x3b = 0;
+        FakeBallWorld::InvalidateBallCache();
+        g_pBall->m_unk_0x00 = (s32)(g_pBall->m_unk_0x00 + 1);
+        g_pBall->m_unk_0x04 = (s32)(g_pBall->m_unk_0x04 + 1);
+        g_pBall->m_unk_0xA6 = 0;
+        g_pBall->m_unk_0xA8 = 0;
+    }
+
+    return 3;
 }
 
 /**
@@ -278,6 +384,48 @@ void PhysicsBall::CloneBall(const PhysicsBall& other)
  */
 void PhysicsBall::PostUpdate()
 {
+    nlVector3 linVel; // sp14, sp18, sp1C
+    nlVector3 pos;
+
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f2;
+    f32 temp_f31;
+    f32 temp_f3;
+
+    PhysicsObject::PostUpdate();
+    GetLinearVelocity(&linVel);
+
+    float l = (linVel.z * linVel.z) + (linVel.x * linVel.x) + (linVel.y * linVel.y);
+    if (l > 2500.f)
+    {
+        temp_f3 = 50.f / nlSqrt(l, true);
+        temp_f2 = temp_f3 * linVel.z;
+        temp_f1 = temp_f3 * linVel.y;
+        linVel.z = temp_f2;
+        linVel.x *= temp_f3;
+        linVel.y = temp_f1;
+        SetLinearVelocity(linVel);
+    }
+
+    if ((GetPosition()->z > 20.f) && (linVel.z > 0.f))
+    {
+        linVel.z *= 0.9f;
+        SetLinearVelocity(linVel);
+    }
+
+    temp_f31 = GetRadius();
+    if (GetPosition()->z < temp_f31)
+    {
+        m_unk_0x39 = 1;
+        GetPosition(&pos);
+        pos.z = GetRadius();
+        SetPosition(pos, CoordinateType_0);
+
+        temp_f1_2 = linVel.z;
+        linVel.z = temp_f1_2 * -g_BallBounceGround;
+        SetLinearVelocity(linVel);
+    }
 }
 
 /**
@@ -293,9 +441,12 @@ void PhysicsBall::PreUpdate()
     {
         float l = nlSqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z, true);
         float n = 50.f / l;
-        vec.x = vec.x * n;
-        vec.y = vec.y * n;
-        vec.z = vec.z * n;
+        float x = n * vec.x;
+        float y = n * vec.y;
+        float z = n * vec.z;
+        vec.x = x;
+        vec.y = y;
+        vec.z = z;
         SetLinearVelocity(vec);
     }
     PhysicsObject::PreUpdate();
@@ -316,29 +467,39 @@ int PhysicsBall::PreCollide()
  */
 int PhysicsBall::SetContactInfo(dContact* contact, PhysicsObject* other, bool param)
 {
-    if (m_parentObject != NULL) {
+    if (m_parentObject != NULL)
+    {
         return m_parentObject->SetContactInfo(contact, other, param);
     }
-    
-    if (param != 0) {
+
+    if (param != 0)
+    {
         SetDefaultContactInfo(contact);
     }
 
-    if (other->GetObjectType() != 8) 
+    if (other->GetObjectType() != 8)
     {
-        if (other->GetObjectType() == 0x11) {
-            contact->surface.bounce = (f32) g_BallBounceGround;
-        } else if (other->GetObjectType() == 0x19) {
-            contact->surface.bounce = (f32) g_BallBounceWall;
-        } else {
-            contact->surface.bounce = (f32) g_BallBounce;
+        if (other->GetObjectType() == 0x11)
+        {
+            contact->surface.bounce = (f32)g_BallBounceGround;
+        }
+        else if (other->GetObjectType() == 0x19)
+        {
+            contact->surface.bounce = (f32)g_BallBounceWall;
+        }
+        else
+        {
+            contact->surface.bounce = (f32)g_BallBounce;
         }
 
         contact->surface.bounce_vel = 0.f;
-        if (other->GetObjectType() == 0x19) {
-            contact->surface.mu = (f32) g_BallFrictionWall;
-        } else {
-            contact->surface.mu = (f32) g_BallFriction;
+        if (other->GetObjectType() == 0x19)
+        {
+            contact->surface.mu = (f32)g_BallFrictionWall;
+        }
+        else
+        {
+            contact->surface.mu = (f32)g_BallFriction;
         }
     }
 

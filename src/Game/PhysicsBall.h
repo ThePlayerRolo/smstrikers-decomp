@@ -20,8 +20,8 @@ public:
     float GetBallMaxVelocity();
 
     PhysicsBall(CollisionSpace*, PhysicsWorld*, float);
-    ~PhysicsBall();
-
+    virtual ~PhysicsBall();
+    
     /* ???? 0x2c */ nlVector3 m_unk_0x2c; // change this will break constructor
     // /* 0x2c */ nlVector3 *m_unk_0x2c;
     // /* 0x30 */ nlVector3 *m_unk_0x30;

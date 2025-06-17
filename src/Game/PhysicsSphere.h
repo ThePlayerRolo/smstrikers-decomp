@@ -11,6 +11,7 @@ class PhysicsSphere : public PhysicsObject
 public:
     void SetRadius(float);
     float GetRadius();
+    virtual int GetObjectType() const;
     PhysicsSphere(CollisionSpace*, PhysicsWorld*, float);
 };
 
