@@ -91,12 +91,8 @@ public:
     /* 0x4C */ nlVector3 m_unk_0x4C;
     /* 0x58 */ nlVector3 m_unk_0x58;
     /* 0x64 */ nlVector3 m_unk_0x64; // passTargetPosition?
-
-// /* 0x20 */ u8 m_unk_0x20[0x18];
-
-// /* 0x20 */ u8 m_unk_0x20[0x18];
-//     u8 m_unk_0xA2;
-
+    /* 0x70 */ u8 m_unk_0x70[0x32];
+    /* 0xA2 */ u8 m_unk_0xA2;
 };
 
 extern cBall* g_pBall;

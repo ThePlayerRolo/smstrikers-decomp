@@ -4,6 +4,8 @@
 #include "NL/nlFont.h"
 #include "NL/nlMath.h"
 #include "PhysicsObject.h"
+#include "FixedUpdateTask.h"
+
 #include "Ball.h"
 
 float g_BallFriction = 3.f;
@@ -179,29 +181,29 @@ void PhysicsBall::AddResistanceForces()
         AddForceAtCentreOfMass(sp8C);
     }
 
-    // if (((u8) arg0->unk38 != 0) && ((u32) g_pBall->unk30 == 0U)) {
-    if ((this->m_unk_0x38 != 0) && (g_pBall->m_passTargetPlayer == NULL))
+    if ((m_unk_0x38 != 0) && (g_pBall->m_passTargetPlayer == NULL))
     {
         var_r3 = 0;
-        // if ((g_pBall->m_geomID != NULL) && (g_pBall->m_unk_0xA2 != 0))
-        // {
-        //     var_r3 = 1;
-        // }
+        if ((g_pBall->m_timer_0x08 != NULL) && (g_pBall->m_unk_0xA2 != 0))
+        {
+            var_r3 = 1;
+        }
         if (var_r3 == 0)
         {
             AddForceAtCentreOfMass(m_unk_0x2c);
         }
     }
+
+    if (m_angularVelocity > 0.f) 
+    {
+        m_angularVelocity = m_angularVelocity - FixedUpdateTask::GetPhysicsUpdateTick();
+        if (m_angularVelocity <= 0.f) 
+        {
+            m_unk_0x3a = 1;
+        }
+    }
+
     /*
-            if (this->unk3C > @393)
-            {
-                this->unk3C = (f32)(this->unk3C - GetPhysicsUpdateTick());
-                M2C_ERROR(unknown instruction: cror eq, lt, eq);
-                if (this->unk3C == @393)
-                {
-                    this->unk3A = 1U;
-                }
-            }
             if (((u32)this->unkC == NULL) && ((u8)this->unk3A != 0))
             {
                 temp_f29 = @576 + GetRadius(this);

@@ -1,9 +1,14 @@
 #ifndef _NLTASK_H_
 #define _NLTASK_H_
 
-typedef struct {
-    // todo..
-} nlTask;
+class nlTask
+{
+public:
+	virtual void Run(float) = 0;
+	virtual const char* GetName() = 0;
+	virtual void StateTransition() = 0;
+};
+
 
 // bool nlDLRingIsEnd<nlTask>(nlTask*, nlTask*);
 // void nlDLRingGetStart<nlTask>(nlTask*);
@@ -14,7 +19,7 @@ class nlTaskManager
 {
 public:
     void SetTimeDilation(float);
-    void SetNextState(unsigned int);
+    static void SetNextState(unsigned int state);
     void RunAllTasks();
     void AddTask(nlTask*, unsigned int, unsigned int);
     void Startup(unsigned int);
