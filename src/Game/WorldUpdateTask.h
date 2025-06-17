@@ -1,8 +1,9 @@
 #ifndef _WORLDUPDATETASK_H_
 #define _WORLDUPDATETASK_H_
 
+#include "NL/nlTask.h"
 
-class WorldUpdateTask
+class WorldUpdateTask : public nlTask
 {
 public:
     virtual void Run(float dt);

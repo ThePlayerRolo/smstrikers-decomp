@@ -18,10 +18,11 @@ void FixedUpdateTask::DecrementFrameLock(float f)
 {
     float temp_f1 = mfFrameLockTime - f;
     mfFrameLockTime = temp_f1;
-    if (temp_f1 < 0.f) {
+    if (temp_f1 < 0.f)
+    {
         nlTaskManager::SetNextState(2);
         mfFrameLockTime = 0.f;
-    }    
+    }
 }
 
 /**

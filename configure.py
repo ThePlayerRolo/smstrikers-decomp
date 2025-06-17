@@ -639,12 +639,14 @@ config.libs = [
         [
             Object(NonMatching, "Game/main.cpp"),
 
+            # Game Objects
             Object(NonMatching, "Game/Ball.cpp"),
             Object(NonMatching, "Game/Net.cpp"),
             Object(NonMatching, "Game/Player.cpp"),
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
 
+            # Physics
             Object(NonMatching, "Game/RayCollider.cpp"),
             Object(NonMatching, "Game/PhysicsAIBall.cpp"),
             Object(Matching, "Game/PhysicsBox.cpp"),
@@ -663,11 +665,16 @@ config.libs = [
             Object(NonMatching, "Game/PhysicsTransform.cpp"),
             Object(NonMatching, "Game/PhysicsWorld.cpp"),
 
+            # World
             Object(NonMatching, "Game/World.cpp"),
             Object(NonMatching, "Game/WorldManager.cpp"),
             Object(NonMatching, "Game/WorldUpdateTask.cpp"),
             Object(NonMatching, "Game/FixedUpdateTask.cpp"),
 
+            # Frontend
+            Object(NonMatching, "Game/feManager.cpp"),
+
+            # GFX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
         ],
     ),

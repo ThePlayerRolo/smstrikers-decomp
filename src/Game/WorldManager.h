@@ -7,7 +7,7 @@ class WorldManager
 public:
     void DestroyWorld();
     void LoadWorld(const char*, bool);
-    void UpdateWorld(float);
+    static void UpdateWorld(float dt = 0.f);
     void RenderWorld();
 };
 

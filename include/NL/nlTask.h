@@ -1,6 +1,8 @@
 #ifndef _NLTASK_H_
 #define _NLTASK_H_
 
+#include "types.h"
+
 class nlTask
 {
 public:
@@ -23,6 +25,12 @@ public:
     void RunAllTasks();
     void AddTask(nlTask*, unsigned int, unsigned int);
     void Startup(unsigned int);
+
+    static nlTaskManager* m_pInstance;
+
+    /* 0x00 */ u8 m_padding_0x00[0x8];
+    /* 0x08 */ uint m_unk_0x08;
+
 };
 
 #endif // _NLTASK_H_

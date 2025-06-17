@@ -194,10 +194,10 @@ void PhysicsBall::AddResistanceForces()
         }
     }
 
-    if (m_angularVelocity > 0.f) 
+    if (m_angularVelocity > 0.f)
     {
         m_angularVelocity = m_angularVelocity - FixedUpdateTask::GetPhysicsUpdateTick();
-        if (m_angularVelocity <= 0.f) 
+        if (m_angularVelocity <= 0.f)
         {
             m_unk_0x3a = 1;
         }
