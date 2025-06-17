@@ -20,14 +20,28 @@ float g_BallAirResistance = 0.1f;
  * Offset/Address/Size: 0x0 | 0x80134D14 | size: 0xD4
  */
 
+const int z[3] = {0,0,0};
+
 void PhysicsBall::CalcAngularFromLinearVelocity(nlVector3& v)
 {
     nlVector3 t2, t1;
     nlVector3 velocity;
     GetLinearVelocity(&velocity);
-    t1 = nlVector3(0.f, 0.f, 0.f);
+
+// u32* src = (u32*)&other.m_unk_0x2c;
+    u32* dst_t1 = (u32*)&t1;
+    dst_t1[0] = z[0];
+    dst_t1[1] = z[1];
+    dst_t1[2] = z[2];
+    // t1 = nlVector3(0.f, 0.f, 0.f);
+
     float dVar1 = 1.f / GetRadius();
-    t2 = nlVector3(0.f, 0.f, 0.f);
+
+    // t2 = nlVector3(0.f, 0.f, 0.f);
+    u32* dst_t2 = (u32*)&t2;
+    dst_t2[0] = z[0];
+    dst_t2[1] = z[1];
+    dst_t2[2] = z[2];
 
     v.x = (t1.y * t2.z) - (dVar1 * velocity.y);
     v.y = (-t1.x * t2.z) + (dVar1 * velocity.x);
@@ -65,7 +79,7 @@ void PhysicsBall::ScaleAngularVelocity(float scale)
 }
 
 // const uint vec_zero[3] __attribute__((section(".rodata"))) = {0, 0, 0};
-const nlVector3 vec_zero __attribute__((section(".rodata"))) = nlVector3(0.f, 0.f, 0.f);
+// const nlVector3 vec_zero __attribute__((section(".rodata"))) = nlVector3(0.f, 0.f, 0.f);
 
 /**
  * Offset/Address/Size: 0x17C | 0x80134E90 | size: 0x51C
@@ -242,8 +256,21 @@ int PhysicsBall::Contact(PhysicsObject*, dContact*, int)
 /**
  * Offset/Address/Size: 0x8E8 | 0x801355FC | size: 0x78
  */
-void PhysicsBall::CloneBall(const PhysicsBall&)
+void PhysicsBall::CloneBall(const PhysicsBall& other)
 {
+    CloneObject(other);
+
+    u32* src = (u32*)&other.m_unk_0x2c;
+    u32* dst = (u32*)&m_unk_0x2c;
+    dst[0] = src[0];
+    dst[1] = src[1];
+    dst[2] = src[2];
+
+    m_unk_0x38 = other.m_unk_0x38;
+    m_unk_0x39 = other.m_unk_0x39;
+    m_unk_0x3a = other.m_unk_0x3a;
+    m_unk_0x3b = other.m_unk_0x3b;
+    m_angularVelocity = other.m_angularVelocity;
 }
 
 /**
@@ -287,9 +314,35 @@ int PhysicsBall::PreCollide()
 /**
  * Offset/Address/Size: 0xB7C | 0x80135890 | size: 0x114
  */
-int PhysicsBall::SetContactInfo(dContact*, PhysicsObject*, bool)
+int PhysicsBall::SetContactInfo(dContact* contact, PhysicsObject* other, bool param)
 {
-    return 0;
+    if (m_parentObject != NULL) {
+        return m_parentObject->SetContactInfo(contact, other, param);
+    }
+    
+    if (param != 0) {
+        SetDefaultContactInfo(contact);
+    }
+
+    if (other->GetObjectType() != 8) 
+    {
+        if (other->GetObjectType() == 0x11) {
+            contact->surface.bounce = (f32) g_BallBounceGround;
+        } else if (other->GetObjectType() == 0x19) {
+            contact->surface.bounce = (f32) g_BallBounceWall;
+        } else {
+            contact->surface.bounce = (f32) g_BallBounce;
+        }
+
+        contact->surface.bounce_vel = 0.f;
+        if (other->GetObjectType() == 0x19) {
+            contact->surface.mu = (f32) g_BallFrictionWall;
+        } else {
+            contact->surface.mu = (f32) g_BallFriction;
+        }
+    }
+
+    return 1;
 }
 
 /**

@@ -14,8 +14,7 @@ public:
     virtual ~PhysicsColumn();
     virtual int GetObjectType() const;
 
-    u8 m_padding[18];
-    /* 0x0c */ dJointID m_jointID;
+    /* 0x2c */ dJointID m_jointID;
 
 };
 

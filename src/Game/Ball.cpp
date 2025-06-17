@@ -277,7 +277,9 @@ cPlayer* cBall::GetOwnerFielder() const
  */
 nlVector3 cBall::GetDrawablePosition() const
 {
-    return nlVector3(0, 0, 0);
+    nlVector3 res;
+    NL_VECTOR3_SET(res, 0.f, 0.f, 0.f);
+    return res;
 }
 
 /**
@@ -285,7 +287,9 @@ nlVector3 cBall::GetDrawablePosition() const
  */
 nlVector3 cBall::GetAIVelocity() const
 {
-    return nlVector3(0, 0, 0);
+    nlVector3 res;
+    NL_VECTOR3_SET(res, 0.f, 0.f, 0.f);
+    return res;
 }
 
 /**
@@ -368,8 +372,10 @@ cBall::cBall()
 
     m_timer_0x14->SetSeconds(0.f);
 
-    m_rayPosition = nlVector3(0.f, 0.f, 0.f);
-    nlVector3 m_rayDir = nlVector3(1.f, 0.f, 0.f);
+    NL_VECTOR3_SET(m_rayPosition, 0.f, 0.f, 0.f);
+    nlVector3 m_rayDir;
+    NL_VECTOR3_SET(m_rayPosition, 0.f, 0.f, 0.f);
+
     void* this_01 = nlMalloc(0x2C, 8, FALSE);
     if (this_01 != NULL)
     {
@@ -435,9 +441,9 @@ cBall::cBall()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8000DEE8 | size: 0x4
 //  */
-// void PhysicsObject::PreCollide()
-// {
-// }
+int PhysicsObject::PreCollide()
+{
+}
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8000DEEC | size: 0x8

@@ -36,7 +36,7 @@ PhysicsColumn::PhysicsColumn(CollisionSpace* collisionSpace, PhysicsWorld* world
     if (m_bodyID != NULL)
     {
         dGeomSetBody(m_geomID, m_bodyID);
-        dMassSetCappedCylinderTotal(&m, 1.f, 1.f, radius, 1.f);
+        dMassSetCappedCylinderTotal(&m, 1.f, 3, radius, 1.f);
         dBodySetMass(m_bodyID, &m);
     }
 
@@ -46,7 +46,9 @@ PhysicsColumn::PhysicsColumn(CollisionSpace* collisionSpace, PhysicsWorld* world
     m_jointID = dJointCreateCharacter(world->m_worldID, NULL);
     dJointAttach(m_jointID, m_bodyID, NULL);
 
-    nlVector3 v(0.f, 0.f, 1.f);
+    nlVector3 v;
+    NL_VECTOR3_SET(v, 0.f, 0.f, 1.f);
+
     dJointSetCharacterNoMotionDirection(m_jointID, (float*)&v);
 
     dBodySetAutoDisableFlag(m_bodyID, 0);

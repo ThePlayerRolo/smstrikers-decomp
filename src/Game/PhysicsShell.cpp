@@ -8,6 +8,7 @@ extern PhysicsWorld* g_PhysicsWorld;
  */
 BOOL PhysicsShell::SetContactInfo(dContact*, PhysicsObject*, bool)
 {
+    return FALSE;
 }
 
 /**
@@ -22,6 +23,7 @@ void PhysicsShell::PostUpdate()
  */
 int PhysicsShell::Contact(PhysicsObject*, dContact*, int)
 {
+    return 0;
 }
 
 /**

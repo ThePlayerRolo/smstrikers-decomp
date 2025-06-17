@@ -23,14 +23,13 @@ public:
     PhysicsObject(PhysicsWorld*);
 
     void CloneObject(const PhysicsObject&);
-    // virtual void UnknownMethod_8(int) = 0;
-    virtual int GetObjectType() const = 0; // position not so clear, must be on 0xC offset
-    virtual int SetContactInfo(dContact*, PhysicsObject*, bool); //0x18
-    virtual void PreUpdate();//0x20
-    virtual void PostUpdate();//0x24
-    virtual int PreCollide() = 0; //0x1c, needs to be 1c, this is the offset called by CollisionSpace::CallPreCollide
-    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*); //0x10
+    virtual int GetObjectType() const = 0; // 0x0C
+    virtual int SetContactInfo(dContact*, PhysicsObject*, bool); //0x10
+    virtual void PreUpdate();//0x14
+    virtual void PostUpdate();//0x18
+    virtual int PreCollide(); //0x1c
     virtual int Contact(PhysicsObject*, dContact*, int); //0x14
+    virtual int Contact(PhysicsObject*, dContact*, int, PhysicsObject*); //0x10
     void MakeStatic(); 
     void SetMass(float); 
     void Reconnect(dSpaceID); 

@@ -18,25 +18,19 @@ struct nlVector2
     }
 };
 
+#define NL_VECTOR3_SET(v, xval, yval, zval) do { \
+    (v).x = (xval);                              \
+    (v).y = (yval);                              \
+    (v).z = (zval);                              \
+} while (0)
+
 struct nlVector3
 {
     float x;
     float y;
     float z;
 
-    nlVector3()
-        // : x(0.0f)
-        // , y(0.0f)
-        // , z(0.0f)
-    {
-    }
-    nlVector3(float _x, float _y, float _z)
-        : x(_x)
-        , y(_y)
-        , z(_z)
-    {
-    }
-
+    nlVector3(){}
     void Set(float x, float y, float z);
 };
 

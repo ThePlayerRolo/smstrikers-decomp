@@ -7,10 +7,9 @@
  */
 void PhysicsTransform::SetSubObjectTransform(const nlMatrix4& transform, PhysicsObject::CoordinateType coordinateType)
 {
+    nlVector3 v;
     m_unk_2c->SetRotation(transform);
-
-    nlVector3 v = nlVector3(transform.m[3][0], transform.m[3][1], transform.m[3][2]);
-
+    NL_VECTOR3_SET(v, transform.m[3][0], transform.m[3][1], transform.m[3][2]);
     m_unk_2c->SetPosition(v, coordinateType);
 }
 

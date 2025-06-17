@@ -45,7 +45,6 @@ void CollisionSpace::PreCollide()
  */
 void CollisionSpace::CallPreCollide(PhysicsObject* object)
 {
-    //       (**(code **)(*(int *)param_1->padding + 0x1c))(param_1);
     object->PreCollide();
 }
 
