@@ -1,13 +1,17 @@
 #include "Ball.h"
 #include "NL/nlMath.h"
 #include "PhysicsAIBall.h"
+#include "PhysicsObject.h"
 #include "RayCollider.h"
 #include "NL/nlMemory.h"
+#include "DrawableObj.h"
+#include "PhysicsFakeBall.h"
 
-#include "World.h"
 #include "AudioLoader.h"
 
 cBall* g_pBall = NULL;
+
+nlMatrix4 m3Ident = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
 
 inline void* operator new(unsigned long, void* p)
 {
@@ -122,8 +126,14 @@ void cBall::SetPassTarget(cPlayer* passTargetPlayer, const nlVector3& pos, bool)
 /**
  * Offset/Address/Size: 0x39C | 0x80009D70 | size: 0x90
  */
-void cBall::WarpTo(const nlVector3&)
+void cBall::WarpTo(const nlVector3& toPos)
 {
+    NL_VECTOR3_COPY_U32(m_rayPosition, toPos);
+    m_aiBall->SetPosition(m_rayPosition, PhysicsObject::CoordinateType_0);
+    m_aiBall->SetRotation(m3Ident);
+    FakeBallWorld::InvalidateBallCache();
+    m_unk_0x00 = m_unk_0x00 + 1;
+    NL_VECTOR3_COPY_U32(m_unk_0x4C, toPos);
 }
 
 /**
@@ -166,16 +176,13 @@ void cBall::Shoot(const nlVector3&, const nlVector3&, eSpinType, bool, bool, boo
  */
 void cBall::SetVisible(bool visible)
 {
-    // // int iVar1;
-    // // iVar1 = *(int*)(this + 0x20);
-    // _something* _ix20 = &this->m_ix20[0];
-    // if (visible)
-    // {
-    //     _ix20->m_ix8c = _ix20->m_ix8c | 1;
-    //     return;
-    // }
-    // // *(uint*)(iVar1 + 0x8c) = *(uint*)(iVar1 + 0x8c) & 0xfffffffe;
-    // _ix20->m_ix8c = _ix20->m_ix8c & 0xfffffffe;
+    DrawableObject* temp_r3 = m_drawableObject;
+    if (visible != 0)
+    {
+        temp_r3->m_visibility = (temp_r3->m_visibility | 1);
+        return;
+    }
+    temp_r3->m_visibility = (temp_r3->m_visibility & 0xFFFFFFFE);
 }
 
 /**
@@ -195,8 +202,13 @@ void cBall::SetPerfectPass(bool, bool)
 /**
  * Offset/Address/Size: 0x13C8 | 0x8000AD9C | size: 0x6C
  */
-void cBall::SetPosition(const nlVector3&)
+void cBall::SetPosition(const nlVector3& pos)
 {
+    NL_VECTOR3_COPY_U32(m_rayPosition, pos);
+    m_aiBall->SetPosition(pos, PhysicsObject::CoordinateType_0);
+    m_aiBall->SetRotation(m3Ident);
+    FakeBallWorld::InvalidateBallCache();
+    m_unk_0x00++;
 }
 
 /**
@@ -216,8 +228,17 @@ void cBall::IsBuzzerBeaterSet() const
 /**
  * Offset/Address/Size: 0x16B4 | 0x8000B088 | size: 0x48
  */
-void cBall::HandleBuzzerBeater(float)
+void cBall::HandleBuzzerBeater(float seconds)
 {
+    if (seconds < 0.0f)
+    {
+        m_timer_0x14 = NULL;
+        return;
+    }
+    if (m_timer_0x14 == NULL)
+    {
+        m_timer_0x14->SetSeconds(seconds);
+    }
 }
 
 /**
@@ -225,6 +246,11 @@ void cBall::HandleBuzzerBeater(float)
  */
 void cBall::ClearBallBlur()
 {
+    if (m_blurHandler != NULL)
+    {
+        m_blurHandler->Die(0.5f);
+        m_blurHandler = NULL;
+    }
 }
 
 /**
@@ -253,7 +279,12 @@ void cBall::GetInNet(int&)
  */
 cPlayer* cBall::GetPassTargetFielder() const
 {
-    return NULL;
+    cPlayer* player = m_passTargetPlayer;
+    if ((player == NULL) || (player->m_playerType != 2))
+    {
+        return NULL;
+    }
+    return player;
 }
 
 /**
@@ -261,7 +292,12 @@ cPlayer* cBall::GetPassTargetFielder() const
  */
 cPlayer* cBall::GetOwnerGoalie()
 {
-    return NULL;
+    cPlayer* player = m_playerOwner;
+    if ((player == NULL) || (player->m_playerType != 3))
+    {
+        return NULL;
+    }
+    return player;
 }
 
 /**
@@ -269,27 +305,34 @@ cPlayer* cBall::GetOwnerGoalie()
  */
 cPlayer* cBall::GetOwnerFielder() const
 {
-    return NULL;
+    cPlayer* player = m_playerOwner;
+    if ((player == NULL) || (player->m_playerType != 2))
+    {
+        return NULL;
+    }
+    return player;
 }
 
 /**
  * Offset/Address/Size: 0x1E10 | 0x8000B7E4 | size: 0x28
  */
-nlVector3 cBall::GetDrawablePosition() const
+nlVector3* cBall::GetDrawablePosition() const
 {
-    nlVector3 res;
-    NL_VECTOR3_SET(res, 0.f, 0.f, 0.f);
-    return res;
+    nlMatrix4* mtx = m_drawableObject->GetWorldMatrix();
+    return (nlVector3*)&(mtx->m[3][0]);
 }
 
 /**
  * Offset/Address/Size: 0x1E38 | 0x8000B80C | size: 0x1C
  */
-nlVector3 cBall::GetAIVelocity() const
+nlVector3* cBall::GetAIVelocity() const
 {
-    nlVector3 res;
-    NL_VECTOR3_SET(res, 0.f, 0.f, 0.f);
-    return res;
+    cPlayer* temp_r4 = m_playerOwner;
+    if (temp_r4 != NULL)
+    {
+        return &(temp_r4->m_velocity);
+    }
+    return (nlVector3*)&(m_unk_0x58);
 }
 
 /**
@@ -332,6 +375,13 @@ void cBall::ClearBallEffects()
  */
 void cBall::ClearOwner()
 {
+    m_playerPrevOwner = m_playerOwner;
+    m_playerOwner = NULL;
+    m_aiBall->EnableCollisions();
+    NL_VECTOR3_COPY_U32(m_unk_0x4C, m_rayPosition);
+    m_aiBall->GetPosition(&m_rayPosition);
+    m_aiBall->GetLinearVelocity(&m_unk_0x58);
+    m_unk_0x00++;
 }
 
 /**
@@ -427,16 +477,17 @@ cBall::cBall()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8000DE80 | size: 0x8
 //  */
-// void PhysicsSphere::GetObjectType() const
-// {
-// }
+int PhysicsSphere::GetObjectType() const
+{
+    return 0x0A;
+}
 
 // /**
 //  * Offset/Address/Size: 0x8 | 0x8000DE88 | size: 0x60
 //  */
-// PhysicsSphere::~PhysicsSphere()
-// {
-// }
+PhysicsSphere::~PhysicsSphere()
+{
+}
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8000DEE8 | size: 0x4

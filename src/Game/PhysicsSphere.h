@@ -13,6 +13,7 @@ public:
     float GetRadius();
     virtual int GetObjectType() const;
     PhysicsSphere(CollisionSpace*, PhysicsWorld*, float);
+    virtual ~PhysicsSphere();
 };
 
 #endif // _PHYSICSSPHERE_H_

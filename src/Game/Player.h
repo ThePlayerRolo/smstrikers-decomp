@@ -70,6 +70,11 @@ public:
     ~cPlayer();
     cPlayer(int, eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, PlayerTweaks*, AnimRetargetList*, eClassTypes);
     void InitActionPostWhistle();
+
+    /* 0x00 */ u8 m_padding_0x00[0x30];
+    /* 0x30 */ nlVector3 m_velocity;
+    /* 0x34 */ u8 m_padding_0x34[0x80];
+    /* 0xB4 */ s32 m_playerType; // m_unk_0xB4
 };
 
 

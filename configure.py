@@ -676,6 +676,9 @@ config.libs = [
             Object(NonMatching, "Game/feManager.cpp"),
 
             # GFX
+            Object(NonMatching, "Game/DrawableObj.cpp"),
+
+            # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
         ],
     ),

@@ -11,18 +11,16 @@ public:
     void DidBallJustEnterNet(const nlVector3&, nlVector3);
     void CheckIfBallWentThroughGoalPost();
     void CheckIfBallWentThroughGoalie();
-    
-    virtual void PostUpdate();
-    virtual void PreUpdate();
-    
-    virtual int Contact(PhysicsObject*, dContact*, int);
+
+    virtual int GetObjectType() const; // 0x0C
+    virtual void PreUpdate();//0x14
+    virtual void PostUpdate();//0x18
+    virtual int PreCollide(); //0x1c
+    virtual int Contact(PhysicsObject*, dContact*, int); //0x20
     
     virtual ~PhysicsAIBall();
     PhysicsAIBall(float);
-  
-    virtual int GetObjectType() const override;
 
-    // /* 0x4C */ float m_unk_0x4c;
     /* 0x4C */ u8 m_padding[4];
     /* 0x58 */ u8 m_unk_0x58;
 };

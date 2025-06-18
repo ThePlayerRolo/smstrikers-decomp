@@ -1555,7 +1555,7 @@ DrawableExplosionFragment.o:
 	.bss        start:0x80321F48 end:0x80321F88
 	.sdata2     start:0x80375FD0 end:0x80375FE0
 
-DrawableObj.o:
+Game/DrawableObj.cpp:
 	.text       start:0x8011FC70 end:0x8011FE00
 	.text       start:0x8011FE00 end:0x8011FE0C
 	.data       start:0x802AEBC0 end:0x802AEBE8

@@ -292,7 +292,7 @@ int PhysicsBall::Contact(PhysicsObject* other, dContact* contact, int param)
         if (param > 0)
         {
         loop_2:
-        //     M2C_ERROR(/* unknown instruction: cror eq, lt, eq */);
+            //     M2C_ERROR(/* unknown instruction: cror eq, lt, eq */);
             if ((((dContact*)var_r3)->geom.pos[2] == pos.z) && (((dContact*)var_r3)->geom.normal[2] > 0.9f))
             {
                 m_unk_0x39 = 1;
@@ -323,8 +323,8 @@ int PhysicsBall::Contact(PhysicsObject* other, dContact* contact, int param)
                 dst[1] = src[1];
                 dst[2] = src[2];
 
-                temp_f2 = contact->geom.normal[2]; //unk44
-                temp_f1 = contact->geom.depth; // unk4C
+                temp_f2 = contact->geom.normal[2]; // unk44
+                temp_f1 = contact->geom.depth;     // unk4C
                 temp_f29 = temp_f2 * temp_f1;
                 _pos.z += temp_f29;
                 SetPosition(_pos, CoordinateType_0); // , temp_r6, temp_f1, temp_f2
@@ -337,9 +337,9 @@ int PhysicsBall::Contact(PhysicsObject* other, dContact* contact, int param)
                 temp_f30 = contact->geom.normal[1]; // arg2->unk40;
                 temp_f31 = contact->geom.normal[0]; // arg2->unk3C;
                 temp_f1_2 = nlRecipSqrt(0.f + (temp_f31 * temp_f31) + (temp_f30 * temp_f30), true);
-                contact->geom.normal[0] = (f32)(temp_f1_2 * temp_f31);  //  unk3C 
-                contact->geom.normal[1] = (f32)(temp_f1_2 * temp_f30);  //  unk40
-                contact->geom.normal[2] = (f32)(temp_f1_2 * 0.f);       //  unk44
+                contact->geom.normal[0] = (f32)(temp_f1_2 * temp_f31);       //  unk3C
+                contact->geom.normal[1] = (f32)(temp_f1_2 * temp_f30);       //  unk40
+                contact->geom.normal[2] = (f32)(temp_f1_2 * 0.f);            //  unk44
                 contact->geom.depth = (f32)(contact->geom.depth - temp_f29); //  unk4C
             }
         }

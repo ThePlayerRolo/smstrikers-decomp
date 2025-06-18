@@ -118,7 +118,10 @@ int PhysicsPlane::GetObjectType() const
 /**
  * Offset/Address/Size: 0x0 | 0x80139690 | size: 0x3C
  */
-// void nlWalkDLRing<DLListEntry<BallCacheInfo*>, DLListContainerBase<BallCacheInfo*, BasicSlotPool<DLListEntry<BallCacheInfo*>>>>(DLListEntry<BallCacheInfo*>*, DLListContainerBase<BallCacheInfo*, BasicSlotPool<DLListEntry<BallCacheInfo*>>>*, void (DLListContainerBase<BallCacheInfo*, BasicSlotPool<DLListEntry<BallCacheInfo*>>>::*)(DLListEntry<BallCacheInfo*>*))
+// void nlWalkDLRing<DLListEntry<BallCacheInfo*>, DLListContainerBase<BallCacheInfo*,
+// BasicSlotPool<DLListEntry<BallCacheInfo*>>>>(DLListEntry<BallCacheInfo*>*, DLListContainerBase<BallCacheInfo*,
+// BasicSlotPool<DLListEntry<BallCacheInfo*>>>*, void (DLListContainerBase<BallCacheInfo*,
+// BasicSlotPool<DLListEntry<BallCacheInfo*>>>::*)(DLListEntry<BallCacheInfo*>*))
 // {
 // }
 
@@ -181,7 +184,10 @@ int PhysicsPlane::GetObjectType() const
 /**
  * Offset/Address/Size: 0x0 | 0x80139828 | size: 0x60
  */
-// void nlWalkRing<DLListEntry<BallCacheInfo*>, DLListContainerBase<BallCacheInfo*, BasicSlotPool<DLListEntry<BallCacheInfo*>>>>(DLListEntry<BallCacheInfo*>*, DLListContainerBase<BallCacheInfo*, BasicSlotPool<DLListEntry<BallCacheInfo*>>>*, void (DLListContainerBase<BallCacheInfo*, BasicSlotPool<DLListEntry<BallCacheInfo*>>>::*)(DLListEntry<BallCacheInfo*>*))
+// void nlWalkRing<DLListEntry<BallCacheInfo*>, DLListContainerBase<BallCacheInfo*,
+// BasicSlotPool<DLListEntry<BallCacheInfo*>>>>(DLListEntry<BallCacheInfo*>*, DLListContainerBase<BallCacheInfo*,
+// BasicSlotPool<DLListEntry<BallCacheInfo*>>>*, void (DLListContainerBase<BallCacheInfo*,
+// BasicSlotPool<DLListEntry<BallCacheInfo*>>>::*)(DLListEntry<BallCacheInfo*>*))
 // {
 // }
 

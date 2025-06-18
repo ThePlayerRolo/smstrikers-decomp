@@ -24,6 +24,23 @@ struct nlVector2
     (v).z = (zval);                              \
 } while (0)
 
+#define NL_VECTOR3_COPY_U32(dst, src) do { \
+    u32* _src_ptr = (u32*)&(src); \
+    u32* _dst_ptr = (u32*)&(dst); \
+    _dst_ptr[0] = _src_ptr[0]; \
+    _dst_ptr[1] = _src_ptr[1]; \
+    _dst_ptr[2] = _src_ptr[2]; \
+} while(0)
+
+#define COPY_VECTOR3_U32_2(dst, src) do { \
+    u32 y = *(const u32*)&src.y; \
+    u32 x = *(const u32*)&src.x; \
+    *(u32*)&dst.x = x; \
+    u32 z = *(const u32*)&src.z; \
+    *(u32*)&dst.y = y; \
+    *(u32*)&dst.z = z; \
+} while(0)
+
 struct nlVector3
 {
     float x;

@@ -1,0 +1,43 @@
+#ifndef _DRAWABLEOBJ_H_
+#define _DRAWABLEOBJ_H_
+
+#include "NL/nlMath.h"
+
+class AABBDimensions {
+public:
+    float unk0;   // 0x00
+    float unk4;   // 0x04
+    float unk8;   // 0x08
+    float unkC;   // 0x0C
+    float unk10;  // 0x10
+    float unk14;  // 0x14
+    float unk18;  // 0x18
+    float unk1C;  // 0x1C
+    float unk20;  // 0x20
+};
+
+class DrawableObject
+{
+public:
+    virtual void Clone();
+    virtual void __Something() = 0;
+    virtual void DrawPlanarShadow();
+    virtual bool IsDrawableModel();
+    virtual void AsDrawableModel();
+    virtual void GetAABBDimensions(AABBDimensions&, bool) const;
+    
+    nlMatrix4* GetWorldMatrix() const;
+
+    virtual ~DrawableObject();
+    DrawableObject();
+
+    /* 0x04 */ u8 m_padding_0x04[0x68];
+    // /* 0x30 */ nlVector3 m_position;
+    // /* 0x3C */ u8 m_paddind_0x3C[0x50];
+    /* 0x6C */ void *m_unk_0x6C;
+    /* 0x70 */ u8 m_padding_0x70[0x1C];
+    /* 0x8C */ u32 m_visibility; // or flag if a bit field...
+    // /* 0x90 */ u32 m_unk_0x90;
+};
+
+#endif // _DRAWABLEOBJ_H_
