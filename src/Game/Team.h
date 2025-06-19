@@ -4,13 +4,13 @@
 #include <types.h>
 
 #include "NL/nlMath.h"
+#include "NL/globalpad.h"
 
 #include "GameTweaks.h"
 #include "Fielder.h"
 #include "Powerups.h"
 #include "Goalie.h"
 #include "Player.h"
-#include "globalpad.h"
 #include "Net.h"
 
 class cTeam

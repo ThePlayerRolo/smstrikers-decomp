@@ -41,7 +41,7 @@ public:
     /* 0x64 */ float m_scaling_0x64;
     /* 0x68 */ float m_unk_0x68;
 
-    /* 0x6C */ void *m_unk_0x6C;
+    /* 0x6C */ void *m_objref_0x6C;
 
     /* 0x70 */ void *m_unk_0x70;
     /* 0x74 */ void *m_unk_0x74;
@@ -50,7 +50,6 @@ public:
     /* 0x80 */ void *m_unk_0x80;
     /* 0x84 */ void *m_unk_0x84;
     /* 0x88 */ void *m_unk_0x88;
-    // /* 0x70 */ u8 m_padding_0x70[0x1C];
     /* 0x8C */ u32 m_visibility; // or flag if a bit field...
     /* 0x90 */ u32 m_unk_0x90;
     /* 0x94 */ u32 m_unk_0x94;

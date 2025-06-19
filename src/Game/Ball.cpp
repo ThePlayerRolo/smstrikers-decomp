@@ -1,9 +1,11 @@
 #include "Ball.h"
+
 #include "NL/nlMath.h"
+#include "NL/nlMemory.h"
+
 #include "PhysicsAIBall.h"
 #include "PhysicsObject.h"
 #include "RayCollider.h"
-#include "NL/nlMemory.h"
 #include "DrawableObj.h"
 #include "PhysicsFakeBall.h"
 

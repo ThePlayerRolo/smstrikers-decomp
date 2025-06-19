@@ -1,8 +1,13 @@
 #ifndef _PLATVMATH_H_
 #define _PLATVMATH_H_
 
-#include "NL/nlMath.h"
 #include "Dolphin/mtx.h"
+
+struct nlVector2;
+struct nlVector3;
+struct nlVector4;
+struct nlMatrix3;
+struct nlMatrix4;
 
 /*
 
@@ -13,13 +18,12 @@ m[3][0] m[3][1] m[3][2] m[3][3]  // Row 3: offset 0x30, 0x34, 0x38, 0x3C
 
 */
 
-class nlMatrix4
+struct nlMatrix4
 {
-public:
+    Mtx44 m;
+
     void SetIdentity();
     void SetColumn(int col, const nlVector3& v);
-
-    Mtx44 m;
 };
 
 void nlMakeScaleMatrix(nlMatrix4& result, float scaleX, float scaleY, float scaleZ);

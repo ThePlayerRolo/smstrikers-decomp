@@ -13,6 +13,7 @@ PhysicsPlane::~PhysicsPlane()
  */
 int FakePhysicsBall::Contact(PhysicsObject*, dContact*, int)
 {
+    return 0;
 }
 
 /**

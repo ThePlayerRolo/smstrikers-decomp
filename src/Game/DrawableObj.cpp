@@ -47,9 +47,9 @@ nlMatrix4* DrawableObject::GetWorldMatrix() const
  */
 DrawableObject::~DrawableObject()
 {
-    if (m_unk_0x6C != 0)
+    if (m_objref_0x6C != 0)
     {
-        delete m_unk_0x6C;
+        delete m_objref_0x6C;
     }
 }
 
@@ -61,7 +61,7 @@ DrawableObject::DrawableObject()
     m_unk_0x44 = 1;
     m_scaling_0x64 = 1.f;
 
-    m_unk_0x6C = NULL;
+    m_objref_0x6C = NULL;
 
     m_unk_0x78 = 0;
     m_unk_0x88 = 0;

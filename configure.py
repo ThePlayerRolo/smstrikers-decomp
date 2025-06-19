@@ -697,7 +697,6 @@ config.libs = [
             Object(NonMatching, "NL/nlLocalization.cpp"),
             Object(NonMatching, "NL/nlMain.cpp"),
             Object(NonMatching, "NL/nlMath.cpp"),
-            Object(NonMatching, "NL/platvmath.cpp"),
             Object(NonMatching, "NL/nlMemory.cpp"),
             Object(NonMatching, "NL/nlPrint.cpp"),
             Object(NonMatching, "NL/nlSlotPool.cpp"),
@@ -707,6 +706,14 @@ config.libs = [
             Object(NonMatching, "NL/nlTextEscape.cpp"),
             Object(NonMatching, "NL/nlTicker.cpp"),
             Object(NonMatching, "NL/nlTimer.cpp"),     
+
+            # Ext/Peripherals
+            Object(NonMatching, "NL/globalpad.cpp"),
+            Object(NonMatching, "NL/platpad.cpp"),
+
+            # Ext/Math
+            Object(NonMatching, "NL/platvmath.cpp"),
+            Object(NonMatching, "NL/platqmath.cpp"),
 
             # Ext/Game-Specific?
             Object(NonMatching, "NL/StatsGatherer.cpp"),     

@@ -2,6 +2,7 @@
 #define _MATH_H_
 
 #include "NL/platvmath.h"
+#include "NL/platqmath.h"
 
 void nlInvertRotTransMatrix(nlMatrix4&, const nlMatrix4&);
 void nlQuatNLerp(nlQuaternion&, const nlQuaternion&, const nlQuaternion&, float);

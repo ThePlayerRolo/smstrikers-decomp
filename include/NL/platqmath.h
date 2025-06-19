@@ -1,12 +1,10 @@
 #ifndef _PLATQMATH_H_
 #define _PLATQMATH_H_
 
-#include "NL/nlMath.h"
-#include "Dolphin/mtx.h"
+struct nlMatrix4;
 
-class nlQuaternion
+struct nlQuaternion
 {
-public:
     float x;
     float y;
     float z;

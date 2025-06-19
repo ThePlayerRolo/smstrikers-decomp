@@ -3852,7 +3852,7 @@ glxTarget.o:
 	.sbss       start:0x80374170 end:0x80374188
 	.sdata2     start:0x80376F40 end:0x80376F50
 
-platpad.o:
+NL/platpad.cpp:
 	.text       start:0x801C2FB0 end:0x801C3B7C
 	.data       start:0x802FC7B8 end:0x802FC810
 	.bss        start:0x8032C348 end:0x8032CAE0
@@ -3864,7 +3864,7 @@ NL/platvmath.cpp:
 	.text       start:0x801C3B7C end:0x801C439C
 	.sdata2     start:0x80376F80 end:0x80376F90
 
-platqmath.o:
+NL/platqmath.cpp:
 	.text       start:0x801C439C end:0x801C47FC
 	.rodata     start:0x802A0518 end:0x802A0528
 	.sdata2     start:0x80376F90 end:0x80376FA8
@@ -4264,7 +4264,7 @@ pnFeather.o:
 AnimRetargeter.o:
 	.text       start:0x801EFF90 end:0x801F00E4
 
-globalpad.o:
+NL/globalpad.cpp:
 	.text       start:0x801F00E4 end:0x801F02FC
 	.text       start:0x801F02FC end:0x801F02FC
 	.data       start:0x80302500 end:0x80302548
