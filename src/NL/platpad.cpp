@@ -1,21 +1,29 @@
 #include "NL/platpad.h"
 #include "Dolphin/pad.h"
 
+#include "PowerPC_EABI_Support/Runtime/__mem.h"
+
 #include "global.h"
 
-PadStatus PadStatus::s_A;
-PadStatus PadStatus::s_B;
-PadStatus* PadStatus::s_Current = &PadStatus::s_A;
-PadStatus* PadStatus::s_Next = &PadStatus::s_B;
+PADStatus PadStatus::s_A;
+PADStatus PadStatus::s_B;
+PADStatus* PadStatus::s_Current = &PadStatus::s_A;
+PADStatus* PadStatus::s_Next = &PadStatus::s_B;
 
-int g_nPadMasks[] = { 0x80000000, 0x40000000, 0x20000000, 0x10000000 };
+int g_nPadMasks[PAD_MAX_CONTROLLERS] = { 0x80000000, 0x40000000, 0x20000000, 0x10000000 };
 
 bool cPlatPad::m_bDisableRumble = false;
 
 namespace
 {
 int padCategories[100];
-PadStatus* padStatus = &PadStatus::s_A;
+// PadStatus* padStatus[PAD_MAX_CONTROLLERS] = &PadStatus::s_A;
+PadStatus *padStatus[PAD_MAX_CONTROLLERS] = {
+    new PadStatus(),  // default constructor
+    new PadStatus(),  // default constructor  
+    new PadStatus(),  // default constructor
+    new PadStatus()   // default constructor
+};// PadStatus* padStatus;
 } // namespace
 
 /**
@@ -199,13 +207,12 @@ u32 cPlatPad::IsPressed(int button, bool remap)
  */
 bool cPlatPad::IsConnected()
 {
-    u8 temp_r4;
-    temp_r4 = *((u8*)PadStatus::s_Current + (m_channel * 0xC) + 0x0A);
-    if (((s8)temp_r4 == 0) || ((s8)temp_r4 == -3))
+    u8 temp_r4 = *((u8*)PadStatus::s_Current + (m_channel * 0xC) + 0x0A);
+    if (((s8)temp_r4 != 0) && ((s8)temp_r4 != -3))
     {
-        return 1;
+        return 0;
     }
-    return 0;
+    return 1;
 }
 
 /**
@@ -213,13 +220,74 @@ bool cPlatPad::IsConnected()
  */
 void PadStatus::Update(float)
 {
+    s32* var_r28;
+    s32 var_r26;
+    s32 var_r31;
+    u32 var_r27;
+    u8 temp_r4;
+    void* temp_r3;
+    void* var_r29;
+    void* var_r30;
+
+    var_r27 = 0;
+    // var_r28 = &g_nPadMasks;
+    var_r26 = 0;
+    // var_r30 = arg0;
+    // var_r29 = arg0;
+    var_r31 = 0;
+    do
+    {
+        temp_r3 = PadStatus::s_Current + var_r31;
+        // temp_r4 = temp_r3->unkA;
+        if ((s8)temp_r4 == 0)
+        {
+            // var_r30->unk0 = (f32) ((f32) (s8) temp_r3->unk2 / @496);
+            // var_r30->unk4 = (f32) ((f32) (s8) *(s_Current__9PadStatus + (var_r31 + 3)) / @496);
+            // var_r30->unk8 = (f32) ((f32) (s8) *(s_Current__9PadStatus + (var_r31 + 4)) / @589);
+            // var_r30->unkC = (f32) ((f32) (s8) *(s_Current__9PadStatus + (var_r31 + 5)) / @589);
+            // var_r30->unk10 = (f32) ((f32) *(s_Current__9PadStatus + (var_r31 + 6)) / @590);
+            // var_r30->unk14 = (f32) ((f32) *(s_Current__9PadStatus + (var_r31 + 7)) / @590);
+            // var_r29->unk380 = (s16) (*(s_Current__9PadStatus + var_r31) & ~var_r29->unk390);
+            // var_r29->unk388 = (s16) (var_r29->unk390 & ~*(s_Current__9PadStatus + var_r31));
+            // var_r29->unk390 = (u16) *(s_Current__9PadStatus + var_r31);
+            // *(arg0 + (var_r26 + 0x398)) = *(s_Current__9PadStatus + (var_r31 + 0xA));
+        }
+        else if ((s8)temp_r4 == -1)
+        {
+            // if ((s8) *(arg0 + (var_r26 + 0x398)) == 0) {
+            //     memset(var_r30, 0, 0xE0);
+            // }
+            // var_r29->unk380 = 0;
+            // var_r27 |= *var_r28;
+            // var_r29->unk388 = 0;
+            // var_r29->unk390 = 0U;
+        }
+        // if ((u8) var_r30->unkDC != 0) {
+        // var_r30->unkD8 = (f32) (var_r30->unkD8 - arg8);
+        // if (var_r30->unkD8 < @498) {
+        //     var_r30->unkDC = 0U;
+        //     PADControlMotor(var_r26, 0);
+        // }
+        // }
+        // var_r26 += 1;
+        // var_r30 += 0xE0;
+        // var_r29 += 2;
+        // var_r28 += 4;
+        // var_r31 += 0xC;
+    } while (var_r26 < 4);
+
+    if (var_r27 != 0)
+    {
+        PADReset(var_r27);
+    }
 }
 
 /**
  * Offset/Address/Size: 0xAC8 | 0x801C3A78 | size: 0x24
  */
-void UpdatePlatPad(float)
+void UpdatePlatPad(float arg0)
 {
+    ((PadStatus*)padStatus)->Update(arg0);
 }
 
 /**
@@ -227,6 +295,38 @@ void UpdatePlatPad(float)
  */
 void InitPlatPad()
 {
+    // int iVar1;
+    // int iVar2;
+    // undefined* __s;
+    // undefined* puVar3;
+    // undefined* puVar4;
+    // int iVar5;
+
+    PADRead(PadStatus::s_Current);
+    memcpy(::PadStatus::s_Next, ::PadStatus::s_Next, 4);
+    // iVar1 = 0;
+    // iVar2 = 0;
+    // do
+    // {
+    //     iVar5 = 0;
+    //     puVar4 = ::@unnamed @platpad_cpp @ ::padStatus + iVar2;
+    //     __s = puVar4;
+    //     puVar3 = puVar4;
+    //     do
+    //     {
+    //         *(undefined2*)(puVar3 + 0x380) = 0;
+    //         *(undefined2*)(puVar3 + 0x388) = 0;
+    //         *(undefined2*)(puVar3 + 0x390) = 0;
+    //         puVar4[iVar5 + 0x398] = 0;
+    //         runtime.ppceabi.h::memset(__s, 0, 0xe0);
+    //         iVar5 = iVar5 + 1;
+    //         __s = __s + 0xe0;
+    //         puVar3 = puVar3 + 2;
+    //     } while (iVar5 < 4);
+    //     iVar1 = iVar1 + 1;
+    //     iVar2 = iVar2 + 0x39c;
+    // } while (iVar1 < 2);
+    return;
 }
 
 /**

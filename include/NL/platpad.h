@@ -45,12 +45,12 @@ public:
 class PadStatus
 {
 public:
-    static PadStatus s_A;
-    static PadStatus s_B;
-    static PadStatus s_C;
-    static PadStatus s_D;
-    static PadStatus *s_Current;
-    static PadStatus *s_Next;
+    static PADStatus s_A;
+    static PADStatus s_B;
+    static PADStatus s_C;
+    static PADStatus s_D;
+    static PADStatus *s_Current;
+    static PADStatus *s_Next;
 
     void Update(float);
 

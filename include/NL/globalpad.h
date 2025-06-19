@@ -2,6 +2,7 @@
 #define _GLOBALPAD_H_
 
 #include "types.h"
+#include "Dolphin/pad.h"
 
 class cPadManager
 {
