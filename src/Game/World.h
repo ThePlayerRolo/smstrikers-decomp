@@ -21,31 +21,38 @@ class Event;
 class World
 {
 public:
+    static u32 m_uCurrentFrameCount;
+
+    virtual ~World();
+    World(const char*);
+
+    virtual void GetTerrainType(const nlVector3&) const = 0;
+    virtual void HandleObjectCreation(WorldObjectData*);
+    virtual void Render(); // 0x14
+    virtual void Update(float); // 0x18
+    virtual void UpdateInReplay(float); // 0x1C
+    virtual void FixedUpdate(float); // 0x20
+    virtual void HandleEvent(Event*, void*);
+    virtual void CreateHelperObjFromChunk(nlChunk*);
+    virtual void DoLoad() = 0;
+    virtual void DoInitialize() = 0;
+
     void CompareNameToGenericName(const char*, const char*);
     void GetHashIdForGenericName(const char*) const;
     void GetShadowLight(const nlVector3&, float);
     void AddDrawableObject(unsigned long, DrawableObject*);
     void FindHelperObject(unsigned long);
     void FindDrawableObject(unsigned long);
-    void Render();
     void HandleCameraSwitch();
     void IsSphereInFrustum(const nlMatrix4&, float);
     void ExtractFrustumPlanes();
-    void UpdateInReplay(float);
-    void Update(float);
-    void CreateHelperObjFromChunk(nlChunk*);
     void GetCustomSpecularData(glModelPacket*, bool);
     void CreateLightUserData();
     void LoadObjectData(const char*);
     void AddToHyperSTSDrawables(unsigned long, DrawableModel*);
-    void HandleObjectCreation(WorldObjectData*);
     void LoadGeometry(glModel*, unsigned long, bool, bool, unsigned long*, int*, bool);
     void LoadGeometry(const char*, bool, bool, unsigned long*, int*);
     void Load(bool);
-    ~World();
-    World(const char*);
-    void FixedUpdate(float);
-    void HandleEvent(Event*, void*);
 };
 
 

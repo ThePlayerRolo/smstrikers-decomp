@@ -1,5 +1,7 @@
 #include "world.h"
 
+u32 World::m_uCurrentFrameCount = 0;
+
 /**
  * Offset/Address/Size: 0x0 | 0x80194CC4 | size: 0x5C
  */

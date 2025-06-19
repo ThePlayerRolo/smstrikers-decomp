@@ -1,14 +1,17 @@
 #ifndef _WORLDMANAGER_H_
 #define _WORLDMANAGER_H_
 
+#include "World.h"
 
 class WorldManager
 {
 public:
-    void DestroyWorld();
-    void LoadWorld(const char*, bool);
+    static World *s_World;
+
+    static void DestroyWorld();
+    static void LoadWorld(const char*, bool);
     static void UpdateWorld(float dt = 0.f);
-    void RenderWorld();
+    static void RenderWorld();
 };
 
 #endif // _WORLDMANAGER_H_

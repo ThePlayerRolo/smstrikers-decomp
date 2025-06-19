@@ -668,7 +668,7 @@ config.libs = [
 
             # World
             Object(NonMatching, "Game/World.cpp"),
-            Object(NonMatching, "Game/WorldManager.cpp"),
+            Object(Matching, "Game/WorldManager.cpp"),
             Object(Matching, "Game/WorldUpdateTask.cpp"),
             Object(NonMatching, "Game/FixedUpdateTask.cpp"),
 

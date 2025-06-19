@@ -14,11 +14,6 @@ cBall* g_pBall = NULL;
 
 nlMatrix4 m3Ident = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
 
-inline void* operator new(unsigned long, void* p)
-{
-    return p;
-}
-
 /**
  * Offset/Address/Size: 0x0 | 0x800099D4 | size: 0x10C
  */
