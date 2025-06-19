@@ -725,6 +725,9 @@ config.libs = [
 
             # Ext/Game-Specific?
             Object(NonMatching, "NL/StatsGatherer.cpp"),     
+
+            # Ext/GL
+            Object(NonMatching, "NL/glx/glxSwap.cpp", extra_cflags=["-inline off"]),
         ],
     ),
     ODELib(

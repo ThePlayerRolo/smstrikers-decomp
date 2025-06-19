@@ -3808,7 +3808,7 @@ glxSend.o:
 	.sdata2     start:0x80376E98 end:0x80376F08
 	.sbss2      start:0x80377FA0 end:0x80377FB0
 
-glxSwap.o:
+NL/glx/glxSwap.cpp:
 	.text       start:0x801BED50 end:0x801BFAF4
 	.text       start:0x801BFAF4 end:0x801BFC20
 	.text       start:0x801BFC20 end:0x801BFC20

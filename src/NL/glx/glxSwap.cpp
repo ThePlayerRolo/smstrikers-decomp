@@ -1,4 +1,20 @@
-#include "glxSwap.h"
+#include "NL/glx/glxSwap.h"
+#include "NL/nlDebug.h"
+
+#include "Dolphin/GX.h"
+#include "Dolphin/VI.h"
+
+u32 count0 = 0;
+
+int glx_nBuffer = 0;
+
+int _shotno = 0;
+
+int glx_SwapMode = 0;
+
+u8 glx_ResetCaptureFrame = 0;
+
+bool glx_bLoadingIndicator = false;
 
 /**
  * Offset/Address/Size: 0x0 | 0x801BED50 | size: 0x118
@@ -17,8 +33,30 @@ void BlitImage(int, int, float, float, bool)
 /**
  * Offset/Address/Size: 0x3E8 | 0x801BF138 | size: 0xC0
  */
-void hitz_Post(bool)
+void hitz_Post(bool arg0)
 {
+    s32 sp8;
+
+    if ((u8) glx_ResetCaptureFrame != 0) 
+    {
+        _shotno = 0;
+    }
+    // if ((u8) glx_ScreenShot != 0) {
+    //     glx_ScreenCapture__Fb(0);
+    //     glx_ScreenShot = 0;
+    // }
+    // if ((u8) glx_MovieOutput != 0) {
+    //     glx_ScreenCapture__Fb(1);
+    // }
+    // sp8 = @626;
+    // GXSetCopyClear(&sp8, 0xFFFFFF);
+    // gxSetZMode__Fb10_GXCompareb(1, 3, 1);
+    // gxSetColourUpdate__Fb(1);
+    // gxSetAlphaUpdate__Fb(1);
+    // GXCopyDisp(*(&glx_FrameBuffer + (glx_nBuffer * 4)), 1);
+    GXSetDrawDone();
+    GXFlush();
+    count0 = VIGetRetraceCount();
 }
 
 /**
@@ -45,8 +83,26 @@ void hitz_AdvanceFrame()
 /**
  * Offset/Address/Size: 0x5E0 | 0x801BF330 | size: 0xA0
  */
-void simple_Post(bool)
+void simple_Post(bool arg0)
 {
+    s32 temp_r0;
+
+    // gxSetZMode__Fb10_GXCompareb(1, 3, 1);
+    // gxSetColourUpdate__Fb(1);
+    // gxSetAlphaUpdate__Fb(1);
+    // GXCopyDisp(*(&glx_FrameBuffer + (glx_nBuffer * 4)), 1);
+    GXDrawDone();
+    // VISetNextFrameBuffer(*(&glx_FrameBuffer + (glx_nBuffer * 4)));
+    // if ((s32) nFirstFrame > 0) {
+    //     temp_r0 = nFirstFrame - 1;
+    //     nFirstFrame = temp_r0;
+    //     if (temp_r0 == 0) {
+    //         VISetBlack(0);
+    //     }
+    // }
+    VIFlush();
+    VIWaitForRetrace();
+    glx_nBuffer ^= 1;    
 }
 
 /**
@@ -54,6 +110,7 @@ void simple_Post(bool)
  */
 void simple_Pre(bool)
 {
+    // EMPTY
 }
 
 /**
@@ -61,6 +118,19 @@ void simple_Pre(bool)
  */
 void glxSwapPost(bool)
 {
+    if (glx_bLoadingIndicator == false) {
+        switch ((s32) glx_SwapMode) {               /* irregular */
+        case 0:
+            simple_Post(false);
+            return;
+        case 1:
+            hitz_Post(false);
+            return;
+        default:
+            nlBreak();
+            break;
+        }
+    }
 }
 
 /**
