@@ -64,14 +64,6 @@ struct nlMatrix3
     float m[3*3];      // Flat array access
 };
 
-struct nlQuaternion
-{
-    float x;
-    float y;
-    float z;
-    float w;
-};
-
 void nlBezier(float*, int, float);
 void nlATan2f(float, float);
 void nlTan(unsigned short);
@@ -87,6 +79,7 @@ void nlSetRandomSeed(unsigned int, unsigned int*);
 void nlInitRandom();
 
 #include "NL/platvmath.h"
+#include "NL/platqmath.h"
 #include "NL/utility.h"
 
 #endif

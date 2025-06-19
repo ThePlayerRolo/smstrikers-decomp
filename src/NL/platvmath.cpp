@@ -121,7 +121,7 @@ void nlTransposeMatrix(nlMatrix4&, const nlMatrix4&)
 /**
  * Offset/Address/Size: 0x724 | 0x801C42A0 | size: 0xDC
  */
-void nlMultMatrices(nlMatrix4&, const nlMatrix4&, const nlMatrix4&)
+void nlMultMatrices(nlMatrix4& out, const nlMatrix4& a, const nlMatrix4& b)
 {
 }
 

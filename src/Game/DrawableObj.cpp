@@ -1,6 +1,6 @@
 #include "DrawableObj.h"
 
-nlMatrix4 m3Ident = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+// nlMatrix4 m3Ident = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
 
 /**
  * Offset/Address/Size: 0x0 | 0x8011FC70 | size: 0x2C
@@ -23,28 +23,23 @@ void DrawableObject::GetAABBDimensions(AABBDimensions& dim, bool param) const
  */
 nlMatrix4* DrawableObject::GetWorldMatrix() const
 {
-    // f32 sp84;
-    // f32 sp80;
-    // f32 sp7C;
-    // f32 sp78;
-    // ? sp48;
-    // ? sp8;
-    // f32 temp_f1;
+    nlMatrix4 rot_mtx;
+    nlMatrix4 scale_mtx;
+    f32 temp_f1;
 
-    // if ((u8) arg0->unk44 == 0) {
-    //     nlQuatToMatrix__FR9nlMatrix4RC12nlQuaternion(&sp48, arg0 + 0x48);
-    //     sp78 = arg0->unk58;
-    //     sp7C = arg0->unk5C;
-    //     sp80 = arg0->unk60;
-    //     sp84 = @198;
-    //     temp_f1 = arg0->unk64;
-    //     nlMakeScaleMatrix__FR9nlMatrix4fff(&sp8, temp_f1, temp_f1, temp_f1);
-    //     nlMultMatrices__FR9nlMatrix4RC9nlMatrix4RC9nlMatrix4(arg0 + 4, &sp8, &sp48);
-    //     arg0->unk44 = 1U;
-    // }
-    // return arg0 + 4;
+    if (m_unk_0x44 == 0) {
+        nlQuatToMatrix(rot_mtx, m_quat_0x48);
+        rot_mtx.m[3][0] = m_position.x;
+        rot_mtx.m[3][1] = m_position.y;
+        rot_mtx.m[3][2] = m_position.z;  
+        rot_mtx.m[3][3] = 1.f;
+        temp_f1 = m_scaling_0x64;
+        nlMakeScaleMatrix(scale_mtx, temp_f1, temp_f1, temp_f1);
+        nlMultMatrices(*(nlMatrix4*)&m_worldMatrix, scale_mtx, rot_mtx);
+        *(u8*)&m_unk_0x44 = 1U;
+    }
+    return (nlMatrix4*)&m_worldMatrix;
 
-    return &m3Ident;
 }
 
 /**
@@ -63,22 +58,27 @@ DrawableObject::~DrawableObject()
  */
 DrawableObject::DrawableObject()
 {
-    // arg0->unk44 = 1;
-    // arg0->unk64 = (f32) @198;
-    // arg0->unk6C = 0;
-    // arg0->unk78 = 0;
-    // arg0->unk88 = 0;
-    // arg0->unk8C = 0;
-    // arg0->unk94 = 0;
-    // arg0->unk50 = (f32) @191;
-    // arg0->unk4C = (f32) @191;
-    // arg0->unk48 = (f32) @191;
-    // arg0->unk54 = (f32) @198;
-    // arg0->unk58 = (f32) @191;
-    // arg0->unk5C = (f32) @191;
-    // arg0->unk60 = (f32) @191;
-    // arg0->unk68 = (f32) @198;
-    // arg0->unk98 = 0;
+    m_unk_0x44 = 1;
+    m_scaling_0x64 = 1.f;
+
+    m_unk_0x6C = NULL;
+
+    m_unk_0x78 = 0;
+    m_unk_0x88 = 0;
+    m_visibility = 0;
+    m_unk_0x94 = 0;
+
+    m_quat_0x48.z = 0.f;
+    m_quat_0x48.y = 0.f;
+    m_quat_0x48.x = 0.f;
+    m_quat_0x48.w = 1.f;
+
+    m_position.x = 0.f;
+    m_position.y = 0.f;
+    m_position.z = 0.f;
+
+    m_unk_0x68 = 1.f;
+    m_unk_0x98 = 0;
     m_visibility = (m_visibility | 1);
 }
 
