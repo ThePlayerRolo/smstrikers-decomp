@@ -5,10 +5,7 @@
 #include "NL/nlFont.h"
 #include "NL/nlColour.h"
 
-enum eGLView
-{
-    eGLView_0 = 0,
-};
+#include "NL/gl/glView.h"
 
 class nlTextBox
 {

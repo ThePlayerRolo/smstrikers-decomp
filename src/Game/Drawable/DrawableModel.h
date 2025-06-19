@@ -3,11 +3,11 @@
 
 #include "DrawableObj.h"
 
+#include "NL/nlMath.h"
+#include "NL/gl/glView.h"
+
 class glModel;
-class nlMatrix4;
-class eGLView;
 class glModelPacket;
-class nlVector3;
 class BallShadowParams;
 
 void CleanBoundingBoxCache();
