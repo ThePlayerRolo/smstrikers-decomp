@@ -6,7 +6,6 @@
 #include "PhysicsAIBall.h"
 #include "PhysicsObject.h"
 #include "RayCollider.h"
-#include "DrawableObj.h"
 #include "PhysicsFakeBall.h"
 
 #include "AudioLoader.h"

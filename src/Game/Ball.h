@@ -12,7 +12,7 @@
 #include "RayCollider.h"
 
 // GFX
-#include "DrawableObj.h"
+#include "Drawable/DrawableObj.h"
 
 // FX
 #include "ObjectBlur.h"

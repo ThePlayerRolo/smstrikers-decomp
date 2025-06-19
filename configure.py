@@ -676,8 +676,16 @@ config.libs = [
             Object(NonMatching, "Game/feManager.cpp"),
 
             # GFX
-            Object(NonMatching, "Game/DrawableObj.cpp"),
-
+            Object(NonMatching, "Game/Drawable/DrawableObj.cpp"),
+            Object(NonMatching, "Game/Drawable/DrawableNetMesh.cpp"),
+            Object(NonMatching, "Game/Drawable/DrawableCharacter.cpp"),
+            Object(NonMatching, "Game/Drawable/DrawableBall.cpp"),
+            Object(NonMatching, "Game/Drawable/DrawablePowerup.cpp"),
+            Object(NonMatching, "Game/Drawable/DrawableExplosionFragment.cpp"),
+            # Object(NonMatching, "Game/Drawable/DrawableModel.cpp"),
+            Object(NonMatching, "Game/Drawable/DrawableTmModel.cpp"),
+            Object(NonMatching, "Game/Drawable/DrawableSkinModel.cpp"),
+                   
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
         ],

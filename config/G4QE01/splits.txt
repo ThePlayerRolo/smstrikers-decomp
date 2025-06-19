@@ -1477,7 +1477,7 @@ RenderSnapshot.o:
 	.sbss       start:0x80373918 end:0x80373930
 	.sdata2     start:0x80375E70 end:0x80375E78
 
-DrawableNetMesh.o:
+Game/Drawable/DrawableNetMesh.cpp:
 	.text       start:0x80113F5C end:0x80114BCC
 	.text       start:0x80114BCC end:0x80114CDC
 	.ctors      start:0x8028D2BC end:0x8028D2C0
@@ -1510,7 +1510,7 @@ NisPlayer.o:
 	.sbss       start:0x80373978 end:0x80373988
 	.sdata2     start:0x80375EA0 end:0x80375ED0
 
-DrawableCharacter.o:
+Game/Drawable/DrawableCharacter.cpp:
 	.text       start:0x80118EB0 end:0x8011C32C
 	.text       start:0x8011C32C end:0x8011C764
 	.text       start:0x8011C764 end:0x8011CBC0
@@ -1530,7 +1530,7 @@ DrawableCharacter.o:
 	.sbss       start:0x80373988 end:0x803739D0
 	.sdata2     start:0x80375ED0 end:0x80375F48
 
-DrawableBall.o:
+Game/Drawable/DrawableBall.cpp:
 	.text       start:0x8011DD50 end:0x8011E63C
 	.text       start:0x8011E63C end:0x8011E8AC
 	.text       start:0x8011E8AC end:0x8011EC74
@@ -1539,7 +1539,7 @@ DrawableBall.o:
 	.sbss       start:0x803739D0 end:0x803739E0
 	.sdata2     start:0x80375F48 end:0x80375F90
 
-DrawablePowerup.o:
+Game/Drawable/DrawablePowerup.cpp:
 	.text       start:0x8011EC74 end:0x8011F318
 	.text       start:0x8011F318 end:0x8011F428
 	.text       start:0x8011F428 end:0x8011F430
@@ -1548,20 +1548,20 @@ DrawablePowerup.o:
 	.data       start:0x802AEB90 end:0x802AEBC0
 	.sdata2     start:0x80375F90 end:0x80375FD0
 
-DrawableExplosionFragment.o:
+Game/Drawable/DrawableExplosionFragment.cpp:
 	.text       start:0x8011F7A0 end:0x8011FA30
 	.text       start:0x8011FA30 end:0x8011FB28
 	.text       start:0x8011FB28 end:0x8011FC70
 	.bss        start:0x80321F48 end:0x80321F88
 	.sdata2     start:0x80375FD0 end:0x80375FE0
 
-Game/DrawableObj.cpp:
+Game/Drawable/DrawableObj.cpp:
 	.text       start:0x8011FC70 end:0x8011FE00
 	.text       start:0x8011FE00 end:0x8011FE0C
 	.data       start:0x802AEBC0 end:0x802AEBE8
 	.sdata2     start:0x80375FE0 end:0x80375FE8
 
-DrawableModel.o:
+Game/Drawable/DrawableModel.cpp:
 	.text       start:0x8011FE0C end:0x80121E54
 	.text       start:0x80121E54 end:0x80121F14
 	.text       start:0x80121F14 end:0x80121F14
@@ -1575,14 +1575,14 @@ DrawableModel.o:
 	.sbss       start:0x803739E0 end:0x80373A10
 	.sdata2     start:0x80375FE8 end:0x80376028
 
-DrawableTmModel.o:
+Game/Drawable/DrawableTmModel.cpp:
 	.text       start:0x80122A2C end:0x80122CE4
 	.text       start:0x80122CE4 end:0x80122D5C
 	.text       start:0x80122D5C end:0x80122D5C
 	.data       start:0x802AED08 end:0x802AED40
 	.sdata      start:0x80372248 end:0x80372250
 
-DrawableSkinModel.o:
+Game/Drawable/DrawableSkinModel.cpp:
 	.text       start:0x80122D5C end:0x80122F2C
 	.text       start:0x80122F2C end:0x80122FC8
 	.text       start:0x80122FC8 end:0x80122FC8
