@@ -2,13 +2,13 @@
 #define _PLATPAD_H_
 
 #include "types.h"
-
 #include "NL/globalpad.h"
+
 
 void VBlankPadUpdate();
 void UpdatePlatPad(float);
 void InitPlatPad();
-void GetButtonIndex(int);
+u32 GetButtonIndex(int);
 void UseDefaultPad();
 void UseFixedUpdatePad();
 
@@ -36,7 +36,7 @@ public:
     virtual void StartRumble(float, float, float);
     virtual void StopRumble();
 
-    ~cPlatPad();
+    virtual ~cPlatPad();
 
     /* 0x04 */ s32 m_channel;
 };

@@ -1,5 +1,4 @@
 #include "NL/platpad.h"
-#include "Dolphin/pad.h"
 
 #include "PowerPC_EABI_Support/Runtime/__mem.h"
 
@@ -16,14 +15,8 @@ bool cPlatPad::m_bDisableRumble = false;
 
 namespace
 {
-int padCategories[100];
-// PadStatus* padStatus[PAD_MAX_CONTROLLERS] = &PadStatus::s_A;
-PadStatus *padStatus[PAD_MAX_CONTROLLERS] = {
-    new PadStatus(),  // default constructor
-    new PadStatus(),  // default constructor  
-    new PadStatus(),  // default constructor
-    new PadStatus()   // default constructor
-};// PadStatus* padStatus;
+    PadStatus padCategories[PAD_MAX_CONTROLLERS];
+    PadStatus* padStatus = NULL;
 } // namespace
 
 /**
@@ -127,7 +120,7 @@ f32 cPlatPad::GetPressure(int button, bool arg2)
     case 0x20:
         return padStatus[m_channel].m_pressure2;
     default:
-        if (var_r4 & *(s32*)(PadStatus::s_Current + (m_channel * 0xC)) == 0)
+        if ((var_r4 & PadStatus::s_Current[m_channel].button) != 0)
         {
             return 1.f;
         }
@@ -198,7 +191,7 @@ u32 cPlatPad::IsPressed(int button, bool remap)
         var_r4 = cPadManager::m_pRemapArray[var_r4];
     }
 
-    temp_r3 = var_r4 & *(u16*)((u8*)PadStatus::s_Current + (m_channel * 0xC));
+    temp_r3 = var_r4 & PadStatus::s_Current[m_channel].button;
     return (u32)(-temp_r3 | temp_r3) >> 0x1FU;
 }
 
@@ -207,8 +200,8 @@ u32 cPlatPad::IsPressed(int button, bool remap)
  */
 bool cPlatPad::IsConnected()
 {
-    u8 temp_r4 = *((u8*)PadStatus::s_Current + (m_channel * 0xC) + 0x0A);
-    if (((s8)temp_r4 != 0) && ((s8)temp_r4 != -3))
+    s8 err = PadStatus::s_Current[m_channel].err;
+    if ((err != 0) && (err != -3))
     {
         return 0;
     }
@@ -332,8 +325,9 @@ void InitPlatPad()
 /**
  * Offset/Address/Size: 0xB9C | 0x801C3B4C | size: 0xC
  */
-void GetButtonIndex(int)
+u32 GetButtonIndex(int button)
 {
+    return 0x1F - __cntlzw(button);
 }
 
 /**
@@ -341,6 +335,7 @@ void GetButtonIndex(int)
  */
 void UseDefaultPad()
 {
+    padStatus = &padCategories[0];
 }
 
 /**
@@ -348,4 +343,5 @@ void UseDefaultPad()
  */
 void UseFixedUpdatePad()
 {
+ padStatus = &padCategories[1];    
 }

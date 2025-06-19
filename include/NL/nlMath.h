@@ -65,7 +65,7 @@ struct nlMatrix3
 };
 
 void nlBezier(float*, int, float);
-void nlATan2f(float, float);
+float nlATan2f(float, float);
 void nlTan(unsigned short);
 void nlACos(float);
 void nlSinCos(float*, float*, unsigned short);
