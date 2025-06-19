@@ -15,8 +15,8 @@ bool cPlatPad::m_bDisableRumble = false;
 
 namespace
 {
-    PadStatus padCategories[PAD_MAX_CONTROLLERS];
-    PadStatus* padStatus = NULL;
+PadStatus padCategories[PAD_MAX_CONTROLLERS];
+PadStatus* padStatus = NULL;
 } // namespace
 
 /**
@@ -343,5 +343,5 @@ void UseDefaultPad()
  */
 void UseFixedUpdatePad()
 {
- padStatus = &padCategories[1];    
+    padStatus = &padCategories[1];
 }

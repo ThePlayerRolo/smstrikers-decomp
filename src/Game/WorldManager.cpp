@@ -4,7 +4,7 @@
 #include "WorldManager.h"
 #include "BasicStadium.h"
 
-World *WorldManager::s_World = NULL;
+World* WorldManager::s_World = NULL;
 
 /**
  * Offset/Address/Size: 0x0 | 0x8019AC60 | size: 0x44
@@ -23,7 +23,7 @@ void WorldManager::LoadWorld(const char* arg0, bool arg1)
     void* this_00 = nlMalloc(0x18C, 8, FALSE);
     this_00 = new (this_00) BasicStadium(arg0);
     s_World = (World*)this_00;
-    s_World->Load(arg1);    
+    s_World->Load(arg1);
 }
 
 /**
@@ -33,14 +33,15 @@ void WorldManager::UpdateWorld(float dt)
 {
     u32 temp_r3;
     World::m_uCurrentFrameCount += 1;
-    if (0.f != dt) 
+    if (0.f != dt)
     {
         temp_r3 = nlTaskManager::m_pInstance->m_unk_0x08;
-        if ((temp_r3 != 0x10U) && ((u32) (temp_r3 + 0xFFFE0000) != 0U)) {
+        if ((temp_r3 != 0x10U) && ((u32)(temp_r3 + 0xFFFE0000) != 0U))
+        {
             s_World->Update(dt);
         }
         s_World->UpdateInReplay(dt);
-    }    
+    }
 }
 
 /**
@@ -48,5 +49,5 @@ void WorldManager::UpdateWorld(float dt)
  */
 void WorldManager::RenderWorld()
 {
-    s_World->Render();    
+    s_World->Render();
 }

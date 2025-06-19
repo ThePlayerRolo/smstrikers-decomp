@@ -32,10 +32,10 @@ public:
     virtual void Update(float); // 0x18
     virtual void UpdateInReplay(float); // 0x1C
     virtual void FixedUpdate(float); // 0x20
-    virtual void HandleEvent(Event*, void*);
-    virtual void CreateHelperObjFromChunk(nlChunk*);
-    virtual void DoLoad() = 0;
-    virtual void DoInitialize() = 0;
+    virtual void HandleEvent(Event*, void*); // 0x24 
+    virtual void CreateHelperObjFromChunk(nlChunk*); // 0x28
+    virtual void DoLoad() = 0; // 0x2C
+    virtual void DoInitialize() = 0; // 0x30
 
     void CompareNameToGenericName(const char*, const char*);
     void GetHashIdForGenericName(const char*) const;
@@ -53,6 +53,11 @@ public:
     void LoadGeometry(glModel*, unsigned long, bool, bool, unsigned long*, int*, bool);
     void LoadGeometry(const char*, bool, bool, unsigned long*, int*);
     void Load(bool);
+
+    /* 0x04 */ u8 m_padding_0x04[0x18];
+    /* 0x1C */ u8 m_unk_0x1C;
+    /* 0x1D */ u8 m_padding_0x1D[0x30];
+    /* 0x4C */ void *m_unk_0x4C;
 };
 
 

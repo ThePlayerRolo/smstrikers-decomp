@@ -40,8 +40,45 @@ void World::FindHelperObject(unsigned long)
 /**
  * Offset/Address/Size: 0x3A8 | 0x8019506C | size: 0x8C
  */
-void World::FindDrawableObject(unsigned long)
+void World::FindDrawableObject(u32 arg1)
 {
+//     s32 *sp8;
+//     s32 var_r0_2;
+//     s8 var_r0;
+//     u32 temp_r0;
+//     void *var_r3;
+
+//     var_r3 = m_unk_0x4C;
+// loop_13:
+//     if (var_r3 == NULL) {
+//         var_r0 = 0;
+//     } else {
+//         temp_r0 = var_r3->unkC;
+//         if (arg1 == temp_r0) {
+//             var_r0_2 = 0;
+//         } else if (arg1 < temp_r0) {
+//             var_r0_2 = -1;
+//         } else {
+//             var_r0_2 = 1;
+//         }
+//         if (var_r0_2 == 0) {
+//             if (&sp8 != NULL) {
+//                 sp8 = var_r3 + 0x10;
+//             }
+//             var_r0 = 1;
+//         } else {
+//             if (var_r0_2 < 0) {
+//                 var_r3 = var_r3->unk0;
+//             } else {
+//                 var_r3 = var_r3->unk4;
+//             }
+//             goto loop_13;
+//         }
+//     }
+//     if (var_r0 != 0) {
+//         return *sp8;
+//     }
+    // return 0;    
 }
 
 /**
@@ -152,8 +189,13 @@ void World::LoadGeometry(const char*, bool, bool, unsigned long*, int*)
 /**
  * Offset/Address/Size: 0x376C | 0x80198430 | size: 0x68
  */
-void World::Load(bool)
+void World::Load(bool skip)
 {
+    this->DoLoad();
+    if (skip == FALSE) {
+        this->DoInitialize();
+    }
+    this->m_unk_0x1C = 1;    
 }
 
 /**

@@ -1,7 +1,6 @@
 #include "NL/globalpad.h"
 #include "NL/nlMath.h"
 
-
 // s32 cPadManager::m_pRemapArray[] = {1<<0, 1<<1, 1<<2, 1<<3, 1<<4, 1<<5, 1<<6, 1<<7, 1<<8, 1<<9, 1<<10, 1<<11};
 
 s32* cPadManager::m_pRemapArray = nullptr;
@@ -11,11 +10,11 @@ s32* cPadManager::m_pRemapArray = nullptr;
  */
 void cPadManager::Update(float deltaTime)
 {
-    for (int i=0; i<PAD_MAX_CONTROLLERS; i++)
+    for (int i = 0; i < PAD_MAX_CONTROLLERS; i++)
     {
         m_aPads[i]->Update(deltaTime);
     }
-    m_DeltaT = deltaTime;    
+    m_DeltaT = deltaTime;
 }
 
 /**
@@ -56,14 +55,16 @@ void cGlobalPad::Update(float)
     temp_f1 = this->AnalogLeftY();
     m_unk_0x0C = nlSqrt((temp_f30 * temp_f30) + (temp_f1 * temp_f1), 1);
 
-    if ((0.f != temp_f30) || (0.f != temp_f1)) {
-        m_unk_0x08 = (s16) (10430.378f * nlATan2f(temp_f1, temp_f30));
+    if ((0.f != temp_f30) || (0.f != temp_f1))
+    {
+        m_unk_0x08 = (s16)(10430.378f * nlATan2f(temp_f1, temp_f30));
     }
 
     temp_f31 = this->AnalogRightX();
     temp_f1_2 = this->AnalogRightY();
     m_unk_0x14 = nlSqrt((temp_f31 * temp_f31) + (temp_f1_2 * temp_f1_2), 1);
-    if ((0.f != temp_f31) || (0.f != temp_f1_2)) {
-        m_unk_0x10 = (s16) (10430.378f* nlATan2f(temp_f1_2, temp_f31));
-    }    
+    if ((0.f != temp_f31) || (0.f != temp_f1_2))
+    {
+        m_unk_0x10 = (s16)(10430.378f * nlATan2f(temp_f1_2, temp_f31));
+    }
 }
