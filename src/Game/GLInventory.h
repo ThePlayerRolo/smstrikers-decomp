@@ -32,9 +32,8 @@ public:
     void Create();
     ~GLInventory();
 
-private:
-    // AVL Tree for storing GLMaterialList objects indexed by unsigned long keys
-    AVLTreeBase<unsigned long, GLMaterialList*, NewAdapter<AVLTreeEntry<unsigned long, GLMaterialList*> >, DefaultKeyCompare<unsigned long> > m_materialListTree;
+    /* 0x00 */ u8 m_unk_0x00[0x08];
+    /* 0x08 */ AVLTreeBase<unsigned long, GLMaterialList*, NewAdapter<AVLTreeEntry<unsigned long, GLMaterialList*> >, DefaultKeyCompare<unsigned long> > *m_materialListTree;
 };
 
 #endif // _GLINVENTORY_H_
