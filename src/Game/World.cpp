@@ -1,5 +1,10 @@
 #include "world.h"
 
+
+#include "NL/nlStrChr.h"
+#include "NL/nlDebug.h"
+
+
 u32 World::m_uCurrentFrameCount = 0;
 
 /**
@@ -133,8 +138,13 @@ void World::Update(float)
 /**
  * Offset/Address/Size: 0x191C | 0x801965E0 | size: 0x260
  */
-void World::CreateHelperObjFromChunk(nlChunk*)
+void World::CreateHelperObjFromChunk(nlChunk* chunk)
 {
+    const char* str = "hello world";
+    char* found = nlStrChr<char>(str, 'w');
+    if (found) {
+        nlBreak();
+    }    
 }
 
 /**
