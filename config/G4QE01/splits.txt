@@ -4156,7 +4156,7 @@ ShaderSkinMesh.o:
 	.bss        start:0x80337048 end:0x80343048
 	.sdata2     start:0x80377160 end:0x80377168
 
-GLInventory.o:
+Game/GLInventory.cpp:
 	.text       start:0x801E2298 end:0x801E3340
 	.text       start:0x801E3340 end:0x801E6C90
 	.text       start:0x801E6C90 end:0x801E6CB4

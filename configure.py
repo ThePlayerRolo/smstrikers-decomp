@@ -646,6 +646,8 @@ config.libs = [
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
 
+            Object(NonMatching, "Game/GLInventory.cpp"),
+
             # Physics
             Object(NonMatching, "Game/RayCollider.cpp"),
             Object(NonMatching, "Game/PhysicsAIBall.cpp"),
