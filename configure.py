@@ -698,7 +698,7 @@ config.libs = [
             Object(NonMatching, "NL/nlConfig.cpp"),
             Object(Matching, "NL/nlDebug.cpp"),
             Object(Matching, "NL/nlDebugFile.cpp"),
-            Object(NonMatching, "NL/nlEndian.cpp"),
+            Object(Matching, "NL/nlEndian.cpp"),
             Object(NonMatching, "NL/nlFile.cpp"),
             Object(NonMatching, "NL/nlFileGC.cpp"),
             Object(NonMatching, "NL/nlFont.cpp"),

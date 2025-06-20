@@ -162,15 +162,15 @@ void nlInitMemory()
                 {
                     do
                     {
-                        // var_r6->unk0 = -0x33;
+                        ((u8*)var_r6)[0] = -0x33;
                         var_r7 += 8;
-                        // var_r6->unk1 = -0x33;
-                        // var_r6->unk2 = -0x33;
-                        // var_r6->unk3 = -0x33;
-                        // var_r6->unk4 = -0x33;
-                        // var_r6->unk5 = -0x33;
-                        // var_r6->unk6 = -0x33;
-                        // var_r6->unk7 = -0x33;
+                        ((u8*)var_r6)[1] = -0x33;
+                        ((u8*)var_r6)[2] = -0x33;
+                        ((u8*)var_r6)[3] = -0x33;
+                        ((u8*)var_r6)[4] = -0x33;
+                        ((u8*)var_r6)[5] = -0x33;
+                        ((u8*)var_r6)[6] = -0x33;
+                        ((u8*)var_r6)[7] = -0x33;
                         var_r6 += 8;
                         var_ctr -= 1;
                     } while (var_ctr != 0);
