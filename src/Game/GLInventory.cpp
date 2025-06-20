@@ -42,9 +42,10 @@ void GLInventory::AddMaterialList(unsigned long key, GLMaterialList* materialLis
 {
     // m_materialListTree.AllocateEntry(&key, &materialList);
     AVLTreeNode* node;
-    m_materialListTree->AddAVLNode(&m_materialListTree->m_root_node_0x10, &materialList, &key, &node, 0);     
+    m_materialListTree.AddAVLNode(&m_materialListTree.m_root_node_0x10, &materialList, &key, &node, 0);     
     if (node == nullptr) {
-        m_materialListTree->m_root_node_0x10 += 1;
+        m_materialListTree.m_root_node_0x10 += 1;
+        // m_materialListTree.AllocateEntry(&key, materialList);
     }
 }
 
@@ -59,8 +60,14 @@ GLVertexAnim* GLInventory::GetVertexAnim(unsigned long)
 /**
  * Offset/Address/Size: 0x74C | 0x801E29E4 | size: 0x74
  */
-void GLInventory::AddVertexAnim(unsigned long, GLVertexAnim*)
+void GLInventory::AddVertexAnim(unsigned long key, GLVertexAnim* vertexAnim)
 {
+    // m_materialListTree.AllocateEntry(&key, &materialList);
+    AVLTreeNode* node;
+    m_vertexAnimTree.AddAVLNode(&m_materialListTree.m_root_node_0x10, &vertexAnim, &key, &node, 0);     
+    if (node == nullptr) {
+        m_vertexAnimTree.m_root_node_0x10 += 1;
+    }    
 }
 
 /**
@@ -126,7 +133,8 @@ void GLInventory::ReleaseLevel(int)
  */
 void GLInventory::Delete()
 {
-    m_materialListTree->Clear();
+    m_vertexAnimTree.Clear();
+    m_materialListTree.Clear();
 }
 
 /**

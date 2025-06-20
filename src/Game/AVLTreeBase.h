@@ -59,16 +59,16 @@ public:
 };
 
 template<typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
+void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::DeleteEntry(AVLTreeEntry<KeyType, ValueType>* entry)
+{
+    m_allocator.Free(entry);
+}
+
+template<typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
 void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::Clear()
 {
     DestroyTree(&AVLTreeBase::DeleteEntry);
     m_root_node_0x10 = nullptr;
-}
-
-template<typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
-void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::DeleteEntry(AVLTreeEntry<KeyType, ValueType>* entry)
-{
-    m_allocator.Free(entry);
 }
 
 template<typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
