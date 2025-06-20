@@ -697,7 +697,7 @@ config.libs = [
             Object(NonMatching, "NL/nlBundleFile.cpp"),
             Object(NonMatching, "NL/nlConfig.cpp"),
             Object(Matching, "NL/nlDebug.cpp"),
-            Object(NonMatching, "NL/nlDebugFile.cpp"),
+            Object(Matching, "NL/nlDebugFile.cpp"),
             Object(NonMatching, "NL/nlEndian.cpp"),
             Object(NonMatching, "NL/nlFile.cpp"),
             Object(NonMatching, "NL/nlFileGC.cpp"),
