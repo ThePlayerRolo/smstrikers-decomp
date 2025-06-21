@@ -1,4 +1,4 @@
-#include "glConstant.h"
+#include "NL/gl/glConstant.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801DF220 | size: 0x10C

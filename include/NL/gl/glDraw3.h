@@ -4,6 +4,9 @@
 #include "NL/nlMath.h"
 #include "NL/gl/glView.h"
 
+// Forward declaration
+struct nlColour;
+
 class glQuad3;
 
 void glAttachQuad3(eGLView, unsigned long, glQuad3*, bool);

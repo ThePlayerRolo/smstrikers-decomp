@@ -1,4 +1,4 @@
-#include "glAppAttach.h"
+#include "NL/gl/glAppAttach.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x80191948 | size: 0x41C
@@ -51,7 +51,7 @@ void gld_ViewName(int)
 
 /**
  * Offset/Address/Size: 0x708 | 0x80192050 | size: 0xA0
- */
-void 0x8028D344..0x8028D348 | size: 0x4
-{
-}
+//  */
+// void 0x8028D344..0x8028D348 | size: 0x4
+// {
+// }

@@ -2,27 +2,7 @@
 #define _GLVIEW_H_
 
 #include "NL/nlMath.h"
-#include "NL/nlTextBox.h"
-
-enum eGLView
-{
-    eGLView_0,
-};
-
-enum eGLTarget
-{
-    eGLTarget_0,
-};
-
-enum eGLFilter
-{
-    eGLFilter_0,
-};
-
-enum eGLViewSort
-{
-    eGLViewSort_0,
-};
+#include "NL/gl/gl.h"
 
 class glModel;
 class glModelPacket;

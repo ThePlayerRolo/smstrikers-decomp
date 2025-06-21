@@ -2559,7 +2559,7 @@ TrophyInfo.o:
 	.text       start:0x801918A0 end:0x80191948
 	.data       start:0x802C24C8 end:0x802C2598
 
-glAppAttach.o:
+NL/gl/glAppAttach.cpp:
 	.text       start:0x80191948 end:0x801920F0
 	.ctors      start:0x8028D344 end:0x8028D348
 	.data       start:0x802C2598 end:0x802C2810
@@ -3739,7 +3739,7 @@ goalieanimproperties.o:
 	.data       start:0x802F8360 end:0x802FAAF8
 	.sdata      start:0x80372EC8 end:0x80372EE8
 
-glPlat.o:
+NL/gl/glPlat.cpp:
 	.text       start:0x801B45F4 end:0x801B5918
 	.text       start:0x801B5918 end:0x801B5918
 	.data       start:0x802FAAF8 end:0x802FAFB8
@@ -3762,15 +3762,15 @@ gluSkinMesh.o:
 	.data       start:0x802FAFE0 end:0x802FAFF0
 	.sdata2     start:0x80376E38 end:0x80376E50
 
-glxFont.o:
+NL/glx/glxFont.cpp:
 	.text       start:0x801B64D8 end:0x801B6568
 
-glxMatrix.o:
+NL/glx/glxMatrix.cpp:
 	.text       start:0x801B6568 end:0x801B6928
 	.sbss       start:0x80373FC8 end:0x80373FD8
 	.sdata2     start:0x80376E50 end:0x80376E70
 
-glxMemory.o:
+NL/glx/glxMemory.cpp:
 	.text       start:0x801B6928 end:0x801B7258
 	.text       start:0x801B7258 end:0x801B72BC
 	.text       start:0x801B72BC end:0x801B72BC
@@ -3781,7 +3781,7 @@ glxMemory.o:
 	.sbss       start:0x80373FD8 end:0x80374000
 	.sdata2     start:0x80376E70 end:0x80376E88
 
-glxTexture.o:
+NL/glx/glxTexture.cpp:
 	.text       start:0x801B72BC end:0x801B8CA8
 	.text       start:0x801B8CA8 end:0x801B98B4
 	.text       start:0x801B98B4 end:0x801B98B4
@@ -3797,7 +3797,7 @@ glxTexture.o:
 	.sdata2     start:0x80376E88 end:0x80376E98
 	.sbss2      start:0x80377F98 end:0x80377FA0
 
-glxSend.o:
+NL/glx/glxSend.cpp:
 	.text       start:0x801B9B00 end:0x801BED50
 	.ctors      start:0x8028D51C end:0x8028D520
 	.rodata     start:0x802A0468 end:0x802A0478
@@ -3820,7 +3820,7 @@ NL/glx/glxSwap.cpp:
 	.sdata2     start:0x80376F08 end:0x80376F30
 	.sbss2      start:0x80377FB0 end:0x80377FB8
 
-glxLoadModel.o:
+NL/glx/glxLoadModel.cpp:
 	.text       start:0x801BFC20 end:0x801C0B30
 	.text       start:0x801C0B30 end:0x801C1480
 	.text       start:0x801C1480 end:0x801C14E8
@@ -3831,20 +3831,20 @@ glxLoadModel.o:
 	.sbss       start:0x80374118 end:0x80374120
 	.sdata2     start:0x80376F30 end:0x80376F38
 
-glxGX.o:
+NL/glx/glxGX.cpp:
 	.text       start:0x801C14E8 end:0x801C1E5C
 	.bss        start:0x8032C248 end:0x8032C348
 	.sbss       start:0x80374120 end:0x80374170
 	.sdata2     start:0x80376F38 end:0x80376F40
 
-glxDisplayList.o:
+NL/glx/glxDisplayList.cpp:
 	.text       start:0x801C1E5C end:0x801C21C4
 	.sdata      start:0x80372FE8 end:0x80372FF0
 
 gcSwizzler.o:
 	.text       start:0x801C21C4 end:0x801C26DC
 
-glxTarget.o:
+NL/glx/glxTarget.cpp:
 	.text       start:0x801C26DC end:0x801C2FB0
 	.ctors      start:0x8028D520 end:0x8028D524
 	.rodata     start:0x802A04B8 end:0x802A0518
@@ -4043,13 +4043,13 @@ simpleparser.o:
 	.text       start:0x801D69A4 end:0x801D733C
 	.text       start:0x801D733C end:0x801D733C
 
-gl.o:
+NL/gl/gl.cpp:
 	.text       start:0x801D733C end:0x801D7600
 	.sdata      start:0x80373150 end:0x80373158
 	.sbss       start:0x803742D0 end:0x803742E0
 	.sdata2     start:0x803770C8 end:0x803770D0
 
-glDraw2.o:
+NL/gl/glDraw2.cpp:
 	.text       start:0x801D7600 end:0x801D7E4C
 	.ctors      start:0x8028D53C end:0x8028D540
 	.rodata     start:0x802A0568 end:0x802A0580
@@ -4057,7 +4057,7 @@ glDraw2.o:
 	.sbss       start:0x803742E0 end:0x803742E8
 	.sdata2     start:0x803770D0 end:0x803770E0
 
-glDraw3.o:
+NL/gl/glDraw3.cpp:
 	.text       start:0x801D7E4C end:0x801D8398
 	.ctors      start:0x8028D540 end:0x8028D544
 	.rodata     start:0x802A0580 end:0x802A0590
@@ -4065,7 +4065,7 @@ glDraw3.o:
 	.sbss       start:0x803742E8 end:0x803742F0
 	.sdata2     start:0x803770E0 end:0x803770F0
 
-glFont.o:
+NL/gl/glFont.cpp:
 	.text       start:0x801D8398 end:0x801D8A74
 	.text       start:0x801D8A74 end:0x801D8A74
 	.data       start:0x802FDE68 end:0x80301E78
@@ -4073,23 +4073,23 @@ glFont.o:
 	.sbss       start:0x803742F0 end:0x80374300
 	.sdata2     start:0x803770F0 end:0x80377120
 
-glMatrix.o:
+NL/gl/glMatrix.cpp:
 	.text       start:0x801D8A74 end:0x801D8C00
 	.sdata      start:0x80373158 end:0x80373160
 
-glMatrixStack.o:
+NL/gl/glMatrixStack.cpp:
 	.text       start:0x801D8C00 end:0x801D8FBC
 
-glMemory.o:
+NL/gl/glMemory.cpp:
 	.text       start:0x801D8FBC end:0x801D903C
 
-glModify.o:
+NL/gl/glModify.cpp:
 	.text       start:0x801D903C end:0x801D92C0
 	.bss        start:0x80336EE8 end:0x80336F30
 	.sbss       start:0x80374300 end:0x80374308
 	.sdata2     start:0x80377120 end:0x80377128
 
-glRenderList.o:
+NL/gl/glRenderList.cpp:
 	.text       start:0x801D92C0 end:0x801DA078
 	.text       start:0x801DA078 end:0x801DA0AC
 	.text       start:0x801DA0AC end:0x801DBA84
@@ -4101,38 +4101,38 @@ glRenderList.o:
 	.sdata      start:0x80373160 end:0x80373168
 	.sdata2     start:0x80377128 end:0x80377158
 
-glStat.o:
+NL/gl/glStat.cpp:
 	.text       start:0x801DBC40 end:0x801DBC44
 
-glState.o:
+NL/gl/glState.cpp:
 	.text       start:0x801DBC44 end:0x801DE3CC
 	.data       start:0x80301F50 end:0x80302050
 	.bss        start:0x80336F30 end:0x80336F68
 	.sbss       start:0x80374308 end:0x80374330
 
-glStruct.o:
+NL/gl/glStruct.cpp:
 	.text       start:0x801DE3CC end:0x801DE3F8
 	.bss        start:0x80336F68 end:0x80336F90
 
-glTarget.o:
+NL/gl/glTarget.cpp:
 	.text       start:0x801DE3F8 end:0x801DE4A4
 	.bss        start:0x80336F90 end:0x80336FC0
 
-glView.o:
+NL/gl/glView.cpp:
 	.text       start:0x801DE4A4 end:0x801DEB78
 	.data       start:0x80302050 end:0x80302078
 	.bss        start:0x80336FC0 end:0x80337048
 
-glUserData.o:
+NL/gl/glUserData.cpp:
 	.text       start:0x801DEB78 end:0x801DED34
 
-glModel.o:
+NL/gl/glModel.cpp:
 	.text       start:0x801DED34 end:0x801DF160
 
-glTexture.o:
+NL/gl/glTexture.cpp:
 	.text       start:0x801DF160 end:0x801DF220
 
-glConstant.o:
+NL/gl/glConstant.cpp:
 	.text       start:0x801DF220 end:0x801DF68C
 	.text       start:0x801DF68C end:0x801DFFA0
 	.data       start:0x80302078 end:0x80302100

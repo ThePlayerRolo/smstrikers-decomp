@@ -1,4 +1,4 @@
-#include "glDraw2.h"
+#include "NL/gl/glDraw2.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D7600 | size: 0x18
@@ -44,7 +44,7 @@ void glPoly2::Attach(eGLView, int, unsigned long*, unsigned long)
 
 /**
  * Offset/Address/Size: 0x820 | 0x801D7E20 | size: 0x2C
- */
-void 0x8028D53C..0x8028D540 | size: 0x4
-{
-}
+//  */
+// void 0x8028D53C..0x8028D540 | size: 0x4
+// {
+// }

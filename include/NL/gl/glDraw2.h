@@ -3,6 +3,9 @@
 
 #include "NL/gl/glView.h"
 
+// Forward declaration
+struct nlColour;
+
 class glPoly2;
 
 void glAttachPoly2(eGLView, unsigned long, glPoly2*, unsigned long*, const void*);

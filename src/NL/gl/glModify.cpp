@@ -1,4 +1,4 @@
-#include "glModify.h"
+#include "NL/gl/glModify.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D903C | size: 0x30

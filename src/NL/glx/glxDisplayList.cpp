@@ -1,4 +1,4 @@
-#include "glxDisplayList.h"
+#include "NL/glx/glxDisplayList.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801C1E5C | size: 0x2A8

@@ -1,4 +1,4 @@
-#include "glxTarget.h"
+#include "NL/glx/glxTarget.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801C26DC | size: 0x104
@@ -114,7 +114,7 @@ void glx_GetSharedMemory()
 
 /**
  * Offset/Address/Size: 0x898 | 0x801C2F74 | size: 0x3C
- */
-void 0x8028D520..0x8028D524 | size: 0x4
-{
-}
+//  */
+// void 0x8028D520..0x8028D524 | size: 0x4
+// {
+// }

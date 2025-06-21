@@ -3,9 +3,11 @@
 
 #include "NL/nlMath.h"
 #include "NL/nlFont.h"
-#include "NL/nlColour.h"
+// #include "NL/nlColour.h"
+#include "NL/gl/gl.h"
 
-#include "NL/gl/glView.h"
+struct nlColour;
+class FontCharString;
 
 class nlTextBox
 {
@@ -18,7 +20,7 @@ public:
         // todo..
     } FontCharString;
 
-    void DrawString(const nlTextBox::StringDrawInfo&, const nlVector2&, const nlColour&, eGLView);
+    void DrawString(const nlTextBox::StringDrawInfo&, const nlVector2&, const nlColour&, eGLView view);
     void ProcessString(const FontCharString*, const nlFont*, const nlVector2&, unsigned long, const nlMatrix4*, nlTextBox::StringDrawInfo&);
 };
 

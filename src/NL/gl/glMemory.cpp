@@ -1,4 +1,4 @@
-#include "glMemory.h"
+#include "NL/gl/glMemory.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D8FBC | size: 0x20

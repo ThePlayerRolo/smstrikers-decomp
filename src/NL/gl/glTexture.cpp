@@ -1,4 +1,4 @@
-#include "glTexture.h"
+#include "NL/gl/glTexture.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801DF160 | size: 0x20

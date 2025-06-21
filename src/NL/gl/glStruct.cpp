@@ -1,4 +1,4 @@
-#include "glStruct.h"
+#include "NL/gl/glStruct.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801DE3CC | size: 0x10

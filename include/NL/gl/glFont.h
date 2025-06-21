@@ -3,6 +3,9 @@
 
 #include "NL/gl/glView.h"
 
+// Forward declaration
+struct nlColour;
+
 void glFontPrintf(eGLView, int, int, const nlColour&, const char*, ...);
 void glFontPrintf(eGLView, int, int, const char*, ...);
 void glFontPrint(eGLView, int, int, const nlColour&, const char*);

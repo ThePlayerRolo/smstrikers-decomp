@@ -1,4 +1,4 @@
-#include "glxGX.h"
+#include "NL/glx/glxGX.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801C14E8 | size: 0x48

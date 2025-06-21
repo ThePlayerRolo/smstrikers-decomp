@@ -1,4 +1,4 @@
-#include "glDraw3.h"
+#include "NL/gl/glDraw3.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D7E4C | size: 0x44
@@ -45,6 +45,6 @@ void glAttachQuad3(eGLView, unsigned long, glQuad3*, bool)
 /**
  * Offset/Address/Size: 0x520 | 0x801D836C | size: 0x2C
  */
-void 0x8028D540..0x8028D544 | size: 0x4
-{
-}
+// void 0x8028D540..0x8028D544 | size: 0x4
+// {
+// }

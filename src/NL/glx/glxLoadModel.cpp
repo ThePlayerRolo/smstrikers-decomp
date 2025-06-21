@@ -1,4 +1,4 @@
-#include "glxLoadModel.h"
+#include "NL/glx/glxLoadModel.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801BFC20 | size: 0x24
@@ -38,9 +38,9 @@ void glx_MakeSkinMesh(nlChunk*, glModel*)
 /**
  * Offset/Address/Size: 0xEA8 | 0x801C0AC8 | size: 0x60
  */
-void nlAVLTree<unsigned long, unsigned long, DefaultKeyCompare<unsigned long>>::~nlAVLTree()
-{
-}
+// void nlAVLTree<unsigned long, unsigned long, DefaultKeyCompare<unsigned long>>::~nlAVLTree()
+// {
+// }
 
 /**
  * Offset/Address/Size: 0xF08 | 0x801C0B28 | size: 0x8

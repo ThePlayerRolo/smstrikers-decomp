@@ -1,4 +1,4 @@
-#include "glxMemory.h"
+#include "NL/glx/glxMemory.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801B6928 | size: 0x20
@@ -86,7 +86,7 @@ GLXMemoryInfo::GLXMemoryInfo()
 
 /**
  * Offset/Address/Size: 0x0 | 0x801B7258 | size: 0x64
- */
-void 0x8028D514..0x8028D518 | size: 0x4
-{
-}
+//  */
+// void 0x8028D514..0x8028D518 | size: 0x4
+// {
+// }

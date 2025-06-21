@@ -26,13 +26,65 @@ void GLInventory::AddSkinData(unsigned long, nlChunk*)
  */
 GLMaterialList* GLInventory::GetMaterialList(unsigned long key)
 {
-    // Instead of using MaterialListFinder, you can now implement a direct Find method
-    // or use the existing Walk method more simply
-    // For now, keep the existing implementation but it can be simplified later
-    // MaterialListFinder finder(key);
-    // m_materialListTree.Walk(&finder, &MaterialListFinder::FindCallback);
-    // return finder.GetFoundMaterialList();
-    return nullptr;
+//     u32 *sp8;
+//     s32 temp_r6;
+//     s32 var_ctr;
+//     s32 var_r0_2;
+//     s8 var_r0;
+//     u32 temp_r0;
+//     u32 var_r3;
+//     void *var_r3_2;
+//     void *var_r5;
+
+//     temp_r6 = arg0->unk1C0;
+//     var_r5 = arg0 + (temp_r6 * 4);
+//     var_ctr = temp_r6 + 1;
+//     if (temp_r6 >= 0) {
+// loop_1:
+//         var_r3_2 = (*var_r5->unk180)->unk8;
+// loop_14:
+//         if (var_r3_2 == NULL) {
+//             var_r0 = 0;
+//         } else {
+//             temp_r0 = var_r3_2->unkC;
+//             if (arg1 == temp_r0) {
+//                 var_r0_2 = 0;
+//             } else if (arg1 < temp_r0) {
+//                 var_r0_2 = -1;
+//             } else {
+//                 var_r0_2 = 1;
+//             }
+//             if (var_r0_2 == 0) {
+//                 if (&sp8 != NULL) {
+//                     sp8 = var_r3_2 + 0x10;
+//                 }
+//                 var_r0 = 1;
+//             } else {
+//                 if (var_r0_2 < 0) {
+//                     var_r3_2 = var_r3_2->unk0;
+//                 } else {
+//                     var_r3_2 = var_r3_2->unk4;
+//                 }
+//                 goto loop_14;
+//             }
+//         }
+//         if (var_r0 != 0) {
+//             var_r3 = *sp8;
+//         } else {
+//             var_r3 = 0U;
+//         }
+//         if (var_r3 != 0U) {
+//             return var_r3;
+//         }
+//         var_r5 -= 4;
+//         var_ctr -= 1;
+//         if (var_ctr == 0) {
+//             goto block_22;
+//         }
+//         goto loop_1;
+//     }
+// block_22:
+    return NULL;
 }
 
 /**

@@ -5,15 +5,10 @@
 #include "Dolphin/VI.h"
 
 u32 count0 = 0;
-
 int glx_nBuffer = 0;
-
 int _shotno = 0;
-
 int glx_SwapMode = 0;
-
 u8 glx_ResetCaptureFrame = 0;
-
 bool glx_bLoadingIndicator = false;
 
 /**

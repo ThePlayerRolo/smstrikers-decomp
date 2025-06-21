@@ -1,4 +1,4 @@
-#include "glxSend.h"
+#include "NL/glx/glxSend.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801B9B00 | size: 0x538
@@ -100,7 +100,7 @@ void GetConstants()
 
 /**
  * Offset/Address/Size: 0x51A4 | 0x801BECA4 | size: 0xAC
- */
-void 0x8028D51C..0x8028D520 | size: 0x4
-{
-}
+//  */
+// void 0x8028D51C..0x8028D520 | size: 0x4
+// {
+// }

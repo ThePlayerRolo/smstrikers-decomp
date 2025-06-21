@@ -59,11 +59,11 @@ public:
 };
 
 
-// class TexDestructor
-// {
-// public:
-//     void CallDestructor(const unsigned long&, PlatTexture**);
-// };
+class TexDestructor
+{
+public:
+    void CallDestructor(const unsigned long&, PlatTexture**);
+};
 
 
 // class AVLTreeBase<unsigned long, PlatTexture*, NewAdapter<AVLTreeEntry<unsigned long, PlatTexture*>>, DefaultKeyCompare<unsigned long>>
