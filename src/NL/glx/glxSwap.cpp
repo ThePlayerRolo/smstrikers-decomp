@@ -32,7 +32,7 @@ void hitz_Post(bool arg0)
 {
     s32 sp8;
 
-    if ((u8) glx_ResetCaptureFrame != 0) 
+    if ((u8)glx_ResetCaptureFrame != 0)
     {
         _shotno = 0;
     }
@@ -97,7 +97,7 @@ void simple_Post(bool arg0)
     // }
     VIFlush();
     VIWaitForRetrace();
-    glx_nBuffer ^= 1;    
+    glx_nBuffer ^= 1;
 }
 
 /**
@@ -113,8 +113,10 @@ void simple_Pre(bool)
  */
 void glxSwapPost(bool)
 {
-    if (glx_bLoadingIndicator == false) {
-        switch ((s32) glx_SwapMode) {               /* irregular */
+    if (glx_bLoadingIndicator == false)
+    {
+        switch ((s32)glx_SwapMode)
+        { /* irregular */
         case 0:
             simple_Post(false);
             return;

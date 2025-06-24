@@ -52,56 +52,67 @@ void glSetIgnoreDuplicateModels(bool)
 // /**
 //  * Offset/Address/Size: 0x0 | 0x801C0B30 | size: 0x24
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::DeleteEntry(AVLTreeEntry<unsigned long, unsigned long>*)
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::DeleteEntry(AVLTreeEntry<unsigned long, unsigned long>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x24 | 0x801C0B54 | size: 0x5C
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::~AVLTreeBase()
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::~AVLTreeBase()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x80 | 0x801C0BB0 | size: 0x58
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::Clear()
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::Clear()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xD8 | 0x801C0C08 | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::DestroyTree(void (AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, unsigned long>*))
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::DestroyTree(void (AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>,
+// DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, unsigned long>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x13C | 0x801C0C6C | size: 0x758
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::PostorderTraversal(AVLTreeEntry<unsigned long, unsigned long>*, void (AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, unsigned long>*))
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::PostorderTraversal(AVLTreeEntry<unsigned long, unsigned long>*, void (AVLTreeBase<unsigned long, unsigned long,
+// NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, unsigned
+// long>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x894 | 0x801C13C4 | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::AllocateEntry(void*, void*)
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::AllocateEntry(void*, void*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x8F8 | 0x801C1428 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::CompareKey(void*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::CompareKey(void*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x924 | 0x801C1454 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, unsigned long, NewAdapter<AVLTreeEntry<unsigned long, unsigned long>>, DefaultKeyCompare<unsigned
+// long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
 // {
 // }
 

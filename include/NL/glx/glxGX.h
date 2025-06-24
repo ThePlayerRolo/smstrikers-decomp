@@ -4,26 +4,26 @@
 #include "Dolphin/gx/GXEnum.h"
 #include "NL/nlColour.h"
 
-void gxSetCoPlanar(bool);
-void gxSetChanAmbColour(int, const nlColour&);
-void gxSetChanMatColour(int, const nlColour&);
+bool gxSetCoPlanar(bool);
+nlColour gxSetChanAmbColour(int, const nlColour&);
+nlColour gxSetChanMatColour(int, const nlColour&);
 void gxSetTexCoordGen(int, _GXTexGenType, _GXTexGenSrc, unsigned long);
 void gxSetTevAlphaOp(int, _GXTevOp, _GXTevBias, _GXTevScale, bool, _GXTevRegID);
 void gxSetTevColourOp(int, _GXTevOp, _GXTevBias, _GXTevScale, bool, _GXTevRegID);
-void gxSetNumTexGens(unsigned long);
-void gxSetNumTevStages(unsigned long);
-void gxSetNumChans(unsigned long);
-void gxSetCullMode(_GXCullMode);
+u32 gxSetNumTexGens(unsigned long);
+u32 gxSetNumTevStages(unsigned long);
+u32 gxSetNumChans(unsigned long);
+_GXCullMode gxSetCullMode(_GXCullMode);
 void gxSetBlendMode(bool, _GXBlendFactor, _GXBlendFactor, bool);
 void gxSetAlphaCompare(_GXCompare, unsigned char);
 void gxRestoreZMode();
 void gxSaveZMode();
 void gxSetZMode(bool, _GXCompare, bool);
-void gxSetZCompLoc(bool);
-void gxSetAlphaUpdate(bool);
-void gxSetColourUpdate(bool);
-void gxSetDither(bool);
-void gxSetTevAlphaIn(int, int, _GXTevAlphaArg);
+bool gxSetZCompLoc(bool);
+bool gxSetAlphaUpdate(bool);
+bool gxSetColourUpdate(bool);
+uint gxSetDither(bool);
+uint gxSetTevAlphaIn(int, int, _GXTevAlphaArg);
 void gxSetTevAlphaIn(int, _GXTevAlphaArg, _GXTevAlphaArg, _GXTevAlphaArg, _GXTevAlphaArg);
 void gxInit();
 
