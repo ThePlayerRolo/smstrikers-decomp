@@ -28,25 +28,32 @@
  
 #pragma ANSI_strict reset
 
-// #include "Dolphin/types.h"
+#include "types.h"
+#include "limits.h"
+#include "wchar_t.h"
+#include "stdarg.h"
+#include "scanf.h"
+#include "stdio.h"
+
+
 // #include "limits.h"
 // #include "stdarg.h"
 // #include "scanf.h"
-#include <ansi_parms.h> 
-// #include "cwchar"
+// #include <ansi_parms.h> 
+// // #include "cwchar"
  
-#include <cstdio>
-#include <cstddef>      
-#include <cerrno>
+// #include <cstdio>
+// #include <cstddef>      
+// #include <cerrno>
 
-#include <climits>
-#include <cstdarg>
-#include <cstring>
-#include <string_io.h>
-#include <cstdlib>
+// #include <climits>
+// #include <cstdarg>
+// #include <cstring>
+// #include <string_io.h>
+// #include <cstdlib>
 
-#include <wchar.h>
-#include <wctype.h>
+// #include <wchar.h>
+// #include <wctype.h>
 
 
 #define conversion_buff_size		512

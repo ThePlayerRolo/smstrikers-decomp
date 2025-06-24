@@ -6,6 +6,10 @@
         extern "C" {
     #endif
 
+    #ifndef WEOF
+    #define WEOF (wint_t)(0xFFFF)
+    #endif /* ifndef WEOF */
+
     typedef unsigned short wchar_t;
     typedef wchar_t wint_t;	
 

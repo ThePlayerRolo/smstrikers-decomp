@@ -83,18 +83,21 @@
  
 #pragma ANSI_strict reset
 
-#include <cctype>
-#include <cerrno>
-#include <climits>
-// #include <cstdio>
-#include <cstdlib>
-#include <string.h>
-#include <string_io.h>
-#include <inttypes.h>
+#include "types.h"
+#include "ctype.h"
+#include "limits.h"
+#include "wchar_t.h"
+#include "stdarg.h"
+#include "scanf.h"
+#include "stdio.h"
+#include "stdio_api.h"
+#include "errno.h"
+#include <cwctype>
 
-#include <wchar.h>
-#include <wctype.h>
-/*#include <wformatters.h>*/
+typedef s64 intmax_t;
+typedef u64 uintmax_t;
+
+wint_t __wStringRead (void*, wint_t, int);
 
 enum scan_states {
 	start           = 0x01,
@@ -474,6 +477,7 @@ unsigned long long wcstoull(const wchar_t * str, wchar_t ** end, int base)
 }
 #endif       /*__MSL_LONGLONG_SUPPORT__*/                /*mm 970110*/
 
+/*
 long wcstol(const wchar_t * str, wchar_t ** end, int base)
 {
 	unsigned long		uvalue;
@@ -498,7 +502,7 @@ long wcstol(const wchar_t * str, wchar_t ** end, int base)
 	
 	return(svalue);
 }
-
+*/
 #ifdef __MSL_LONGLONG_SUPPORT__                   /*mm 970110*/
 long long wcstoll(const wchar_t * str, wchar_t ** end, int base)
 {
@@ -527,15 +531,15 @@ long long wcstoll(const wchar_t * str, wchar_t ** end, int base)
 }
 #endif      /*__MSL_LONGLONG_SUPPORT__*/                                  /*mm 970110*/
 
-int watoi(const wchar_t * str)
-{
-	return(wcstol(str, NULL, 10));
-}
+// int watoi(const wchar_t * str)
+// {
+// 	return(wcstol(str, NULL, 10));
+// }
 
-long watol(const wchar_t * str)
-{
-	return(wcstol(str, NULL, 10));
-}
+// long watol(const wchar_t * str)
+// {
+// 	return(wcstol(str, NULL, 10));
+// }
 
 #ifdef __MSL_LONGLONG_SUPPORT__										/* mm 980729 */
 intmax_t (wcstoimax)(const wchar_t * nptr, wchar_t ** endptr, int base) 	/* mm 980729 */   
@@ -543,10 +547,10 @@ intmax_t (wcstoimax)(const wchar_t * nptr, wchar_t ** endptr, int base) 	/* mm 9
 uintmax_t (wcstoumax)(const wchar_t * nptr, wchar_t ** endptr, int base)	/* mm 980729 */ 
 			{return(wcstoull(nptr, endptr, base));}							/* mm 980729 */ 
 #else																/* mm 980729 */ 
-intmax_t (wcstoimax)(const char * nptr, char ** endptr, int base)  	/* mm 980729 */ 
-			{return(wcstol(nptr, endptr, base));}					/* mm 980729 */ 
-uintmax_t (wcstoumax)(const char * nptr, char ** endptr, int base)	/* mm 980729 */ 
-			{return(wcstoul(nptr, endptr, base));}					/* mm 980729 */ 
+// intmax_t (wcstoimax)(const char * nptr, char ** endptr, int base)  	/* mm 980729 */ 
+// 			{return(wcstol(nptr, endptr, base));}					/* mm 980729 */ 
+// uintmax_t (wcstoumax)(const char * nptr, char ** endptr, int base)	/* mm 980729 */ 
+// 			{return(wcstoul(nptr, endptr, base));}					/* mm 980729 */ 
 #endif	/* #ifdef __MSL_LONGLONG_SUPPORT__	*/						/* mm 980729 */
 
 #endif /* #ifndef __NO_WIDE_CHAR */					/* mm 981030 */
