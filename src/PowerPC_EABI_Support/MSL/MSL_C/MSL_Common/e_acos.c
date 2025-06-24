@@ -34,7 +34,8 @@
  * Function needed: sqrt
  */
 
-#include "math.h"
+ #undef __MWERKS__ // prevent sqrt implementation
+ #include "math.h"
 
 #ifdef __STDC__
 static const double 
