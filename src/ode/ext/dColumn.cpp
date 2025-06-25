@@ -1,10 +1,11 @@
-#include "dColumn.h"
+#include "ode/ext/dColumn.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x8021CE2C | size: 0xB0
  */
-void dCreateColumn(dxSpace*, float)
+dGeomID dCreateColumn(dxSpace*, float)
 {
+    return NULL;
 }
 
 /**

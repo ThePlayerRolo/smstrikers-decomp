@@ -111,7 +111,7 @@ void dGeomPlaneSetParams (dGeomID plane, dReal a, dReal b, dReal c, dReal d);
 void dGeomPlaneGetParams (dGeomID plane, dVector4 result);
 dReal dGeomPlanePointDepth (dGeomID plane, dReal x, dReal y, dReal z);
 
-dGeomID dCreateFinitePlane(dSpaceID space, dReal a, dReal b, dReal c, dReal d, bool flag, float param); // added
+// dGeomID dCreateFinitePlane(dSpaceID space, dReal a, dReal b, dReal c, dReal d, bool flag, float param); // added
 
 dGeomID dCreateCCylinder (dSpaceID space, dReal radius, dReal length);
 void dGeomCCylinderSetParams (dGeomID ccylinder, dReal radius, dReal length);

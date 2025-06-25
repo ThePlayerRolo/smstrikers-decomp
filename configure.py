@@ -792,6 +792,10 @@ config.libs = [
             Object(NonMatching, "ode/quickstep.cpp"),
             Object(NonMatching, "ode/rotation.cpp", extra_cflags=["-inline off"]),
             Object(NonMatching, "ode/util.cpp"),
+
+            Object(NonMatching, "ode/ext/dColumn.cpp"),
+            Object(NonMatching, "ode/ext/dFinitePlane.cpp"),
+            Object(NonMatching, "ode/ext/dRoundedCorner.cpp"),
         ],
     ),
     DolphinLib(

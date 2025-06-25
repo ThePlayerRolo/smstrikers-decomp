@@ -1,5 +1,6 @@
 
 #include "PhysicsFinitePlane.h"
+#include "ode/ext/dFinitePlane.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801FFAE4 | size: 0x218

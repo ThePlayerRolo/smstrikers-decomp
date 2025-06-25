@@ -4800,17 +4800,17 @@ ode/collision_util.cpp:
 	.text       start:0x8021BF4C end:0x8021CE2C
 	.sdata2     start:0x80377648 end:0x80377660
 
-dColumn.o:
+ode/ext/dColumn.cpp:
 	.text       start:0x8021CE2C end:0x8021D404
 	.sdata      start:0x80373428 end:0x80373430
 	.sdata2     start:0x80377660 end:0x80377688
 
-dFinitePlane.o:
+ode/ext/dFinitePlane.cpp:
 	.text       start:0x8021D404 end:0x8021DAC8
 	.sdata      start:0x80373430 end:0x80373438
 	.sdata2     start:0x80377688 end:0x80377698
 
-dRoundedCorner.o:
+ode/ext/dRoundedCorner.cpp:
 	.text       start:0x8021DAC8 end:0x8021E0BC
 	.sdata      start:0x80373438 end:0x80373440
 	.sdata2     start:0x80377698 end:0x803776B8
