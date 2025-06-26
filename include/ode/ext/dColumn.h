@@ -5,9 +5,9 @@
 #include "ode/collision.h"
 
 dGeomID dCreateColumn(dxSpace*, float);
-void dColumnColliderFn(int);
-void dCollideColumnPlane(dxGeom*, dxGeom*, int, dContactGeom*, int);
-void dCollideColumnColumn(dxGeom*, dxGeom*, int, dContactGeom*, int);
+dColliderFn* dColumnColliderFn(int);
+int dCollideColumnPlane(dxGeom*, dxGeom*, int, dContactGeom*, int);
+int dCollideColumnColumn(dxGeom*, dxGeom*, int, dContactGeom*, int);
 void dColumnAABB(dxGeom*, float*);
 void dGeomColumnGetParams(dxGeom*, float*);
 
