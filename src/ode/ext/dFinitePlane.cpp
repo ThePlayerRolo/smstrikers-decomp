@@ -145,8 +145,8 @@ void dFinitePlaneAABB(dxGeom* geomID, float* aabb)
     aabb[5] = sp18[0][2];
 
     var_r3 = sp18[1];
-    var_ctr = 3;
-    do {
+    for (int i=3; i!=0; i--)
+    {    
         temp_f1 = var_r3[0];
         if (temp_f1 < aabb[0]) {
             aabb[0] = temp_f1;
@@ -171,10 +171,8 @@ void dFinitePlaneAABB(dxGeom* geomID, float* aabb)
         if (temp_f1_6 > aabb[5]) {
             aabb[5] = temp_f1_6;
         }
-
-        var_r3 += 0x10;
-        var_ctr -= 1;
-    } while (var_ctr != 0);
+        var_r3 += 4;
+    }
 
     if (plane_flag != 0) {
         temp_f27_2 = -plane_param;
@@ -194,38 +192,9 @@ void dFinitePlaneAABB(dxGeom* geomID, float* aabb)
         dMultiplyMatrix3Vector3(sp18[3], rotation, sp8, 0);
         dVector3Add(sp18[3], position);
 
-        // var_ctr_2 = 3;
-        // do {
-        //     temp_f1_7 = var_r31->unk0;
-        //     if (temp_f1_7 < arg1->unk0) {
-        //         arg1->unk0 = temp_f1_7;
-        //     }
-        //     temp_f1_8 = var_r31->unk0;
-        //     if (temp_f1_8 > arg1->unk4) {
-        //         arg1->unk4 = temp_f1_8;
-        //     }
-        //     temp_f1_9 = var_r31->unk4;
-        //     if (temp_f1_9 < arg1->unk8) {
-        //         arg1->unk8 = temp_f1_9;
-        //     }
-        //     temp_f1_10 = var_r31->unk4;
-        //     if (temp_f1_10 > arg1->unkC) {
-        //         arg1->unkC = temp_f1_10;
-        //     }
-        //     temp_f1_11 = var_r31->unk8;
-        //     if (temp_f1_11 < arg1->unk10) {
-        //         arg1->unk10 = temp_f1_11;
-        //     }
-        //     temp_f1_12 = var_r31->unk8;
-        //     if (temp_f1_12 > arg1->unk14) {
-        //         arg1->unk14 = temp_f1_12;
-        //     }
-        //     var_r31 += 0x10;
-        //     var_ctr_2 -= 1;
-        // } while (var_ctr_2 != 0);
-        var_r3 = sp18[1];
-        var_ctr = 3;
-        do {
+         var_r3 = sp18[1];
+        for (int i=3; i!=0; i--)
+        {
             temp_f1 = var_r3[0];
             if (temp_f1 < aabb[0]) {
                 aabb[0] = temp_f1;
@@ -250,9 +219,8 @@ void dFinitePlaneAABB(dxGeom* geomID, float* aabb)
             if (temp_f1_6 > aabb[5]) {
                 aabb[5] = temp_f1_6;
             }
-
-            var_r3 += 0x10;
-            var_ctr -= 1;
-        } while (var_ctr != 0);        
+            var_r3 += 4;
+        }
+ 
     }    
 }
