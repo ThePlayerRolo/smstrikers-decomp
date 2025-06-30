@@ -3,11 +3,8 @@
 #include "math.h"
 // #include "objects.h"
 
-
 s32 dColumnClassUser = -1;
 u8 lengthwiseAxis = 0x2;
-
-
 
 /**
  * Offset/Address/Size: 0x0 | 0x8021CE2C | size: 0xB0

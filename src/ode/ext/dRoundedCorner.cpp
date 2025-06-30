@@ -10,7 +10,8 @@ struct RoundedCornerData
     bool flag2;
 };
 
-struct AABBDimensions {
+struct AABBDimensions
+{
     float minX;
     float maxX;
     float minY;
@@ -24,14 +25,6 @@ struct AABBDimensions {
  */
 dGeomID dCreateRoundedCorner(dxSpace* space, float param, bool flag1, bool flag2)
 {
-    s32 sp18;
-    s32 sp14;
-    void (*sp10)(s32, void*);
-    s32 (*(*spC)(s32))(s32, s32, void*);
-    s32 sp8;
-    s32 temp_r31;
-    void* temp_r3;
-
     RoundedCornerData* data;
     dGeomClass geomClass;
     dGeomID geomID;
@@ -102,10 +95,10 @@ void dRoundedCornerAABB(dxGeom* geomID, float* aabb)
     float p_y;
     float var_f2;
     float var_f3;
-    u8 temp_r31;
-    u8 temp_r30;
-    RoundedCornerData *data;
-    float *position;
+    u32 temp_r31;
+    u32 temp_r30;
+    RoundedCornerData* data;
+    float* position;
 
     data = (RoundedCornerData*)dGeomGetClassData(geomID);
     temp_f31 = data->param;
@@ -116,16 +109,20 @@ void dRoundedCornerAABB(dxGeom* geomID, float* aabb)
     p_y = position[1];
     var_f2 = p_x;
     var_f3 = p_y;
-    if (temp_r31 != 0) {
+    if (temp_r31 != 0)
+    {
         var_f2 = p_x + temp_f31;
     }
-    if (temp_r31 == 0) {
+    if (temp_r31 == 0)
+    {
         p_x -= temp_f31;
     }
-    if (temp_r30 != 0) {
+    if (temp_r30 != 0)
+    {
         var_f3 += temp_f31;
     }
-    if (temp_r30 == 0) {
+    if (temp_r30 == 0)
+    {
         p_y -= temp_f31;
     }
 
@@ -133,6 +130,6 @@ void dRoundedCornerAABB(dxGeom* geomID, float* aabb)
     aabb[1] = var_f2;
     aabb[2] = p_y;
     aabb[3] = var_f3;
-    aabb[4] =  -*(float*)&__float_max;
-    aabb[5] = *(float*)&__float_max;    
+    aabb[4] = -*(float*)&__float_max;
+    aabb[5] = *(float*)&__float_max;
 }
