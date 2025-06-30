@@ -2,6 +2,7 @@
 #define _NLGADDITIONS_H_
 
 #include "ode/common.h"
+#include "ode/collision.h"
 // #include "ode/objects.h"
 // #include "ode/collision.h"
 // #include "ode/joint.h"
@@ -11,7 +12,6 @@ public:
     /* 0x00 */ u8 m_padding_0x00[0x50];
     /* 0x50 */ dVector3 m_unk_0x50;
 };
-
 void dGeomCollideAABBs(dxGeom*, dxGeom*, void*, void (*)(void*, dxGeom*, dxGeom*));
 void dGeomMarkAABBAsValid(dxGeom*);
 void dGeomComputeAABB(dxGeom*);
@@ -24,7 +24,7 @@ void dInvertRigidTransformation(float*, const float*, const float*);
 void dMultiplyMatrix4Vector4(float*, const float*, const float*);
 void dMultiplyMatrix3Vector3(float*, const float*, const float*, bool);
 void dGeomSetGFlags(dxGeom*, int);
-void dGeomGetGFlags(dxGeom*);
+int dGeomGetGFlags(dxGeom*);
 void dJointSetCharacterNoMotionDirection(dxJoint*, float*);
 dxJoint *dJointCreateCharacter(dxWorld*, dxJointGroup*);
 // void characterGetInfo1(dxJointCharacter*, dxJoint::Info1*);

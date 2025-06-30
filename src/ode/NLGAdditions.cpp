@@ -5,13 +5,43 @@
 #include "joint.h"
 #include "collision_kernel.h"
 
-static dxJoint *createJoint (dWorldID w, dJointGroupID group, dxJoint::Vtable *vtable);
+static dxJoint* createJoint(dWorldID w, dJointGroupID group, dxJoint::Vtable* vtable);
 
 /**
  * Offset/Address/Size: 0x0 | 0x802242C8 | size: 0x140
  */
-void dGeomCollideAABBs(dxGeom*, dxGeom*, void*, void (*)(void*, dxGeom*, dxGeom*))
+void dGeomCollideAABBs(dxGeom* arg0, dxGeom* arg1, void* arg2, void (*arg3)(void*, dxGeom*, dxGeom*))
 {
+    u8 var_r4;
+    dBodyID temp_r3;
+    float* aabb_0;
+    float* aabb_1;
+
+    temp_r3 = arg0->body;
+    if ((temp_r3 != arg1->body) || (temp_r3 == 0U))
+    {
+        var_r4 = 0;
+        if ((arg0->category_bits & arg1->collide_bits) || (arg1->category_bits & arg0->collide_bits))
+        {
+            var_r4 = 1;
+        }
+        if (var_r4 != 0)
+        {
+            aabb_0 = arg0->aabb;
+            aabb_1 = arg1->aabb;
+            if (   !(aabb_0[0] > aabb_1[1]) 
+                && !(aabb_0[1] < aabb_1[0]) 
+                && !(aabb_0[2] > aabb_1[3])
+                && !(aabb_0[3] < aabb_1[2]) 
+                && !(aabb_0[4] > aabb_1[5]) 
+                && !(aabb_0[5] < aabb_1[4])
+                && (arg0->AABBTest(arg1, aabb_1) != 0) 
+                && (arg1->AABBTest(arg0, aabb_0) != 0))
+            {
+                arg3(arg2, arg0, arg1);
+            }
+        }
+    }
 }
 
 /**
@@ -28,7 +58,7 @@ void dGeomMarkAABBAsValid(dxGeom* geomID)
 void dGeomComputeAABB(dxGeom* geomID)
 {
     geomID->computeAABB();
-    geomID->gflags = (s32) (geomID->gflags & 0xFFFFFFFC);    
+    geomID->gflags = (s32)(geomID->gflags & 0xFFFFFFFC);
 }
 
 /**
@@ -46,9 +76,9 @@ void dVector3Add(float* v1, const float* v2)
  */
 void dVectorScale(float* v1, float arg8)
 {
-    v1[0] = (f32) (v1[0] * arg8);
-    v1[1] = (f32) (v1[1] * arg8);
-    v1[2] = (f32) (v1[2] * arg8);    
+    v1[0] = (f32)(v1[0] * arg8);
+    v1[1] = (f32)(v1[1] * arg8);
+    v1[2] = (f32)(v1[2] * arg8);
 }
 
 /**
@@ -103,15 +133,17 @@ void dMultiplyMatrix3Vector3(float*, const float*, const float*, bool)
 /**
  * Offset/Address/Size: 0x3C8 | 0x80224690 | size: 0x8
  */
-void dGeomSetGFlags(dxGeom*, int)
+void dGeomSetGFlags(dxGeom* geom, int flags)
 {
+    geom->gflags = flags;
 }
 
 /**
  * Offset/Address/Size: 0x3D0 | 0x80224698 | size: 0x8
  */
-void dGeomGetGFlags(dxGeom*)
+int dGeomGetGFlags(dxGeom* geom)
 {
+    return geom->gflags;
 }
 
 /**
@@ -128,7 +160,7 @@ void dJointSetCharacterNoMotionDirection(dxJoint* joint, nlVector3* v3)
 /**
  * Offset/Address/Size: 0x3F4 | 0x802246BC | size: 0x28
  */
-dxJoint *dJointCreateCharacter(dxWorld* world, dxJointGroup* jointGroup)
+dxJoint* dJointCreateCharacter(dxWorld* world, dxJointGroup* jointGroup)
 {
     return createJoint(world, jointGroup, NULL);
 }
@@ -173,7 +205,7 @@ void dClearCachedData()
 void dWorldSetClearAccumulators(dxWorld* world, int flags)
 {
     // world->adis_flag = flags;
-    *(int *)((u8*)world + 0x4c) = flags; //?
+    *(int*)((u8*)world + 0x4c) = flags; //?
 }
 
 /**
@@ -197,11 +229,13 @@ dxBody* dWorldGetFirstBody(dxWorld* world)
  */
 void dBodySetUpdateMode(dxBody* body, int arg1, int arg2)
 {
-    body->flags = (s32) (body->flags & 0xFFFFFF9F);
-    if (arg1 == 0) {
-        body->flags = (s32) (body->flags | 0x20);
+    body->flags = (s32)(body->flags & 0xFFFFFF9F);
+    if (arg1 == 0)
+    {
+        body->flags = (s32)(body->flags | 0x20);
     }
-    if (arg2 == 0) {
-        body->flags = (s32) (body->flags | 0x40);
-    }    
+    if (arg2 == 0)
+    {
+        body->flags = (s32)(body->flags | 0x40);
+    }
 }
