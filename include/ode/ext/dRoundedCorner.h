@@ -4,9 +4,9 @@
 #include "ode/objects.h"
 #include "ode/collision.h"
 
-void dCreateRoundedCorner(dxSpace*, float, bool, bool);
-void dRoundedCornerColliderFn(int);
-void dCollideRoundedCornerColumn(dxGeom*, dxGeom*, int, dContactGeom*, int);
-void dCollideRoundedCornerSphere(dxGeom*, dxGeom*, int, dContactGeom*, int);
+dGeomID dCreateRoundedCorner(dxSpace*, float, bool, bool);
+dColliderFn* dRoundedCornerColliderFn(int);
+int dCollideRoundedCornerColumn(dxGeom*, dxGeom*, int, dContactGeom*, int);
+int dCollideRoundedCornerSphere(dxGeom*, dxGeom*, int, dContactGeom*, int);
 void dRoundedCornerAABB(dxGeom*, float*);
 #endif // _DROUNDEDCORNER_H_

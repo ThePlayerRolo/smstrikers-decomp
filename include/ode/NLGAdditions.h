@@ -4,9 +4,13 @@
 #include "ode/common.h"
 #include "ode/objects.h"
 #include "ode/collision.h"
-#include "joint.h"
+#include "ode/joint.h"
 
-class dxJointCharacter;
+class dxJointCharacter {
+public:
+    /* 0x00 */ u8 m_padding_0x00[0x50];
+    /* 0x50 */ dVector3 m_unk_0x50;
+};
 
 void dGeomCollideAABBs(dxGeom*, dxGeom*, void*, void (*)(void*, dxGeom*, dxGeom*));
 void dGeomMarkAABBAsValid(dxGeom*);
@@ -23,24 +27,13 @@ void dGeomSetGFlags(dxGeom*, int);
 void dGeomGetGFlags(dxGeom*);
 void dJointSetCharacterNoMotionDirection(dxJoint*, float*);
 dxJoint *dJointCreateCharacter(dxWorld*, dxJointGroup*);
+void characterGetInfo1(dxJointCharacter*, dxJoint::Info1*);
+void characterGetInfo2(dxJointCharacter*, dxJoint::Info2*);
 void characterInit(dxJointCharacter*);
 void dClearCachedData();
 void dWorldSetClearAccumulators(dxWorld*, int);
 dxBody* dBodyGetNextBody(dxBody*);
 dxBody* dWorldGetFirstBody(dxWorld*);
 void dBodySetUpdateMode(dxBody*, int, int);
-
-// class characterGetInfo2(dxJointCharacter*, dxJoint
-// {
-// public:
-//     void Info2*);
-// };
-
-
-// class characterGetInfo1(dxJointCharacter*, dxJoint
-// {
-// public:
-//     void Info1*);
-// };
 
 #endif // _NLGADDITIONS_H_
