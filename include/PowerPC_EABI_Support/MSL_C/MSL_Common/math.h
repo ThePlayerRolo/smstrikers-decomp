@@ -54,6 +54,15 @@ int abs(int n);
 long labs(long n);
 #endif
 
+#ifndef __MWERKS__
+inline double __frsqrte(double x) {
+    double result;
+    asm("frsqrte %0, %1" : "=f"(result) : "f"(x));
+    return result;
+}
+#endif
+
+
 extern _INT32 __float_huge[];
 extern _INT32 __float_nan[];
 extern _INT32 __double_huge[];
