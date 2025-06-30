@@ -1,7 +1,7 @@
 #ifndef _DCOLUMN_H_
 #define _DCOLUMN_H_
 
-#include "ode/objects.h"
+// #include "ode/objects.h"
 #include "ode/collision.h"
 
 dGeomID dCreateColumn(dxSpace*, float);

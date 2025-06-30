@@ -2,9 +2,9 @@
 #define _NLGADDITIONS_H_
 
 #include "ode/common.h"
-#include "ode/objects.h"
-#include "ode/collision.h"
-#include "ode/joint.h"
+// #include "ode/objects.h"
+// #include "ode/collision.h"
+// #include "ode/joint.h"
 
 class dxJointCharacter {
 public:
@@ -27,8 +27,8 @@ void dGeomSetGFlags(dxGeom*, int);
 void dGeomGetGFlags(dxGeom*);
 void dJointSetCharacterNoMotionDirection(dxJoint*, float*);
 dxJoint *dJointCreateCharacter(dxWorld*, dxJointGroup*);
-void characterGetInfo1(dxJointCharacter*, dxJoint::Info1*);
-void characterGetInfo2(dxJointCharacter*, dxJoint::Info2*);
+// void characterGetInfo1(dxJointCharacter*, dxJoint::Info1*);
+// void characterGetInfo2(dxJointCharacter*, dxJoint::Info2*);
 void characterInit(dxJointCharacter*);
 void dClearCachedData();
 void dWorldSetClearAccumulators(dxWorld*, int);

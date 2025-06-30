@@ -1,6 +1,8 @@
 #include "ode/ext/dColumn.h"
-#include "ode/collision.h"
+// #include "ode/collision.h"
 #include "math.h"
+// #include "objects.h"
+
 
 s32 dColumnClassUser = -1;
 u8 lengthwiseAxis = 0x2;
