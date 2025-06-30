@@ -1,24 +1,28 @@
-#include "world.h"
+#include "World.h"
 
+#include "string.h"
 
-#include "NL/nlStrChr.h"
+#include "NL/nlString.h"
 #include "NL/nlDebug.h"
-
 
 u32 World::m_uCurrentFrameCount = 0;
 
 /**
  * Offset/Address/Size: 0x0 | 0x80194CC4 | size: 0x5C
  */
-void World::CompareNameToGenericName(const char*, const char*)
+int World::CompareNameToGenericName(const char* str1, const char* str2)
 {
+  size_t sVar1 = strlen(str2);
+  return nlStrNCmp<char>(str1 + *(int *)((u8*)this + 0x120), str2, sVar1);
 }
 
 /**
  * Offset/Address/Size: 0x5C | 0x80194D20 | size: 0x44
  */
-void World::GetHashIdForGenericName(const char*) const
+void World::GetHashIdForGenericName(const char* str) const
 {
+  nlStrNCpy<char>((char*)this + *(int *)((u8*)this + 0x120) + 0xe0 ,str, (unsigned long)0x40 - *(int *)((u8*)this + 0x120));
+  nlStringLowerHash((const char*)this + 0xe0);    
 }
 
 /**
@@ -222,12 +226,12 @@ World::~World()
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x3DB4 | 0x80198A78 | size: 0x19C
-//  */
-// World::World(const char*)
-// {
-// }
+/**
+ * Offset/Address/Size: 0x3DB4 | 0x80198A78 | size: 0x19C
+ */
+World::World(const char*)
+{
+}
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x80198C14 | size: 0x4

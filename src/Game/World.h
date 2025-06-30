@@ -37,7 +37,7 @@ public:
     virtual void DoLoad() = 0; // 0x2C
     virtual void DoInitialize() = 0; // 0x30
 
-    void CompareNameToGenericName(const char*, const char*);
+    int CompareNameToGenericName(const char*, const char*);
     void GetHashIdForGenericName(const char*) const;
     void GetShadowLight(const nlVector3&, float);
     void AddDrawableObject(unsigned long, DrawableObject*);
