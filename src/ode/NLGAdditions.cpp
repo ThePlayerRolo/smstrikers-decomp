@@ -1,6 +1,7 @@
 #include "ode/NLGAdditions.h"
 
 #include "NL/nlMath.h"
+#include "ode/matrix.h"
 #include "objects.h"
 #include "joint.h"
 #include "collision_kernel.h"
@@ -105,29 +106,62 @@ void dVector3Set(float* v, float x, float y, float z)
 /**
  * Offset/Address/Size: 0x214 | 0x802244DC | size: 0x24
  */
-void dExtractColumn3(float*, const float*, int)
+void dExtractColumn3(float* arg0, const float* arg1, int col)
 {
+    arg0[0] = *(float*)(arg1+col);
+    arg0[1] = *(float*)(arg1+col+4);
+    arg0[2] = *(float*)(arg1+col+8);
 }
 
 /**
  * Offset/Address/Size: 0x238 | 0x80224500 | size: 0xDC
  */
-void dInvertRigidTransformation(float*, const float*, const float*)
+void dInvertRigidTransformation(float* param_1, const float* param_2, const float* param_3)
 {
+    float v[3];
+
+    param_1[0] = param_2[0];
+    param_1[1] = param_2[4];
+    param_1[2] = param_2[8];
+    param_1[4] = param_2[1];
+    param_1[5] = param_2[5];
+    param_1[6] = param_2[9];
+    param_1[8] = param_2[2];
+    param_1[9] = param_2[6];
+    param_1[10] = param_2[10];;
+
+    dMultiply0(v,param_1,param_3,3,3,1);
+
+    param_1[3] = v[2] * -1.0f;
+    param_1[7] = v[1] * -1.0f;
+    param_1[0xb] = v[0] * -1.0f;
+    param_1[0xc] = 0.0f;
+    param_1[0xd] = 0.0f;
+    param_1[0xe] = 0.0f;
+    param_1[0xf] = 1.0f;    
 }
 
 /**
  * Offset/Address/Size: 0x314 | 0x802245DC | size: 0x2C
  */
-void dMultiplyMatrix4Vector4(float*, const float*, const float*)
+void dMultiplyMatrix4Vector4(float* m1, const float* m2, const float* m3)
 {
+    dMultiply0(m1, m2, m3,4, 4, 1);
 }
 
 /**
  * Offset/Address/Size: 0x340 | 0x80224608 | size: 0x88
  */
-void dMultiplyMatrix3Vector3(float*, const float*, const float*, bool)
+void dMultiplyMatrix3Vector3(float* m1, const float* m2, const float* m3, bool flag)
 {
+    if ((u32)flag == 0) 
+    {
+        dMultiply0(m1, m2, m3,3, 3, 1);
+    }
+    else 
+    {
+        dMultiply1(m1,m2,m3,3,3,1);
+    }    
 }
 
 /**
