@@ -27,7 +27,7 @@ bool nlLoadEntireFileAsync(const char* filename, LoadAsyncCallback callback, voi
     {
         return 0;
     }
-    datasize = file->Size(&filesize);
+    datasize = file->FileSize(&filesize);
     if (datasize != 0)
     {
         if (type == 1)
@@ -87,7 +87,7 @@ void* nlLoadEntireFile(const char* filename, unsigned long* arg1, unsigned int a
     nlFile* file = nlOpen(filename);
     if (file != NULL)
     {
-        unsigned long datasize = file->Size(&filesize);
+        unsigned long datasize = file->FileSize(&filesize);
         if (datasize != 0)
         {
             if (type == 1)
@@ -133,7 +133,7 @@ void nlRead(nlFile* file, void* buffer, unsigned int size)
  */
 void nlFileSize(nlFile* file, unsigned int* size)
 {
-    file->Size(size);
+    file->FileSize(size);
 }
 
 /**

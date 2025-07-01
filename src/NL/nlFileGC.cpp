@@ -1,5 +1,6 @@
 #include "NL/nlFileGC.h"
 
+
 /**
  * Offset/Address/Size: 0x0 | 0x801CED54 | size: 0xEC
  */
@@ -53,15 +54,28 @@ void nlReadToVirtualMemory(nlFile*, void*, unsigned int, unsigned int)
 /**
  * Offset/Address/Size: 0x664 | 0x801CF3B8 | size: 0x8
  */
-void nlGetFilePosition(nlFile*)
+u32 nlGetFilePosition(nlFile* file)
 {
+    return file->m_unk_0x08;
 }
 
 /**
  * Offset/Address/Size: 0x66C | 0x801CF3C0 | size: 0x8C
  */
-void nlSeek(nlFile*, unsigned int, unsigned long)
+void nlSeek(nlFile* file, unsigned int offset, unsigned long origin)
 {
+    switch (origin)
+    { /* irregular */
+    case 0:
+        file->m_unk_0x08 = offset;
+        return;
+    case 1:
+        file->m_unk_0x08 = (s32)(file->m_unk_0x08 + offset);
+        return;
+    case 2:
+        file->m_unk_0x08 = (s32)(file->FileSize(NULL) - offset);
+        return;
+    }
 }
 
 /**
@@ -116,7 +130,7 @@ void nlFlushFileCash()
 /**
  * Offset/Address/Size: 0x19EC | 0x801D0740 | size: 0x18C
  */
-nlFile *nlOpen(const char*)
+nlFile* nlOpen(const char*)
 {
 }
 
@@ -137,8 +151,9 @@ void TDEVChunkFile::ReadAsync(void*, unsigned long, unsigned long)
 /**
  * Offset/Address/Size: 0x1C68 | 0x801D09BC | size: 0x20
  */
-void GCFile::Read(void*, unsigned int)
+void GCFile::Read(void* buffer, unsigned int size)
 {
+    GameCubeReadBlocking(NULL, buffer, size);
 }
 
 /**
@@ -174,6 +189,7 @@ void GetDiscPosition()
  */
 GCFile::~GCFile()
 {
+    // EMPTY
 }
 
 /**
@@ -181,20 +197,26 @@ GCFile::~GCFile()
  */
 DolphinFile::~DolphinFile()
 {
+    DVDClose(&m_fileInfo);
 }
 
 /**
  * Offset/Address/Size: 0x20C | 0x801D0DE0 | size: 0x14
  */
-void DolphinFile::FileSize(unsigned int*)
+void DolphinFile::FileSize(unsigned int* size)
 {
+    if (size == NULL) {
+        return;
+    }
+    *size = m_fileInfo.length;
 }
 
 /**
  * Offset/Address/Size: 0x220 | 0x801D0DF4 | size: 0x24
  */
-void DolphinFile::GetReadStatus()
+s32 DolphinFile::GetReadStatus()
 {
+    return DVDGetCommandBlockStatus(&m_fileInfo.cb);
 }
 
 /**
@@ -202,13 +224,15 @@ void DolphinFile::GetReadStatus()
  */
 void DolphinFile::ReadAsync(void*, unsigned long, unsigned long)
 {
+    // DVDReadAsyncPrio(m_block, 0, 2);
 }
 
 /**
  * Offset/Address/Size: 0x270 | 0x801D0E44 | size: 0x8
  */
-void DolphinFile::GetDiscPosition()
+s32 DolphinFile::GetDiscPosition()
 {
+    return m_fileInfo.startAddr; // 0x3c
 }
 
 /**

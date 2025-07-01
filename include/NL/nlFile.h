@@ -15,8 +15,11 @@ public:
     virtual ~nlFile();
     nlFile();
 
-    /* 0x0C */ virtual unsigned int Size(unsigned int* size) = 0;
+    /* 0x0C */ virtual unsigned int FileSize(unsigned int* size) = 0;
     /* 0x10 */ virtual void Read(void* buffer, unsigned int size) = 0;
+
+    /* 0x04 */ u32 m_unk_0x04; 
+    /* 0x08 */ u32 m_unk_0x08; // current position
 };
 
 bool nlLoadEntireFileAsync(const char*, LoadAsyncCallback callback, void* userData, unsigned int size, eAllocType type);

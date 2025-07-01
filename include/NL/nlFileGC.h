@@ -2,6 +2,7 @@
 #define _NLFILEGC_H_
 
 #include "NL/nlFile.h"
+#include "Dolphin/dvd.h"
 
 typedef void (*ReadAsyncCallback)(nlFile*, void*, unsigned int, unsigned long);
 
@@ -14,7 +15,7 @@ void nlCancelPendingAsyncReads(nlFile*, void (*)(nlFile*, void*, unsigned int, u
 void nlAsyncReadsPending(nlFile*);
 void nlLoadEntireFileToVirtualMemory(const char*, int*, unsigned int, void*, eAllocType);
 void nlReadToVirtualMemory(nlFile*, void*, unsigned int, unsigned int);
-void nlGetFilePosition(nlFile*);
+u32 nlGetFilePosition(nlFile*);
 void nlSeek(nlFile*, unsigned int, unsigned long);
 void nlReadAsync(nlFile*, void*, unsigned int, ReadAsyncCallback, unsigned long);
 void nlServiceFileSystem();
@@ -52,23 +53,25 @@ public:
 };
 
 
-class GCFile
+class GCFile : public nlFile
 {
 public:
-    void Read(void*, unsigned int);
-    ~GCFile();
+    virtual ~GCFile();
+    virtual void Read(void*, unsigned int);
 };
 
 
-class DolphinFile
+class DolphinFile : public GCFile
 {
 public:
-    void FileSize(unsigned int*);
-    void GetReadStatus();
-    void ReadAsync(void*, unsigned long, unsigned long);
-    void GetDiscPosition();
+    virtual ~DolphinFile();
 
-    ~DolphinFile();
+    virtual void FileSize(unsigned int*);
+    virtual s32 GetReadStatus();
+    virtual void ReadAsync(void*, unsigned long, unsigned long);
+    virtual s32 GetDiscPosition();
+
+    /* 0x0c */ DVDFileInfo m_fileInfo;
 };
 
 #endif // _NLFILEGC_H_
