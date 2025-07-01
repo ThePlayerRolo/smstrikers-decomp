@@ -15,7 +15,7 @@ public:
     virtual ~nlFile();
     nlFile();
 
-    /* 0x0C */ virtual unsigned int FileSize(unsigned int* size) = 0;
+    /* 0x0C */ virtual u32 FileSize(unsigned int* size) = 0;
     /* 0x10 */ virtual void Read(void* buffer, unsigned int size) = 0;
 
     /* 0x04 */ u32 m_unk_0x04; 

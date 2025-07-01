@@ -3,6 +3,7 @@
 
 #include "NL/nlFile.h"
 #include "Dolphin/dvd.h"
+#include "file_io.h"
 
 typedef void (*ReadAsyncCallback)(nlFile*, void*, unsigned int, unsigned long);
 
@@ -41,18 +42,6 @@ nlFile *nlOpen(const char*);
 // };
 
 
-class TDEVChunkFile
-{
-public:
-    void GetReadStatus();
-    void ReadAsync(void*, unsigned long, unsigned long);
-    void FileSize(unsigned int*);
-    void GetDiscPosition();
-
-    ~TDEVChunkFile();
-};
-
-
 class GCFile : public nlFile
 {
 public:
@@ -60,16 +49,33 @@ public:
     virtual void Read(void*, unsigned int);
 };
 
+class TDEVChunkFile: public GCFile
+{
+public:
+    virtual ~TDEVChunkFile();
+    virtual u32 FileSize(unsigned int*);
+    virtual BOOL GetReadStatus();
+    virtual BOOL ReadAsync(void*, unsigned long, unsigned long);
+    virtual u32 GetDiscPosition();
+
+    /* 0x0c */ FILE* m_file;
+    /* 0x10 */ void* m_buffer;
+    /* 0x14 */ u32 m_readOffset;
+    /* 0x18 */ u32 m_readLength;
+    /* 0x1c */ u32 m_bytesRead;
+    /* 0x20 */ u32 m_unk_0x20;
+    /* 0x24 */ u32 m_unk_0x24;
+    /* 0x28 */ u32 m_unk_0x28;
+};
 
 class DolphinFile : public GCFile
 {
 public:
     virtual ~DolphinFile();
-
-    virtual void FileSize(unsigned int*);
-    virtual s32 GetReadStatus();
-    virtual void ReadAsync(void*, unsigned long, unsigned long);
-    virtual s32 GetDiscPosition();
+    virtual u32 FileSize(unsigned int*);
+    virtual BOOL GetReadStatus();
+    virtual BOOL ReadAsync(void*, unsigned long, unsigned long);
+    virtual u32 GetDiscPosition();
 
     /* 0x0c */ DVDFileInfo m_fileInfo;
 };

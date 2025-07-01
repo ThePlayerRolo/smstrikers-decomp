@@ -1,5 +1,6 @@
 #include "NL/nlFileGC.h"
-
+#include "FILE_POS.h"
+#include "direct_io.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801CED54 | size: 0xEC
@@ -132,20 +133,44 @@ void nlFlushFileCash()
  */
 nlFile* nlOpen(const char*)
 {
+    return NULL;
 }
 
 /**
  * Offset/Address/Size: 0x1B78 | 0x801D08CC | size: 0xB0
  */
-void TDEVChunkFile::GetReadStatus()
+BOOL TDEVChunkFile::GetReadStatus()
 {
+    s8 isComplete;
+    u32 remainingBytes;
+    u32 readSize;
+
+    fseek(m_file, m_readOffset + m_bytesRead, 0);
+    readSize = 0x3000U; // Default chunk size (12KB)
+    remainingBytes = m_readLength - m_bytesRead;
+    if (remainingBytes <= 0x3000U)
+    {
+        readSize = remainingBytes;
+    }
+    isComplete = 0;
+    m_bytesRead = (u32)(m_bytesRead + fread((void*)((u8*)m_buffer + m_bytesRead), 1, readSize, m_file));
+    if ((m_bytesRead == m_readLength) || ((m_readLength == 0x20U) && (m_bytesRead != 0U)))
+    {
+        isComplete = 1;
+    }
+    return isComplete == 0;
 }
 
 /**
  * Offset/Address/Size: 0x1C28 | 0x801D097C | size: 0x40
  */
-void TDEVChunkFile::ReadAsync(void*, unsigned long, unsigned long)
+BOOL TDEVChunkFile::ReadAsync(void* buffer, unsigned long length, unsigned long offset)
 {
+    m_buffer = buffer;
+    m_readOffset = offset;
+    m_readLength = length;
+    m_bytesRead = 0;
+    return GetReadStatus();
 }
 
 /**
@@ -168,20 +193,35 @@ void GCFile::Read(void* buffer, unsigned int size)
  */
 TDEVChunkFile::~TDEVChunkFile()
 {
+    fclose(m_file);
+    m_file = NULL;
 }
 
 /**
  * Offset/Address/Size: 0x90 | 0x801D0C64 | size: 0x8C
  */
-void FileSize(unsigned int*)
+u32 TDEVChunkFile::FileSize(unsigned int* size)
 {
+    u32 currentPosition;
+    u32 fileSize;
+
+    currentPosition = ftell(m_file);
+    fseek(m_file, 0, 2);
+    fileSize = ftell(m_file);
+    fseek(m_file, currentPosition, 0);
+    if (size != NULL)
+    {
+        *size = fileSize;
+    }
+    return fileSize;
 }
 
 /**
  * Offset/Address/Size: 0x11C | 0x801D0CF0 | size: 0x8
  */
-void GetDiscPosition()
+u32 TDEVChunkFile::GetDiscPosition()
 {
+    return 0;
 }
 
 /**
@@ -203,18 +243,20 @@ DolphinFile::~DolphinFile()
 /**
  * Offset/Address/Size: 0x20C | 0x801D0DE0 | size: 0x14
  */
-void DolphinFile::FileSize(unsigned int* size)
+u32 DolphinFile::FileSize(unsigned int* size)
 {
-    if (size == NULL) {
-        return;
+    u32 s = m_fileInfo.length;
+    if (size != NULL)
+    {
+        *size = s;
     }
-    *size = m_fileInfo.length;
+    return s;
 }
 
 /**
  * Offset/Address/Size: 0x220 | 0x801D0DF4 | size: 0x24
  */
-s32 DolphinFile::GetReadStatus()
+BOOL DolphinFile::GetReadStatus()
 {
     return DVDGetCommandBlockStatus(&m_fileInfo.cb);
 }
@@ -222,15 +264,15 @@ s32 DolphinFile::GetReadStatus()
 /**
  * Offset/Address/Size: 0x244 | 0x801D0E18 | size: 0x2C
  */
-void DolphinFile::ReadAsync(void*, unsigned long, unsigned long)
+BOOL DolphinFile::ReadAsync(void* addr, unsigned long length, unsigned long offset)
 {
-    // DVDReadAsyncPrio(m_block, 0, 2);
+    return DVDReadAsyncPrio(&m_fileInfo, addr, (s32)length, (s32)offset, 0, 2);
 }
 
 /**
  * Offset/Address/Size: 0x270 | 0x801D0E44 | size: 0x8
  */
-s32 DolphinFile::GetDiscPosition()
+u32 DolphinFile::GetDiscPosition()
 {
     return m_fileInfo.startAddr; // 0x3c
 }
