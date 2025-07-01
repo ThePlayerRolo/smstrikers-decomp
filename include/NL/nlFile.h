@@ -3,6 +3,9 @@
 
 #include "types.h"
 
+class nlFile;
+
+typedef void (*ReadAsyncCallback)(nlFile*, void*, unsigned int, unsigned long);
 typedef void (*LoadAsyncCallback)(void*, unsigned long, void*);
 
 enum eAllocType {

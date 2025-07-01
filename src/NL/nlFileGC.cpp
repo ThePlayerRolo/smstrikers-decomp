@@ -2,26 +2,76 @@
 #include "FILE_POS.h"
 #include "direct_io.h"
 
+namespace nlFileGC
+{
+u8 asyncToVirMemBuffer[0x4000];
+}
+
 /**
  * Offset/Address/Size: 0x0 | 0x801CED54 | size: 0xEC
  */
-void nlReadAsyncToVirtualMemory(nlFile*, void*, int, LoadAsyncCallback, unsigned long, unsigned long, void*)
+void nlReadAsyncToVirtualMemory(nlFile* file, void* buffer, int size, ReadAsyncCallback callback, unsigned long alignment, unsigned long length, void* userData)
 {
+    s32 var_r11 = 0;
+    nlReadAsync(file, buffer, size, &nlFileGC::AsyncToVirMemBufferCallback, var_r11);
+
+    //     s32 *var_r10;
+    //     s32 temp_r10;
+    //     s32 var_ctr;
+    //     s32 var_r11;
+    //     s32 var_r23;
+    //     u32 temp_r28;
+    //     void *temp_r3;
+
+    //     var_r11 = 0;
+    //     var_r10 = &asyncToVirMemBufferLoad__22@unnamed@nlFileGC_cpp@;
+    //     var_ctr = 4;
+    // loop_1:
+    //     if ((s32) *var_r10 == 0) {
+    //         temp_r28 = arg2 / arg5;
+    //         temp_r10 = var_r11 * 0x14;
+    //         *(&asyncToVirMemBufferLoad__22@unnamed@nlFileGC_cpp@ + temp_r10) = temp_r28 + 1;
+    //         temp_r3 = &asyncToVirMemBufferLoad__22@unnamed@nlFileGC_cpp@ + temp_r10;
+    //         var_r23 = 0;
+    //         temp_r3->unk4 = arg4;
+    //         temp_r3->unk8 = arg3;
+    //         temp_r3->unk10 = arg2;
+    //         temp_r3->unkC = arg1;
+    // loop_4:
+    //         if (var_r23 < (s32) temp_r28) {
+    //             nlReadAsync(arg0, arg6, arg5, &AsyncToVirMemBufferCallback__22@unnamed@nlFileGC_cpp@FP6nlFilePvUiUl, var_r11);
+    //             var_r23 += 1;
+    //             goto loop_4;
+    //         }
+    //         nlReadAsync(arg0, arg6, arg2 % arg5, &AsyncToVirMemBufferCallback__22@unnamed@nlFileGC_cpp@FP6nlFilePvUiUl, var_r11);
+    //         return;
+    //     }
+    //     var_r10 += 0x14;
+    //     var_r11 += 1;
+    //     var_ctr -= 1;
+    //     if (var_ctr == 0) {
+    //         return;
+    //     }
+    //     goto loop_1;
 }
 
 /**
  * Offset/Address/Size: 0xEC | 0x801CEE40 | size: 0x38
  */
-void nlAsyncLoadFileToVirtualMemory(nlFile*, int, void*, LoadAsyncCallback, unsigned long)
+void nlAsyncLoadFileToVirtualMemory(nlFile* param_1, int param_2, void* param_3, ReadAsyncCallback param_4, unsigned long param_5)
 {
+    nlReadAsyncToVirtualMemory(param_1, param_3, param_2, param_4, param_5, 0x4000, &nlFileGC::asyncToVirMemBuffer);
 }
 
+namespace nlFileGC
+{
 /**
  * Offset/Address/Size: 0x124 | 0x801CEE78 | size: 0xAC
  */
 void AsyncToVirMemBufferCallback(nlFile*, void*, unsigned int, unsigned long)
 {
 }
+} // namespace nlFileGC
 
 /**
  * Offset/Address/Size: 0x1D0 | 0x801CEF24 | size: 0xF4
@@ -126,6 +176,7 @@ void UpdateReadState(AsyncEntry*)
  */
 void nlFlushFileCash()
 {
+    // EMPTY
 }
 
 /**
@@ -181,12 +232,15 @@ void GCFile::Read(void* buffer, unsigned int size)
     GameCubeReadBlocking(NULL, buffer, size);
 }
 
+namespace nlFileGC
+{
 /**
  * Offset/Address/Size: 0x1E74 | 0x801D0BC8 | size: 0xC
  */
-// @unnamed@nlFileGC_cpp@::AsyncToVirMemBufferLoad::AsyncToVirMemBufferLoad()
-// {
-// }
+void AsyncToVirMemBufferLoad()
+{
+}
+} // namespace nlFileGC
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D0BD4 | size: 0x90

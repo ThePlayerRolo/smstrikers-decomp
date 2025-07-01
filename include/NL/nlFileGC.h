@@ -5,13 +5,11 @@
 #include "Dolphin/dvd.h"
 #include "file_io.h"
 
-typedef void (*ReadAsyncCallback)(nlFile*, void*, unsigned int, unsigned long);
-
 class GCFile;
 class AsyncEntry;
 
-void nlReadAsyncToVirtualMemory(nlFile*, void*, int, LoadAsyncCallback, unsigned long, unsigned long, void*);
-void nlAsyncLoadFileToVirtualMemory(nlFile*, int, void*, LoadAsyncCallback, unsigned long);
+void nlReadAsyncToVirtualMemory(nlFile*, void*, int, ReadAsyncCallback, unsigned long, unsigned long, void*);
+void nlAsyncLoadFileToVirtualMemory(nlFile*, int, void*, ReadAsyncCallback, unsigned long);
 void nlCancelPendingAsyncReads(nlFile*, void (*)(nlFile*, void*, unsigned int, unsigned long, LoadAsyncCallback));
 void nlAsyncReadsPending(nlFile*);
 void nlLoadEntireFileToVirtualMemory(const char*, int*, unsigned int, void*, eAllocType);
@@ -34,12 +32,11 @@ nlFile *nlOpen(const char*);
 // void nlDLRingAddStart<AsyncEntry>(AsyncEntry**, AsyncEntry*);
 // void nlRingIsEnd<AsyncEntry>(AsyncEntry*, AsyncEntry*);
 
-// class @unnamed@nlFileGC_cpp@
-// {
-// public:
-//     @unnamed@nlFileGC_cpp@::AsyncToVirMemBufferCallback(nlFile*, void*, unsigned int, unsigned long);
-//     @unnamed@nlFileGC_cpp@::AsyncToVirMemBufferLoad::AsyncToVirMemBufferLoad();
-// };
+namespace nlFileGC 
+{
+    void AsyncToVirMemBufferCallback(nlFile*, void*, unsigned int, unsigned long);
+    void AsyncToVirMemBufferLoad();
+};
 
 
 class GCFile : public nlFile
