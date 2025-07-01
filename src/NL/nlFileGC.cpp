@@ -116,7 +116,7 @@ void nlFlushFileCash()
 /**
  * Offset/Address/Size: 0x19EC | 0x801D0740 | size: 0x18C
  */
-void nlOpen(const char*)
+nlFile *nlOpen(const char*)
 {
 }
 

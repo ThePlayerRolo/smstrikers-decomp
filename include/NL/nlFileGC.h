@@ -23,7 +23,7 @@ void GameCubeReadBlocking(GCFile*, void*, unsigned long);
 void GameCubeReadAsync(GCFile*, ReadAsyncCallback, void*, unsigned long, unsigned long);
 void UpdateReadState(AsyncEntry*);
 void nlFlushFileCash();
-void nlOpen(const char*);
+nlFile *nlOpen(const char*);
 
 // void nlDLRingRemoveStart<AsyncEntry>(AsyncEntry**);
 // void nlDLRingGetStart<AsyncEntry>(AsyncEntry*);

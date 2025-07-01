@@ -1,6 +1,8 @@
 #ifndef _NLFILE_H_
 #define _NLFILE_H_
 
+#include "types.h"
+
 typedef void (*LoadAsyncCallback)(void*, unsigned long, void*);
 
 enum eAllocType {
@@ -10,13 +12,16 @@ enum eAllocType {
 class nlFile
 {
 public:
-    ~nlFile();
+    virtual ~nlFile();
     nlFile();
+
+    /* 0x0C */ virtual unsigned int Size(unsigned int* size) = 0;
+    /* 0x10 */ virtual void Read(void* buffer, unsigned int size) = 0;
 };
 
-void nlLoadEntireFileAsync(const char*, LoadAsyncCallback callback, void* userData, unsigned int size, eAllocType type);
+bool nlLoadEntireFileAsync(const char*, LoadAsyncCallback callback, void* userData, unsigned int size, eAllocType type);
 void nlLoadEntireFileAsyncCallback(nlFile*, void*, unsigned int, unsigned long);
-void nlLoadEntireFile(const char*, unsigned long*, unsigned int, eAllocType);
+void *nlLoadEntireFile(const char*, unsigned long*, unsigned int, eAllocType);
 void nlClose(nlFile*);
 void nlRead(nlFile*, void*, unsigned int);
 void nlFileSize(nlFile*, unsigned int*);
