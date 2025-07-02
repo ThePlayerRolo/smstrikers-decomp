@@ -43,7 +43,11 @@ class GCFile : public nlFile
 {
 public:
     virtual ~GCFile();
+    virtual u32 FileSize(unsigned int*) = 0;
     virtual void Read(void*, unsigned int);
+    virtual BOOL GetReadStatus() = 0;
+    virtual BOOL ReadAsync(void*, unsigned long, unsigned long) = 0;
+    virtual u32 GetDiscPosition() = 0;    
 };
 
 class TDEVChunkFile: public GCFile

@@ -1,23 +1,50 @@
 #ifndef _NLSLOTPOOL_H_
 #define _NLSLOTPOOL_H_
 
+#include "types.h"
+
+typedef void* (*SlotPoolAllocatorFunc)(unsigned long size);
+typedef void (*SlotPoolFreeFunc)(void* data);
+
+// Forward declarations
+struct SlotPoolBlock;
+struct SlotPoolEntry;
+
+template<typename T>
+void nlListAddStart(T** head, T* newNode, T** prev) 
+{
+    if ((prev != NULL) && ((T*)*head == NULL)) {
+        *prev = newNode;
+    }
+    *(T**)newNode = *head;
+    *head = newNode;
+}
+
 class SlotPoolBase
 {
 public:
-    void BaseAddNewBlock(SlotPoolBase*, unsigned int);
-    void BaseFreeBlocks(SlotPoolBase*, unsigned int);
+    static void BaseAddNewBlock(SlotPoolBase*, unsigned int);
+    static void BaseFreeBlocks(SlotPoolBase*, unsigned int);
     ~SlotPoolBase();
     SlotPoolBase();
+
+    /* 0x00 */ u32 m_unk_0x00;  // Secondary slot count
+    /* 0x04 */ u32 m_unk_0x04;  // Primary slot count  
+    /* 0x08 */ SlotPoolBlock* m_unk_0x08;  // Head of block list
+    /* 0x0C */ SlotPoolEntry* m_unk_0x0C;  // Head of entry list
+    /* 0x10 */ SlotPoolAllocatorFunc m_slotPoolAllocator;
+    /* 0x14 */ SlotPoolFreeFunc m_slotPoolFree;
 };
 
-class SlotPoolEntry;
-class SlotPoolBlock;
+struct SlotPoolBlock {
+    SlotPoolBlock* m_next;  // Pointer for linked list functionality
+};
+
+struct SlotPoolEntry {
+    SlotPoolEntry* m_next;  // Pointer for linked list functionality
+};
 
 void DefaultSlotPoolFree(void*);
-void DefaultSlotPoolAllocator(unsigned long);
-// nlListAddStart<SlotPoolEntry>(SlotPoolEntry**, SlotPoolEntry*, SlotPoolEntry**)
-void nlListAddStart(SlotPoolEntry**, SlotPoolEntry*, SlotPoolEntry**);
-// nlListAddStart<SlotPoolBlock>(SlotPoolBlock**, SlotPoolBlock*, SlotPoolBlock**)
-void nlListAddStart(SlotPoolBlock**, SlotPoolBlock*, SlotPoolBlock**);
+void* DefaultSlotPoolAllocator(unsigned long);
 
 #endif // _NLSLOTPOOL_H_

@@ -49,7 +49,7 @@ void nlReadAsyncToVirtualMemory(nlFile* file, void* buffer, int size, ReadAsyncC
     //     var_r10 += 0x14;
     //     var_r11 += 1;
     //     var_ctr -= 1;
-    //     if (var_ctr == 0) {
+    //     if (var_ctr == 0) {nin
     //         return;
     //     }
     //     goto loop_1;
