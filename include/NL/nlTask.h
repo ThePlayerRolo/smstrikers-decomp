@@ -19,19 +19,38 @@
 // void nlDLRingAddStart<nlTask>(nlTask**, nlTask*);
 // void nlDLRingInsert<nlTask>(nlTask**, nlTask*, nlTask*);
 
+class nlTask
+{
+public:
+	virtual void Run(float) = 0;
+	virtual const char* GetName() = 0;
+    virtual void StateTransition(unsigned int, unsigned int);
+
+    /* 0x04 */ nlTask* prev;
+    /* 0x08 */ nlTask* next;
+    /* 0x0C */ u32 m_unk_0x0C; 
+    /* 0x10 */ u32 m_unk_0x10;     
+    /* 0x14 */ u32 m_unk_0x14; // current ticker value     
+};
+
 class nlTaskManager
 {
 public:
-    void SetTimeDilation(float);
+    static void SetTimeDilation(float);
     static void SetNextState(unsigned int state);
-    void RunAllTasks();
-    void AddTask(nlTask*, unsigned int, unsigned int);
-    void Startup(unsigned int);
+    static void RunAllTasks();
+    static void AddTask(nlTask*, unsigned int, unsigned int);
+    static void Startup(unsigned int);
 
     static nlTaskManager* m_pInstance;
 
-    /* 0x00 */ u8 m_padding_0x00[0x8];
-    /* 0x08 */ uint m_unk_0x08;
+    /* 0x00 */ float m_timeDilation;
+    /* 0x04 */ nlTask* m_taskRingHead;  // Head of the task DLRing
+    /* 0x08 */ u32 m_unk_0x08; 
+    /* 0x0C */ u32 m_nextState;     
+    /* 0x10 */ u32 m_taskCount;     
+    /* 0x14 */ u32 m_unk_0x14; 
+    /* 0x18 */ u8 m_flags;          
 
 };
 

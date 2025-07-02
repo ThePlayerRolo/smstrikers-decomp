@@ -2,27 +2,13 @@
 
 #include <dolphin/os.h>
 
-float unk_241 = 4503599627370496.0;
-float unk_239 = 0.001f;
-
 /**
  * Offset/Address/Size: 0x0 | 0x801D2874 | size: 0x58
  */
 f32 nlGetTickerDifference(uint arg0, uint arg1)
 {
-    uint var2;
-    float var1;
-    var1 = unk_239;
-    var2 = arg1 - arg0;
-
-    if (arg0 == arg1)
-    {
-        return var1 * (f32)((u32)(var2 * 8) / __OSBusClock);
-    }
-    else
-    {
-        return var1 * (f32)((u32)(var2 * 8) / __OSBusClock);
-    }
+    return 0.001f * (f32) ((u32) ((arg1 - arg0) * 8) / (u32) (*(u32 *)0x800000F8 / 500000));
+    // return 0.001f * (f32) ((u32) ((arg1 - arg0) * 8) / (u32) (*(u32 *)0x800000F8 / 500000));
 }
 
 /**
