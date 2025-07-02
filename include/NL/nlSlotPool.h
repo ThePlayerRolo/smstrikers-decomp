@@ -44,7 +44,7 @@ struct SlotPoolEntry {
     SlotPoolEntry* m_next;  // Pointer for linked list functionality
 };
 
-void DefaultSlotPoolFree(void*);
-void* DefaultSlotPoolAllocator(unsigned long);
+static void DefaultSlotPoolFree(void*);
+static void* DefaultSlotPoolAllocator(unsigned long);
 
 #endif // _NLSLOTPOOL_H_

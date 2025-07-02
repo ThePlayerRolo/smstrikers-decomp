@@ -206,6 +206,7 @@ cflags_base = [
     '-pragma "warn_notinlined off"',
     "-RTTI off",
     "-str reuse",
+    "-sym on",
     "-use_lmw_stmw on",
     f"-i build/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",
