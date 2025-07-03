@@ -3,16 +3,7 @@
 
 #include "types.h"
 
-#include "NL/StatsGatherer.h"
-
-// class nlTask
-// {
-// public:
-// 	virtual void Run(float) = 0;
-// 	virtual const char* GetName() = 0;
-// 	virtual void StateTransition() = 0;
-// };
-
+// Global task time bounds
 
 // bool nlDLRingIsEnd<nlTask>(nlTask*, nlTask*);
 // void nlDLRingGetStart<nlTask>(nlTask*);
