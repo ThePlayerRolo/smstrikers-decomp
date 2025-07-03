@@ -64,7 +64,7 @@ void nlTaskManager::RunAllTasks()
         taskIterator->m_unk_0x14 = currentTicker;
         if (taskIterator->m_unk_0x10 & m_pInstance->m_unk_0x08)
         {
-            clampedDeltaTime = tickerDifference / 1000.f; // TICKS_PER_SECOND or similar constant
+            clampedDeltaTime = tickerDifference / 1000.f;
             if (clampedDeltaTime < g_fTaskTimeLowerBound)
             {
                 clampedDeltaTime = g_fTaskTimeLowerBound;
@@ -106,11 +106,11 @@ void nlTaskManager::AddTask(nlTask* arg0, unsigned int arg1, unsigned int arg2)
     {
         if (currentTask->m_unk_0x0C >= arg1)
         {
-            currentTask = currentTask->next;
+            currentTask = currentTask->prev;
         }
         else if (!nlDLRingIsEnd<nlTask>(m_pInstance->m_taskRingHead, currentTask))
         {
-            currentTask = currentTask->prev;
+            currentTask = currentTask->next;
         }
         else
         {

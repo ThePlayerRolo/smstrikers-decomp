@@ -9,10 +9,10 @@ template <typename T>
 void nlDLRingInsert(T** head, T* afterNode, T* newNode)
 {
 
-    afterNode->prev->next = newNode;
-    newNode->prev = afterNode->prev;
-    newNode->next = afterNode;
-    afterNode->prev = newNode;
+    afterNode->next->prev = newNode;
+    newNode->next = afterNode->next;
+    newNode->prev = afterNode;
+    afterNode->next = newNode;
     if ((void*)*head == afterNode)
     {
         *head = newNode;
@@ -28,15 +28,15 @@ void nlDLRingAddStart(T** head, T* newNode)
     if (temp == NULL)
     {
         *head = newNode;
-        newNode->prev = newNode;
         newNode->next = newNode;
+        newNode->prev = newNode;
         return;
     }
 
-    temp->prev->next = newNode;
-    newNode->prev = temp->prev;
-    newNode->next = temp;
-    temp->prev = newNode;
+    temp->next->prev = newNode;
+    newNode->next = temp->next;
+    newNode->prev = temp;
+    temp->next = newNode;
 }
 
 template <typename T>
@@ -46,7 +46,7 @@ T* nlDLRingGetStart(T* current)
     {
         return NULL;
     }
-    return current->prev;
+    return current->next;
 }
 
 template <typename T>
