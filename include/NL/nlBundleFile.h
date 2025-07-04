@@ -22,8 +22,8 @@ public:
     void ReadFile(unsigned long, void*, unsigned long);
     void ReadFile(const char*, void*, unsigned long);
     void GetFileInfoByIndex(unsigned long, BundleFileDirectoryEntry*);
-    void GetFileInfo(unsigned long, BundleFileDirectoryEntry*, bool);
-    void GetFileInfo(const char*, BundleFileDirectoryEntry*, bool);
+    bool GetFileInfo(unsigned long, BundleFileDirectoryEntry*, bool);
+    bool GetFileInfo(const char*, BundleFileDirectoryEntry*, bool);
     void Close();
     bool Open(const char*);
 
