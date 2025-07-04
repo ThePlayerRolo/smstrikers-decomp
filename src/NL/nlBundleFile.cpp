@@ -71,53 +71,37 @@ void BundleFile::GetFileInfoByIndex(unsigned long, BundleFileDirectoryEntry*)
 /**
  * Offset/Address/Size: 0x5C4 | 0x801E8B90 | size: 0xE8
  */
-bool BundleFile::GetFileInfo(unsigned long arg1, BundleFileDirectoryEntry* arg2, bool arg3)
+bool BundleFile::GetFileInfo(unsigned long hash, BundleFileDirectoryEntry* arg2, bool printError)
 {
-    s32 var_r5;
-    u32 temp_r0;
-    u32 var_ctr;
-    u32 var_r7;
+    u32 var_r7 = 0;
+    
+    // Search for the hash
+    for (u32 i = m_bundleHeader->m_count; i != 0; i--) 
+    {
+        if (hash == m_bundleEntries[var_r7].m_hash) {
+            // break;
+            goto block_4;
+        }
+        var_r7++;            
+    }
+    
+    if (printError != 0) {
+        nlPrintf("ERROR: Failed to find file with hash ID: %d\n", hash);
+    }
+    var_r7 = -1U;
 
-    var_r7 = 0;
-    var_r5 = 0;
-    temp_r0 = m_unk_0x14->m_unk_0x04;
-    var_ctr = temp_r0;
-    if (temp_r0 > 0U)
-    {
-    loop_1:
-        if (arg1 == (u32) * ((u8*)m_unk_0x18 + var_r5))
-        {
-        }
-        else
-        {
-            var_r5 += 0xC;
-            var_r7 += 1;
-            var_ctr -= 1;
-            if (var_ctr == 0U)
-            {
-                goto block_4;
-            }
-            goto loop_1;
-        }
-    }
-    else
-    {
-    block_4:
-        if (arg3 != 0)
-        {
-            nlPrintf("ERROR: Failed to find file with hash ID: %d\n");
-        }
-        var_r7 = -1U;
-    }
-    if (((u32)(var_r7 + 0x10000) == -1U) && (arg3 == 0))
+block_4:
+    if ((var_r7 == -1U) && (printError == 0))
     {
         return 0;
     }
-    if (var_r7 < (u32)m_unk_0x14->m_unk_0x04)
+
+    if (var_r7 < (u32)m_bundleHeader->m_count)
     {
-        memcpy(arg2, m_unk_0x18 + (var_r7 * 0xC), 0xC);
+        memcpy(arg2, &m_bundleEntries[var_r7], 0xC);
         return 1;
     }
+
     return 0;
 }
 
@@ -140,10 +124,10 @@ void BundleFile::Close()
         m_file = NULL;
     }
 
-    if ((u32)m_unk_0x18 != NULL)
+    if ((u32)m_bundleEntries != NULL)
     {
-        delete[] m_unk_0x18;
-        m_unk_0x18 = NULL;
+        delete[] m_bundleEntries;
+        m_bundleEntries = NULL;
     }
 }
 
@@ -157,10 +141,10 @@ bool BundleFile::Open(const char* filename)
     {
         return 0;
     }
-    nlRead(m_file, m_unk_0x14, 0x10);
-    nlSeek(m_file, m_unk_0x14->m_unk_0x08 * m_unk_0x14->m_unk_0x00, 0);
-    m_unk_0x18 = (BundleFileDirectoryEntry*)nlMalloc(m_unk_0x14->m_unk_0x04 * 0xC, 0x20, 0);
-    nlRead(m_file, m_unk_0x18, m_unk_0x14->m_unk_0x04 * 0xC);
+    nlRead(m_file, m_bundleHeader, 0x10);
+    nlSeek(m_file, m_bundleHeader->m_unk_0x08 * m_bundleHeader->m_unk_0x00, 0);
+    m_bundleEntries = (BundleFileDirectoryEntry*)nlMalloc(m_bundleHeader->m_count * 0xC, 0x20, 0);
+    nlRead(m_file, m_bundleEntries, m_bundleHeader->m_count * 0xC);
     return 1;
 }
 
@@ -175,14 +159,14 @@ BundleFile::~BundleFile()
         m_file = NULL;
     }
 
-    if (m_unk_0x18 != 0U)
+    if (m_bundleEntries != 0U)
     {
-        delete[] m_unk_0x18;
-        m_unk_0x18 = NULL;
+        delete[] m_bundleEntries;
+        m_bundleEntries = NULL;
     }
 
-    delete m_unk_0x14;
-    m_unk_0x14 = NULL;
+    delete m_bundleHeader;
+    m_bundleHeader = NULL;
 }
 
 /**
@@ -195,8 +179,8 @@ BundleFile::BundleFile()
     m_unk_0x08 = 0;
     m_unk_0x0C = 0;
     m_unk_0x10 = 0;
-    m_unk_0x14 = 0;
-    m_unk_0x18 = 0;
-    m_unk_0x14 = (BundleFileDirectoryEntry*)nlMalloc(0x10, 0x20, 0);
-    memset(m_unk_0x14, 0, 0x10);
+    m_bundleHeader = 0;
+    m_bundleEntries = 0;
+    m_bundleHeader = (BundleFileDirectoryHeader*)nlMalloc(0x10, 0x20, 0);
+    memset(m_bundleHeader, 0, 0x10);
 }

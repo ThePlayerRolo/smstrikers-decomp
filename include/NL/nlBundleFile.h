@@ -5,10 +5,19 @@
 
 typedef struct {
     /* 0x00 */ u32 m_unk_0x00;  
-    /* 0x04 */ u32 m_unk_0x04;  // this must be the count of entries in the bundle-file
+    /* 0x04 */ u32 m_count;
     /* 0x08 */ u32 m_unk_0x08;  
-    /* 0x0C */ u32 m_unk_0x0C;  // this must be here, as the struct size is 0x10
+    /* 0x0C */ u32 m_unk_0x0C;
+} BundleFileDirectoryHeader;
+
+
+typedef struct {
+    /* 0x00 */ u32 m_hash;  
+    /* 0x04 */ u32 m_unk_0x04;
+    /* 0x08 */ u32 m_unk_0x08;  
 } BundleFileDirectoryEntry, *BundleFileDirectoryEntryPtr;
+
+
 
 void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long);
 
@@ -36,8 +45,8 @@ private:
     /* 0x08 */ u32 m_unk_0x08;  
     /* 0x0C */ u32 m_unk_0x0C;  
     /* 0x10 */ u32 m_unk_0x10;  
-    /* 0x14 */ BundleFileDirectoryEntry* m_unk_0x14;
-    /* 0x18 */ BundleFileDirectoryEntry* m_unk_0x18;  // most probably another struct
+    /* 0x14 */ BundleFileDirectoryHeader* m_bundleHeader;
+    /* 0x18 */ BundleFileDirectoryEntry* m_bundleEntries;  // most probably another struct
 };
 
 #endif // _NLBUNDLEFILE_H_
