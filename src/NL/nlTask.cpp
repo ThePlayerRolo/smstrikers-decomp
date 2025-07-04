@@ -107,6 +107,7 @@ void nlTaskManager::AddTask(nlTask* arg0, unsigned int arg1, unsigned int arg2)
         if (currentTask->m_unk_0x0C >= arg1)
         {
             currentTask = currentTask->prev;
+            break;
         }
         else if (!nlDLRingIsEnd<nlTask>(m_pInstance->m_taskRingHead, currentTask))
         {
@@ -126,11 +127,9 @@ void nlTaskManager::AddTask(nlTask* arg0, unsigned int arg1, unsigned int arg2)
  */
 void nlTaskManager::Startup(unsigned int arg0)
 {
-    // void* this_00 = nlMalloc(0x1C, 8, FALSE);
-    // m_pInstance = new (this_00) nlTaskManager();
-
-    m_pInstance = (nlTaskManager*)nlMalloc(0x1C, 8, 0);
-    assert(m_pInstance != NULL);
+    void* pData = nlMalloc(0x1C, 8, 0);
+    pData = (pData) ? pData : pData; // just to produce "cmplwi r3, 0x0"
+    m_pInstance = (nlTaskManager*)pData;
     m_pInstance->m_taskCount = arg0;
     m_pInstance->m_unk_0x08 = arg0; // m_previousState ?
     m_pInstance->m_nextState = arg0;

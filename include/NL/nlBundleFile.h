@@ -1,10 +1,13 @@
 #ifndef _NLBUNDLEFILE_H_
 #define _NLBUNDLEFILE_H_
 
-#include "NL/nlFile.h"
+#include "NL/nlFileGC.h"
 
 typedef struct {
-    // todo..
+    /* 0x00 */ u32 m_unk_0x00;  
+    /* 0x04 */ u32 m_unk_0x04;  // this must be the count of entries in the bundle-file
+    /* 0x08 */ u32 m_unk_0x08;  
+    /* 0x0C */ u32 m_unk_0x0C;  // this must be here, as the struct size is 0x10
 } BundleFileDirectoryEntry, *BundleFileDirectoryEntryPtr;
 
 void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long);
@@ -22,10 +25,19 @@ public:
     void GetFileInfo(unsigned long, BundleFileDirectoryEntry*, bool);
     void GetFileInfo(const char*, BundleFileDirectoryEntry*, bool);
     void Close();
-    void Open(const char*);
+    bool Open(const char*);
 
     ~BundleFile();
     BundleFile();
+
+private:
+    /* 0x00 */ nlFile* m_file;  
+    /* 0x04 */ u32 m_unk_0x04;  
+    /* 0x08 */ u32 m_unk_0x08;  
+    /* 0x0C */ u32 m_unk_0x0C;  
+    /* 0x10 */ u32 m_unk_0x10;  
+    /* 0x14 */ BundleFileDirectoryEntry* m_unk_0x14;
+    /* 0x18 */ BundleFileDirectoryEntry* m_unk_0x18;  // most probably another struct
 };
 
 #endif // _NLBUNDLEFILE_H_
