@@ -7,25 +7,53 @@ extern char* nlToLower(char*);
 extern char nlToLower(char);
 // extern u32 nlStrLen(const char*);
 
+
+inline u32 GetNormalizedFilenameHash(const char* filename)
+{
+    s8 tmp[252];
+    s8* puVar8 = tmp;
+    s8* pcVar10 = (s8*)filename;
+    int i;
+    for (i = 0; i < nlStrLen<char>(filename); puVar8++, pcVar10++, i++)
+    {
+        *puVar8 = nlToLower(*pcVar10);
+        if (*pcVar10 == '\\')
+        {
+            *puVar8 = 0x2f;
+        }
+    }
+    tmp[i] = 0;
+    return nlStringHash((char*)&tmp[0]);
+}
+
 /**
  * Offset/Address/Size: 0x0 | 0x801E85CC | size: 0xD4
  */
-void BundleFile::ReadFileAsync(unsigned long, void*, unsigned long, void (*)(void*, unsigned long, unsigned long), unsigned long)
+void BundleFile::ReadFileAsync(unsigned long hash, void* buffer, unsigned long arg3, FileReadAsyncCallback callback, unsigned long arg5)
 {
+    u32 index = FindHashIndex(hash);
+    m_unk_0x0C = callback;
+    m_unk_0x10 = arg5;
+    nlSeek(m_file, m_bundleEntries[index].m_blockNumber * m_bundleHeader->m_blockSize, 0);
+    nlReadAsync(m_file, buffer, arg3, &cbFileReadAsyncCallback, *(unsigned long*)this);    
 }
 
 /**
  * Offset/Address/Size: 0xD4 | 0x801E86A0 | size: 0x138
  */
-void BundleFile::ReadFileAsync(const char*, void*, unsigned long, void (*)(void*, unsigned long, unsigned long), unsigned long)
+void BundleFile::ReadFileAsync(const char*, void*, unsigned long, FileReadAsyncCallback callback, unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0x20C | 0x801E87D8 | size: 0x118
  */
-void BundleFile::LoadFile(const char*, void*)
+void BundleFile::LoadFile(const char* filename, void* buffer)
 {
+    u32 index = FindHashIndex(GetNormalizedFilenameHash(filename));
+    BundleFileDirectoryEntry* entry = &m_bundleEntries[index];
+    nlSeek(m_file, entry->m_blockNumber * m_bundleHeader->m_blockSize, 0);
+    nlRead(m_file, buffer, entry->m_length);
 }
 
 /**
@@ -35,7 +63,7 @@ void BundleFile::ReadFileByIndex(unsigned long index, void* buffer, unsigned lon
 {
     BundleFileDirectoryEntry* entry = &m_bundleEntries[index];
     nlSeek(m_file, entry->m_blockNumber * m_bundleHeader->m_blockSize, 0);
-    nlRead(m_file, buffer, entry->m_length);    
+    nlRead(m_file, buffer, entry->m_length);
 }
 
 /**
@@ -44,9 +72,9 @@ void BundleFile::ReadFileByIndex(unsigned long index, void* buffer, unsigned lon
 void BundleFile::ReadFile(unsigned long hash, void* buffer, unsigned long arg3)
 {
     u32 index = FindHashIndex(hash);
-    BundleFileDirectoryEntry *entry = &m_bundleEntries[index];
+    BundleFileDirectoryEntry* entry = &m_bundleEntries[index];
     nlSeek(m_file, entry->m_blockNumber * m_bundleHeader->m_blockSize, 0);
-    nlRead(m_file, buffer, entry->m_length); 
+    nlRead(m_file, buffer, entry->m_length);
 }
 
 /**
@@ -54,26 +82,10 @@ void BundleFile::ReadFile(unsigned long hash, void* buffer, unsigned long arg3)
  */
 void BundleFile::ReadFile(const char* filename, void* buffer, unsigned long)
 {
-  char* puVar8;
-  char *pcVar10;
-  char local_128 [268];
-  
-  puVar8 = local_128;
-  pcVar10 = (char*)filename;
-  int i;
-  for (i = 0; i < nlStrLen<char>(filename); i++, puVar8++, pcVar10++) 
-  {
-    *puVar8 = nlToLower(*pcVar10);
-    if (*pcVar10 == '\\') {
-      *puVar8 = 0x2f;
-    }
-  }
-  local_128[i] = 0;
-  u32 index = FindHashIndex(nlStringHash(local_128));
-
-    BundleFileDirectoryEntry *entry = &m_bundleEntries[index];
+    u32 index = FindHashIndex(GetNormalizedFilenameHash(filename));
+    BundleFileDirectoryEntry* entry = &m_bundleEntries[index];
     nlSeek(m_file, entry->m_blockNumber * m_bundleHeader->m_blockSize, 0);
-    nlRead(m_file, buffer, entry->m_length); 
+    nlRead(m_file, buffer, entry->m_length);
 }
 
 /**
@@ -81,7 +93,7 @@ void BundleFile::ReadFile(const char* filename, void* buffer, unsigned long)
  */
 bool BundleFile::GetFileInfoByIndex(unsigned long index, BundleFileDirectoryEntry* entry)
 {
-    if (index < (u32) m_bundleHeader->m_entryCount) 
+    if (index < (u32)m_bundleHeader->m_entryCount)
     {
         memcpy((void*)entry, (void*)&m_bundleEntries[index], 0xC);
         return 1;
@@ -115,22 +127,7 @@ bool BundleFile::GetFileInfo(unsigned long hash, BundleFileDirectoryEntry* entry
  */
 bool BundleFile::GetFileInfo(const char* filename, BundleFileDirectoryEntry* entry, bool printError)
 {
-    char* puVar8;
-    char *pcVar10;
-    char local_128 [268];
-
-    puVar8 = local_128;
-    pcVar10 = (char*)filename;
-    int i;
-    for (i = 0; i < nlStrLen<char>(filename); i++, puVar8++, pcVar10++) 
-    {
-    *puVar8 = nlToLower(*pcVar10);
-    if (*pcVar10 == '\\') {
-        *puVar8 = 0x2f;
-    }
-    }
-    local_128[i] = 0;
-    u32 index = FindHashIndex(nlStringHash(local_128), printError);
+    u32 index = FindHashIndex(GetNormalizedFilenameHash(filename), printError);
 
     if ((index == -1U) && (printError == 0))
     {
@@ -143,7 +140,7 @@ bool BundleFile::GetFileInfo(const char* filename, BundleFileDirectoryEntry* ent
         return 1;
     }
 
-    return 0;    
+    return 0;
 }
 
 /**
@@ -223,7 +220,7 @@ BundleFile::BundleFile()
  */
 void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long)
 {
-    // arg3->unkC(arg1, arg2, arg3->unk10);
+    // arg3->unkC(hash, buffer, arg3->unk10);
     // arg3->unkC = NULL;
     // arg3->unk10 = 0;
 }

@@ -5,6 +5,8 @@ extern void nlPrintf(const char*, ...);
 
 #include "NL/nlFileGC.h"
 
+typedef void (*FileReadAsyncCallback)(void*, unsigned long, unsigned long);
+
 typedef struct {
     /* 0x00 */ u32 m_blockSize;  
     /* 0x04 */ u32 m_entryCount;
@@ -19,15 +21,13 @@ typedef struct {
     /* 0x08 */ u32 m_length;  
 } BundleFileDirectoryEntry, *BundleFileDirectoryEntryPtr;
 
-
-
 void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long);
 
 class BundleFile
 {
 public:
-    void ReadFileAsync(unsigned long, void*, unsigned long, void (*)(void*, unsigned long, unsigned long), unsigned long);
-    void ReadFileAsync(const char*, void*, unsigned long, void (*)(void*, unsigned long, unsigned long), unsigned long);
+    void ReadFileAsync(unsigned long, void*, unsigned long, FileReadAsyncCallback callback, unsigned long);
+    void ReadFileAsync(const char*, void*, unsigned long, FileReadAsyncCallback callback, unsigned long);
     void LoadFile(const char*, void*);
     void ReadFileByIndex(unsigned long, void*, unsigned long);
     void ReadFile(unsigned long, void*, unsigned long);
@@ -45,7 +45,7 @@ private:
     /* 0x00 */ nlFile* m_file;  
     /* 0x04 */ u32 m_unk_0x04;  
     /* 0x08 */ u32 m_unk_0x08;  
-    /* 0x0C */ u32 m_unk_0x0C;  
+    /* 0x0C */ FileReadAsyncCallback m_unk_0x0C;  
     /* 0x10 */ u32 m_unk_0x10;  
     /* 0x14 */ BundleFileDirectoryHeader* m_bundleHeader;
     /* 0x18 */ BundleFileDirectoryEntry* m_bundleEntries;  // most probably another struct
