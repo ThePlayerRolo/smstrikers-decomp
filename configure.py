@@ -650,6 +650,7 @@ config.libs = [
         "SMS (Super Mario Strikers)",
         [
             Object(NonMatching, "Game/main.cpp"),
+            Object(NonMatching, "Game/clock.cpp"),
 
             # Game Objects
             Object(NonMatching, "Game/Ball.cpp"),
