@@ -6,7 +6,6 @@
 extern char* nlToLower(char*);
 extern char nlToLower(char);
 // extern u32 nlStrLen(const char*);
-extern void nlPrintf(const char*, ...);
 
 /**
  * Offset/Address/Size: 0x0 | 0x801E85CC | size: 0xD4
@@ -44,18 +43,8 @@ void BundleFile::ReadFileByIndex(unsigned long index, void* buffer, unsigned lon
  */
 void BundleFile::ReadFile(unsigned long hash, void* buffer, unsigned long arg3)
 {
-    u32 iVar3 = 0;
-    for (u32 i = m_bundleHeader->m_entryCount; i != 0; i--) 
-    {
-        if (hash == m_bundleEntries[iVar3].m_hash) goto LAB_801e89d4;
-        iVar3++;
-    }
-    
-    nlPrintf("ERROR: Failed to find file with hash ID: %d\n", hash);
-    iVar3 = -1;
-
-LAB_801e89d4:
-    BundleFileDirectoryEntry *entry = &m_bundleEntries[iVar3];
+    u32 index = FindHashIndex(hash);
+    BundleFileDirectoryEntry *entry = &m_bundleEntries[index];
     nlSeek(m_file, entry->m_blockNumber * m_bundleHeader->m_blockSize, 0);
     nlRead(m_file, buffer, entry->m_length); 
 }
@@ -65,8 +54,6 @@ LAB_801e89d4:
  */
 void BundleFile::ReadFile(const char* filename, void* buffer, unsigned long)
 {
-  u32 hash;
-  int iVar6;
   char* puVar8;
   char *pcVar10;
   char local_128 [268];
@@ -82,20 +69,9 @@ void BundleFile::ReadFile(const char* filename, void* buffer, unsigned long)
     }
   }
   local_128[i] = 0;
-  hash = nlStringHash(local_128);
-  
-  iVar6 = 0;
-  for (i = m_bundleHeader->m_entryCount; i != 0; i--) 
-  {
-    if (hash == m_bundleEntries[iVar6].m_hash) goto LAB_801e8af4;
-    iVar6++;
-  }
+  u32 index = FindHashIndex(nlStringHash(local_128));
 
-  nlPrintf("ERROR: Failed to find file with hash ID: %d\n", hash);
-  iVar6 = -1;
-
-LAB_801e8af4:
-    BundleFileDirectoryEntry *entry = &m_bundleEntries[iVar6];
+    BundleFileDirectoryEntry *entry = &m_bundleEntries[index];
     nlSeek(m_file, entry->m_blockNumber * m_bundleHeader->m_blockSize, 0);
     nlRead(m_file, buffer, entry->m_length); 
 }
@@ -113,39 +89,21 @@ bool BundleFile::GetFileInfoByIndex(unsigned long index, BundleFileDirectoryEntr
     return 0;
 }
 
-
-
 /**
  * Offset/Address/Size: 0x5C4 | 0x801E8B90 | size: 0xE8
  */
 bool BundleFile::GetFileInfo(unsigned long hash, BundleFileDirectoryEntry* entry, bool printError)
 {
-    u32 var_r7 = 0;
-    
-    // Search for the hash
-    for (u32 i = m_bundleHeader->m_entryCount; i != 0; i--) 
-    {
-        if (hash == m_bundleEntries[var_r7].m_hash) 
-        {
-            goto block_4;
-        }
-        var_r7++;            
-    }
-    
-    if (printError != 0) {
-        nlPrintf("ERROR: Failed to find file with hash ID: %d\n", hash);
-    }
-    var_r7 = -1U;
+    u32 index = FindHashIndex(hash, printError);
 
-block_4:
-    if ((var_r7 == -1U) && (printError == 0))
+    if ((index == -1U) && (printError == 0))
     {
         return 0;
     }
 
-    if (var_r7 < (u32)m_bundleHeader->m_entryCount)
+    if (index < (u32)m_bundleHeader->m_entryCount)
     {
-        memcpy((void*)entry, &m_bundleEntries[var_r7], 0xC);
+        memcpy((void*)entry, &m_bundleEntries[index], 0xC);
         return 1;
     }
 
@@ -155,9 +113,37 @@ block_4:
 /**
  * Offset/Address/Size: 0x6AC | 0x801E8C78 | size: 0x13C
  */
-bool BundleFile::GetFileInfo(const char*, BundleFileDirectoryEntry*, bool)
+bool BundleFile::GetFileInfo(const char* filename, BundleFileDirectoryEntry* entry, bool printError)
 {
-    return false;
+    char* puVar8;
+    char *pcVar10;
+    char local_128 [268];
+
+    puVar8 = local_128;
+    pcVar10 = (char*)filename;
+    int i;
+    for (i = 0; i < nlStrLen<char>(filename); i++, puVar8++, pcVar10++) 
+    {
+    *puVar8 = nlToLower(*pcVar10);
+    if (*pcVar10 == '\\') {
+        *puVar8 = 0x2f;
+    }
+    }
+    local_128[i] = 0;
+    u32 index = FindHashIndex(nlStringHash(local_128), printError);
+
+    if ((index == -1U) && (printError == 0))
+    {
+        return 0;
+    }
+
+    if (index < (u32)m_bundleHeader->m_entryCount)
+    {
+        memcpy((void*)entry, &m_bundleEntries[index], 0xC);
+        return 1;
+    }
+
+    return 0;    
 }
 
 /**
@@ -237,7 +223,7 @@ BundleFile::BundleFile()
  */
 void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long)
 {
-    // arg3->unkC(hash, arg2, arg3->unk10);
+    // arg3->unkC(arg1, arg2, arg3->unk10);
     // arg3->unkC = NULL;
     // arg3->unk10 = 0;
 }

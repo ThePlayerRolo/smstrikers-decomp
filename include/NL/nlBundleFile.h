@@ -1,6 +1,8 @@
 #ifndef _NLBUNDLEFILE_H_
 #define _NLBUNDLEFILE_H_
 
+extern void nlPrintf(const char*, ...);
+
 #include "NL/nlFileGC.h"
 
 typedef struct {
@@ -47,6 +49,29 @@ private:
     /* 0x10 */ u32 m_unk_0x10;  
     /* 0x14 */ BundleFileDirectoryHeader* m_bundleHeader;
     /* 0x18 */ BundleFileDirectoryEntry* m_bundleEntries;  // most probably another struct
+    
+    // Inline method to find hash index
+    inline u32 FindHashIndex(u32 hash) const {
+        for (u32 i = 0; i < m_bundleHeader->m_entryCount; i++) {
+            if (hash == m_bundleEntries[i].m_hash) {
+                return i;
+            }
+        }
+        nlPrintf("ERROR: Failed to find file with hash ID: %d\n", hash);
+        return -1U; // Not found
+    }
+
+    inline u32 FindHashIndex(u32 hash, bool printError) const {
+        for (u32 i = 0; i < m_bundleHeader->m_entryCount; i++) {
+            if (hash == m_bundleEntries[i].m_hash) {
+                return i;
+            }
+        }
+        if (printError) {
+            nlPrintf("ERROR: Failed to find file with hash ID: %d\n", hash);
+        }
+        return -1U; // Not found
+    }
 };
 
 #endif // _NLBUNDLEFILE_H_
