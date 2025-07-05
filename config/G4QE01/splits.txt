@@ -3931,7 +3931,7 @@ THPSimple.o:
 	.sbss       start:0x80374258 end:0x80374278
 	.sdata2     start:0x80376FD0 end:0x80376FE0
 
-MemAlloc.o:
+NL/MemAlloc.cpp:
 	.text       start:0x801CD74C end:0x801CDDB0
 	.text       start:0x801CDDB0 end:0x801CDDB0
 	.text       start:0x801CDDB0 end:0x801CDEF8

@@ -719,6 +719,7 @@ config.libs = [
             Object(NonMatching, "NL/nlLocalization.cpp"),
             Object(NonMatching, "NL/nlMain.cpp"),
             Object(NonMatching, "NL/nlMath.cpp"),
+            Object(NonMatching, "NL/MemAlloc.cpp"),
             Object(NonMatching, "NL/nlMemory.cpp"),
             Object(NonMatching, "NL/nlPrint.cpp"),
             Object(Matching, "NL/nlSlotPool.cpp"),

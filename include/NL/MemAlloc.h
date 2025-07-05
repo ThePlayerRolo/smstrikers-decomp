@@ -7,6 +7,8 @@
 // void nlDLRingAddStart<FreeBlockList>(FreeBlockList**, FreeBlockList*);
 // void nlDLRingInsert<FreeBlockList>(FreeBlockList**, FreeBlockList*, FreeBlockList*);
 
+class FreeBlockList;
+
 class MemoryAllocator
 {
 public:
@@ -18,18 +20,18 @@ public:
 };
 
 
-// class LargestFreeBlockCallback
-// {
-// public:
-//     void Callback(FreeBlockList*);
-// };
+class LargestFreeBlockCallback
+{
+public:
+    static void Callback(FreeBlockList*);
+};
 
 
-// class TotalFreeMemCallback
-// {
-// public:
-//     void Callback(FreeBlockList*);
-// };
+class TotalFreeMemCallback
+{
+public:
+    static void Callback(FreeBlockList*);
+};
 
 
 // class nlWalkDLRing<FreeBlockList, LargestFreeBlockCallback>(FreeBlockList*, LargestFreeBlockCallback*, void (LargestFreeBlockCallback
