@@ -9,6 +9,16 @@ int nlStringLowerHash(const char*);
 int nlStringHash(const char*);
 
 template<typename CharT>
+extern u32 nlStrLen(const CharT* str)
+{
+    u32 len = 0;
+    while (str[len] != 0) {
+        len++;
+    }
+    return len;
+}
+
+template<typename CharT>
 CharT* nlStrChr(const CharT* str, CharT ch) 
 {
     // if (!str) return nullptr;

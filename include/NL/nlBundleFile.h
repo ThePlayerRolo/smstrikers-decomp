@@ -4,8 +4,8 @@
 #include "NL/nlFileGC.h"
 
 typedef struct {
-    /* 0x00 */ u32 m_unk_0x00;  
-    /* 0x04 */ u32 m_count;
+    /* 0x00 */ u32 m_blockSize;  
+    /* 0x04 */ u32 m_entryCount;
     /* 0x08 */ u32 m_unk_0x08;  
     /* 0x0C */ u32 m_unk_0x0C;
 } BundleFileDirectoryHeader;
@@ -13,8 +13,8 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u32 m_hash;  
-    /* 0x04 */ u32 m_unk_0x04;
-    /* 0x08 */ u32 m_unk_0x08;  
+    /* 0x04 */ u32 m_blockNumber;
+    /* 0x08 */ u32 m_length;  
 } BundleFileDirectoryEntry, *BundleFileDirectoryEntryPtr;
 
 
@@ -30,7 +30,7 @@ public:
     void ReadFileByIndex(unsigned long, void*, unsigned long);
     void ReadFile(unsigned long, void*, unsigned long);
     void ReadFile(const char*, void*, unsigned long);
-    void GetFileInfoByIndex(unsigned long, BundleFileDirectoryEntry*);
+    bool GetFileInfoByIndex(unsigned long, BundleFileDirectoryEntry*);
     bool GetFileInfo(unsigned long, BundleFileDirectoryEntry*, bool);
     bool GetFileInfo(const char*, BundleFileDirectoryEntry*, bool);
     void Close();
