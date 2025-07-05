@@ -60,7 +60,7 @@ void nlReadAsyncToVirtualMemory(nlFile* file, void* buffer, int size, ReadAsyncC
  */
 void nlAsyncLoadFileToVirtualMemory(nlFile* param_1, int param_2, void* param_3, ReadAsyncCallback param_4, unsigned long param_5)
 {
-    nlReadAsyncToVirtualMemory(param_1, param_3, param_2, param_4, param_5, 0x4000, &nlFileGC::asyncToVirMemBuffer);
+    nlReadAsyncToVirtualMemory((GCFile*)param_1, param_3, param_2, param_4, param_5, 0x4000, &nlFileGC::asyncToVirMemBuffer);
 }
 
 namespace nlFileGC
@@ -132,8 +132,9 @@ void nlSeek(nlFile* file, unsigned int offset, unsigned long origin)
 /**
  * Offset/Address/Size: 0x6F8 | 0x801CF44C | size: 0x34
  */
-void nlReadAsync(nlFile*, void*, unsigned int, ReadAsyncCallback, unsigned long)
+void nlReadAsync(nlFile* file, void* buffer, unsigned int size, ReadAsyncCallback callback, unsigned long arg4)
 {
+    GameCubeReadAsync((GCFile*)file, callback, buffer, (u32)size, arg4);
 }
 
 /**
@@ -160,7 +161,7 @@ void GameCubeReadBlocking(GCFile*, void*, unsigned long)
 /**
  * Offset/Address/Size: 0xFE4 | 0x801CFD38 | size: 0x324
  */
-void GameCubeReadAsync(GCFile*, ReadAsyncCallback, void*, unsigned long, unsigned long)
+static void GameCubeReadAsync(GCFile*, ReadAsyncCallback, void*, unsigned long, unsigned long)
 {
 }
 

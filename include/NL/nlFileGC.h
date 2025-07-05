@@ -20,7 +20,7 @@ void nlReadAsync(nlFile*, void*, unsigned int, ReadAsyncCallback, unsigned long)
 void nlServiceFileSystem();
 void nlInitFileSystem();
 void GameCubeReadBlocking(GCFile*, void*, unsigned long);
-void GameCubeReadAsync(GCFile*, ReadAsyncCallback, void*, unsigned long, unsigned long);
+static void GameCubeReadAsync(GCFile*, ReadAsyncCallback, void*, unsigned long, unsigned long);
 void UpdateReadState(AsyncEntry*);
 void nlFlushFileCash();
 nlFile *nlOpen(const char*);

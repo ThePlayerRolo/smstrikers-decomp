@@ -9,9 +9,9 @@ int nlStringLowerHash(const char*);
 int nlStringHash(const char*);
 
 template<typename CharT>
-extern u32 nlStrLen(const CharT* str)
+s32 nlStrLen(const CharT* str)
 {
-    u32 len = 0;
+    s32 len = 0;
     while (str[len] != 0) {
         len++;
     }
@@ -60,9 +60,9 @@ int nlStrNCmp(const CharT *str1, const CharT *str2, unsigned long len)
 template<typename CharT>
 CharT nlToLower(CharT c)
 {
-    if ((c >= 0x41U) && (c <= 0x5AU)) 
+    if ((c >= 0x41) && (c <= 0x5A)) 
     {
-        return (u8) (c | 0x20);
+        return (CharT) (c | 0x20);
     }
     return c;  
 }

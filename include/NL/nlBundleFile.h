@@ -21,7 +21,7 @@ typedef struct {
     /* 0x08 */ u32 m_length;  
 } BundleFileDirectoryEntry, *BundleFileDirectoryEntryPtr;
 
-void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long);
+static void cbFileReadAsyncCallback(nlFile*, void*, unsigned int, unsigned long);
 
 class BundleFile
 {
@@ -41,11 +41,11 @@ public:
     ~BundleFile();
     BundleFile();
 
-private:
+public:
     /* 0x00 */ nlFile* m_file;  
     /* 0x04 */ u32 m_unk_0x04;  
     /* 0x08 */ u32 m_unk_0x08;  
-    /* 0x0C */ FileReadAsyncCallback m_unk_0x0C;  
+    /* 0x0C */ FileReadAsyncCallback m_readAsyncCallback;  
     /* 0x10 */ u32 m_unk_0x10;  
     /* 0x14 */ BundleFileDirectoryHeader* m_bundleHeader;
     /* 0x18 */ BundleFileDirectoryEntry* m_bundleEntries;  // most probably another struct
