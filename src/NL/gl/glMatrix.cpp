@@ -52,8 +52,9 @@ void glAllocMatrix()
 /**
  * Offset/Address/Size: 0xF4 | 0x801D8B68 | size: 0x8
  */
-void glGetIdentityMatrix()
+ unsigned long glGetIdentityMatrix()
 {
+    return 0; // probably a pointer to a matrix
 }
 
 /**

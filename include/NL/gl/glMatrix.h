@@ -10,7 +10,7 @@ void glMatrixOrthographic(nlMatrix4&, float, float);
 void glSetMatrix(unsigned long, const nlMatrix4&);
 void glGetMatrix(unsigned long, nlMatrix4&);
 void glAllocMatrix();
-void glGetIdentityMatrix();
+unsigned long glGetIdentityMatrix();
 void gl_MatrixStartup();
 
 class GLMatrix

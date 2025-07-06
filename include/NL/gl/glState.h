@@ -3,16 +3,7 @@
 
 #include "Dolphin/gx/GXEnum.h"
 #include "NL/gl/glView.h"
-
-enum eGLTextureState
-{
-    eGLTextureState_0,
-};
-
-enum eGLTextureType
-{
-    eGLTextureType_0,
-};
+#include "NL/glx/glxTexture.h"
 
 enum eGLState
 {
@@ -41,7 +32,7 @@ void glGetProgram(const char*);
 void glSetCurrentMatrix(unsigned long);
 void glSetCurrentTextureState(unsigned long long);
 void glGetCurrentTextureState();
-void glSetCurrentRasterState(unsigned long);
+void glSetCurrentRasterState(unsigned long state = 0);
 void glGetCurrentRasterState();
 void glSetCurrentProgram(unsigned long);
 void glSetCurrentTexture(unsigned long, eGLTextureType);

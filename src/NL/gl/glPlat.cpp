@@ -66,15 +66,17 @@ void glx_GetFog()
 /**
  * Offset/Address/Size: 0x9E4 | 0x801B4FD8 | size: 0x24
  */
-void glplatPostStartup()
+bool glplatPostStartup()
 {
+    return false;
 }
 
 /**
  * Offset/Address/Size: 0xA08 | 0x801B4FFC | size: 0x524
  */
-void glplatStartup(gl_ScreenInfo*)
+bool glplatStartup(gl_ScreenInfo*)
 {
+    return false;
 }
 
 /**
