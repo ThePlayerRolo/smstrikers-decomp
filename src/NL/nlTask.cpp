@@ -50,7 +50,7 @@ void nlTaskManager::RunAllTasks()
             currentTask->StateTransition(m_pInstance->m_unk_0x08, m_pInstance->m_nextState);
             if (nlDLRingIsEnd<nlTask>(m_pInstance->m_taskRingHead, currentTask) == 0)
             {
-                currentTask = currentTask->next;
+                currentTask = currentTask->m_next;
                 goto loop_2;
             }
             m_pInstance->m_taskCount = (u32)m_pInstance->m_unk_0x08;
@@ -79,7 +79,7 @@ void nlTaskManager::RunAllTasks()
         }
         if (taskIterator != m_pInstance->m_taskRingHead)
         {
-            taskIterator = taskIterator->next;
+            taskIterator = taskIterator->m_next;
             goto loop_6;
         }
     }
@@ -106,12 +106,12 @@ void nlTaskManager::AddTask(nlTask* arg0, unsigned int arg1, unsigned int arg2)
     {
         if (currentTask->m_unk_0x0C >= arg1)
         {
-            currentTask = currentTask->prev;
+            currentTask = currentTask->m_prev;
             break;
         }
         else if (!nlDLRingIsEnd<nlTask>(m_pInstance->m_taskRingHead, currentTask))
         {
-            currentTask = currentTask->next;
+            currentTask = currentTask->m_next;
         }
         else
         {
