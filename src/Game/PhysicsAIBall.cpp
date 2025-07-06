@@ -78,6 +78,7 @@ void PhysicsAIBall::PreUpdate()
  */
 int PhysicsAIBall::Contact(PhysicsObject*, dContact*, int)
 {
+    return 0;
 }
 
 /**

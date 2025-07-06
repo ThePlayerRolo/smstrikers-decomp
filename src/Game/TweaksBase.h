@@ -1,0 +1,17 @@
+#ifndef _TWEAKSBASE_H_
+#define _TWEAKSBASE_H_
+
+#include "NL/nlString.h"
+
+class TweaksBase
+{
+public:
+    virtual ~TweaksBase();
+    TweaksBase(const char*);  
+
+    virtual void Init() = 0;
+
+    /* 0x04 */ char m_unk_0x04[0x1f];
+};
+
+#endif // _TWEAKSBASE_H_

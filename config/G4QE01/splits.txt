@@ -464,7 +464,7 @@ Game/Team.cpp:
 	.sbss       start:0x803737D0 end:0x803737D8
 	.sdata2     start:0x80375848 end:0x80375890
 
-TweaksBase.o:
+Game/TweaksBase.cpp:
 	.text       start:0x800661D4 end:0x80066268
 	.text       start:0x80066268 end:0x80066268
 	.data       start:0x802A7D10 end:0x802A7D20

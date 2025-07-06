@@ -658,6 +658,7 @@ config.libs = [
             Object(NonMatching, "Game/Player.cpp"),
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
+            Object(Matching, "Game/TweaksBase.cpp"),
 
             Object(NonMatching, "Game/GLInventory.cpp"),
 

@@ -6,14 +6,18 @@
  */
 PhysicsPlane::~PhysicsPlane()
 {
+    // EMPTY
 }
 
 /**
  * Offset/Address/Size: 0x60 | 0x8013744C | size: 0x38
  */
-int FakePhysicsBall::Contact(PhysicsObject*, dContact*, int)
+int FakePhysicsBall::Contact(PhysicsObject* object, dContact* contact, int arg)
 {
-    return 0;
+    if ((u8) *((u8*)m_unk_0x40 + 0x18) != 0) {
+        return 0;
+    }
+    return PhysicsBall::Contact(object, contact, arg);
 }
 
 /**
