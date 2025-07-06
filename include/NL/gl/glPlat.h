@@ -23,7 +23,7 @@ void glx_SendViews();
 void glx_Fog(bool);
 void glx_GetFog();
 bool glplatPostStartup();
-bool glplatStartup(gl_ScreenInfo*);
+bool glplatStartup(gl_ScreenInfo* screenInfo);
 void glx_SetPal50Mode();
 void glx_SetRGB60Mode();
 void glx_SetInterlacedMode();

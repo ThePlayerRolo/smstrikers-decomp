@@ -1,7 +1,10 @@
 #ifndef _GLSTRUCT_H_
 #define _GLSTRUCT_H_
 
+#include "NL/gl/glPlat.h"
+
 void glGetScreenHeight();
 void glGetScreenWidth();
-void glGetScreenInfo();
+gl_ScreenInfo* glGetScreenInfo();
+
 #endif // _GLSTRUCT_H_

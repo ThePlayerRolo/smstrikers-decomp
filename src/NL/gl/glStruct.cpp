@@ -17,6 +17,7 @@ void glGetScreenWidth()
 /**
  * Offset/Address/Size: 0x20 | 0x801DE3EC | size: 0xC
  */
-void glGetScreenInfo()
+ gl_ScreenInfo* glGetScreenInfo()
 {
+    return NULL;
 }

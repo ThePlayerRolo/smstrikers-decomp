@@ -190,9 +190,7 @@ bool glStartup()
     gl_nDiscard = 0;
     gl_state = 0;
     
-    glGetScreenInfo();
-    
-    if (glplatStartup(NULL) == 0) 
+    if (glplatStartup(glGetScreenInfo()) == 0) 
     {
         return false;
     }
@@ -207,11 +205,9 @@ bool glStartup()
     
     glSetCurrentProgram(-1);
     glSetRasterStateDefaults();
-    glHandleizeRasterState();
-    glSetCurrentRasterState((unsigned long)NULL);
+    glSetCurrentRasterState(glHandleizeRasterState());
     glSetTextureStateDefaults();
-    glHandleizeTextureState();
-    glSetCurrentTextureState((u64)0);
+    glSetCurrentTextureState(glHandleizeTextureState());
     gl_MatrixStartup();
     gl_TargetStartup();
     gl_ViewStartup();

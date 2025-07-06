@@ -755,7 +755,7 @@ config.libs = [
             Object(NonMatching, "NL/glx/glxDisplayList.cpp"),
             Object(NonMatching, "NL/glx/glxTarget.cpp"),
             
-            Object(NonMatching, "NL/gl/gl.cpp"),
+            Object(Matching, "NL/gl/gl.cpp"),
             Object(NonMatching, "NL/gl/glDraw2.cpp"),
             Object(NonMatching, "NL/gl/glDraw3.cpp"),
             Object(NonMatching, "NL/gl/glFont.cpp"),

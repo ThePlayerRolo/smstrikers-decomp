@@ -17,8 +17,9 @@ void glUnHandleizeTextureState(unsigned long long)
 /**
  * Offset/Address/Size: 0x190 | 0x801DBDD4 | size: 0xC
  */
-void glHandleizeTextureState()
+unsigned long long glHandleizeTextureState()
 {
+    return 0;
 }
 
 /**
@@ -31,8 +32,9 @@ void glUnHandleizeRasterState(unsigned long)
 /**
  * Offset/Address/Size: 0x1A4 | 0x801DBDE8 | size: 0x8
  */
-void glHandleizeRasterState()
+unsigned long glHandleizeRasterState()
 {
+    return 0;
 }
 
 /**
@@ -129,7 +131,7 @@ void glSetCurrentMatrix(unsigned long)
 /**
  * Offset/Address/Size: 0x7E4 | 0x801DC428 | size: 0x20
  */
-void glSetCurrentTextureState(unsigned long long)
+void glSetCurrentTextureState(unsigned long long state)
 {
 }
 
