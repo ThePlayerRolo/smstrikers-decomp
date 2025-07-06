@@ -24,8 +24,9 @@ void glplatFrameAllocNextFrame()
 /**
  * Offset/Address/Size: 0x140 | 0x801B6A68 | size: 0xC0
  */
-void glplatFrameAlloc(unsigned long, eGLMemory)
+u32 glplatFrameAlloc(unsigned long, eGLMemory)
 {
+    return 0;
 }
 
 /**
@@ -45,8 +46,9 @@ void glplatResourceMark()
 /**
  * Offset/Address/Size: 0x440 | 0x801B6D68 | size: 0xB4
  */
-void glplatResourceAlloc(unsigned long, eGLMemory)
+ unsigned long glplatResourceAlloc(unsigned long, eGLMemory)
 {
+    return 0;
 }
 
 /**

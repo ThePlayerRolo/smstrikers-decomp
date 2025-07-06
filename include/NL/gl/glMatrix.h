@@ -9,7 +9,7 @@ void glMatrixOrthographicCentered(nlMatrix4&, float, float, float, float);
 void glMatrixOrthographic(nlMatrix4&, float, float);
 void glSetMatrix(unsigned long, const nlMatrix4&);
 void glGetMatrix(unsigned long, nlMatrix4&);
-void glAllocMatrix();
+u32 glAllocMatrix();
 unsigned long glGetIdentityMatrix();
 void gl_MatrixStartup();
 
@@ -18,6 +18,8 @@ class GLMatrix
 public:
     void Set(const nlMatrix4&);
     void Get(nlMatrix4&) const;
+
+    nlMatrix4 m_matrix;
 };
 
 #endif // _GLMATRIX_H_

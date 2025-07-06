@@ -11,10 +11,10 @@ enum eGLMemory
 void glplatSetMatrix(unsigned long, const nlMatrix4&);
 void glplatGetMatrix(unsigned long, nlMatrix4&);
 void glplatFrameAllocNextFrame();
-void glplatFrameAlloc(unsigned long, eGLMemory);
+u32 glplatFrameAlloc(unsigned long, eGLMemory);
 void glplatResourceRelease(unsigned long long);
 void glplatResourceMark();
-void glplatResourceAlloc(unsigned long, eGLMemory);
+unsigned long glplatResourceAlloc(unsigned long, eGLMemory);
 void glxInitMemory();
 void glx_FreeMemory1(const char*);
 void glx_FreeMemory0();
