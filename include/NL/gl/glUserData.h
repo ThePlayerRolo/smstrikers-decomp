@@ -8,25 +8,15 @@ enum eGLUserData
     eGLUserData_0,
 };
 
-// struct glModelPacket // size: 0x48
-// {
-// public:
-//     u32 m_unk_0x00;
-//     u8 m_unk_0x02[0x44];
-// };
-
-
-// struct glModelPacket
-// {
-// public:
-//     s32 *m_unk_0x00[4];
-// };
-
 struct glModelPacket
 {
-    // s32 m_unk_0x00[0x12];
-    // u8 *m_unk_0x00;
     u32 *m_unk_0x00;
+    u32 m_unk_0x04;
+    u8 m_unk_0x08;
+    u8 m_unk_0x09;
+    u8 m_unk_0x0A;
+    u8 m_unk_0x0B;
+    u32 *m_unk_0x0C;
 };
 
 

@@ -29,38 +29,45 @@ void glUserDetach(eGLUserData arg0, glModelPacket* arg1)
 /**
  * Offset/Address/Size: 0x40 | 0x801DEBB8 | size: 0x88
  */
-void glUserDup(glModelPacket* arg0, const glModelPacket* arg1, bool arg2)
+void glUserDup(glModelPacket* dst, const glModelPacket* src, bool arg2)
 {
-    // if (arg1->m_unk_0x00 != 0) 
-    if (*(u32*)arg1 != 0) 
+    void *var_r31;
+    u32 i = *(u32*)src;
+    if (i != 0) 
     {
-        u32 *var_r31;
-        if (arg2 != 0) {
-            var_r31 = (u32*)glResourceAlloc(0x48, eGLMemory_0);
-        } else {
-            var_r31 = (u32*)glFrameAlloc(0x48, eGLMemory_0);
+        if (arg2 != 0) 
+        {
+            var_r31 = glResourceAlloc(0x48, eGLMemory_0);
+        } else 
+        {
+            var_r31 = glFrameAlloc(0x48, eGLMemory_0);
         }
-        memcpy(var_r31, arg1, 0x48);
-        arg0->m_unk_0x00 = var_r31;
+        
+        memcpy(var_r31, src, 0x48);
+        dst->m_unk_0x00 = (u32*)var_r31;
     }
 }
 
 /**
  * Offset/Address/Size: 0xC8 | 0x801DEC40 | size: 0x94
  */
-void glUserAttach(const void* arg0, glModelPacket* arg1, bool arg2)
+void glUserAttach(const void* data, glModelPacket* dst, bool arg2)
 {
-    if ((u32*)arg1 == NULL) {
+    u32 i = *(u32*)dst;
+    if (i == 0) 
+    {
         u32 *var_r31;
-        if (arg2 != 0) {
+        if (arg2 != 0) 
+        {
             var_r31 = (u32*)glResourceAlloc(0x48, eGLMemory_0);
-        } else {
+        } else 
+        {
             var_r31 = (u32*)glFrameAlloc(0x48, eGLMemory_0);
         }
         nlZeroMemory(var_r31, 0x48);
-        arg1->m_unk_0x00 = var_r31;
+        dst->m_unk_0x00 = var_r31;
     }
-    arg1->m_unk_0x00[*(u32*)arg0] = *(u32*)arg0;
+    dst->m_unk_0x00[*(u32*)data] = *(u32*)data;
 }
 
 /**
@@ -77,7 +84,6 @@ void* glUserGetData(const void* arg0)
 void glUserAlloc(eGLUserData arg0, unsigned long size, bool resourceAlloc)
 {
     s32** var_r3;
-
     if (resourceAlloc != 0)
     {
         var_r3 = (s32**)glResourceAlloc(size, eGLMemory_0);
