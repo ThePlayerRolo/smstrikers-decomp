@@ -17,5 +17,5 @@ void glx_UnlockSharedMemory();
 void glx_LockSharedMemory();
 void glx_GetSharedMemorySize();
 void glx_GetSharedMemory();
-// void 0x8028D520..0x8028D524 | size: 0x4;
+
 #endif // _GLXTARGET_H_

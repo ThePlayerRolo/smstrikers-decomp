@@ -8,6 +8,6 @@ enum eGLMemory
 
 void glResourceRelease(unsigned long long);
 void glResourceMark();
-void glFrameAlloc(unsigned long, eGLMemory);
-void glResourceAlloc(unsigned long, eGLMemory);
+void* glFrameAlloc(unsigned long size, eGLMemory type);
+void* glResourceAlloc(unsigned long size, eGLMemory type);
 #endif // _GLMEMORY_H_
