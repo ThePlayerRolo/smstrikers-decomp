@@ -1,52 +1,87 @@
 #include "NL/gl/glView.h"
+#include "NL/gl/glPlat.h"
+
+struct glView
+{
+    /* 0x0 */ u8 m_padding_0x00[0x1C];
+    /* 0x1C */ eGLTarget m_target;
+    /* 0x20 */ u8 m_padding_0x20[0xC4];
+    /* 0xE4 */ eGLFilter m_filter;
+    /* 0xE8 */ eGLTarget m_filterSource;
+    /* 0xEC */ u8 m_padding_0xEC[0x04];
+    /* 0xF0 */ u32 renderList;
+};
+
+bool gl_ViewEnable[34] = {true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+glView *views[34];
 
 /**
  * Offset/Address/Size: 0x0 | 0x801DE4A4 | size: 0x18
  */
-void glViewSetEnable(eGLView, bool)
+bool glViewSetEnable(eGLView view, bool enable)
 {
+    bool uVar1 = gl_ViewEnable[view];
+    gl_ViewEnable[view] = enable;
+    return uVar1;
 }
 
 /**
  * Offset/Address/Size: 0x18 | 0x801DE4BC | size: 0x10
  */
-void glViewGetEnable(eGLView)
+bool glViewGetEnable(eGLView view)
 {
+    return gl_ViewEnable[view];
 }
+
 
 /**
  * Offset/Address/Size: 0x28 | 0x801DE4CC | size: 0x1C
  */
-void glViewSetFilterSource(eGLView, eGLTarget)
+ eGLTarget glViewSetFilterSource(eGLView view, eGLTarget target)
 {
+    eGLTarget temp_r3;
+    glView *temp_r5;
+
+    temp_r5 = views[view];
+    temp_r3 = temp_r5->m_filterSource;
+    temp_r5->m_filterSource = target;
+    return temp_r3;    
 }
 
 /**
  * Offset/Address/Size: 0x44 | 0x801DE4E8 | size: 0x18
  */
-void glViewGetFilter(eGLView)
+ eGLFilter glViewGetFilter(eGLView view)
 {
+    return views[view]->m_filter;
 }
 
 /**
  * Offset/Address/Size: 0x5C | 0x801DE500 | size: 0x1C
  */
-void glViewSetFilter(eGLView, eGLFilter)
+ eGLFilter glViewSetFilter(eGLView view, eGLFilter filter)
 {
+    eGLFilter temp_r3 = views[view]->m_filter;
+    views[view]->m_filter = filter;
+    return temp_r3;
 }
 
 /**
  * Offset/Address/Size: 0x78 | 0x801DE51C | size: 0x1C
  */
-void glViewSetTarget(eGLView, eGLTarget)
+ eGLTarget glViewSetTarget(eGLView view, eGLTarget target)
 {
+    eGLTarget temp_r3 = views[view]->m_target;
+    views[view]->m_target = target;
+    return temp_r3;
 }
 
 /**
  * Offset/Address/Size: 0x94 | 0x801DE538 | size: 0x20
  */
-void glViewProjectPoint(eGLView, const nlVector3&, nlVector3&)
+void glViewProjectPoint(eGLView view, const nlVector3& point, nlVector3& result)
 {
+    glplatViewProjectPoint(view, point, result);
 }
 
 /**
@@ -164,6 +199,7 @@ void glViewAttachModel(eGLView, unsigned long, const glModel*)
 /**
  * Offset/Address/Size: 0x6BC | 0x801DEB60 | size: 0x18
  */
-void gl_ViewGetRenderList(eGLView)
+u32 gl_ViewGetRenderList(eGLView view)
 {
+    return views[view]->renderList;
 }

@@ -4,15 +4,14 @@
 #include "NL/nlMath.h"
 #include "NL/gl/gl.h"
 
-class glModel;
-class glModelPacket;
+#include "NL/gl/glModel.h"
 
-void glViewSetEnable(eGLView, bool);
-void glViewGetEnable(eGLView);
-void glViewSetFilterSource(eGLView, eGLTarget);
-void glViewGetFilter(eGLView);
-void glViewSetFilter(eGLView, eGLFilter);
-void glViewSetTarget(eGLView, eGLTarget);
+bool glViewSetEnable(eGLView, bool);
+bool glViewGetEnable(eGLView);
+eGLTarget glViewSetFilterSource(eGLView, eGLTarget);
+eGLFilter glViewGetFilter(eGLView);
+eGLFilter glViewSetFilter(eGLView, eGLFilter);
+eGLTarget glViewSetTarget(eGLView, eGLTarget);
 void glViewProjectPoint(eGLView, const nlVector3&, nlVector3&);
 void glViewGetProjectionMatrix(eGLView, nlMatrix4&);
 void glViewGetViewMatrix(eGLView, nlMatrix4&);
@@ -30,6 +29,6 @@ void gl_ViewReset();
 void glViewAttachPacket(eGLView, const glModelPacket*);
 void glViewAttachModel(eGLView, const glModel*);
 void glViewAttachModel(eGLView, unsigned long, const glModel*);
-void gl_ViewGetRenderList(eGLView);
+u32 gl_ViewGetRenderList(eGLView);
 
 #endif // _GLVIEW_H_

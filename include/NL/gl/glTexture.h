@@ -1,10 +1,13 @@
 #ifndef _GLTEXTURE_H_
 #define _GLTEXTURE_H_
 
+#include "types.h"
+
 void glTextureReplace(unsigned long, const void*, unsigned long);
 void glTextureAdd(unsigned long, const void*, unsigned long);
 void glTextureGetNumBits(int);
-void glTextureGetHeight();
-void glTextureGetWidth();
+u32 glTextureGetHeight();
+u32 glTextureGetWidth();
 void glTextureLoad(unsigned long);
+
 #endif // _GLTEXTURE_H_

@@ -1,10 +1,7 @@
 #ifndef _GLMEMORY_H_
 #define _GLMEMORY_H_
 
-enum eGLMemory
-{
-    eGLMemory_0,
-};
+#include "NL/glx/glxMemory.h"
 
 void glResourceRelease(unsigned long long);
 void glResourceMark();

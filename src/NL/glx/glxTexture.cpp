@@ -66,15 +66,17 @@ void glplatTextureGetNumBits(int)
 /**
  * Offset/Address/Size: 0x7F0 | 0x801B7AAC | size: 0x10
  */
-void glplatTextureGetHeight()
+u32 glplatTextureGetHeight()
 {
+    return 0;
 }
 
 /**
  * Offset/Address/Size: 0x800 | 0x801B7ABC | size: 0x10
  */
-void glplatTextureGetWidth()
+u32 glplatTextureGetWidth()
 {
+    return 0;
 }
 
 /**

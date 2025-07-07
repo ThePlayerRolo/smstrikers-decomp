@@ -1,7 +1,6 @@
 #ifndef _GLMODEL_H_
 #define _GLMODEL_H_
 
-// #include "types.h"
 #include "NL/gl/glUserData.h"
 
 
