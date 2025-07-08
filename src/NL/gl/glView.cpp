@@ -286,7 +286,6 @@ void gl_ViewStartup()
 
         views[iVar8] = view;
 
-        // puVar6 = views[iVar8];
         view->m_unk_0x00 = 0;
         view->renderList->m_unk_0x04 = eGLViewSort_0;
 

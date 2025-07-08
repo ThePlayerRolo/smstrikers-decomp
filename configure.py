@@ -766,7 +766,7 @@ config.libs = [
             Object(NonMatching, "NL/gl/glRenderList.cpp"),
             Object(NonMatching, "NL/gl/glStat.cpp"),
             Object(NonMatching, "NL/gl/glState.cpp"),
-            Object(NonMatching, "NL/gl/glStruct.cpp"),
+            Object(Matching, "NL/gl/glStruct.cpp"),
             Object(Matching, "NL/gl/glTarget.cpp"),
             Object(NonMatching, "NL/gl/glView.cpp"),
             Object(NonMatching, "NL/gl/glUserData.cpp"),

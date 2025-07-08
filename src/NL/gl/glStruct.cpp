@@ -1,11 +1,13 @@
 #include "NL/gl/glStruct.h"
 
+gl_ScreenInfo _ScreenInfo;
+
 /**
  * Offset/Address/Size: 0x0 | 0x801DE3CC | size: 0x10
  */
 u32 glGetScreenHeight()
 {
-    return 0;
+    return _ScreenInfo.m_screenHeight;
 }
 
 /**
@@ -13,7 +15,7 @@ u32 glGetScreenHeight()
  */
 u32 glGetScreenWidth()
 {
-    return 0;
+    return _ScreenInfo.m_screenWidth;
 }
 
 /**
@@ -21,5 +23,5 @@ u32 glGetScreenWidth()
  */
  gl_ScreenInfo* glGetScreenInfo()
 {
-    return NULL;
+    return &_ScreenInfo;
 }
