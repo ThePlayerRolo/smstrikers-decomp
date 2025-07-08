@@ -257,7 +257,7 @@ void gl_ViewStartup()
     nlMatrix4* identityMatrix;
     glView* view;
     GLRenderList* renderList;
-    glView* puVar6;
+    // glView* puVar6;
     int iVar8;
 
     screenWidth = glGetScreenWidth();
@@ -286,32 +286,32 @@ void gl_ViewStartup()
 
         views[iVar8] = view;
 
-        puVar6 = views[iVar8];
-        puVar6->m_unk_0x00 = 0;
-        puVar6->renderList->m_unk_0x04 = eGLViewSort_0;
+        // puVar6 = views[iVar8];
+        view->m_unk_0x00 = 0;
+        view->renderList->m_unk_0x04 = eGLViewSort_0;
 
-        puVar6->m_unk_0x14 = identityMatrix;
-        puVar6->m_unk_0xE0 = 1;
+        view->m_unk_0x14 = identityMatrix;
+        view->m_unk_0xE0 = 1;
 
-        glGetMatrix(*(u32*)identityMatrix, puVar6->m_viewMatrix);
+        glGetMatrix(*(u32*)identityMatrix, view->m_viewMatrix);
 
-        puVar6->m_unk_0x18 = identityMatrix;
-        puVar6->m_unk_0xE0 = 1;
+        view->m_unk_0x18 = identityMatrix;
+        view->m_unk_0xE0 = 1;
 
-        glGetMatrix(*(u32*)identityMatrix, puVar6->m_projectionMatrix);
+        glGetMatrix(*(u32*)identityMatrix, view->m_projectionMatrix);
 
-        puVar6->m_target = eGLTarget_0;
+        view->m_target = eGLTarget_0;
 
-        puVar6->m_unk_0x04 = 0;
-        puVar6->m_unk_0x08 = 0;
-        puVar6->m_screenWidth = screenWidth;
-        puVar6->m_screenHeight = screenHeight;
+        view->m_unk_0x04 = 0;
+        view->m_unk_0x08 = 0;
+        view->m_screenWidth = screenWidth;
+        view->m_screenHeight = screenHeight;
 
-        puVar6->m_filter = eGLFilter_0;
-        puVar6->m_filterSource = eGLTarget_0;
-        puVar6->m_unk_0xEC = false;
-        puVar6->m_depthClear = false;
-        puVar6->renderList->m_unk_0x00 = iVar8;
+        view->m_filter = eGLFilter_0;
+        view->m_filterSource = eGLTarget_0;
+        view->m_unk_0xEC = false;
+        view->m_depthClear = false;
+        view->renderList->m_unk_0x00 = iVar8;
 
         iVar8++;
     } while (iVar8 < 0x22);
