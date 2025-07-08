@@ -3,8 +3,8 @@
 
 #include "NL/gl/glPlat.h"
 
-void glGetScreenHeight();
-void glGetScreenWidth();
+u32 glGetScreenHeight();
+u32 glGetScreenWidth();
 gl_ScreenInfo* glGetScreenInfo();
 
 #endif // _GLSTRUCT_H_

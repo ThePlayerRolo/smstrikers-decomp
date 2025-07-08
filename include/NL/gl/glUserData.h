@@ -8,7 +8,7 @@ enum eGLUserData
     eGLUserData_0,
 };
 
-struct glModelPacket
+struct glModelPacket // size: 0x4A
 {
     u32 *m_unk_0x00;
     u32 m_unk_0x04;

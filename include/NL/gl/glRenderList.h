@@ -10,7 +10,7 @@
 class glModel;
 class DepthPacketPair;
 
-class GLRenderList
+class GLRenderList // size: 0x30
 {
 public:
     void AttachModel(const glModel*, unsigned long);
@@ -18,7 +18,11 @@ public:
     void IsEmpty() const;
     void Compact();
     void Clear();
+
     GLRenderList();
+
+    /* 0x00 */ u32 m_unk_0x00;
+    /* 0x04 */ eGLViewSort m_unk_0x04;
 };
 
 

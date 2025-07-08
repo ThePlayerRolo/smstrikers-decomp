@@ -12,8 +12,6 @@ struct glModel // size: 0x10
     /* 0x0C */ glModelPacket* m_packets;
 };
 
-// class glModelPacket;
-
 void* glModelDupArrayNoStreams(const glModel*, unsigned long, bool, bool);
 void glModelDupNoStreams(const glModel*, bool, bool);
 void* glModelDup(const glModel*, bool);

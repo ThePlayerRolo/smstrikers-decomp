@@ -6,16 +6,22 @@
 
 #include "NL/gl/glModel.h"
 
-struct glRenderList
-{
-    /* 0x00 */ u32 m_unk_0x00;
-    /* 0x00 */ eGLViewSort m_unk_0x04;
-};
+class GLRenderList;
+
+// Callback type definitions
+typedef void (*glViewIterateCallback)(eGLView, unsigned long);
+typedef void (*glViewPacketCallback)(eGLView, unsigned long, const glModelPacket*);
 
 struct glView
 {
     /* 0x00 */ u32 m_unk_0x00;
-    /* 0x04 */ u8 m_padding_0x04[0x10];
+    // /* 0x04 */ u8 m_padding_0x04[0x10];
+
+    /* 0x04 */ u32 m_unk_0x04;
+    /* 0x08 */ u32 m_unk_0x08;
+    /* 0x0C */ u32 m_screenWidth;
+    /* 0x10 */ u32 m_screenHeight;
+
     /* 0x14 */ nlMatrix4* m_unk_0x14;
     /* 0x18 */ nlMatrix4* m_unk_0x18;
     /* 0x1C */ eGLTarget m_target;
@@ -32,7 +38,9 @@ struct glView
     /* 0xED */ bool m_depthClear;
     /* 0xEE */ bool m_unk_0xEE;
     /* 0xEF */ bool m_unk_0xEF;
-    /* 0xF0 */ glRenderList* renderList;
+    /* 0xF0 */ GLRenderList* renderList;
+    /* 0xF4 */ glViewIterateCallback m_preIterateCallback;
+    /* 0xF8 */ glViewIterateCallback m_postIterateCallback;
 };
 
 bool glViewSetEnable(eGLView, bool);
@@ -52,12 +60,12 @@ eGLViewSort glViewSetSortMode(eGLView, eGLViewSort);
 bool glViewSetDepthClear(eGLView, bool);
 bool glViewGetDepthClear(eGLView);
 void gl_ViewStartup();
-void gl_ViewIterate(eGLView, void (*)(eGLView, unsigned long, const glModelPacket*));
+void gl_ViewIterate(eGLView, glViewPacketCallback);
 void glViewCompact();
 void gl_ViewReset();
 void glViewAttachPacket(eGLView, const glModelPacket*);
 void glViewAttachModel(eGLView, const glModel*);
 void glViewAttachModel(eGLView, unsigned long, const glModel*);
-glRenderList* gl_ViewGetRenderList(eGLView);
+GLRenderList* gl_ViewGetRenderList(eGLView);
 
 #endif // _GLVIEW_H_
