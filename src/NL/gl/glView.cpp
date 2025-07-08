@@ -252,31 +252,24 @@ bool glViewGetDepthClear(eGLView view)
  */
 void gl_ViewStartup()
 {
-    int* piVar1;
-    u32 uVar2;
-    u32 uVar3;
-    nlMatrix4* uVar4;
-    glView* iVar5;
+    u32 screenWidth;
+    u32 screenHeight;
+    nlMatrix4* identityMatrix;
+    glView* view;
     GLRenderList* renderList;
     glView* puVar6;
-    int iVar7;
     int iVar8;
-    bool* puVar9;
-    glView** piVar10;
 
-    uVar2 = glGetScreenWidth();
-    uVar3 = glGetScreenHeight();
-    uVar4 = (nlMatrix4*)glGetIdentityMatrix();
-    piVar10 = &views[0];
+    screenWidth = glGetScreenWidth();
+    screenHeight = glGetScreenHeight();
+    identityMatrix = (nlMatrix4*)glGetIdentityMatrix();
     iVar8 = 0;
-    puVar9 = &gl_ViewEnable[0];
-    iVar7 = 0;
     do
     {
-        *puVar9 = 1;
+        gl_ViewEnable[iVar8] = true;
 
-        iVar5 = (glView*)nlMalloc(0xFC, 8, FALSE);
-        if (iVar5 != NULL)
+        view = (glView*)nlMalloc(0xFC, 8, FALSE);
+        if (view != NULL)
         {
             renderList = (GLRenderList*)nlMalloc(0x30, 8, FALSE);
             if (renderList != NULL)
@@ -284,76 +277,42 @@ void gl_ViewStartup()
                 renderList = new (renderList) GLRenderList();
             }
 
-            iVar5->renderList = renderList;
-            iVar5->m_preIterateCallback = NULL;
-            iVar5->m_postIterateCallback = NULL;
-            iVar5->m_unk_0xEC = false;
-            iVar5->m_depthClear = false;
+            view->renderList = renderList;
+            view->m_preIterateCallback = NULL;
+            view->m_postIterateCallback = NULL;
+            view->m_unk_0xEC = false;
+            view->m_depthClear = false;
         }
 
-        *piVar10 = iVar5;
+        views[iVar8] = view;
 
-        puVar6 = views[iVar7];
+        puVar6 = views[iVar8];
         puVar6->m_unk_0x00 = 0;
         puVar6->renderList->m_unk_0x04 = eGLViewSort_0;
 
-        puVar6->m_unk_0x14 = uVar4;
+        puVar6->m_unk_0x14 = identityMatrix;
         puVar6->m_unk_0xE0 = 1;
 
-        glGetMatrix(*(u32*)uVar4, puVar6->m_viewMatrix);
+        glGetMatrix(*(u32*)identityMatrix, puVar6->m_viewMatrix);
 
-        puVar6->m_unk_0x18 = uVar4;
+        puVar6->m_unk_0x18 = identityMatrix;
         puVar6->m_unk_0xE0 = 1;
 
-        glGetMatrix(*(u32*)uVar4, puVar6->m_projectionMatrix);
-
-        puVar9++;
+        glGetMatrix(*(u32*)identityMatrix, puVar6->m_projectionMatrix);
 
         puVar6->m_target = eGLTarget_0;
 
         puVar6->m_unk_0x04 = 0;
         puVar6->m_unk_0x08 = 0;
-        puVar6->m_screenWidth = uVar2;
-        puVar6->m_screenHeight = uVar3;
-
-        // puVar6->m_filterSource = eGLTarget_0;
-
-        //   puVar6 = *(undefined4 **)((int)&views + iVar7);
-        //   *puVar6 = 0;
-        //   *(undefined4 *)(puVar6[0x3c] + 4) = 0;
-        //   iVar5 = *(int *)((int)&views + iVar7);
-        //   *(undefined4 *)(iVar5 + 0x14) = uVar4;
-        //   *(undefined1 *)(iVar5 + 0xe0) = 1;
-        //   glMatrix::glGetMatrix(uVar4,iVar5 + 0x20);
-        //   iVar5 = *(int *)((int)&views + iVar7);
-        //   *(undefined4 *)(iVar5 + 0x18) = uVar4;
-        //   *(undefined1 *)(iVar5 + 0xe0) = 1;
-        //   glMatrix::glGetMatrix(uVar4,iVar5 + 0x60);
-        //   puVar9 = puVar9 + 1;
-        //   *(undefined4 *)(*(int *)((int)&views + iVar7) + 0x1c) = 0;
-        //   iVar5 = *(int *)((int)&views + iVar7);
-        //   *(undefined4 *)(iVar5 + 4) = 0;
-        //   *(undefined4 *)(iVar5 + 8) = 0;
-        //   *(undefined4 *)(iVar5 + 0xc) = uVar2;
-        //   *(undefined4 *)(iVar5 + 0x10) = uVar3;
+        puVar6->m_screenWidth = screenWidth;
+        puVar6->m_screenHeight = screenHeight;
 
         puVar6->m_filter = eGLFilter_0;
         puVar6->m_filterSource = eGLTarget_0;
         puVar6->m_unk_0xEC = false;
         puVar6->m_depthClear = false;
-
-        //   *(undefined4 *)(*(int *)((int)&views + iVar7) + 0xe4) = 0;
-        //   *(undefined4 *)(*(int *)((int)&views + iVar7) + 0xe8) = 0;
-        //   *(undefined1 *)(*(int *)((int)&views + iVar7) + 0xec) = 0;
-        //   piVar1 = (int *)((int)&views + iVar7);
-        //   iVar7 = iVar7 + 4;
-        //   *(undefined1 *)(*piVar1 + 0xed) = 0;
-        //   iVar5 = *piVar10;
-        //   piVar10 = piVar10 + 1;
-        //   **(int **)(iVar5 + 0xf0) = iVar8;
         puVar6->renderList->m_unk_0x00 = iVar8;
 
-        piVar10++;
         iVar8++;
     } while (iVar8 < 0x22);
 }
