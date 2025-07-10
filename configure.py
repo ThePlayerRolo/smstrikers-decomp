@@ -760,7 +760,7 @@ config.libs = [
             Object(NonMatching, "NL/gl/glDraw3.cpp"),
             Object(NonMatching, "NL/gl/glFont.cpp"),
             Object(Matching, "NL/gl/glMatrix.cpp"),
-            Object(NonMatching, "NL/gl/glMatrixStack.cpp"),
+            Object(Matching, "NL/gl/glMatrixStack.cpp"),
             Object(Matching, "NL/gl/glMemory.cpp"),
             Object(NonMatching, "NL/gl/glModify.cpp"),
             Object(NonMatching, "NL/gl/glRenderList.cpp"),
