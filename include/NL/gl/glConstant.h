@@ -3,8 +3,8 @@
 
 #include "NL/nlMath.h"
 
-void glConstantGet(const char*);
-void glConstantGet(const char*, nlVector4&);
+nlVector4 glConstantGet(const char*);
+bool glConstantGet(const char*, nlVector4&);
 void glConstantSet(const char*, const nlVector4&);
 void gl_ConstantMarkerBackup(int);
 void gl_ConstantMarkerAdvance();

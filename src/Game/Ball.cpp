@@ -490,6 +490,7 @@ PhysicsSphere::~PhysicsSphere()
 //  */
 int PhysicsObject::PreCollide()
 {
+    return 0;
 }
 
 // /**
