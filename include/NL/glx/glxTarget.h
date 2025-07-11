@@ -1,6 +1,8 @@
 #ifndef _GLXTARGET_H_
 #define _GLXTARGET_H_
 
+#include "NL/glx/glxGX.h"
+
 void glPlatGrabFrameBufferToTexture(unsigned long, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int);
 void glx_UpdateWarble();
 void glx_DOFUpdate(float);

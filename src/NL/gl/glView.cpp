@@ -83,42 +83,7 @@ void glViewProjectPoint(eGLView view, const nlVector3& point, nlVector3& result)
  */
 void glViewGetProjectionMatrix(eGLView view, nlMatrix4& result)
 {
-    u32 v1, v2;
-    u32* dst = (u32*)&result.m;
-    u32* src = (u32*)&views[view]->m_projectionMatrix;
-
-    v1 = src[0];
-    v2 = src[1];
-    dst[0] = v1;
-    dst[1] = v2;
-    v2 = src[2];
-    v1 = src[3];
-    dst[2] = v2;
-    dst[3] = v1;
-    v2 = src[4];
-    v1 = src[5];
-    dst[4] = v2;
-    dst[5] = v1;
-    v2 = src[6];
-    v1 = src[7];
-    dst[6] = v2;
-    dst[7] = v1;
-    v2 = src[8];
-    v1 = src[9];
-    dst[8] = v2;
-    dst[9] = v1;
-    v2 = src[10];
-    v1 = src[11];
-    dst[10] = v2;
-    dst[11] = v1;
-    v1 = src[12];
-    v2 = src[13];
-    dst[12] = v1;
-    dst[13] = v2;
-    v2 = src[15];
-    v1 = src[14];
-    dst[14] = v2;
-    dst[15] = v1;
+    result = views[view]->m_projectionMatrix;
 }
 
 /**
@@ -126,44 +91,7 @@ void glViewGetProjectionMatrix(eGLView view, nlMatrix4& result)
  */
 void glViewGetViewMatrix(eGLView view, nlMatrix4& result)
 {
-    u32 v1, v2;
-    glView* view_ptr = views[view];
-    u32* dst = (u32*)&result.m;
-    u32* src = (u32*)&(view_ptr->m_viewMatrix);
-    // u32 *src = (u32*)((u8*)&views[view] + 0x20);
-
-    v1 = src[0];
-    v2 = src[1];
-    dst[0] = v1;
-    dst[1] = v2;
-    v2 = src[2];
-    v1 = src[3];
-    dst[2] = v2;
-    dst[3] = v1;
-    v2 = src[4];
-    v1 = src[5];
-    dst[4] = v2;
-    dst[5] = v1;
-    v2 = src[6];
-    v1 = src[7];
-    dst[6] = v2;
-    dst[7] = v1;
-    v2 = src[8];
-    v1 = src[9];
-    dst[8] = v2;
-    dst[9] = v1;
-    v2 = src[10];
-    v1 = src[11];
-    dst[10] = v2;
-    dst[11] = v1;
-    v1 = src[12];
-    v2 = src[13];
-    dst[12] = v1;
-    dst[13] = v2;
-    v2 = src[15];
-    v1 = src[14];
-    dst[14] = v2;
-    dst[15] = v1;
+    result = views[view]->m_viewMatrix;
 }
 
 /**

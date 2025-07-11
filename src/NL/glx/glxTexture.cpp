@@ -138,8 +138,9 @@ void glx_AddTex(unsigned long, PlatTexture*)
 /**
  * Offset/Address/Size: 0xF94 | 0x801B8250 | size: 0x194
  */
-void glx_GetTex(unsigned long, bool, bool)
+void* glx_GetTex(unsigned long, bool, bool)
 {
+    return nullptr;
 }
 
 /**

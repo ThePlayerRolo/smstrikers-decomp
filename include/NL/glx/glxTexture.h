@@ -41,7 +41,7 @@ void glplatLoadTextureBundle(const char*);
 void BundleSortProc(const glTexBundleDict*, const glTexBundleDict*);
 void glx_MakeTexture(GXTextureHeader*, unsigned long);
 void glx_AddTex(unsigned long, PlatTexture*);
-void glx_GetTex(unsigned long, bool, bool);
+void* glx_GetTex(unsigned long, bool, bool);
 void glx_GetGridTexture(int, int);
 void glx_MakeGridTexture(int, int);
 void glx_SetGridMode(bool);

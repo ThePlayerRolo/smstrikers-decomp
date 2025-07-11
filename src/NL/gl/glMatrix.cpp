@@ -82,7 +82,6 @@ void gl_MatrixStartup()
 {
     nlMatrix4 matrix;
     matrix.SetIdentity();
-    // SetIdentity(&matrix);
     gl_IdentityMatrix = (unsigned long)glplatResourceAlloc(0x40, (eGLMemory)1);
     glplatSetMatrix(gl_IdentityMatrix, matrix);    
 }
