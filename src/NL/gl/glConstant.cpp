@@ -25,9 +25,10 @@ nlVector4 vZero(0.0f, 0.0f, 0.0f, 0.0f);
 
     temp_r3 = nlStringHash(arg1);
     var_r5 = &constants[level];
-    var_ctr = level + 1;
-    if ((s32) level >= 0) {
-loop_1:
+    var_r4_2 = NULL;
+
+    for (int i = level; i >= 0; i--) 
+    {
         var_r4 = (*var_r5)->m_root_entry_0x08;
 loop_14:
         if (var_r4 == NULL) {
@@ -58,21 +59,14 @@ loop_14:
         if (var_r0 != 0) {
             var_r4_2 = sp8;
         } else {
-            var_r5 -= 4;
-            var_ctr -= 1;
-            if (var_ctr == 0) {
-                goto block_19;
-            }
-            goto loop_1;
+            var_r5 = (AVLTreeBase<unsigned long, nlVector4, NewAdapter<AVLTreeEntry<unsigned long, nlVector4> >, DefaultKeyCompare<unsigned long> >**)((u8*)var_r5 - 4);
         }
-    } else {
-block_19:
-        var_r4_2 = NULL;
     }
+
     if (var_r4_2 == NULL) {
         var_r4_2 = (nlVector4*)&vZero;
     }
-    // M2C_STRUCT_COPY(arg0, var_r4_2, 0x10);    
+
     return *var_r4_2;
 }
 
@@ -241,10 +235,18 @@ void gl_ConstantMarkerAdvance()
 /**
  * Offset/Address/Size: 0x3D4 | 0x801DF5F4 | size: 0x98
  */
-void gl_ConstantStartup()
-{
-}
-
+ void gl_ConstantStartup()
+ {
+     s32 var_r26;
+     void *temp_r3;
+     for (var_r26 = 0; var_r26 < 0x10; var_r26++) 
+     {
+         temp_r3 = nlMalloc(0x14, 8, 0);
+         constants[var_r26] = (AVLTreeBase<unsigned long, nlVector4, NewAdapter<AVLTreeEntry<unsigned long, nlVector4> >, DefaultKeyCompare<unsigned long> >*)new (temp_r3) AVLTreeBase<unsigned long, nlVector4, NewAdapter<AVLTreeEntry<unsigned long, nlVector4> >, DefaultKeyCompare<unsigned long> >();
+     }
+     level = 0;    
+ }
+ 
 // /*
 // // Fake template specialization implementations - these were never in the original code
 // // They are decompiler artifacts from template instantiation
