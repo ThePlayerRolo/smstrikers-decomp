@@ -14,10 +14,10 @@ void glx_ColourGrab();
 void glx_ShadowGrab();
 void glxPostInitTargets();
 void glxInitTargets();
-void glx_GetSharedLock();
+bool glx_GetSharedLock();
 void glx_UnlockSharedMemory();
 void glx_LockSharedMemory();
-void glx_GetSharedMemorySize();
-void glx_GetSharedMemory();
+u32 glx_GetSharedMemorySize();
+u32 glx_GetSharedMemory();
 
 #endif // _GLXTARGET_H_

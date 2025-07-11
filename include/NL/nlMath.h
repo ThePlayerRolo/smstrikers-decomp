@@ -57,6 +57,14 @@ struct nlVector4
     float y;
     float z;
     float w;
+    nlVector4(){}
+    nlVector4(float x, float y, float z, float w)
+        : x(x)
+        , y(y)
+        , z(z)
+        , w(w)
+    {
+    }
 };
 
 struct nlMatrix3
