@@ -6,31 +6,7 @@ int level = 0;
 
 AVLTreeBase<unsigned long, nlVector4, NewAdapter<AVLTreeEntry<unsigned long, nlVector4> >, DefaultKeyCompare<unsigned long> > *constants[16] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  };
 
-// Global zero vector
-static const nlVector4 vZero(0.0f, 0.0f, 0.0f, 0.0f);
-
-/**
- * Inlineable helper method to search for a constant in the AVL tree
- * Returns pointer to the found nlVector4 or NULL if not found
- */
-inline nlVector4* FindConstantInTree(AVLTreeEntry<unsigned long, nlVector4>* root, u32 hash)
-{
-    AVLTreeEntry<unsigned long, nlVector4>* current = root;
-    
-    while (current != NULL) {
-        u32 currentHash = current->GetKey();
-        
-        if (hash == currentHash) {
-            return &current->GetValue();
-        } else if (hash < currentHash) {
-            current = current->m_left;
-        } else {
-            current = current->m_right;
-        }
-    }
-    
-    return NULL;
-}
+nlVector4 vZero(0.0f, 0.0f, 0.0f, 0.0f);
 
 /**
  * Offset/Address/Size: 0x0 | 0x801DF220 | size: 0x10C
@@ -103,16 +79,143 @@ block_19:
 /**
  * Offset/Address/Size: 0x10C | 0x801DF32C | size: 0x10C
  */
-bool glConstantGet(const char*, nlVector4&)
+bool glConstantGet(const char* arg0, nlVector4& arg1)
 {
-    return false;
+    nlVector4* sp8;
+    nlVector4* var_r5_2;
+    s32 var_ctr;
+    s32 var_r0_2;
+    s8 var_r0;
+    u32 temp_r0;
+    u32 temp_r3;
+    AVLTreeBase<unsigned long, nlVector4, NewAdapter<AVLTreeEntry<unsigned long, nlVector4> >, DefaultKeyCompare<unsigned long> > **var_r5;
+    AVLTreeEntry<unsigned long, nlVector4>* var_r4;
+
+
+    temp_r3 = nlStringHash(arg0);
+    var_r5 = &constants[level];
+    var_ctr = level + 1;
+    if ((s32) level >= 0) {
+loop_1:
+        var_r4 = (*var_r5)->m_root_entry_0x08;
+loop_14:
+        if (var_r4 == NULL) {
+            var_r0 = 0;
+        } else {
+            temp_r0 = var_r4->GetKey();
+            if (temp_r3 == temp_r0) {
+                var_r0_2 = 0;
+            } else if (temp_r3 < temp_r0) {
+                var_r0_2 = -1;
+            } else {
+                var_r0_2 = 1;
+            }
+            if (var_r0_2 == 0) {
+                if (&sp8 != NULL) {
+                    sp8 = &var_r4->GetValue();
+                }
+                var_r0 = 1;
+            } else {
+                if (var_r0_2 < 0) {
+                    var_r4 = var_r4->m_left;
+                } else {
+                    var_r4 = var_r4->m_right;
+                }
+                goto loop_14;
+            }
+        }
+        if (var_r0 != 0) {
+            var_r5_2 = sp8;
+        } else {
+            var_r5 -= 4;
+            var_ctr -= 1;
+            if (var_ctr == 0) {
+                goto block_19;
+            }
+            goto loop_1;
+        }
+    } else {
+block_19:
+        var_r5_2 = NULL;
+    }
+    if (var_r5_2 == NULL) {
+        return 0;
+    }
+    arg1 = *var_r5_2;
+    return 1;
 }
 
 /**
  * Offset/Address/Size: 0x218 | 0x801DF438 | size: 0x14C
  */
-void glConstantSet(const char*, const nlVector4&)
+void glConstantSet(const char* arg0, const nlVector4& arg1)
 {
+    nlVector4* sp8;
+    nlVector4* var_r4_2;
+    s32 var_ctr;
+    s32 var_r0_2;
+    s8 var_r0;
+    u32 temp_r0;
+    u32 temp_r3;
+    AVLTreeBase<unsigned long, nlVector4, NewAdapter<AVLTreeEntry<unsigned long, nlVector4> >, DefaultKeyCompare<unsigned long> > **var_r5;
+    AVLTreeEntry<unsigned long, nlVector4>* var_r4;
+
+    temp_r3 = nlStringHash(arg0);
+    var_r5 = &constants[level];
+    var_ctr = level + 1;
+    if ((s32) level >= 0) {
+loop_1:
+        var_r4 = (*var_r5)->m_root_entry_0x08;
+loop_14:
+        if (var_r4 == NULL) {
+            var_r0 = 0;
+        } else {
+            temp_r0 = var_r4->GetKey();
+            if (temp_r3 == temp_r0) {
+                var_r0_2 = 0;
+            } else if (temp_r3 < temp_r0) {
+                var_r0_2 = -1;
+            } else {
+                var_r0_2 = 1;
+            }
+            if (var_r0_2 == 0) {
+                if (&sp8 != NULL) {
+                    sp8 = &var_r4->GetValue();
+                }
+                var_r0 = 1;
+            } else {
+                if (var_r0_2 < 0) {
+                    var_r4 = var_r4->m_left;
+                } else {
+                    var_r4 = var_r4->m_right;
+                }
+                goto loop_14;
+            }
+        }
+        if (var_r0 != 0) {
+            var_r4_2 = sp8;
+        } else {
+            var_r5 -= 4;
+            var_ctr -= 1;
+            if (var_ctr == 0) {
+                goto block_19;
+            }
+            goto loop_1;
+        }
+    } else {
+block_19:
+        var_r4_2 = NULL;
+    }
+    if (var_r4_2 == NULL) {
+        // Create new entry in the AVL tree
+        AVLTreeNode* newNode;
+        (*var_r5)->AddAVLNode(&(*var_r5)->m_root_node_0x10, &temp_r3, (void*)&arg1, &newNode, 0);
+        if (newNode == NULL) {
+            (*var_r5)->m_root_node_0x10 = (AVLTreeNode*)((u32)(*var_r5)->m_root_node_0x10 + 1);
+        }
+    } else {
+        *var_r4_2 = arg1;
+    }    
 }
 
 /**

@@ -179,7 +179,6 @@ public:
     AVLTreeEntry* m_left;
     AVLTreeEntry* m_right;
 
-private:
     KeyType m_key;
     ValueType m_value;
 };
