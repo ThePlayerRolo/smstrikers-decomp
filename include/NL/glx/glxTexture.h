@@ -16,6 +16,13 @@ enum eGLTextureType
 enum eGLTextureState
 {
     eGLTextureState_0 = 0,
+    eGLTextureState_1,
+    eGLTextureState_2,
+    eGLTextureState_3,
+    eGLTextureState_4,
+    eGLTextureState_5,
+    eGLTextureState_6,
+    eGLTextureState_7,
 };
 
 enum eGLTextureFormatType

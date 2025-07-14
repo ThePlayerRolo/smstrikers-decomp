@@ -8,6 +8,9 @@
 enum eGLState
 {
     eGLState_0,
+    eGLState_1,
+    eGLState_2,
+    eGLState_3,
 };
 
 class glStateBundle;
@@ -27,7 +30,7 @@ void glSetRasterState(unsigned long&, eGLState, unsigned long);
 void glSetRasterState(eGLState, unsigned long);
 void glGetRasterState(unsigned long, eGLState);
 void glGetRasterState(eGLState);
-void glGetTexture(const char*);
+void* glGetTexture(const char*);
 void glGetProgram(const char*);
 void glSetCurrentMatrix(unsigned long);
 void glSetCurrentTextureState(unsigned long long state);
