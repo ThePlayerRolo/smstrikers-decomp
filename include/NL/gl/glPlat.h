@@ -9,6 +9,9 @@
 enum eVideoMode
 {
     eVideoMode_0,
+    eVideoMode_1,
+    eVideoMode_2,
+    eVideoMode_3,
 };
 
 struct gl_ScreenInfo // size: 0x28
@@ -33,7 +36,7 @@ void glplatAbortFrame();
 void glplatSendFrame();
 void glx_SendViews();
 void glx_Fog(bool);
-void glx_GetFog();
+bool glx_GetFog();
 bool glplatPostStartup();
 bool glplatStartup(gl_ScreenInfo* screenInfo);
 void glx_SetPal50Mode();

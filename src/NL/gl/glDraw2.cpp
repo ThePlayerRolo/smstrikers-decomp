@@ -3,8 +3,13 @@
 /**
  * Offset/Address/Size: 0x0 | 0x801D7600 | size: 0x18
  */
-void glPoly2::SetColour(const nlColour&)
+void glPoly2::SetColour(const nlColour& col)
 {
+    u32 rgb = *(u32*)&col;
+    *(u32*)&m_colour1 = rgb;
+    *(u32*)&m_colour2 = rgb;
+    *(u32*)&m_colour3 = rgb;
+    *(u32*)&m_colour4 = rgb;
 }
 
 /**

@@ -1,10 +1,53 @@
 #include "NL/gl/glPlat.h"
+#include "NL/glx/glxSwap.h"
+#include "NL/glx/glxMemory.h"
+#include "NL/glx/glxTarget.h"
+#include "Dolphin/vi/vifuncs.h"
+#include "Dolphin/gx/GXFrameBuffer.h"
+
+GXRenderModeObj glx_rmode;
+GXRenderModeObj glPal480IntDf = 
+{
+    VI_TVMODE_PAL_INT,          // viTVmode = VI_TVMODE_PAL_INT
+    640,        // fbWidth
+    480,        // efbHeight
+    542,        // xfbHeight
+    40,         // viXOrigin
+    16,         // viYOrigin
+    640,        // viWidth
+    542,        // viHeight
+    VI_XFBMODE_SF,          // xFBmode = VI_XFBMODE_SF
+    1,          // field_rendering
+    0,          // aa
+    {
+        { 0, 0 }, { 6, 6 }, { 6, 6 }, { 6, 6 },
+        { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 },
+        { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 }
+    },
+    { 6, 6, 8, 8, 10, 12, 10 }
+};
+
+// GXRenderModeObj GXEurgb60Hz480IntDf;
+bool glx_bFog = false;
+u32 glx_NumVirtMisses = 0;
+u32 glx_VirtLatency = 0;
+u32 glx_VIWidth = 0x00000294;
+u32 prev_VIWidth = 0x00000294;
 
 /**
  * Offset/Address/Size: 0x0 | 0x801B45F4 | size: 0xB0
  */
-void glplatViewProjectPoint(eGLView, const nlVector3&, nlVector3&)
+void glplatViewProjectPoint(eGLView view, const nlVector3& arg1, nlVector3& arg2)
 {
+    nlVector3 v_out;
+    nlMatrix4* temp_r31 = glViewGetViewMatrix(view);
+    nlMatrix4* temp_r30 = glViewGetProjectionMatrix(view);
+    nlMultPosVectorMatrix(v_out, arg1, *temp_r31);
+    nlMultPosVectorMatrix(arg2, v_out, *temp_r30);
+    float temp_f1 = 1.f / -v_out.z;
+    arg2.x = arg2.x * temp_f1;
+    arg2.y = -arg2.y * temp_f1;
+    arg2.z = arg2.z * temp_f1;    
 }
 
 /**
@@ -12,6 +55,7 @@ void glplatViewProjectPoint(eGLView, const nlVector3&, nlVector3&)
  */
 void glplatEndFrame()
 {
+    // EMPTY
 }
 
 /**
@@ -19,6 +63,15 @@ void glplatEndFrame()
  */
 void glplatBeginFrame()
 {
+    u32 temp_r3;
+    if (glx_VIWidth != prev_VIWidth) {
+        temp_r3 = 0x2D0 - glx_VIWidth;
+        prev_VIWidth = glx_VIWidth;
+        glx_rmode.viWidth = (s16) glx_VIWidth;
+        glx_rmode.viXOrigin = (s16) ((s32) ((temp_r3 >> 0x1FU) + temp_r3) >> 1);
+        VIConfigure(&glx_rmode);
+        VIFlush();
+    }
 }
 
 /**
@@ -26,6 +79,7 @@ void glplatBeginFrame()
  */
 void glplatFinish()
 {
+    glxSwapWaitDrawDone();
 }
 
 /**
@@ -33,6 +87,11 @@ void glplatFinish()
  */
 void glplatAbortFrame()
 {
+    glplatFrameAllocNextFrame();
+    glx_NumVirtMisses = 0;
+    glx_VirtLatency = 0;
+    glxSwapWaitDrawDone();
+    VIWaitForRetrace();    
 }
 
 /**
@@ -59,8 +118,9 @@ void glx_Fog(bool)
 /**
  * Offset/Address/Size: 0x9DC | 0x801B4FD0 | size: 0x8
  */
-void glx_GetFog()
+bool glx_GetFog()
 {
+    return glx_bFog;
 }
 
 /**
@@ -68,7 +128,8 @@ void glx_GetFog()
  */
 bool glplatPostStartup()
 {
-    return false;
+    glxPostInitTargets();
+    return true;
 }
 
 /**
@@ -84,6 +145,7 @@ bool glplatStartup(gl_ScreenInfo*)
  */
 void glx_SetPal50Mode()
 {
+    glx_SwitchVideoMode(&glPal480IntDf, eVideoMode_1);
 }
 
 /**
@@ -91,6 +153,7 @@ void glx_SetPal50Mode()
  */
 void glx_SetRGB60Mode()
 {
+    glx_SwitchVideoMode(&GXEurgb60Hz480IntDf, eVideoMode_3);
 }
 
 /**
