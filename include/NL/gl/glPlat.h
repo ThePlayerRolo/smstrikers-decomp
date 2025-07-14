@@ -43,12 +43,12 @@ void glx_SetPal50Mode();
 void glx_SetRGB60Mode();
 void glx_SetInterlacedMode();
 void glx_SetProgressiveMode();
-void glx_GetResetCode();
+u32 glx_GetResetCode();
 void glx_SwitchVideoMode(_GXRenderModeObj*, eVideoMode);
-void glplatPreStartup();
+bool glplatPreStartup();
 void virt_cb(unsigned long, unsigned long, unsigned long, unsigned long, int);
 void glx_ClearXFB(void*);
-void glx_GetTargetFPS();
-void glx_GetScaledXFBWidth();
+u32 glx_GetTargetFPS();
+u32 glx_GetScaledXFBWidth();
 void glx_SetFog(int);
 #endif // _GLPLAT_H_

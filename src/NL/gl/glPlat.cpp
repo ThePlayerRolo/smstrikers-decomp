@@ -4,35 +4,34 @@
 #include "NL/glx/glxTarget.h"
 #include "Dolphin/vi/vifuncs.h"
 #include "Dolphin/gx/GXFrameBuffer.h"
+#include "Dolphin/os/OSCache.h"
 
 GXRenderModeObj glx_rmode;
-GXRenderModeObj glPal480IntDf = 
-{
-    VI_TVMODE_PAL_INT,          // viTVmode = VI_TVMODE_PAL_INT
-    640,        // fbWidth
-    480,        // efbHeight
-    542,        // xfbHeight
-    40,         // viXOrigin
-    16,         // viYOrigin
-    640,        // viWidth
-    542,        // viHeight
-    VI_XFBMODE_SF,          // xFBmode = VI_XFBMODE_SF
-    1,          // field_rendering
-    0,          // aa
-    {
-        { 0, 0 }, { 6, 6 }, { 6, 6 }, { 6, 6 },
-        { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 },
-        { 6, 6 }, { 6, 6 }, { 6, 6 }, { 6, 6 }
-    },
-    { 6, 6, 8, 8, 10, 12, 10 }
+
+GXRenderModeObj glPal480IntDf = { 
+    VI_TVMODE_PAL_INT,
+    640,
+    480,
+    542,
+    40,
+    16,
+    640,
+    542,
+    VI_XFBMODE_SF,
+    1,
+    0,
+    { 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 },
+    { 6, 6, 8, 8, 10, 12, 10 } 
 };
 
-// GXRenderModeObj GXEurgb60Hz480IntDf;
 bool glx_bFog = false;
+bool glx_bProgressiveMode = false;
+u32 glx_TargetFPS = 60;
+s32 glx_FBSize;
 u32 glx_NumVirtMisses = 0;
 u32 glx_VirtLatency = 0;
-u32 glx_VIWidth = 0x00000294;
-u32 prev_VIWidth = 0x00000294;
+s32 glx_VIWidth = 0x00000294;
+s32 prev_VIWidth = 0x00000294;
 
 /**
  * Offset/Address/Size: 0x0 | 0x801B45F4 | size: 0xB0
@@ -63,9 +62,10 @@ void glplatEndFrame()
  */
 void glplatBeginFrame()
 {
-    u32 temp_r3;
-    if (glx_VIWidth != prev_VIWidth) {
-        temp_r3 = 0x2D0 - glx_VIWidth;
+    // u32 temp_r3;
+    if (glx_VIWidth != prev_VIWidth) 
+    {
+        s32 temp_r3 = 0x2D0 - glx_VIWidth;
         prev_VIWidth = glx_VIWidth;
         glx_rmode.viWidth = (s16) glx_VIWidth;
         glx_rmode.viXOrigin = (s16) ((s32) ((temp_r3 >> 0x1FU) + temp_r3) >> 1);
@@ -161,6 +161,8 @@ void glx_SetRGB60Mode()
  */
 void glx_SetInterlacedMode()
 {
+    glx_SwitchVideoMode(&GXNtsc480IntDf, eVideoMode_0);
+    glx_bProgressiveMode = 0;
 }
 
 /**
@@ -168,13 +170,17 @@ void glx_SetInterlacedMode()
  */
 void glx_SetProgressiveMode()
 {
+    glx_SwitchVideoMode(&GXNtsc480Prog, eVideoMode_0);
+    glx_bProgressiveMode = 1;
 }
 
 /**
  * Offset/Address/Size: 0xFEC | 0x801B55E0 | size: 0x1C
  */
-void glx_GetResetCode()
+u32 glx_GetResetCode()
 {
+    // return 0x17 & ((s32) (-(s32) glx_bProgressiveMode | glx_bProgressiveMode) >> 0x1F);
+    return glx_bProgressiveMode ? 0x17 : 0;
 }
 
 /**
@@ -187,36 +193,51 @@ void glx_SwitchVideoMode(_GXRenderModeObj*, eVideoMode)
 /**
  * Offset/Address/Size: 0x1194 | 0x801B5788 | size: 0x8
  */
-void glplatPreStartup()
+bool glplatPreStartup()
 {
+    return true;
 }
 
 /**
  * Offset/Address/Size: 0x119C | 0x801B5790 | size: 0x1C
  */
-void virt_cb(unsigned long, unsigned long, unsigned long, unsigned long, int)
+void virt_cb(unsigned long arg0, unsigned long arg1, unsigned long arg2, unsigned long arg3, int arg4)
 {
+    glx_NumVirtMisses += 1;
+    glx_VirtLatency += arg3;
 }
 
 /**
  * Offset/Address/Size: 0x11B8 | 0x801B57AC | size: 0x4C
  */
-void glx_ClearXFB(void*)
+void glx_ClearXFB(void* cache)
 {
+    u8 *var_r5 = (u8*) cache;
+    s32 var_r6 = 0;
+
+    while (var_r6 < (s32) glx_FBSize) \
+    {
+        *(u32*)var_r5 = 0x10801080;
+        var_r6 += 4;
+        var_r5 += 4;
+    }
+    DCFlushRange(cache, glx_FBSize);    
 }
 
 /**
  * Offset/Address/Size: 0x1204 | 0x801B57F8 | size: 0x8
  */
-void glx_GetTargetFPS()
+u32 glx_GetTargetFPS()
 {
+    return glx_TargetFPS;
 }
 
 /**
  * Offset/Address/Size: 0x120C | 0x801B5800 | size: 0x8
  */
-void glx_GetScaledXFBWidth()
+u32 glx_GetScaledXFBWidth()
 {
+    return glx_VIWidth;
 }
 
 /**
