@@ -367,6 +367,10 @@ void glx_SendViews()
                 // local_20 = (longlong)iVar2;
                 // local_c4 = CONCAT22(CONCAT11((char)iVar4, (char)iVar1), CONCAT11((char)iVar2, (char)glx_FogColour));
                 // local_c0 = local_c4;
+                local_c0.r = 0x0;
+                local_c0.g = 0x0;
+                local_c0.b = 0x0;
+                local_c0.a = 0xff;
 
                 GXSetFog((GXFogType)fogtype[glx_FogType], glx_FogStart, glx_FogEnd, 0.25f, 130.0f, local_c0);
                 if (glx_bFogAdjust == false)

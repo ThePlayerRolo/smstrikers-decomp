@@ -1,17 +1,50 @@
+#include "Dolphin/types.h"
+#include "NL/nlMemory.h"
 #include "NL/glx/glxMemory.h"
+#include "NL/gl/glMatrix.h"
+#include "NL/nlDebug.h"
+#include "Dolphin/os.h"
+
+bool glx_MemoryDump;
+u32 ResourceMemSize;
+u32 FrameMemSizeReal;
+u32 FrameMemSizeVirt;
+u32 p_phys;
+u32 n_phys;
+u32 i_frame;
+u32 glx_mem0;
+u32 g_uResourceMarker = 0;
+
+u32 p_frame[4];
+u32 n_frame[4];
+u32 FrameMemSizes[2] = {FrameMemSizeReal = 0xE00000, FrameMemSizeVirt = 0xA00000};  // Add this line
+GLXMemoryInfo g_uResourceAlloc[16];
+
+const char* szMemoryNames[] = {
+    "header",
+    "matrix", 
+    "index",
+    "vert",
+    "tex",
+    "target"
+};
 
 /**
  * Offset/Address/Size: 0x0 | 0x801B6928 | size: 0x20
  */
-void glplatSetMatrix(unsigned long, const nlMatrix4&)
+void glplatSetMatrix(unsigned long addr, const nlMatrix4& matrix)
 {
+    GLMatrix* matrixPtr = (GLMatrix*)addr;
+    matrixPtr->Set(matrix);
 }
 
 /**
  * Offset/Address/Size: 0x20 | 0x801B6948 | size: 0x20
  */
-void glplatGetMatrix(unsigned long, nlMatrix4&)
+void glplatGetMatrix(unsigned long addr, nlMatrix4& matrix)
 {
+    GLMatrix* matrixPtr = (GLMatrix*)addr;
+    matrixPtr->Get(matrix);
 }
 
 /**
@@ -46,9 +79,24 @@ void glplatResourceMark()
 /**
  * Offset/Address/Size: 0x440 | 0x801B6D68 | size: 0xB4
  */
- unsigned long glplatResourceAlloc(unsigned long, eGLMemory)
+ unsigned long glplatResourceAlloc(unsigned long arg0, eGLMemory arg1)
 {
-    return 0;
+    s32 temp_r30;
+    s32 temp_r4;
+    u32 temp_r3;
+    u32 *temp_r5;
+
+    temp_r30 = (p_phys + (n_phys + 0x1F)) & 0xFFFFFFE0;
+    temp_r3 = arg0 + (temp_r30 - p_phys);
+    n_phys = temp_r3;
+    if (temp_r3 > ResourceMemSize) 
+    {
+        OSReport("out of resource memory (%s)\n", szMemoryNames[arg1]);
+        nlBreak();
+    }
+    temp_r5 = (u32*)&g_uResourceAlloc[g_uResourceMarker];
+    temp_r5[temp_r4]  = temp_r5[temp_r4] + arg0;
+    return temp_r30;
 }
 
 /**
@@ -64,6 +112,7 @@ bool glxInitMemory()
  */
 void glx_FreeMemory1(const char*)
 {
+    // EMPTY
 }
 
 /**
@@ -71,13 +120,15 @@ void glx_FreeMemory1(const char*)
  */
 void glx_FreeMemory0()
 {
+    glx_mem0 = ResourceMemSize - n_phys;    
 }
 
 /**
  * Offset/Address/Size: 0x8FC | 0x801B7224 | size: 0x10
  */
-void glx_GetFreeMemory()
+ u32 glx_GetFreeMemory()
 {
+    return ResourceMemSize - n_phys;
 }
 
 /**
@@ -85,11 +136,11 @@ void glx_GetFreeMemory()
  */
 GLXMemoryInfo::GLXMemoryInfo()
 {
+    m_unk_0x00 = 0;
+    m_unk_0x04 = 0;
+    m_unk_0x08 = 0;
+    m_unk_0x0C = 0;
+    m_unk_0x10 = 0;
+    m_unk_0x14 = 0;
+    m_unk_0x18 = 0;
 }
-
-/**
- * Offset/Address/Size: 0x0 | 0x801B7258 | size: 0x64
-//  */
-// void 0x8028D514..0x8028D518 | size: 0x4
-// {
-// }
