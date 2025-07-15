@@ -54,8 +54,9 @@ void glplatResourceMark()
 /**
  * Offset/Address/Size: 0x4F4 | 0x801B6E1C | size: 0x3F0
  */
-void glxInitMemory()
+bool glxInitMemory()
 {
+    return true;
 }
 
 /**

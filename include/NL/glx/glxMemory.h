@@ -15,7 +15,7 @@ u32 glplatFrameAlloc(unsigned long, eGLMemory);
 void glplatResourceRelease(unsigned long long);
 void glplatResourceMark();
 unsigned long glplatResourceAlloc(unsigned long, eGLMemory);
-void glxInitMemory();
+bool glxInitMemory();
 void glx_FreeMemory1(const char*);
 void glx_FreeMemory0();
 void glx_GetFreeMemory();

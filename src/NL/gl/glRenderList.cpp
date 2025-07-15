@@ -52,8 +52,9 @@ void PacketCallbackManager::DoCallback(const glModelPacket*, unsigned int)
 /**
  * Offset/Address/Size: 0x9E0 | 0x801D9CA0 | size: 0x108
  */
-void GLRenderList::IsEmpty() const
+bool GLRenderList::IsEmpty() const
 {
+    return true;
 }
 
 /**

@@ -15,7 +15,7 @@ class GLRenderList // size: 0x30
 public:
     void AttachModel(const glModel*, unsigned long);
     void Iterate(eGLView, void (*)(eGLView, unsigned long, const glModelPacket*));
-    void IsEmpty() const;
+    bool IsEmpty() const;
     void Compact();
     void Clear();
 

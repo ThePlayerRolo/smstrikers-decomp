@@ -16,7 +16,7 @@ public:
     void IsBool(const char*, bool&) const;
     void Exists(const char*) const;
     void LoadFromFile(const char*);
-    void Global();
+    static void Global();
     
     ~Config();
     // Config(Config::AllocateWhere);
