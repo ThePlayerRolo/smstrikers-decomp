@@ -1,6 +1,8 @@
 #include "NL/nlMath.h"
 #include "Dolphin/mtx.h"
 
+#define qr0 0
+
 // Conversion factor from radians to 16-bit fixed-point format
 // 65536.0f / (2π) ≈ 10430.378f
 #define RAD_TO_FIXED16 10430.378f
@@ -122,9 +124,31 @@ void nlMakeRotationMatrixX(nlMatrix4& m, float angle)
 /**
  * Offset/Address/Size: 0x3E4 | 0x801C3F60 | size: 0x44
  */
-void nlMultDirVectorMatrix(nlVector3&, const nlVector3&, const nlMatrix4&)
+#pragma scheduling off
+void nlMultDirVectorMatrix(register nlVector3& result, register const nlVector3& direction, register const nlMatrix4& transformMatrix)
 {
+    // clang-format off
+    asm {
+        psq_l f2, 0x0(transformMatrix), 0, qr0
+        psq_l f0, 0x0(direction), 0, qr0
+        psq_l f3, 0x8(transformMatrix), 0, qr0
+        ps_muls0 f10, f2, f0
+        psq_l f4, 0x10(transformMatrix), 0, qr0
+        ps_muls0 f11, f3, f0
+        psq_l f5, 0x18(transformMatrix), 0, qr0
+        psq_l f6, 0x20(transformMatrix), 0, qr0
+        ps_madds1 f10, f4, f0, f10
+        psq_l f1, 0x8(direction), 1, qr0
+        ps_madds1 f11, f5, f0, f11
+        psq_l f7, 0x28(transformMatrix), 0, qr0
+        ps_madds0 f10, f6, f1, f10
+        ps_madds0 f11, f7, f1, f11
+        psq_st f10, 0x0(result), 0, qr0
+        psq_st f11, 0x8(result), 1, qr0
+    }
+    // clang-format on
 }
+#pragma scheduling reset
 
 /**
  * Offset/Address/Size: 0x428 | 0x801C3FA4 | size: 0xCC
@@ -138,16 +162,41 @@ void nlMultVectorMatrix(nlVector4& v_out, const nlVector4& v_in, const nlMatrix4
 /**
  * Offset/Address/Size: 0x4F4 | 0x801C4070 | size: 0x54
  */
-void nlMultPosVectorMatrix(nlVector3& v_out, const nlVector3& v_in, const nlMatrix4& m)
+#pragma scheduling off
+void nlMultPosVectorMatrix(register nlVector3& result, register const nlVector3& pos, register const nlMatrix4& transformMatrix)
 {
+    // clang-format off
+    asm {
+        psq_l f2, 0x0(transformMatrix), 0, qr0
+        psq_l f0, 0x0(pos), 0, qr0
+        psq_l f3, 0x8(transformMatrix), 0, qr0
+        ps_muls0 f10, f2, f0
+        psq_l f4, 0x10(transformMatrix), 0, qr0
+        ps_muls0 f11, f3, f0
+        psq_l f5, 0x18(transformMatrix), 0, qr0
+        psq_l f6, 0x20(transformMatrix), 0, qr0
+        ps_madds1 f10, f4, f0, f10
+        psq_l f1, 0x8(pos), 1, qr0
+        ps_madds1 f11, f5, f0, f11
+        psq_l f7, 0x28(transformMatrix), 0, qr0
+        ps_madds0 f10, f6, f1, f10
+        psq_l f8, 0x30(transformMatrix), 0, qr0
+        ps_madds0 f11, f7, f1, f11
+        psq_l f9, 0x38(transformMatrix), 0, qr0
+        ps_add f10, f8, f10
+        ps_add f11, f9, f11
+        psq_st f10, 0x0(result), 0, qr0
+        psq_st f11, 0x8(result), 1, qr0
+    }        
+    // clang-format on
 }
+#pragma scheduling reset
 
 /**
  * Offset/Address/Size: 0x548 | 0x801C40C4 | size: 0x5C
  */
 void nlMultVectorMatrix(nlVector2& v_out, const nlVector2& v_in, const nlMatrix3& m)
 {
-    // nlVector2 t = m * v_in;
     v_out = m * v_in;
 }
 
