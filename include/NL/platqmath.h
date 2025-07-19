@@ -2,6 +2,7 @@
 #define _PLATQMATH_H_
 
 struct nlMatrix4;
+#include "types.h"
 
 struct nlQuaternion
 {
@@ -12,7 +13,7 @@ struct nlQuaternion
 };
 
 void nlQuatScale(nlQuaternion& result, const nlQuaternion& input, float scaleFactor);
-void nlQuatDot(const nlQuaternion& quat1, const nlQuaternion& quat2);
+f32 nlQuatDot(const nlQuaternion& quat1, const nlQuaternion& quat2);
 void nlMultQuat(nlQuaternion& result, const nlQuaternion& quat1, const nlQuaternion& quat2);
 void nlMatrixToQuat(nlQuaternion& result, const nlMatrix4& rotationMatrix);
 void nlQuatToMatrix(nlMatrix4& resultMatrix, const nlQuaternion& inputQuat);
