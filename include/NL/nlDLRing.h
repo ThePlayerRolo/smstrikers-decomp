@@ -57,6 +57,15 @@ T* nlDLRingGetStart(T* current)
 }
 
 template <typename T>
+T* nlDLRingGetEnd(T* current)
+{
+    if (current != 0) {
+        return current;
+    }
+    return NULL;
+}
+
+template <typename T>
 bool nlDLRingIsEnd(T* head, T* current)
 {
     if (head == NULL)
@@ -155,6 +164,25 @@ bool nlDLRingRemoveSafely(T** head, const T* node)
     }
 
     return true;
+}
+
+template<typename T, typename CallbackType>
+void nlWalkDLRing(T* head, CallbackType* callback, void (CallbackType::*callbackFunc)(T*))
+{
+    nlWalkRing(head, callback, callbackFunc);
+}
+
+template<typename T, typename CallbackType>
+void nlWalkRing(T* head, CallbackType* callback, void (CallbackType::*callbackFunc)(T*))
+{
+    if (head != NULL) 
+    {
+        T* current = head;  // This likely uses r27
+        do {
+            current = current->m_next;  // This likely uses r30/r31
+            (callback->*callbackFunc)(current);  // This uses r28, r29
+        } while (current != head);
+    }
 }
 
 #endif // _NLDLRING_H_
