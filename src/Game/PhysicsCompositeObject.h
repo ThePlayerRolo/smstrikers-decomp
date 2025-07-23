@@ -12,14 +12,16 @@
 class PhysicsObject;
 class PhysicsWorld;
 
-class PhysicsCompositeObject //: public PhysicsObject
+class PhysicsCompositeObject : public PhysicsObject
 {
 public:
+    PhysicsCompositeObject(PhysicsWorld*);
+    virtual ~PhysicsCompositeObject();
+
+    virtual int GetObjectType() const;
+
     void AdjustTransform(int, nlMatrix4&);
     void AddObject(PhysicsObject*);
-    virtual ~PhysicsCompositeObject();
-    PhysicsCompositeObject(PhysicsWorld*);
-    virtual int GetObjectType() const;
 };
 
 

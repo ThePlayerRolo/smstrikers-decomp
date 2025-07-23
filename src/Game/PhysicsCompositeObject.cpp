@@ -27,7 +27,8 @@ PhysicsCompositeObject::~PhysicsCompositeObject()
 /**
  * Offset/Address/Size: 0x274 | 0x801FF91C | size: 0x54
  */
-PhysicsCompositeObject::PhysicsCompositeObject(PhysicsWorld*)
+PhysicsCompositeObject::PhysicsCompositeObject(PhysicsWorld* physicsWorld)
+    : PhysicsObject(physicsWorld)
 {
 }
 

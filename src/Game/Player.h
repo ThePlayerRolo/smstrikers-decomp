@@ -1,7 +1,7 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#include "NL/nlMath.h"
+#include "Character.h"
 
 class cBall;
 class cPoseAccumulator;
@@ -14,34 +14,28 @@ class SpaceSearch;
 class cSHierarchy;
 class cAnimInventory;
 class CharacterPhysicsData;
-class PlayerTweaks;
 class AnimRetargetList;
 
-enum eCharacterClass
-{
-    eCharacterClass_0 = 0
-};
+#include "CharacterTweaks.h"
 
-enum eClassTypes
-{
-    eClassTypes_0 = 0
-};
-
-class cPlayer
+class cPlayer : public cCharacter
 {
 public:
+    virtual ~cPlayer();
+    cPlayer(int, eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, PlayerTweaks*, AnimRetargetList*, eClassTypes);
+
     void GetUniqueID(int) const;
     void SetNoPickUpTime(float);
     void GetAIDefNetLocation(const nlVector3*);
     void GetAIOffNetLocation(const nlVector3*);
     void CanPickupBallFromPass(cBall*);
-    void CanPickupBall(cBall*);
-    void PostPhysicsUpdate();
-    void PreUpdate(float);
-    void PrePhysicsUpdate(float);
+    virtual void CanPickupBall(cBall*);
+    virtual void PostPhysicsUpdate();
+    virtual void PreUpdate(float);
+    virtual void PrePhysicsUpdate(float);
     void PlayerHeadTrackCallback(unsigned int, unsigned int, cPoseAccumulator*, unsigned int, int);
     void CreateSingleAxisBlender(const int*, int, int, void (*)(unsigned int, cPN_SingleAxisBlender*), float, cPN_SAnimController*);
-    void CollideWithWallCallback(const CollisionPlayerWallData*);
+    virtual void CollideWithWallCallback(const CollisionPlayerWallData*);
     void SetPowerupAnimState(int);
     void ClearSwapControllerTimer();
     void ClearPowerupAnimState(bool);
@@ -56,20 +50,18 @@ public:
     void PlayAttackReactionSounds(float);
     void PickupBall(cBall*);
     void GetClosestOpponentFielder(nlVector3*);
-    void CollideWithCharacterCallback(CollisionPlayerPlayerData*);
-    void CollideWithBallCallback(cBall*);
+    virtual void CollideWithCharacterCallback(CollisionPlayerPlayerData*);
+    virtual void CollideWithBallCallback(cBall*);
     void DoFlashLight(const nlVector3&, unsigned short, float, float, float);
     void DoFlashLight(const nlVector3&, const nlVector3&, unsigned short, float, float, float);
-    void SetAnimID(int);
+    virtual void SetAnimID(int);
     void GetAnimatedBallOrientation(nlQuaternion&);
-    void Update(float);
+    virtual void Update(float);
     void SwapController();
     void SetDesiredFacingDirection();
     void ResetDesiredDirections(unsigned short);
     void SetSpaceSearch(SpaceSearch*);
-    ~cPlayer();
-    cPlayer(int, eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, PlayerTweaks*, AnimRetargetList*, eClassTypes);
-    void InitActionPostWhistle();
+    virtual void InitActionPostWhistle();
 
     /* 0x00 */ u8 m_padding_0x00[0x30];
     /* 0x30 */ nlVector3 m_velocity;

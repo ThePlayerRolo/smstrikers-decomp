@@ -74,7 +74,8 @@ PhysicsCharacterBase::~PhysicsCharacterBase()
 /**
  * Offset/Address/Size: 0x784 | 0x801FF280 | size: 0xE0
  */
-PhysicsCharacterBase::PhysicsCharacterBase(CollisionSpace*, PhysicsWorld*, float)
+PhysicsCharacterBase::PhysicsCharacterBase(CollisionSpace* collisionSpace, PhysicsWorld* physicsWorld, float)
+    : PhysicsCompositeObject(physicsWorld)
 {
 }
 
@@ -95,64 +96,65 @@ void PhysicsCharacterBase::GetNumBoneVolumePoints(bool) const
 /**
  * Offset/Address/Size: 0x0 | 0x801FF4FC | size: 0x8
  */
-void PhysicsCharacterBase::GetObjectType() const
+int PhysicsCharacterBase::GetObjectType() const
 {
+    return 0x08;
 }
 
 /**
  * Offset/Address/Size: 0x8 | 0x801FF504 | size: 0x8
  */
-void PhysicsCharacterBase::PhysicsCapsuleBone::GetObjectType() const
-{
-}
+// void PhysicsCharacterBase::PhysicsCapsuleBone::GetObjectType() const
+// {
+// }
 
 /**
  * Offset/Address/Size: 0x10 | 0x801FF50C | size: 0x70
  */
-void PhysicsCharacterBase::PhysicsSphereBone::~PhysicsSphereBone()
-{
-}
+// void PhysicsCharacterBase::PhysicsSphereBone::~PhysicsSphereBone()
+// {
+// }
 
 /**
  * Offset/Address/Size: 0x80 | 0x801FF57C | size: 0x8
  */
-void PhysicsCharacterBase::PhysicsSphereBone::GetObjectType() const
-{
-}
+// void PhysicsCharacterBase::PhysicsSphereBone::GetObjectType() const
+// {
+// }
 
 /**
  * Offset/Address/Size: 0x0 | 0x801FF584 | size: 0x24
  */
-void ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>::
-    DeleteEntry(ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*)
-{
-}
+// void ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>::
+//     DeleteEntry(ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*)
+// {
+// }
 
 /**
  * Offset/Address/Size: 0x0 | 0x801FF5A8 | size: 0x70
  */
-void PhysicsCharacterBase::PhysicsCapsuleBone::~PhysicsCapsuleBone()
-{
-}
+// void PhysicsCharacterBase::PhysicsCapsuleBone::~PhysicsCapsuleBone()
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x0 | 0x801FF618 | size: 0x68
- */
-void nlWalkList<
-    ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>,
-    ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>>(
-    ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*,
-    ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>*,
-    void (ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>::*)(
-        ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*))
-{
-}
+// /**
+//  * Offset/Address/Size: 0x0 | 0x801FF618 | size: 0x68
+//  */
+// void nlWalkList<
+//     ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>,
+//     ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>>(
+//     ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*,
+//     ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>*,
+//     void (ListContainerBase<PhysicsCharacterBase::PhysicsBoneVolume*, NewAdapter<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>>::*)(
+//         ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*))
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x68 | 0x801FF680 | size: 0x28
- */
-void nlListAddStart<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>(ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>**,
-                                                                         ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*,
-                                                                         ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>**)
-{
-}
+// /**
+//  * Offset/Address/Size: 0x68 | 0x801FF680 | size: 0x28
+//  */
+// void nlListAddStart<ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>>(ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>**,
+//                                                                          ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>*,
+//                                                                          ListEntry<PhysicsCharacterBase::PhysicsBoneVolume*>**)
+// {
+// }

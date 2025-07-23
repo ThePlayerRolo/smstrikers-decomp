@@ -80,7 +80,7 @@ Game/Ball.cpp:
 	.sbss       start:0x80373660 end:0x80373670
 	.sdata2     start:0x80374CE8 end:0x80374D48
 
-Character.o:
+Game/Character.cpp:
 	.text       start:0x8000DF4C end:0x80012044
 	.text       start:0x80012044 end:0x800120B0
 	.text       start:0x800120B0 end:0x80012158
@@ -100,7 +100,7 @@ Character.o:
 	.sbss       start:0x80373670 end:0x80373680
 	.sdata2     start:0x80374D48 end:0x80374DC0
 
-CharacterTemplate.o:
+Game/CharacterTemplate.cpp:
 	.text       start:0x800122E8 end:0x80014444
 	.text       start:0x80014444 end:0x800144F4
 	.text       start:0x800144F4 end:0x80014528
@@ -121,7 +121,7 @@ CharacterTemplate.o:
 	.sbss       start:0x80373680 end:0x80373690
 	.sdata2     start:0x80374DC0 end:0x80374DC8
 
-CharacterTweaks.o:
+Game/CharacterTweaks.cpp:
 	.text       start:0x800149F0 end:0x80017E7C
 	.text       start:0x80017E7C end:0x80017F5C
 	.data       start:0x802A3688 end:0x802A3DC0
@@ -1768,7 +1768,7 @@ PhysicsBanana.o:
 	.data       start:0x802AF9A8 end:0x802AFA18
 	.sdata2     start:0x80376230 end:0x80376258
 
-PhysicsCharacter.o:
+Game/PhysicsCharacter.cpp:
 	.text       start:0x80136218 end:0x801373E4
 	.text       start:0x801373E4 end:0x801373EC
 	.text       start:0x801373EC end:0x801373EC
@@ -4416,7 +4416,7 @@ PhysicsRoundedCorner.o:
 	.text       start:0x801FEAFC end:0x801FEAFC
 	.sdata2     start:0x80377430 end:0x80377438
 
-PhysicsCharacterBase.o:
+Game/PhysicsCharacterBase.cpp:
 	.text       start:0x801FEAFC end:0x801FF4FC
 	.text       start:0x801FF4FC end:0x801FF584
 	.text       start:0x801FF584 end:0x801FF584

@@ -655,6 +655,9 @@ config.libs = [
             # Game Objects
             Object(NonMatching, "Game/Ball.cpp"),
             Object(NonMatching, "Game/Net.cpp"),
+            Object(NonMatching, "Game/Character.cpp"),
+            # Object(NonMatching, "Game/CharacterTemplate.cpp"),
+            Object(NonMatching, "Game/CharacterTweaks.cpp"),
             Object(NonMatching, "Game/Player.cpp"),
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
@@ -678,6 +681,8 @@ config.libs = [
             Object(NonMatching, "Game/PhysicsWall.cpp"),
             Object(NonMatching, "Game/PhysicsObject.cpp", extra_cflags=["-inline noauto"]),
             Object(NonMatching, "Game/PhysicsCompositeObject.cpp"),
+            Object(NonMatching, "Game/PhysicsCharacterBase.cpp"),
+            Object(NonMatching, "Game/PhysicsCharacter.cpp"),
             Object(NonMatching, "Game/CollisionSpace.cpp"),
             Object(NonMatching, "Game/PhysicsTransform.cpp"),
             Object(NonMatching, "Game/PhysicsWorld.cpp"),
