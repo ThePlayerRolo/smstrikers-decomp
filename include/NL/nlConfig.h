@@ -7,7 +7,7 @@ class SetTagValuePair
 {
 public:
     /* 0x00 */ char* m_unk_0x00; // tag
-    /* 0x04 */ u32 m_unk_0x04; // type
+    /* 0x04 */ s32 m_unk_0x04; // type
     /* 0x08 */ char* m_unk_0x08; // value
 };
 
