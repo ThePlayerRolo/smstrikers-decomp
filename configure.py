@@ -459,7 +459,8 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
         system_includes=[
             *system_includes_base,
         ],
-        mw_version="GC/1.3.2",
+        mw_version="GC/2.0",
+        # mw_version="GC/1.3.2",
         # mw_version="GC/1.2.5n",
         cflags=[
             *cflags_base,
