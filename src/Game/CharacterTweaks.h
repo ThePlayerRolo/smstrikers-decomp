@@ -12,33 +12,41 @@
 // void LexicalCast<int, int>(const int&);
 // void LexicalCast<int, float>(const float&);
 
-class GoalieTweaks
+class TweaksBase
 {
 public:
-    void Init();
-    ~GoalieTweaks();
-    GoalieTweaks(const char*);
+    TweaksBase(const char*);
+    virtual ~TweaksBase() {};
+    virtual void Init() = 0;
 };
 
-
-class FielderTweaks
+class PlayerTweaks : public TweaksBase
 {
 public:
-    void Init();
-    ~FielderTweaks();
-    FielderTweaks(const char*);
-};
+    virtual ~PlayerTweaks();
+    virtual void Init();
 
-
-class PlayerTweaks
-{
-public:
-    void Init();
-    ~PlayerTweaks();
-
-    /* 0x00 */ u8 m_padding_0x00[0x44];
+    /* 0x04 */ char m_unk_0x04[0x20]; // most probably config file name
+    /* 0x04 */ float m_unk_0x24;
+    /* 0x28 */ u8 m_padding_0x28[0x1C];
     /* 0x44 */ float m_unk_0x44;
     /* 0x48 */ float m_unk_0x48;    
+};
+
+class GoalieTweaks //: public PlayerTweaks
+{
+public:
+    GoalieTweaks(const char*);
+    virtual ~GoalieTweaks();
+    virtual void Init();
+};
+
+class FielderTweaks //: public PlayerTweaks
+{
+public:
+    FielderTweaks(const char*);
+    virtual ~FielderTweaks();
+    virtual void Init();
 };
 
 #endif // _CHARACTERTWEAKS_H_

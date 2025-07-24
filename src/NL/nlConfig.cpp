@@ -52,8 +52,9 @@ void Config::Set(const char*, int)
 /**
  * Offset/Address/Size: 0x1F34 | 0x801D4B98 | size: 0xB8
  */
-void Config::FindTvp(const char*)
+ SetTagValuePair *Config::FindTvp(const char*)
 {
+    return NULL;
 }
 
 /**
@@ -94,9 +95,9 @@ Config::~Config()
 /**
  * Offset/Address/Size: 0x2834 | 0x801D5498 | size: 0xCC
  */
-// Config::Config(Config::AllocateWhere)
-// {
-// }
+Config::Config(Config::AllocateWhere location)
+{
+}
 
 /**
  * Offset/Address/Size: 0x2900 | 0x801D5564 | size: 0x4

@@ -1,10 +1,24 @@
 #ifndef _NLCONFIG_H_
 #define _NLCONFIG_H_
 
+class SetTagValuePair
+{
+public:
+    /* 0x00 */ char* m_unk_0x00; // tag
+    /* 0x04 */ u32 m_unk_0x04; // type
+    /* 0x08 */ char* m_unk_0x08; // value
+};
+
 
 class Config
 {
 public:
+    enum AllocateWhere
+    {
+        AllocateWhere_0 = 0,
+        AllocateWhere_1 = 1,
+    };
+
     // void Parse(const char*, Config::Parser&);
     void LoadFileAsString(const char*);
     // void Set(const char*, const BasicString<char, Detail::TempStringAllocator>&);
@@ -12,14 +26,14 @@ public:
     void Set(const char*, float);
     void Set(const char*, bool);
     void Set(const char*, int);
-    void FindTvp(const char*);
+    SetTagValuePair *FindTvp(const char*);
     void IsBool(const char*, bool&) const;
     void Exists(const char*) const;
     void LoadFromFile(const char*);
     static void Global();
     
     ~Config();
-    // Config(Config::AllocateWhere);
+    Config(AllocateWhere);
 
     // Parser::TagValuePair(const BasicString<char, Detail::TempStringAllocator>&, const BasicString<char, Detail::TempStringAllocator>&);
     // Parser::Section(const BasicString<char, Detail::TempStringAllocator>&);
