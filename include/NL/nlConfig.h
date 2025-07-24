@@ -1,6 +1,8 @@
 #ifndef _NLCONFIG_H_
 #define _NLCONFIG_H_
 
+#include "types.h"
+
 class SetTagValuePair
 {
 public:

@@ -1,45 +1,6 @@
 #include "CharacterTweaks.h"
 #include "NL/nlConfig.h"
-
-/* LexicalCast<float, bool> */
-f32 LexicalCast<float, bool>(const u8 &arg0) {
-    return static_cast<f32>(arg0);
-}
-
-/* LexicalCast<float, int> */
-f32 LexicalCast<float, int>(const s32 &arg0) {
-    return static_cast<f32>(arg0);
-}
-
-/* LexicalCast<float, float> */
-f32 LexicalCast<float, float>(const f32 &arg0) {
-    return arg0;
-}
-
-/* LexicalCast<float, char const *> */
-f32 LexicalCast<float, const char*>(const char* const &arg0) {
-    return static_cast<f32>(atof(arg0));
-}
-
-/* LexicalCast<int, bool> */
-s32 LexicalCast<int, bool>(const u8 &arg0) {
-    return static_cast<s32>(arg0);
-}
-
-/* LexicalCast<int, int> */
-s32 LexicalCast<int, int>(const s32 &arg0) {
-    return arg0;
-}
-
-/* LexicalCast<int, float> */
-s32 LexicalCast<int, float>(const f32 &arg0) {
-    return static_cast<s32>(arg0);
-}
-
-/* LexicalCast<int, char const *> */
-s32 LexicalCast<int, const char*>(const char* const &arg0) {
-    return static_cast<s32>(atof(arg0));
-}
+#include "NL/nlLexicalCast.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x800149F0 | size: 0x1904
@@ -107,16 +68,16 @@ void PlayerTweaks::Init()
         switch (tvp->m_unk_0x04) 
         {
         case 0:
-            var_f1 = LexicalCast<float,bool>(tvp->m_unk_0x08);
+            var_f1 = LexicalCast<float,bool>(*(const bool*)&tvp->m_unk_0x08);
             break;
         case 1:
-            var_f1 = LexicalCast<float,int>(tvp->m_unk_0x08);
+            var_f1 = LexicalCast<float,int>(*(const int*)&tvp->m_unk_0x08);
             break;
         case 2:
-            var_f1 = LexicalCast<float,float>(tvp->m_unk_0x08);
+            var_f1 = LexicalCast<float,float>(*(const float*)&tvp->m_unk_0x08);
             break;
         case 3:
-            var_f1 = LexicalCast<float,char*>(tvp->m_unk_0x08);
+            var_f1 = LexicalCast<float,const char*>(*(const char**)&tvp->m_unk_0x08);
             break;
         default:
             var_f1 = 0.0f;
