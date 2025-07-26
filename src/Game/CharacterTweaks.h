@@ -1,7 +1,6 @@
 #ifndef _CHARACTERTWEAKS_H_
 #define _CHARACTERTWEAKS_H_
 
-#include "NL/nlLexicalCast.h"
 #include "TweaksBase.h"
 
 class PlayerTweaks : public TweaksBase

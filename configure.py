@@ -658,7 +658,7 @@ config.libs = [
             Object(NonMatching, "Game/Net.cpp"),
             Object(NonMatching, "Game/Character.cpp"),
             # Object(NonMatching, "Game/CharacterTemplate.cpp"),
-            Object(NonMatching, "Game/CharacterTweaks.cpp"),
+            Object(NonMatching, "Game/CharacterTweaks.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Player.cpp"),
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
