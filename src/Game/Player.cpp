@@ -1,17 +1,26 @@
 #include "Player.h"
+#include "Character.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x80057550 | size: 0x20
  */
-void cPlayer::GetUniqueID(int) const
-{
-}
+ s32 cPlayer::GetUniqueID(int arg0) const
+ {
+     if (arg0 == -1) 
+     {
+         arg0 = *m_unk_0x1CC;
+     }
+     arg0 *= 5;
+     return arg0 + m_unk_0x12C;
+ }
 
 /**
  * Offset/Address/Size: 0x20 | 0x80057570 | size: 0x48
  */
-void cPlayer::SetNoPickUpTime(float)
+void cPlayer::SetNoPickUpTime(float arg0)
 {
+    // To add .. some bits get set (arg0 <= 0.f)... 
+    m_timer->SetSeconds(arg0);
 }
 
 /**
@@ -47,13 +56,16 @@ void cPlayer::CanPickupBall(cBall*)
  */
 void cPlayer::PostPhysicsUpdate()
 {
+    cCharacter::PostPhysicsUpdate();
 }
 
 /**
  * Offset/Address/Size: 0x454 | 0x800579A4 | size: 0x34
  */
-void cPlayer::PreUpdate(float)
+void cPlayer::PreUpdate(float arg0)
 {
+    cCharacter::PreUpdate(arg0);
+    m_unk_0x18C = true;
 }
 
 /**
@@ -96,6 +108,10 @@ void cPlayer::SetPowerupAnimState(int)
  */
 void cPlayer::ClearSwapControllerTimer()
 {
+    m_unk_0x17C = 0;
+    m_unk_0x180 = 0;
+    m_unk_0x184 = 0;
+    m_unk_0x188 = 0;
 }
 
 /**

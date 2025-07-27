@@ -3,6 +3,8 @@
 
 #include "Character.h"
 
+#include "NL/nlTimer.h"
+
 class cBall;
 class cPoseAccumulator;
 class cPN_SingleAxisBlender;
@@ -24,7 +26,7 @@ public:
     virtual ~cPlayer();
     cPlayer(int, eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, PlayerTweaks*, AnimRetargetList*, eClassTypes);
 
-    void GetUniqueID(int) const;
+    s32 GetUniqueID(int) const;
     void SetNoPickUpTime(float);
     void GetAIDefNetLocation(const nlVector3*);
     void GetAIOffNetLocation(const nlVector3*);
@@ -67,6 +69,25 @@ public:
     /* 0x30 */ nlVector3 m_velocity;
     /* 0x34 */ u8 m_padding_0x34[0x80];
     /* 0xB4 */ s32 m_playerType; // m_unk_0xB4
+    /* 0xB8 */ u8 m_padding_0xB8[0x38];
+    /* 0x12C */ s32 m_unk_0x12C;
+    
+
+    /* 0x130 */ u8 m_padding_0x130[0x34];
+
+    /* 0x164 */ Timer *m_timer;
+
+    /* 0x168 */ u8 m_padding_0x168[0x14];
+
+    /* 0x17C */ u32 m_unk_0x17C;
+    /* 0x180 */ u32 m_unk_0x180;
+    /* 0x184 */ u32 m_unk_0x184;
+    /* 0x188 */ u32 m_unk_0x188;   
+    /* 0x18C */ bool m_unk_0x18C;
+
+    /* 0x190 */ u8 m_padding_0x190[0x3C];
+
+    /* 0x1CC */ s32 *m_unk_0x1CC;
 };
 
 
