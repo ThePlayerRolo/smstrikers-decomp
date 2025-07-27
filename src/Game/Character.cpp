@@ -1,4 +1,7 @@
 #include "Character.h"
+#include "Dolphin/types.h"
+
+#include "EmissionManager.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x8000DF4C | size: 0x88
@@ -358,6 +361,8 @@ void cCharacter::GetSkinMesh() const
  */
 cCharacter::~cCharacter()
 {
+    EmissionManager *emissionManager = NULL; //(EmissionManager *)CharacterTemplate::GetCharacterIndex();
+    emissionManager->Destroy(false, NULL);
 }
 
 /**
@@ -405,148 +410,169 @@ GLSkinMesh::~GLSkinMesh()
 /**
  * Offset/Address/Size: 0x0 | 0x800121A0 | size: 0x8
  */
-void CharacterDirectionData::GetID()
+u32 CharacterDirectionData::GetID()
 {
+    return 0x175;   
 }
 
 /**
  * Offset/Address/Size: 0x8 | 0x800121A8 | size: 0x8
  */
-void PowerupData::GetID()
+u32 PowerupData::GetID()
 {
+    return 0x15c;
 }
 
 /**
  * Offset/Address/Size: 0x10 | 0x800121B0 | size: 0x8
  */
-void PenaltyData::GetID()
+u32 PenaltyData::GetID()
 {
+    return 0x152;
 }
 
 /**
  * Offset/Address/Size: 0x18 | 0x800121B8 | size: 0x8
  */
-void ShotAtGoalData::GetID()
+u32 ShotAtGoalData::GetID()
 {
+    return 0x14a;
 }
 
 /**
  * Offset/Address/Size: 0x20 | 0x800121C0 | size: 0x8
  */
-void ReceiveBallData::GetID()
+u32 ReceiveBallData::GetID()
 {
+    return 0x121;
 }
 
 /**
  * Offset/Address/Size: 0x28 | 0x800121C8 | size: 0x8
  */
-void CollisionBobombData::GetID()
+u32 CollisionBobombData::GetID()
 {
+    return 0xED;
 }
 
 /**
  * Offset/Address/Size: 0x30 | 0x800121D0 | size: 0x8
  */
-void CollisionPlayerBananaData::GetID()
+u32 CollisionPlayerBananaData::GetID()
 {
+    return 0xE2;
 }
 
 /**
  * Offset/Address/Size: 0x38 | 0x800121D8 | size: 0x8
  */
-void CollisionBallShellData::GetID()
+u32 CollisionBallShellData::GetID()
 {
+    return 0xC1;
 }
 
 /**
  * Offset/Address/Size: 0x40 | 0x800121E0 | size: 0x8
  */
-void CollisionPlayerFreezeData::GetID()
+u32 CollisionPlayerFreezeData::GetID()
 {
+    return 0xD7;
 }
 
 /**
  * Offset/Address/Size: 0x48 | 0x800121E8 | size: 0x8
  */
-void CollisionPowerupStatsData::GetID()
+u32 CollisionPowerupStatsData::GetID()
 {
+    return 0x104;
 }
 
 /**
  * Offset/Address/Size: 0x50 | 0x800121F0 | size: 0x8
  */
-void CollisionPlayerShellData::GetID()
+u32 CollisionPlayerShellData::GetID()
 {
+    return 0xC9;
 }
 
 /**
  * Offset/Address/Size: 0x58 | 0x800121F8 | size: 0x8
  */
-void CollisionBowserPlayerData::GetID()
+u32 CollisionBowserPlayerData::GetID()
 {
+    return 0x65;
 }
 
 /**
  * Offset/Address/Size: 0x60 | 0x80012200 | size: 0x8
  */
-void CollisionChainPlayerData::GetID()
+u32 CollisionChainPlayerData::GetID()
 {
+    return 0x5C;
 }
 
 /**
  * Offset/Address/Size: 0x68 | 0x80012208 | size: 0x8
  */
-void CollisionPlayerShootToScoreBallData::GetID()
+u32 CollisionPlayerShootToScoreBallData::GetID()
 {
+    return 0xB8;
 }
 
 /**
  * Offset/Address/Size: 0x70 | 0x80012210 | size: 0x8
  */
-void CollisionPlayerBallData::GetID()
+u32 CollisionPlayerBallData::GetID()
 {
+    return 0xA7;
 }
 
 /**
  * Offset/Address/Size: 0x78 | 0x80012218 | size: 0x8
  */
-void CollisionPlayerWallData::GetID()
+u32 CollisionPlayerWallData::GetID()
 {
+    return 0x6E;
 }
 
 /**
  * Offset/Address/Size: 0x80 | 0x80012220 | size: 0x8
  */
-void CollisionPowerupWallData::GetID()
+u32 CollisionPowerupWallData::GetID()
 {
+    return 0x9B;
 }
 
 /**
  * Offset/Address/Size: 0x88 | 0x80012228 | size: 0x8
  */
-void CollisionBallGoalpostData::GetID()
+u32 CollisionBallGoalpostData::GetID()
 {
+    return 0x10E;
 }
 
 /**
  * Offset/Address/Size: 0x90 | 0x80012230 | size: 0x8
  */
-void CollisionBallWallData::GetID()
+u32 CollisionBallWallData::GetID()
 {
+    return 0x78;
 }
 
 /**
  * Offset/Address/Size: 0x98 | 0x80012238 | size: 0x8
  */
-void CollisionBallGroundData::GetID()
+u32 CollisionBallGroundData::GetID()
 {
+    return 0x8F;
 }
 
 /**
  * Offset/Address/Size: 0xA0 | 0x80012240 | size: 0x8
  */
-void CollisionPlayerPlayerData::GetID()
+u32 CollisionPlayerPlayerData::GetID()
 {
+    return 0x51;
 }
 
 /**

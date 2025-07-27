@@ -657,12 +657,16 @@ config.libs = [
             Object(NonMatching, "Game/Ball.cpp"),
             Object(NonMatching, "Game/Net.cpp"),
             Object(NonMatching, "Game/Character.cpp"),
-            # Object(NonMatching, "Game/CharacterTemplate.cpp"),
+            Object(NonMatching, "Game/CharacterTemplate.cpp"),
             Object(NonMatching, "Game/CharacterTweaks.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Player.cpp"),
             Object(NonMatching, "Game/Goalie.cpp"),
             Object(NonMatching, "Game/Team.cpp"),
             Object(Matching, "Game/TweaksBase.cpp"),
+
+            # related to character template
+            Object(NonMatching, "Game/EmissionController.cpp"),
+            Object(NonMatching, "Game/EmissionManager.cpp"),
 
             Object(NonMatching, "Game/GLInventory.cpp"),
 
