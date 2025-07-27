@@ -5,6 +5,51 @@ tCharacterTemplateInfo g_aCharacterTemplateInfo[10];
 
 s32 skiptexture = 0xFFFFFFFF;
 
+// Structure for goalie texture information
+struct tGoalieTextureInfo {
+    /* 0x00 */ const char* characterName;    // Character name string
+    /* 0x04 */ const char* texturePath;      // Texture file path
+    /* 0x08 */ void* unk_0x08;                   // Unknown field (null pointer)
+}; // size = 0x0C (12 bytes)
+
+// String constants for goalie texture information
+static const char* const s_GoalieCharacterNames[] = {
+    "daisygoalie",           // @1109
+    "donkeykonggoalie",      // @1111
+    "luigigoalie",           // @1113
+    "mariogoalie",           // @1100
+    "peachgoalie",           // @1115
+    "waluigigoalie",         // @1117
+    "wariogoalie",           // @1119
+    "yoshigoalie",           // @1121
+    "superteamgoalie"        // @1123
+};
+
+static const char* const s_GoalieTexturePaths[] = {
+    "characters/daisygoalie/daisygoalie.glt",           // @1110
+    "characters/donkeykonggoalie/donkeykonggoalie.glt", // @1112
+    "characters/luigigoalie/luigigoalie.glt",           // @1114
+    "characters/mariogoalie/mariogoalie.glt",           // @1103
+    "characters/peachgoalie/peachgoalie.glt",           // @1116
+    "characters/waluigigoalie/waluigigoalie.glt",       // @1118
+    "characters/wariogoalie/wariogoalie.glt",           // @1120
+    "characters/yoshigoalie/yoshigoalie.glt",           // @1122
+    "characters/superteamgoalie/superteamgoalie.glt"    // @1124
+};
+
+// Global goalie texture info array
+tGoalieTextureInfo g_GoalieTextureInfo[9] = {
+    { s_GoalieCharacterNames[0], s_GoalieTexturePaths[0], nullptr },
+    { s_GoalieCharacterNames[1], s_GoalieTexturePaths[1], nullptr },
+    { s_GoalieCharacterNames[2], s_GoalieTexturePaths[2], nullptr },
+    { s_GoalieCharacterNames[3], s_GoalieTexturePaths[3], nullptr },
+    { s_GoalieCharacterNames[4], s_GoalieTexturePaths[4], nullptr },
+    { s_GoalieCharacterNames[5], s_GoalieTexturePaths[5], nullptr },
+    { s_GoalieCharacterNames[6], s_GoalieTexturePaths[6], nullptr },
+    { s_GoalieCharacterNames[7], s_GoalieTexturePaths[7], nullptr },
+    { s_GoalieCharacterNames[8], s_GoalieTexturePaths[8], nullptr }
+};
+
 /** 
  * Offset/Address/Size: 0x0 | 0x800122E8 | size: 0x1C0
  */
@@ -105,13 +150,12 @@ void IsCaptain(eCharacterClass)
 /**
  * Offset/Address/Size: 0x2128 | 0x80014410 | size: 0x34
  */
-u32* GetCharacterName(eCharacterClass arg0)
+const char* GetCharacterName(eCharacterClass arg0)
 {
     if (arg0 < 0xD) {
-        return g_aCharacterTemplateInfo[arg0].m_unk_0x00;
+        return (const char*)g_aCharacterTemplateInfo[arg0].m_unk_0x00;
     }
-    // return g_GoalieTextureInfo[arg0].m_unk_0x9C;    
-    return NULL;
+    return g_GoalieTextureInfo[arg0].characterName;    
 }
 
 // /**
