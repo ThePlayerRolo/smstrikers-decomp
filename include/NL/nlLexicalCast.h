@@ -10,37 +10,7 @@ To LexicalCast(const From& value);
 
 // Template specializations
 template<>
-int LexicalCast<int, const char*>(const char* const& value) {
-    FORCE_DONT_INLINE;
-    return (int) atof(value);
-}
-
-template<>
-float LexicalCast<float, const char*>(const char* const& value) {
-    FORCE_DONT_INLINE;
-    return (float) atof(value);
-}
-
-template<>
-float LexicalCast<float, bool>(const bool& value) {
-    FORCE_DONT_INLINE;
-    return (float) value;
-}
-
-template<>
-float LexicalCast<float, int>(const int& value) {
-    FORCE_DONT_INLINE;
-    return (float) value;
-}
-
-template<>
-float LexicalCast<float, float>(const float& value) {
-    FORCE_DONT_INLINE;
-    return value;
-}
-
-template<>
-int LexicalCast<int, bool>(const bool& value) {
+int LexicalCast<int, float>(const float& value) {
     FORCE_DONT_INLINE;
     return (int) value;
 }
@@ -52,9 +22,39 @@ int LexicalCast<int, int>(const int& value) {
 }
 
 template<>
-int LexicalCast<int, float>(const float& value) {
+int LexicalCast<int, bool>(const bool& value) {
     FORCE_DONT_INLINE;
     return (int) value;
+}
+
+template<>
+float LexicalCast<float, float>(const float& value) {
+    FORCE_DONT_INLINE;
+    return value;
+}
+
+template<>
+float LexicalCast<float, int>(const int& value) {
+    FORCE_DONT_INLINE;
+    return (float) value;
+}
+
+template<>
+float LexicalCast<float, bool>(const bool& value) {
+    FORCE_DONT_INLINE;
+    return (float) value;
+}
+
+template<>
+float LexicalCast<float, const char*>(const char* const& value) {
+    FORCE_DONT_INLINE;
+    return (float) atof(value);
+}
+
+template<>
+int LexicalCast<int, const char*>(const char* const& value) {
+    FORCE_DONT_INLINE;
+    return (int) atof(value);
 }
 
 #endif // _NLLEXICALCAST_H_

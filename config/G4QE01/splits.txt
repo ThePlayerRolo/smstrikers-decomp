@@ -4320,7 +4320,7 @@ ParticleSystem.o:
 	.sbss       start:0x80374378 end:0x803743A0
 	.sdata2     start:0x803772B0 end:0x80377338
 
-EmissionController.o:
+Game/EmissionController.cpp:
 	.text       start:0x801F78F0 end:0x801F8920
 	.text       start:0x801F8920 end:0x801F8920
 	.text       start:0x801F8920 end:0x801F8920
@@ -4328,7 +4328,7 @@ EmissionController.o:
 	.sbss       start:0x803743A0 end:0x803743A8
 	.sdata2     start:0x80377338 end:0x80377348
 
-EmissionManager.o:
+Game/EmissionManager.cpp:
 	.text       start:0x801F8920 end:0x801F9778
 	.text       start:0x801F9778 end:0x801F9778
 	.text       start:0x801F9778 end:0x801FA170

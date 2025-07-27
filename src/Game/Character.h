@@ -37,17 +37,18 @@ enum PosUpdateMethod
 };
 
 // Audio namespace and types (forward declarations)
-namespace Audio {
-    enum eCharSFX
-    {
-        eCharSFX_0 = 0
-    };
-    
-    struct SoundAttributes
-    {
-        // Placeholder structure
-    };
-}
+namespace Audio
+{
+enum eCharSFX
+{
+    eCharSFX_0 = 0
+};
+
+struct SoundAttributes
+{
+    // Placeholder structure
+};
+} // namespace Audio
 
 class cPN_SAnimController;
 
@@ -55,7 +56,8 @@ class cCharacter //: public PhysicsCharacterBase
 {
 public:
     virtual ~cCharacter();
-    cCharacter(eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, float, float, AnimRetargetList*, eClassTypes);
+    cCharacter(eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, float, float, AnimRetargetList*,
+               eClassTypes);
 
     virtual void PostPhysicsUpdate();
     virtual void PrePhysicsUpdate(float);
@@ -110,13 +112,11 @@ public:
 
     virtual void Update(float);
 
-
     /* 0x00 */ u8 m_padding_0x00[0x14];
     /* 0x14 */ PhysicsCharacter* m_unk_0x14;
     /* 0x18 */ nlVector3 m_position;
     /* 0x24 */ nlVector3 m_unk_0x24;
 };
-
 
 class cPN_SAnimController
 {
@@ -124,13 +124,11 @@ public:
     ~cPN_SAnimController();
 };
 
-
 class cHeadTrack
 {
 public:
-    ~cHeadTrack();
+    virtual ~cHeadTrack();
 };
-
 
 // class PhysicsCharacter
 // {
@@ -138,158 +136,136 @@ public:
 //     ~PhysicsCharacter();
 // };
 
-
 class GLSkinMesh
 {
 public:
     ~GLSkinMesh();
 };
 
-
 class CharacterDirectionData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class PowerupData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class PenaltyData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class ShotAtGoalData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class ReceiveBallData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionBobombData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPlayerBananaData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionBallShellData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPlayerFreezeData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPowerupStatsData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPlayerShellData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionBowserPlayerData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionChainPlayerData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPlayerShootToScoreBallData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPlayerBallData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPlayerWallData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPowerupWallData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionBallGoalpostData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionBallWallData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionBallGroundData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
-
 
 class CollisionPlayerPlayerData
 {
 public:
-    void GetID();
+    virtual u32 GetID();
 };
 
 #endif // _CHARACTER_H_
