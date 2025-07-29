@@ -4174,7 +4174,7 @@ GLVertexAnim.o:
 	.text       start:0x801E7C98 end:0x801E7E70
 	.sdata2     start:0x80377170 end:0x80377188
 
-GLMaterial.o:
+Game/GL/GLMaterial.cpp:
 	.text       start:0x801E7E70 end:0x801E7FB0
 
 GLRenderBuffer.o:

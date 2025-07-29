@@ -668,7 +668,7 @@ config.libs = [
             Object(NonMatching, "Game/PoseNode.cpp"),
             Object(NonMatching, "Game/PoseAccumulator.cpp"),
             Object(NonMatching, "Game/SHierarchy.cpp"),
-            
+
             Object(NonMatching, "Game/EmissionController.cpp"),
             Object(NonMatching, "Game/EmissionManager.cpp"),
 
@@ -715,7 +715,10 @@ config.libs = [
             # Object(NonMatching, "Game/Drawable/DrawableModel.cpp"),
             Object(NonMatching, "Game/Drawable/DrawableTmModel.cpp"),
             Object(NonMatching, "Game/Drawable/DrawableSkinModel.cpp"),
-                   
+
+            # GL
+            Object(NonMatching, "Game/GL/GLMaterial.cpp"),
+
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
         ],
