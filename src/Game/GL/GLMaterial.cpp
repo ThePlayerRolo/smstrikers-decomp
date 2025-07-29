@@ -4,25 +4,19 @@
 /**
  * Offset/Address/Size: 0x0 | 0x801E7E70 | size: 0x48
  */
- GLMaterialEntry* GLMaterialList::FindMaterial(unsigned long arg0) const
+GLMaterialEntry* GLMaterialList::FindMaterial(unsigned long searchId) const
 {
-    s8* start = (s8*)m_materialEntries;
-    s8* end = start + (m_numEntries * 0xC);    
-    // u32 var_ctr = ((end + 0xB) - start) / 12;
-    s32 var_ctr = m_numEntries;
-
-    if (start != end) 
+    GLMaterialEntry* current = m_materialEntries;
+    GLMaterialEntry* end = current + m_numEntries;
+    while (current < end)
     {
-        for (;var_ctr > 0;var_ctr--)
-        {
-            if (((GLMaterialEntry*)start)->m_id == arg0)
-            {
-                return (GLMaterialEntry*)start;
-            }
-            start = start + 0xC;
+        if (current->m_id == searchId) {
+            return current;
         }
+        current++;
     }
-    return NULL;  
+    
+    return NULL;
 }
 
 /**
@@ -39,8 +33,7 @@ void GLMaterialList::SetMaterials(int arg0, const GLMaterialEntry* arg1)
 
     size = arg0 * 0xC;
     m_numEntries = arg0;
-    // m_materialEntries = (GLMaterialEntry*)nlMalloc(size, 8, 0);
-    m_materialEntries = (u8*)nlMalloc(size, 8, 0);
+    m_materialEntries = (GLMaterialEntry*)nlMalloc(size, 8, 0);
     memcpy(m_materialEntries, arg1, size);    
 }
 

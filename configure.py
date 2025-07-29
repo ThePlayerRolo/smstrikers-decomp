@@ -717,7 +717,7 @@ config.libs = [
             Object(NonMatching, "Game/Drawable/DrawableSkinModel.cpp"),
 
             # GL
-            Object(NonMatching, "Game/GL/GLMaterial.cpp"),
+            Object(Matching, "Game/GL/GLMaterial.cpp"),
 
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
