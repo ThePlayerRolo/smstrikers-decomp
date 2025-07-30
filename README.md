@@ -28,6 +28,19 @@ Supported versions:
 
 - `G4QE01`: Rev 0 (USA)
 
+
+Contributing
+============
+
+Everybody can and is warmly welcome to contribute to this project! Whether you're experienced with decompilation or just getting started, your contributions are valuable.
+
+**How to contribute:**
+
+1. **Make a pull request** - Simply create a pull request with your changes. No need to ask for permission first!
+2. **Join our Discord server** - Connect with other contributors to exchange ideas, coordinate work, or get help: [Discord Server](https://discord.gg/hKx3FJJgrV)
+
+**Learning together:** I'm learning myself throughout this process, so I'm very open to adapting and improving things for this project. Don't hesitate to suggest better approaches or point out areas that could be enhanced.
+
 Dependencies
 ============
 
@@ -120,4 +133,5 @@ Select an object from the left sidebar to begin diffing. Changes to the project 
 
 Acknowledgements
 ================
+
 This project wouldn’t be possible without the collective knowledge, tools, and support of the broader decompilation community. Huge thanks to contributors of other GameCube decomp projects, the teams behind [decomp.dev](https://decomp.dev/) and [decomp.me](https://decomp.me/), and the incredibly helpful discussions happening on Discord. These resources have been invaluable for solving problems, speeding up setup, and staying motivated throughout the process.

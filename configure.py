@@ -718,6 +718,8 @@ config.libs = [
 
             # GL
             Object(Matching, "Game/GL/GLMaterial.cpp"),
+            Object(NonMatching, "Game/GL/GLTextureAnim.cpp"),
+            Object(NonMatching, "Game/GL/GLVertexAnim.cpp"),
 
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
