@@ -85,7 +85,7 @@ void glModelDupNoStreams(const glModel*, bool, bool)
 /**
  * Offset/Address/Size: 0x28C | 0x801DEFC0 | size: 0x114
  */
- void* glModelDup(const glModel* src, bool arg1)
+glModel* glModelDup(const glModel* src, bool arg1)
 {
     glModel* model;
     glModelPacket* packets;
@@ -115,7 +115,7 @@ void glModelDupNoStreams(const glModel*, bool, bool)
 
     while ((u8*)src_packets < last_pack)
     {
-        dst_packets->m_unk_0x0C = (u32*)glFrameAlloc(dst_packets->m_unk_0x0B * 6, eGLMemory_0);
+        dst_packets->m_unk_0x0C = (VertexData*)glFrameAlloc(dst_packets->m_unk_0x0B * 6, eGLMemory_0);
         memcpy(dst_packets->m_unk_0x0C, src_packets->m_unk_0x0C, dst_packets->m_unk_0x0B * 6);
 
         if ((arg1 != 0) && (src_packets->m_unk_0x00 != NULL))

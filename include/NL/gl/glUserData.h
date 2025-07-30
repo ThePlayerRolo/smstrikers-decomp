@@ -8,6 +8,22 @@ enum eGLUserData
     eGLUserData_0,
 };
 
+#pragma push
+#pragma pack(1)
+struct FrameVertexData // size: 0x0C
+{
+    u32 m_unk_0x00;
+    u32 m_unk_0x04;
+    u32 m_unk_0x08;
+};
+
+struct VertexData // size: 0x6
+{
+    FrameVertexData* m_unk_0x00;
+    bool m_unk_0x04;
+    bool m_unk_0x05;
+};
+
 struct glModelPacket // size: 0x4A
 {
     /* 0x00 */ u32 *m_unk_0x00;
@@ -16,7 +32,7 @@ struct glModelPacket // size: 0x4A
     /* 0x09 */ u8 m_unk_0x09;
     /* 0x0A */ u8 m_unk_0x0A;
     /* 0x0B */ u8 m_unk_0x0B;
-    /* 0x0C */ u32 *m_unk_0x0C;
+    /* 0x0C */ VertexData *m_unk_0x0C;
     /* 0x10 */ u8 m_padding_0x10[0x0C];
     /* 0x1C */ u32 m_unk_0x1C;
     /* 0x20 */ u32 m_unk_0x20;
@@ -28,10 +44,16 @@ struct glModelPacket // size: 0x4A
     /* 0x38 */ u32 m_unk_0x38;
     /* 0x3C */ u32 m_unk_0x3C;
     /* 0x40 */ u8 m_unk_0x40;
-    /* 0x41 */ u8 m_unk_0x41; // used? or alignment?
-    /* 0x42 */ u8 m_unk_0x42; // used? or alignment?
-    /* 0x43 */ u8 m_unk_0x43; // used? or alignment?
+    /* 0x44 */ u32 m_unk_0x44;
+    /* 0x48 */ u32 m_unk_0x48;
+    /* 0x48 */ u8 m_unk_0x4A;
+
+
+    // /* 0x41 */ u8 m_unk_0x41; // used? or alignment?
+    // /* 0x42 */ u8 m_unk_0x42; // used? or alignment?
+    // /* 0x43 */ u8 m_unk_0x43; // used? or alignment?
 };
+#pragma pop
 
 
 u32 glUserHasType(eGLUserData, const glModelPacket*);
