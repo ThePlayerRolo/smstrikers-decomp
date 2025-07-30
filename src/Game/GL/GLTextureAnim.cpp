@@ -188,12 +188,7 @@ void GLTextureAnim::SetTexture(int frameIndex, const GLAnimTex& animTex)
  */
 void GLTextureAnim::SetFrame(int frameIndex)
 {
-    // Calculate frame within bounds using modulo
-    u32 numTextures = m_numTextures;
-    u32 frame = frameIndex / numTextures;
-    frame = frame * numTextures;
-    frame = frameIndex - frame;
-    m_currentFrame = frame;
+    m_currentFrame = frameIndex % m_numTextures;
 }
 
 /**
@@ -201,7 +196,6 @@ void GLTextureAnim::SetFrame(int frameIndex)
  */
 void GLTextureAnim::SetNumTextures(int numTextures)
 {
-    // Free existing texture array if it exists
     if (m_textureArray != nullptr)
     {
         delete [] m_textureArray;
