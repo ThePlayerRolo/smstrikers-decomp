@@ -1,8 +1,10 @@
 #ifndef _CHARACTER_H_
 #define _CHARACTER_H_
 
-#include <types.h>
+#include "types.h"
 #include "NL/nlMath.h"
+
+#include "CharacterEffects.h"
 
 #include "PhysicsCharacter.h"
 
@@ -116,6 +118,19 @@ public:
     /* 0x14 */ PhysicsCharacter* m_unk_0x14;
     /* 0x18 */ nlVector3 m_position;
     /* 0x24 */ nlVector3 m_unk_0x24;
+
+    /* 0x30 */ u8 m_padding_0x30[0x84];
+
+    /* 0xB8 */ bool m_unk_0xB8;
+
+    /* 0xBC */ u8 m_padding_0xBC[0x50];
+
+    /* 0x10C */ float m_unk_0x10C;
+    /* 0x110 */ float m_unk_0x110;
+
+    /* 0x114 */ u32 m_unk_0x114; 
+    /* 0x118 */ u32 m_unk_0x118;
+    /* 0x11C */ u32 m_unk_0x11C;
 };
 
 class cPN_SAnimController

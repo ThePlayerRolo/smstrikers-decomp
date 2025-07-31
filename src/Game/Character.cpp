@@ -1,20 +1,37 @@
 #include "Character.h"
-#include "Dolphin/types.h"
 
 #include "EmissionManager.h"
+
+extern unsigned int nlDefaultSeed;
 
 /**
  * Offset/Address/Size: 0x0 | 0x8000DF4C | size: 0x88
  */
 void cCharacter::AddRandomDirt()
 {
+    m_unk_0x110 += nlRandomf(0.05f, &nlDefaultSeed);
+    if (m_unk_0x110 > 0.2f) {
+        m_unk_0x110 = 0.2f;
+    }
+
+    m_unk_0x10C += 0.5f + nlRandomf(0.39999998f, &nlDefaultSeed);
+    if (m_unk_0x10C > 1.0f) {
+        m_unk_0x10C = 1.0f;
+    }    
 }
 
 /**
  * Offset/Address/Size: 0x88 | 0x8000DFD4 | size: 0x74
  */
-void cCharacter::SetElectrocutionTextureEnabled(bool)
+void cCharacter::SetElectrocutionTextureEnabled(bool arg0)
 {
+    if ((m_unk_0xB8 == false) && (arg0 != false)) {
+        m_unk_0x11C = fxGetTexturing((eEffectsTextureType) 4);
+    }
+    if ((m_unk_0xB8 != false) && (arg0 == false)) {
+        m_unk_0x11C = 0;
+    }
+    m_unk_0xB8 = arg0;    
 }
 
 /**
