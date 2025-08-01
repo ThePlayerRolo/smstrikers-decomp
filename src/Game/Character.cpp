@@ -25,27 +25,41 @@ void cCharacter::AddRandomDirt()
  */
 void cCharacter::SetElectrocutionTextureEnabled(bool arg0)
 {
-    if ((m_unk_0xB8 == false) && (arg0 != false)) {
+    if ((m_unk_0xB8 == false) && (arg0 != false)) 
+    {
         m_unk_0x11C = fxGetTexturing((eEffectsTextureType) 4);
     }
-    if ((m_unk_0xB8 != false) && (arg0 == false)) {
+
+    if ((m_unk_0xB8 != false) && (arg0 == false)) 
+    {
         m_unk_0x11C = 0;
     }
+
     m_unk_0xB8 = arg0;    
 }
 
 /**
  * Offset/Address/Size: 0xFC | 0x8000E048 | size: 0x30
  */
-void cCharacter::PerformBlinking(GLSkinMesh*, glModel*) const
+void cCharacter::PerformBlinking(GLSkinMesh* skinMesh, glModel* model) const
 {
+    Blinker *temp_r3 = m_unk_0x118;
+    if (temp_r3 != NULL) 
+    {
+        temp_r3->Blink(model);
+    } 
 }
 
 /**
  * Offset/Address/Size: 0x12C | 0x8000E078 | size: 0x2C
  */
-void cCharacter::UpdateBlinking(float)
+void cCharacter::UpdateBlinking(float arg0)
 {
+    Blinker *temp_r3 = m_unk_0x118;
+    if (temp_r3 != NULL) 
+    {
+        temp_r3->Update(arg0);
+    }    
 }
 
 /**
@@ -135,8 +149,10 @@ void cCharacter::ShouldStartCrossBlend(int)
 /**
  * Offset/Address/Size: 0xD78 | 0x8000ECC4 | size: 0x40
  */
-void cCharacter::SetVelocity(const nlVector3&)
+void cCharacter::SetVelocity(const nlVector3& velocity)
 {
+    m_velocity = velocity;
+    m_unk_0x14->SetCharacterVelocityXY(m_velocity);
 }
 
 /**
@@ -145,7 +161,7 @@ void cCharacter::SetVelocity(const nlVector3&)
 void cCharacter::SetPosition(const nlVector3& position)
 {
     m_position = position;
-    m_unk_0x24 = position;
+    m_unk_0x24 = m_position;
     m_unk_0x14->SetCharacterPositionXY(m_position);
 }
 
@@ -166,8 +182,9 @@ void cCharacter::SetAnimState(int, bool, float, bool, bool)
 /**
  * Offset/Address/Size: 0xF88 | 0x8000EED4 | size: 0x8
  */
-void cCharacter::SetAnimID(int)
+void cCharacter::SetAnimID(int animID)
 {
+    m_unk_0x94 = animID;
 }
 
 /**

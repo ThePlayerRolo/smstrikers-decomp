@@ -5,6 +5,7 @@
 #include "NL/nlMath.h"
 
 #include "CharacterEffects.h"
+#include "Blinker.h"
 
 #include "PhysicsCharacter.h"
 
@@ -114,12 +115,19 @@ public:
 
     virtual void Update(float);
 
-    /* 0x00 */ u8 m_padding_0x00[0x14];
+    /* 0x00 */ u8 m_padding_0x00[0x10];
     /* 0x14 */ PhysicsCharacter* m_unk_0x14;
     /* 0x18 */ nlVector3 m_position;
     /* 0x24 */ nlVector3 m_unk_0x24;
 
-    /* 0x30 */ u8 m_padding_0x30[0x84];
+    /* 0x30 */ nlVector3 m_velocity;
+
+    /* 0x3C */ u8 m_padding_0x3C[0x58];
+
+    /* 0x94 */ u32 m_unk_0x94;
+
+    /* 0x98 */ u8 m_padding_0x98[0x20];
+
 
     /* 0xB8 */ bool m_unk_0xB8;
 
@@ -129,7 +137,7 @@ public:
     /* 0x110 */ float m_unk_0x110;
 
     /* 0x114 */ u32 m_unk_0x114; 
-    /* 0x118 */ u32 m_unk_0x118;
+    /* 0x118 */ Blinker *m_unk_0x118;
     /* 0x11C */ u32 m_unk_0x11C;
 };
 

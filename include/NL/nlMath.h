@@ -48,7 +48,15 @@ struct nlVector3
     float x;
     float y;
     float z;
-
+    // union {
+    //     struct {
+    //         float x;
+    //         float y;
+    //         float z;
+    //     } f;
+    //     u32 as_u32[3];
+    // };
+    
     nlVector3(){}
     void Set(float x, float y, float z);
 };

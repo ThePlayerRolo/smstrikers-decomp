@@ -52,7 +52,7 @@ public:
     /* 0x88 */ void *m_unk_0x88;
     /* 0x8C */ u32 m_visibility; // or flag if a bit field...
     /* 0x90 */ u32 m_unk_0x90;
-    /* 0x94 */ u32 m_unk_0x94;
+    /* 0x94 */ bool m_unk_0x94;
     /* 0x98 */ u32 m_unk_0x98;
 };
 

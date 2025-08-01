@@ -2279,7 +2279,7 @@ FlareHandler.o:
 	.bss        start:0x80329F98 end:0x8032A008
 	.sdata2     start:0x80376878 end:0x80376888
 
-Blinker.o:
+Game/Blinker.cpp:
 	.text       start:0x8016A968 end:0x8016AF60
 	.text       start:0x8016AF60 end:0x8016AF60
 	.text       start:0x8016AF60 end:0x8016AF60

@@ -675,6 +675,9 @@ config.libs = [
 
             Object(NonMatching, "Game/GLInventory.cpp"),
 
+            # related to character
+            Object(NonMatching, "Game/Blinker.cpp"),   
+
             # Physics
             Object(NonMatching, "Game/RayCollider.cpp"),
             Object(NonMatching, "Game/PhysicsAIBall.cpp"),
