@@ -30,8 +30,8 @@ void cPoseNode::GetRootTrans(nlVector3* vec, unsigned short arg1)
 
     unk1C(&sp14, &sp10, 1.0f);
     nlSinCos(&sp8, &spC, arg1);
-    vec->x = (sp14 * spC) - (sp18 * sp8);
-    vec->y = (sp18 * spC) + (sp14 * sp8);
+    vec->f.x = (sp14 * spC) - (sp18 * sp8);
+    vec->f.y = (sp18 * spC) + (sp14 * sp8);
 }
 
 /**

@@ -29,9 +29,9 @@ nlMatrix4* DrawableObject::GetWorldMatrix() const
 
     if (m_unk_0x44 == 0) {
         nlQuatToMatrix(rot_mtx, m_quat_0x48);
-        rot_mtx.m[3][0] = m_position.x;
-        rot_mtx.m[3][1] = m_position.y;
-        rot_mtx.m[3][2] = m_position.z;  
+        rot_mtx.m[3][0] = m_position.f.x;
+        rot_mtx.m[3][1] = m_position.f.y;
+        rot_mtx.m[3][2] = m_position.f.z;  
         rot_mtx.m[3][3] = 1.f;
         temp_f1 = m_scaling_0x64;
         nlMakeScaleMatrix(scale_mtx, temp_f1, temp_f1, temp_f1);
@@ -73,9 +73,9 @@ DrawableObject::DrawableObject()
     m_quat_0x48.x = 0.f;
     m_quat_0x48.w = 1.f;
 
-    m_position.x = 0.f;
-    m_position.y = 0.f;
-    m_position.z = 0.f;
+    m_position.f.x = 0.f;
+    m_position.f.y = 0.f;
+    m_position.f.z = 0.f;
 
     m_unk_0x68 = 1.f;
     m_unk_0x98 = 0;

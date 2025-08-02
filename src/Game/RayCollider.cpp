@@ -146,7 +146,7 @@ RayCollider::RayCollider(float length, const nlVector3& pos, const nlVector3& di
 {
     m_rayID = dCreateRay(NULL, length);
     dGeomSetData(m_rayID, 0);
-    dGeomRaySet(m_rayID, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z);
+    dGeomRaySet(m_rayID, pos.f.x, pos.f.y, pos.f.z, dir.f.x, dir.f.y, dir.f.z);
     dGeomSetCollideBits(m_rayID, 6);
     dGeomSetCategoryBits(m_rayID, 0);
     m_unk_0x28 = 0;

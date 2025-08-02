@@ -49,13 +49,13 @@ void PhysicsTransform::Release()
         GetRotation(&mat);
 
         nlMultPosVectorMatrix(v, v2, mat);
-        v1.z = v1.z + v.z;
-        v1.y = v1.y + v.y;
-        v1.x = v1.x + v.x;
+        v1.f.z = v1.f.z + v.f.z;
+        v1.f.y = v1.f.y + v.f.y;
+        v1.f.x = v1.f.x + v.f.x;
         m_unk_2c->SetPosition(v1, CoordinateType_0);
-        v1.x = 0.f;
-        v1.y = 0.f;
-        v1.z = 0.f;
+        v1.f.x = 0.f;
+        v1.f.y = 0.f;
+        v1.f.z = 0.f;
         m_unk_2c->SetLinearVelocity(v1);
         m_unk_2c->SetAngularVelocity(v1);
         m_unk_2c->ZeroForceAccumulators();

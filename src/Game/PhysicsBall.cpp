@@ -44,9 +44,9 @@ void PhysicsBall::CalcAngularFromLinearVelocity(nlVector3& v)
     dst_t2[1] = z[1];
     dst_t2[2] = z[2];
 
-    v.x = (t1.y * t2.z) - (dVar1 * velocity.y);
-    v.y = (-t1.x * t2.z) + (dVar1 * velocity.x);
-    v.z = (t1.x * velocity.y) - (t1.y * velocity.x);
+    v.f.x = (t1.f.y * t2.f.z) - (dVar1 * velocity.f.y);
+    v.f.y = (-t1.f.x * t2.f.z) + (dVar1 * velocity.f.x);
+    v.f.z = (t1.f.x * velocity.f.y) - (t1.f.y * velocity.f.x);
 }
 
 /**
@@ -72,9 +72,9 @@ void PhysicsBall::ScaleAngularVelocity(float scale)
     if (m_unk_0x3a != 0)
     {
         GetAngularVelocity(&v);
-        v.z = scale * v.z;
-        v.x = scale * v.x;
-        v.y = scale * v.y;
+        v.f.z = scale * v.f.z;
+        v.f.x = scale * v.f.x;
+        v.f.y = scale * v.f.y;
         SetAngularVelocity(v);
     }
 }
@@ -114,33 +114,34 @@ void PhysicsBall::AddResistanceForces()
     f32 temp_f3_2;
     s8 var_r3;
 
-    nlVector3* temp_r3 = GetLinearVelocity();
-    sp98.x = temp_r3->x;
-    sp98.y = temp_r3->y;
-    sp98.z = temp_r3->z;
+    // nlVector3* temp_r3 = GetLinearVelocity();
+    // sp98.f.x = temp_r3->f.x;
+    // sp98.f.y = temp_r3->f.y;
+    // sp98.f.z = temp_r3->f.z;
+    sp98 = *GetLinearVelocity();
     if (m_parentObject == NULL)
     {
         if ((m_unk_0x39 != 0) && (m_unk_0x3a == 0))
         {
-            temp_f2 = sp98.z * sp98.z;
-            temp_f1 = nlSqrt(temp_f2 + ((sp98.x * sp98.x) + (sp98.y * sp98.x)), 1);
+            temp_f2 = sp98.f.z * sp98.f.z;
+            temp_f1 = nlSqrt(temp_f2 + ((sp98.f.x * sp98.f.x) + (sp98.f.y * sp98.f.x)), 1);
             if (temp_f1 > 0.01f)
             {
                 temp_f3 = -g_BallRollingResistance / temp_f1;
-                temp_f2_2 = temp_f3 * sp98.x;
-                temp_f1_2 = temp_f3 * sp98.y;
-                sp8C.x = temp_f2_2;
-                sp8C.y = temp_f1_2;
-                sp8C.z = temp_f3 * sp98.z;
+                temp_f2_2 = temp_f3 * sp98.f.x;
+                temp_f1_2 = temp_f3 * sp98.f.y;
+                sp8C.f.x = temp_f2_2;
+                sp8C.f.y = temp_f1_2;
+                sp8C.f.z = temp_f3 * sp98.f.z;
                 AddForceAtCentreOfMass(sp8C);
             }
         }
         temp_f3_2 = -g_BallAirResistance;
-        temp_f2_3 = temp_f3_2 * sp98.x;
-        temp_f1_3 = temp_f3_2 * sp98.y;
-        sp8C.x = temp_f2_3;
-        sp8C.y = temp_f1_3;
-        sp8C.z = temp_f3_2 * sp98.z; // sp94=z
+        temp_f2_3 = temp_f3_2 * sp98.f.x;
+        temp_f1_3 = temp_f3_2 * sp98.f.y;
+        sp8C.f.x = temp_f2_3;
+        sp8C.f.y = temp_f1_3;
+        sp8C.f.z = temp_f3_2 * sp98.f.z; // sp94=z
         AddForceAtCentreOfMass(sp8C);
     }
 
@@ -169,58 +170,58 @@ void PhysicsBall::AddResistanceForces()
     if ((m_parentObject == NULL) && (m_unk_0x3a != 0))
     {
         temp_f29 = 0.02 + GetRadius();
-        if (GetPosition()->z < temp_f29)
+        if (GetPosition()->f.z < temp_f29)
         {
             float dVar4 = GetRadius();
             dVar4 = 0.02f + dVar4;
             nlVector3* iVar2 = GetPosition();
-            if (iVar2->z < dVar4)
+            if (iVar2->f.z < dVar4)
             {
                 GetLinearVelocity((nlVector3*)&local_b8); // b8 bc c0
 
-                local_ac.z = 0.0;
-                local_ac.y = 0.0;
-                local_ac.x = 0.0; // ac, b0, b4
+                local_ac.f.z = 0.0;
+                local_ac.f.y = 0.0;
+                local_ac.f.x = 0.0; // ac, b0, b4
 
                 dVar4 = GetRadius();
 
-                local_ac.x = 1.f / dVar4;
+                local_ac.f.x = 1.f / dVar4;
 
-                local_a0.x = 0; // a0, a4, a8
-                float dVar7 = (local_ac.y * 0.0 - local_ac.x * local_b8.y);
-                float dVar6 = (-local_ac.z * 0.0 + local_ac.x * local_b8.z);
-                float dVar4 = (local_ac.z * local_b8.y - local_ac.y * local_b8.z);
-                local_a0.z = local_b8.z;
-                local_a0.y = local_b8.y;
+                local_a0.f.x = 0; // a0, a4, a8
+                float dVar7 = (local_ac.f.y * 0.0 - local_ac.f.x * local_b8.f.y);
+                float dVar6 = (-local_ac.f.z * 0.0 + local_ac.f.x * local_b8.f.z);
+                float dVar4 = (local_ac.f.z * local_b8.f.y - local_ac.f.y * local_b8.f.z);
+                local_a0.f.z = local_b8.f.z;
+                local_a0.f.y = local_b8.f.y;
 
                 GetAngularVelocity(&local_58); // 58, 5c, 60
 
-                float dVar5 = (0.25f * (float)(dVar4 - local_58.x));
-                dVar6 = (0.25f * (float)(dVar6 - local_58.y));
-                dVar7 = (0.25f * (float)(dVar7 - local_58.z));
+                float dVar5 = (0.25f * (float)(dVar4 - local_58.f.x));
+                dVar6 = (0.25f * (float)(dVar6 - local_58.f.y));
+                dVar7 = (0.25f * (float)(dVar7 - local_58.f.z));
                 dBodyAddTorque(m_bodyID, dVar5, dVar6, dVar7);
 
                 GetAngularVelocity(&local_d0); // d0, d4, d8
-                local_d0.x = 0.f;
+                local_d0.f.x = 0.f;
 
-                local_c4.z = 0.f;
-                local_c4.y = 0.f;
-                local_c4.x = GetRadius(); // c4, c8, cc
+                local_c4.f.z = 0.f;
+                local_c4.f.y = 0.f;
+                local_c4.f.x = GetRadius(); // c4, c8, cc
 
-                local_64.x = local_d0.z * local_c4.y - local_d0.y * local_c4.z;
-                local_64.y = -local_d0.z * local_c4.x + local_d0.x * local_c4.z;
-                local_64.z = local_d0.y * local_c4.x - local_d0.x * local_c4.y;
+                local_64.f.x = local_d0.f.z * local_c4.f.y - local_d0.f.y * local_c4.f.z;
+                local_64.f.y = -local_d0.f.z * local_c4.f.x + local_d0.f.x * local_c4.f.z;
+                local_64.f.z = local_d0.f.y * local_c4.f.x - local_d0.f.x * local_c4.f.y;
 
                 GetLinearVelocity(&local_70); // 70 74 78
-                local_64.x = 5.f * (local_64.x - local_70.x);
-                local_64.y = 5.f * (local_64.y - local_70.y);
-                local_64.z = 5.f * (local_64.z - local_70.z);
+                local_64.f.x = 5.f * (local_64.f.x - local_70.f.x);
+                local_64.f.y = 5.f * (local_64.f.y - local_70.f.y);
+                local_64.f.z = 5.f * (local_64.f.z - local_70.f.z);
 
                 AddForceAtCentreOfMass(local_64); // 64, 68, 6c
 
-                local_64.x = 0.f;
+                local_64.f.x = 0.f;
                 if (((dVar5 * dVar5) + (dVar7 * dVar7) + (dVar6 * dVar6) < 0.0001f)
-                    && ((local_64.x * local_64.x) + (local_64.z * local_64.z) + (local_64.y * local_64.y) < 0.00003f))
+                    && ((local_64.f.x * local_64.f.x) + (local_64.f.z * local_64.f.z) + (local_64.f.y * local_64.f.y) < 0.00003f))
                 {
                     m_unk_0x3a = 0;
                 }
@@ -234,13 +235,13 @@ void PhysicsBall::AddResistanceForces()
         dVar4 = 0.02f + dVar4;
 
         nlVector3* iVar2 = GetPosition();
-        if ((dVar4 < iVar2->z)
-            && (GetLinearVelocity(&local_7c), 1.f < local_7c.x * local_7c.x + local_7c.z * local_7c.z + local_7c.y * local_7c.y)
-            && (GetAngularVelocity(&local_94), 1.f < local_94.x * local_94.x + local_94.z * local_94.z + local_94.y * local_94.y))
+        if ((dVar4 < iVar2->f.z)
+            && (GetLinearVelocity(&local_7c), 1.f < local_7c.f.x * local_7c.f.x + local_7c.f.z * local_7c.f.z + local_7c.f.y * local_7c.f.y)
+            && (GetAngularVelocity(&local_94), 1.f < local_94.f.x * local_94.f.x + local_94.f.z * local_94.f.z + local_94.f.y * local_94.f.y))
         {
-            local_88.x = (local_94.z * local_7c.y - local_94.y * local_7c.z) * 0.04f;
-            local_88.z = (local_94.y * local_7c.x - local_94.x * local_7c.y) * 0.075f;
-            local_88.y = (-local_94.z * local_7c.x + local_94.x * local_7c.z) * 0.075f;
+            local_88.f.x = (local_94.f.z * local_7c.f.y - local_94.f.y * local_7c.f.z) * 0.04f;
+            local_88.f.z = (local_94.f.y * local_7c.f.x - local_94.f.x * local_7c.f.y) * 0.075f;
+            local_88.f.y = (-local_94.f.z * local_7c.f.x + local_94.f.x * local_7c.f.z) * 0.075f;
             AddForceAtCentreOfMass(local_88);
         }
     }
@@ -293,7 +294,7 @@ int PhysicsBall::Contact(PhysicsObject* other, dContact* contact, int param)
         {
         loop_2:
             //     M2C_ERROR(/* unknown instruction: cror eq, lt, eq */);
-            if ((((dContact*)var_r3)->geom.pos[2] == pos.z) && (((dContact*)var_r3)->geom.normal[2] > 0.9f))
+            if ((((dContact*)var_r3)->geom.pos[2] == pos.f.z) && (((dContact*)var_r3)->geom.normal[2] > 0.9f))
             {
                 m_unk_0x39 = 1;
             }
@@ -315,7 +316,7 @@ int PhysicsBall::Contact(PhysicsObject* other, dContact* contact, int param)
         if (objType == 0x11)
         {
             GetPosition(&pos);
-            if ((contact->geom.normal[2] > 0.f) && ((contact->geom.pos[2] + GetRadius()) < pos.z))
+            if ((contact->geom.normal[2] > 0.f) && ((contact->geom.pos[2] + GetRadius()) < pos.f.z))
             {
                 u32* src = (u32*)GetPosition();
                 u32* dst = (u32*)&_pos;
@@ -326,7 +327,7 @@ int PhysicsBall::Contact(PhysicsObject* other, dContact* contact, int param)
                 temp_f2 = contact->geom.normal[2]; // unk44
                 temp_f1 = contact->geom.depth;     // unk4C
                 temp_f29 = temp_f2 * temp_f1;
-                _pos.z += temp_f29;
+                _pos.f.z += temp_f29;
                 SetPosition(_pos, CoordinateType_0); // , temp_r6, temp_f1, temp_f2
 
                 if (contact->geom.depth > 0.95f)
@@ -396,34 +397,34 @@ void PhysicsBall::PostUpdate()
     PhysicsObject::PostUpdate();
     GetLinearVelocity(&linVel);
 
-    float l = (linVel.z * linVel.z) + (linVel.x * linVel.x) + (linVel.y * linVel.y);
+    float l = (linVel.f.z * linVel.f.z) + (linVel.f.x * linVel.f.x) + (linVel.f.y * linVel.f.y);
     if (l > 2500.f)
     {
         temp_f3 = 50.f / nlSqrt(l, true);
-        temp_f2 = temp_f3 * linVel.z;
-        temp_f1 = temp_f3 * linVel.y;
-        linVel.z = temp_f2;
-        linVel.x *= temp_f3;
-        linVel.y = temp_f1;
+        temp_f2 = temp_f3 * linVel.f.z;
+        temp_f1 = temp_f3 * linVel.f.y;
+        linVel.f.z = temp_f2;
+        linVel.f.x *= temp_f3;
+        linVel.f.y = temp_f1;
         SetLinearVelocity(linVel);
     }
 
-    if ((GetPosition()->z > 20.f) && (linVel.z > 0.f))
+    if ((GetPosition()->f.z > 20.f) && (linVel.f.z > 0.f))
     {
-        linVel.z *= 0.9f;
+        linVel.f.z *= 0.9f;
         SetLinearVelocity(linVel);
     }
 
     temp_f31 = GetRadius();
-    if (GetPosition()->z < temp_f31)
+    if (GetPosition()->f.z < temp_f31)
     {
         m_unk_0x39 = 1;
         GetPosition(&pos);
-        pos.z = GetRadius();
+        pos.f.z = GetRadius();
         SetPosition(pos, CoordinateType_0);
 
-        temp_f1_2 = linVel.z;
-        linVel.z = temp_f1_2 * -g_BallBounceGround;
+        temp_f1_2 = linVel.f.z;
+        linVel.f.z = temp_f1_2 * -g_BallBounceGround;
         SetLinearVelocity(linVel);
     }
 }
@@ -437,16 +438,16 @@ void PhysicsBall::PreUpdate()
     nlVector3 vec;
     GetLinearVelocity(&vec);
 
-    if (2500.f < vec.x * vec.x + vec.y * vec.y + vec.z * vec.z)
+    if (2500.f < vec.f.x * vec.f.x + vec.f.y * vec.f.y + vec.f.z * vec.f.z)
     {
-        float l = nlSqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z, true);
+        float l = nlSqrt(vec.f.x * vec.f.x + vec.f.y * vec.f.y + vec.f.z * vec.f.z, true);
         float n = 50.f / l;
-        float x = n * vec.x;
-        float y = n * vec.y;
-        float z = n * vec.z;
-        vec.x = x;
-        vec.y = y;
-        vec.z = z;
+        float x = n * vec.f.x;
+        float y = n * vec.f.y;
+        float z = n * vec.f.z;
+        vec.f.x = x;
+        vec.f.y = y;
+        vec.f.z = z;
         SetLinearVelocity(vec);
     }
     PhysicsObject::PreUpdate();
@@ -532,7 +533,7 @@ PhysicsBall::PhysicsBall(CollisionSpace* space, PhysicsWorld* world, float radiu
     m_gravity = -14.f;
 
     float temp = 0.f;
-    m_unk_0x2c.x = temp;
-    m_unk_0x2c.y = temp;
-    m_unk_0x2c.z = temp;
+    m_unk_0x2c.f.x = temp;
+    m_unk_0x2c.f.y = temp;
+    m_unk_0x2c.f.z = temp;
 }

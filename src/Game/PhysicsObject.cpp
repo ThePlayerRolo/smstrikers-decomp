@@ -77,9 +77,9 @@ void PhysicsObject::CloneObject(const PhysicsObject& obj)
     }
 
     obj.GetLinearVelocity(&linVelocity);
-    dBodySetLinearVel(m_bodyID, linVelocity.x, linVelocity.y, linVelocity.z);
+    dBodySetLinearVel(m_bodyID, linVelocity.f.x, linVelocity.f.y, linVelocity.f.z);
     obj.GetAngularVelocity(&angVelocity);
-    dBodySetAngularVel(m_bodyID, angVelocity.x, angVelocity.y, angVelocity.z);
+    dBodySetAngularVel(m_bodyID, angVelocity.f.x, angVelocity.f.y, angVelocity.f.z);
     m_gravity = obj.m_gravity;
 
     if (obj.m_bodyID != NULL)
@@ -308,16 +308,16 @@ void PhysicsObject::ZeroForceAccumulators()
  */
 void PhysicsObject::AddForceAtCentreOfMass(const nlVector3& force)
 {
-    dBodyAddForce(m_bodyID, force.x, force.y, force.z);
+    dBodyAddForce(m_bodyID, force.f.x, force.f.y, force.f.z);
 }
 
 #define GAV_REGSWAP(out, v) \
-    float z = (v)->z;       \
-    float y = (v)->y;       \
-    float x = (v)->x;       \
-    (out)->x = x;           \
-    (out)->y = y;           \
-    (out)->z = z;
+    float z = (v)->f.z;       \
+    float y = (v)->f.y;       \
+    float x = (v)->f.x;       \
+    (out)->f.x = x;           \
+    (out)->f.y = y;           \
+    (out)->f.z = z;
 
 /**
  * Offset/Address/Size: 0x644 | 0x80200340 | size: 0x1AC
@@ -367,7 +367,7 @@ void PhysicsObject::GetAngularVelocity(nlVector3* arg1) const
                                     return;
                                 }
                                 temp_r3_4 = (nlVector3*)dBodyGetAngularVel(temp_r5_4->m_bodyID);
-                                arg1->Set(temp_r3_4->x, temp_r3_4->y, temp_r3_4->z);
+                                arg1->Set(temp_r3_4->f.x, temp_r3_4->f.y, temp_r3_4->f.z);
                                 return;
                             }
                             temp_r3_5 = (nlVector3*)dBodyGetAngularVel(temp_r3_3->m_bodyID);
@@ -424,7 +424,7 @@ void PhysicsObject::GetAngularVelocity(nlVector3* arg1) const
  */
 void PhysicsObject::SetAngularVelocity(const nlVector3& velocity)
 {
-    dBodySetAngularVel(m_bodyID, (float)velocity.x, (float)velocity.y, (float)velocity.z);
+    dBodySetAngularVel(m_bodyID, (float)velocity.f.x, (float)velocity.f.y, (float)velocity.f.z);
 }
 
 /**
@@ -440,9 +440,9 @@ nlVector3* PhysicsObject::GetLinearVelocity()
     float z = (v)[2];       \
     float y = (v)[1];       \
     float x = (v)[0];       \
-    (out)->x = x;           \
-    (out)->y = y;           \
-    (out)->z = z;
+    (out)->f.x = x;           \
+    (out)->f.y = y;           \
+    (out)->f.z = z;
 
 /**
  * Offset/Address/Size: 0x854 | 0x80200550 | size: 0x1AC
@@ -544,7 +544,7 @@ void PhysicsObject::GetLinearVelocity(nlVector3* out) const
  */
 void PhysicsObject::SetLinearVelocity(const nlVector3& velocity)
 {
-    dBodySetLinearVel(m_bodyID, velocity.x, velocity.y, velocity.z);
+    dBodySetLinearVel(m_bodyID, velocity.f.x, velocity.f.y, velocity.f.z);
 }
 
 /**
@@ -750,12 +750,12 @@ void PhysicsObject::GetPosition(nlVector3* position) const
     // position->y = var_r3->y;
     // position->z = var_r3->z;
     // GP_REGSWAP(position, var_r3);
-    float x = var_r3->x;
-    float y = var_r3->y;
-    float z = var_r3->z;
-    position->x = x;
-    position->y = y;
-    position->z = z;
+    float x = var_r3->f.x;
+    float y = var_r3->f.y;
+    float z = var_r3->f.z;
+    position->f.x = x;
+    position->f.y = y;
+    position->f.z = z;
 
     if (temp_r29 != NULL)
     {
@@ -774,12 +774,12 @@ void PhysicsObject::GetPosition(nlVector3* position) const
         // sp20.y = var_r3_2->y;
         // sp20.x = var_r3_2->x;
         // GP_REGSWAP(&sp20, var_r3_2);
-        float y = var_r3_2->y;
-        float x = var_r3_2->x;
-        float z = var_r3_2->z;
-        sp20.x = x;
-        sp20.y = y;
-        sp20.z = z;
+        float y = var_r3_2->f.y;
+        float x = var_r3_2->f.x;
+        float z = var_r3_2->f.z;
+        sp20.f.x = x;
+        sp20.f.y = y;
+        sp20.f.z = z;
 
         temp_r28 = temp_r29->m_parentObject;
         if (temp_r28 != NULL)
@@ -793,7 +793,7 @@ void PhysicsObject::GetPosition(nlVector3* position) const
             {
                 var_r4 = (nlVector3*)dGeomGetPosition(temp_r0_3);
             }
-            sp14.Set(var_r4->x, var_r4->y, var_r4->z);
+            sp14.Set(var_r4->f.x, var_r4->f.y, var_r4->f.z);
             if (temp_r28->m_parentObject != NULL)
             {
                 temp_r28->m_parentObject->GetPosition(&sp8);
@@ -820,7 +820,7 @@ void PhysicsObject::GetPosition(nlVector3* position) const
                 nlMultMatrices(sp12C, sp12C, sp6C);
             }
             nlMultPosVectorMatrix(sp20, sp20, sp12C);
-            sp20.Set(sp14.x + sp20.x, sp14.y + sp20.y, sp14.z + sp20.z);
+            sp20.Set(sp14.f.x + sp20.f.x, sp14.f.y + sp20.f.y, sp14.f.z + sp20.f.z);
         }
         temp_r29_3 = m_parentObject;
         temp_r0_5 = temp_r29_3->m_geomID;
@@ -874,15 +874,15 @@ void PhysicsObject::GetPosition(nlVector3* position) const
         // position->x += sp20.x;
         // position->y += sp20.y;
         // position->z += sp20.z;
-        float z1 = position->z;
-        float y1 = position->y;
-        float x1 = position->x;
-        x = sp20.x;
-        y = sp20.y;
-        z = sp20.z;
-        position->x = x + x1;
-        position->z = z + z1;
-        position->y = y + y1;
+        float z1 = position->f.z;
+        float y1 = position->f.y;
+        float x1 = position->f.x;
+        x = sp20.f.x;
+        y = sp20.f.y;
+        z = sp20.f.z;
+        position->f.x = x + x1;
+        position->f.z = z + z1;
+        position->f.y = y + y1;
     }
 }
 
@@ -902,26 +902,26 @@ void PhysicsObject::SetPosition(const nlVector3& pos, PhysicsObject::CoordinateT
         m_parentObject->GetRotation(&rot);
         p = m_parentObject->GetPosition();
         v4.w = 1.f;
-        v4.z = p->z;
-        v4.y = p->y;
-        v4.x = p->x;
+        v4.z = p->f.z;
+        v4.y = p->f.y;
+        v4.x = p->f.x;
         nlInvertRotTransMatrix(inv_rot, rot);
         nlMultPosVectorMatrix(_pos, pos, inv_rot);
         if ((m_geomID == NULL) && (m_bodyID != NULL))
         {
-            dBodySetPosition(m_bodyID, _pos.x, _pos.y, _pos.z);
+            dBodySetPosition(m_bodyID, _pos.f.x, _pos.f.y, _pos.f.z);
             return;
         }
-        dGeomSetPosition(m_geomID, _pos.x, _pos.y, _pos.z);
+        dGeomSetPosition(m_geomID, _pos.f.x, _pos.f.y, _pos.f.z);
         return;
     }
 
     if ((m_geomID == NULL) && (m_bodyID != NULL))
     {
-        dBodySetPosition(m_bodyID, pos.x, pos.y, pos.z);
+        dBodySetPosition(m_bodyID, pos.f.x, pos.f.y, pos.f.z);
         return;
     }
-    dGeomSetPosition(m_geomID, pos.x, pos.y, pos.z);
+    dGeomSetPosition(m_geomID, pos.f.x, pos.f.y, pos.f.z);
 }
 
 /**
@@ -1024,9 +1024,9 @@ PhysicsObject::PhysicsObject(PhysicsWorld* world)
  */
 void nlVector3::Set(float x, float y, float z)
 {
-    this->x = x;
-    this->y = y;
-    this->z = z;
+    this->f.x = x;
+    this->f.y = y;
+    this->f.z = z;
 }
 
 /**
@@ -1034,9 +1034,9 @@ void nlVector3::Set(float x, float y, float z)
  */
 void nlMatrix4::SetColumn(int col, const nlVector3& v)
 {
-    m[0][col] = v.x;
-    m[1][col] = v.y;
-    m[2][col] = v.z;
+    m[0][col] = v.f.x;
+    m[1][col] = v.f.y;
+    m[2][col] = v.f.z;
 }
 
 /**
@@ -1047,13 +1047,13 @@ void nlVecAdd(nlVector3& v0, const nlVector3& v1, const nlVector3& v2)
     // v0.x = v1.x + v2.x;
     // v0.y = v1.y + v2.y;
     // v0.z = v1.z + v2.z;
-    float x1 = v1.x;
-    float y1 = v1.y;
-    float x2 = v2.x;
-    float z1 = v1.z;
-    float y2 = v2.y;
-    float z2 = v2.z;
-    v0.x = x1 + x2;
-    v0.y = y1 + y2;
-    v0.z = z1 + z2;
+    float x1 = v1.f.x;
+    float y1 = v1.f.y;
+    float x2 = v2.f.x;
+    float z1 = v1.f.z;
+    float y2 = v2.f.y;
+    float z2 = v2.f.z;
+    v0.f.x = x1 + x2;
+    v0.f.y = y1 + y2;
+    v0.f.z = z1 + z2;
 }

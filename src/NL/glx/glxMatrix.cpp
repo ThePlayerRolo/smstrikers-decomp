@@ -47,9 +47,9 @@ void glxCopyMatrix(float (&arg0)[4][4], const nlMatrix4& arg1)
 void glplatMatrixLookAt(nlMatrix4& arg0, const nlVector3& arg1, const nlVector3& arg2, const nlVector3& arg3)
 {
     // Calculate the forward vector (from eye to target)
-    float dx = arg1.x - arg2.x;
-    float dy = arg1.y - arg2.y;
-    float dz = arg1.z - arg2.z;
+    float dx = arg1.f.x - arg2.f.x;
+    float dy = arg1.f.y - arg2.f.y;
+    float dz = arg1.f.z - arg2.f.z;
 
     // Normalize the forward vector
     float length = nlRecipSqrt(dx * dx + dy * dy + dz * dz, true);
@@ -58,9 +58,9 @@ void glplatMatrixLookAt(nlMatrix4& arg0, const nlVector3& arg1, const nlVector3&
     float forward_z = length * dz;
 
     // Calculate the right vector using cross product of up and forward
-    float up_x = arg3.x;
-    float up_y = arg3.y;
-    float up_z = arg3.z;
+    float up_x = arg3.f.x;
+    float up_y = arg3.f.y;
+    float up_z = arg3.f.z;
 
     // Cross product: right = up × forward
     float right_x = up_y * forward_z - up_z * forward_y;
@@ -98,9 +98,9 @@ void glplatMatrixLookAt(nlMatrix4& arg0, const nlVector3& arg1, const nlVector3&
     arg0.m[2][3] = 0.0f;
 
     // Row 3: translation (negative dot product with eye position)
-    arg0.m[3][0] = -(right_x * arg1.x + right_y * arg1.y + right_z * arg1.z);
-    arg0.m[3][1] = -(up_new_x * arg1.x + up_new_y * arg1.y + up_new_z * arg1.z);
-    arg0.m[3][2] = -(-forward_x * arg1.x - forward_y * arg1.y - forward_z * arg1.z);
+    arg0.m[3][0] = -(right_x * arg1.f.x + right_y * arg1.f.y + right_z * arg1.f.z);
+    arg0.m[3][1] = -(up_new_x * arg1.f.x + up_new_y * arg1.f.y + up_new_z * arg1.f.z);
+    arg0.m[3][2] = -(-forward_x * arg1.f.x - forward_y * arg1.f.y - forward_z * arg1.f.z);
     arg0.m[3][3] = 1.0f;
 }
 

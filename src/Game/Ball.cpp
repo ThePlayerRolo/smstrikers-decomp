@@ -12,7 +12,8 @@
 
 cBall* g_pBall = NULL;
 
-nlMatrix4 m3Ident = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+nlMatrix3 m3Ident = { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f };
+// nlMatrix4 m4Ident = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
 
 /**
  * Offset/Address/Size: 0x0 | 0x800099D4 | size: 0x10C
@@ -33,9 +34,9 @@ float cBall::PredictLandingSpotAndTime(nlVector3& landingSpot)
     // m_unk_0x58.z = 0;
 
     dVar8 = 0.1f;
-    if (m_rayPosition.z > 1.0f)
+    if (m_rayPosition.f.z > 1.0f)
     {
-        SolveQuadratic(dVar8, 0.5f * m_aiBall->m_gravity, m_unk_0x58.z, sp8, spC, sp10);
+        SolveQuadratic(dVar8, 0.5f * m_aiBall->m_gravity, m_unk_0x58.f.z, sp8, spC, sp10);
 
         pfVar7 = spC;         // pfVar7 = &local_14;
         dVar8 = 100000000.0f; // dVar8 = (double)Ball::@1409;
@@ -57,19 +58,15 @@ float cBall::PredictLandingSpotAndTime(nlVector3& landingSpot)
             } while (sp8 != 0);
         }
 
-        landingSpot.x = (dVar8 * m_unk_0x58.x) + m_rayPosition.x;
-        landingSpot.y = (dVar8 * m_unk_0x58.y) + m_rayPosition.y;
+        landingSpot.f.x = (dVar8 * m_unk_0x58.f.x) + m_rayPosition.f.x;
+        landingSpot.f.y = (dVar8 * m_unk_0x58.f.y) + m_rayPosition.f.y;
         // landingSpot.z = (dVar8 * m_unk_0x58.z) + m_rayPosition.z;
-        landingSpot.z = 0.f;
+        landingSpot.f.z = 0.f;
         return dVar8;
     }
 
-    float x = m_rayPosition.x;
-    float y = m_rayPosition.y;
-    float z = m_rayPosition.z;
-    landingSpot.x = x;
-    landingSpot.y = y;
-    landingSpot.z = z;
+    landingSpot = m_rayPosition;
+
     return 0.f;
 }
 
@@ -107,16 +104,7 @@ void cBall::SetPassTargetTimer(float seconds)
 void cBall::SetPassTarget(cPlayer* passTargetPlayer, const nlVector3& pos, bool)
 {
     m_passTargetPlayer = passTargetPlayer;
-
-    // m_unk_0x64.x = pos.x;
-    // m_unk_0x64.y = pos.y;
-    // m_unk_0x64.z = pos.z;
-    u32 y = *(const u32*)&pos.y;
-    u32 x = *(const u32*)&pos.x;
-    *(u32*)&m_unk_0x64.x = x;
-    u32 z = *(const u32*)&pos.z;
-    *(u32*)&m_unk_0x64.y = y;
-    *(u32*)&m_unk_0x64.z = z;
+    m_unk_0x64 = pos;
 }
 
 /**
@@ -124,12 +112,12 @@ void cBall::SetPassTarget(cPlayer* passTargetPlayer, const nlVector3& pos, bool)
  */
 void cBall::WarpTo(const nlVector3& toPos)
 {
-    NL_VECTOR3_COPY_U32(m_rayPosition, toPos);
+    m_rayPosition = toPos;
     m_aiBall->SetPosition(m_rayPosition, PhysicsObject::CoordinateType_0);
     m_aiBall->SetRotation(m3Ident);
     FakeBallWorld::InvalidateBallCache();
     m_unk_0x00 = m_unk_0x00 + 1;
-    NL_VECTOR3_COPY_U32(m_unk_0x4C, toPos);
+    m_unk_0x4C = toPos;
 }
 
 /**
@@ -200,7 +188,7 @@ void cBall::SetPerfectPass(bool, bool)
  */
 void cBall::SetPosition(const nlVector3& pos)
 {
-    NL_VECTOR3_COPY_U32(m_rayPosition, pos);
+    m_rayPosition = pos;
     m_aiBall->SetPosition(pos, PhysicsObject::CoordinateType_0);
     m_aiBall->SetRotation(m3Ident);
     FakeBallWorld::InvalidateBallCache();
@@ -374,7 +362,7 @@ void cBall::ClearOwner()
     m_playerPrevOwner = m_playerOwner;
     m_playerOwner = NULL;
     m_aiBall->EnableCollisions();
-    NL_VECTOR3_COPY_U32(m_unk_0x4C, m_rayPosition);
+    m_unk_0x4C = m_rayPosition;
     m_aiBall->GetPosition(&m_rayPosition);
     m_aiBall->GetLinearVelocity(&m_unk_0x58);
     m_unk_0x00++;

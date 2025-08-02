@@ -90,9 +90,9 @@ PhysicsAIBall::PhysicsAIBall(float radius)
     m_unk_0x40 = 0;
     m_unk_0x50 = 9999;
     m_unk_0x58 = 0;
-    m_unk_0x44.x = 0.f;
-    m_unk_0x44.y = 0.f;
-    m_unk_0x44.z = 0.f;
+    m_unk_0x44.f.x = 0.f;
+    m_unk_0x44.f.y = 0.f;
+    m_unk_0x44.f.z = 0.f;
 }
 
 /**

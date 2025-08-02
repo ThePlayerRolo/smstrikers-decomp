@@ -21,41 +21,41 @@ struct nlVector2
 };
 
 #define NL_VECTOR3_SET(v, xval, yval, zval) do { \
-    (v).x = (xval);                              \
-    (v).y = (yval);                              \
-    (v).z = (zval);                              \
+    (v).f.x = (xval);                              \
+    (v).f.y = (yval);                              \
+    (v).f.z = (zval);                              \
 } while (0)
 
-#define NL_VECTOR3_COPY_U32(dst, src) do { \
-    u32* _src_ptr = (u32*)&(src); \
-    u32* _dst_ptr = (u32*)&(dst); \
-    _dst_ptr[0] = _src_ptr[0]; \
-    _dst_ptr[1] = _src_ptr[1]; \
-    _dst_ptr[2] = _src_ptr[2]; \
-} while(0)
+// #define NL_VECTOR3_COPY_U32(dst, src) do { \
+//     u32* _src_ptr = (u32*)&(src); \
+//     u32* _dst_ptr = (u32*)&(dst); \
+//     _dst_ptr[0] = _src_ptr[0]; \
+//     _dst_ptr[1] = _src_ptr[1]; \
+//     _dst_ptr[2] = _src_ptr[2]; \
+// } while(0)
 
-#define COPY_VECTOR3_U32_2(dst, src) do { \
-    u32 y = *(const u32*)&src.y; \
-    u32 x = *(const u32*)&src.x; \
-    *(u32*)&dst.x = x; \
-    u32 z = *(const u32*)&src.z; \
-    *(u32*)&dst.y = y; \
-    *(u32*)&dst.z = z; \
-} while(0)
+// #define COPY_VECTOR3_U32_2(dst, src) do { \
+//     u32 y = *(const u32*)&src.f.y; \
+//     u32 x = *(const u32*)&src.f.x; \
+//     *(u32*)&dst.f.x = x; \
+//     u32 z = *(const u32*)&src.f.z; \
+//     *(u32*)&dst.f.y = y; \
+//     *(u32*)&dst.f.z = z; \
+// } while(0)
 
 struct nlVector3
 {
-    float x;
-    float y;
-    float z;
-    // union {
-    //     struct {
-    //         float x;
-    //         float y;
-    //         float z;
-    //     } f;
-    //     u32 as_u32[3];
-    // };
+    // float x;
+    // float y;
+    // float z;
+    union {
+        struct {
+            float x;
+            float y;
+            float z;
+        } f;
+        u32 as_u32[3];
+    };
     
     nlVector3(){}
     void Set(float x, float y, float z);
