@@ -1,6 +1,8 @@
 #include "Character.h"
-
+#include "CharacterTemplate.h"
 #include "EmissionManager.h"
+
+#include "audio.h"
 
 extern unsigned int nlDefaultSeed;
 
@@ -81,20 +83,35 @@ void cCharacter::Play3DSFX(Audio::eCharSFX, PosUpdateMethod, float)
  */
 void cCharacter::StopPlayingAllTrackedSFX()
 {
+    if (Audio::IsInited()) 
+    {
+        m_sfx->StopPlayingAllTrackedSFX();
+    }    
 }
 
 /**
  * Offset/Address/Size: 0x2E4 | 0x8000E230 | size: 0x50
  */
-void cCharacter::StopSFX(Audio::eCharSFX)
+void cCharacter::StopSFX(Audio::eCharSFX sfxType)
 {
+    if (Audio::IsInited()) 
+    {
+        m_sfx->Stop(sfxType, cGameSFX::StopFlag_1);
+    }    
 }
 
 /**
  * Offset/Address/Size: 0x334 | 0x8000E280 | size: 0x60
  */
-void cCharacter::PlaySFX(Audio::SoundAttributes&)
+// void cCharacter::PlaySFX(Audio::SoundAttributes&)
+int cCharacter::PlaySFX(Audio::SoundAttributes& attributes) 
 {
+    if (Audio::IsInited())
+    {
+        return m_sfx->Play(attributes);  // virtual function call
+    }
+
+    return -1;
 }
 
 /**
@@ -114,22 +131,28 @@ void cCharacter::UpdateMovementState(float)
 /**
  * Offset/Address/Size: 0xA5C | 0x8000E9A8 | size: 0x34
  */
-void cCharacter::IsPlayingEffect(const EffectsGroup*) const
+bool cCharacter::IsPlayingEffect(const EffectsGroup* effectGroup) const
 {
+    u32 characterIndex = GetCharacterIndex(this);
+    return EmissionManager::IsPlaying(characterIndex, effectGroup);
 }
 
 /**
  * Offset/Address/Size: 0xA90 | 0x8000E9DC | size: 0x34
  */
-void cCharacter::EndEffect(const EffectsGroup*)
+void cCharacter::EndEffect(const EffectsGroup* effectGroup)
 {
+    u32 characterIndex = GetCharacterIndex(this);
+    EmissionManager::Kill(characterIndex, effectGroup);
 }
 
 /**
  * Offset/Address/Size: 0xAC4 | 0x8000EA10 | size: 0x34
  */
-void cCharacter::KillEffect(const EffectsGroup*)
+void cCharacter::KillEffect(const EffectsGroup* effectGroup)
 {
+    u32 characterIndex = GetCharacterIndex(this);
+    EmissionManager::Destroy(characterIndex, effectGroup);
 }
 
 /**
@@ -168,8 +191,11 @@ void cCharacter::SetPosition(const nlVector3& position)
 /**
  * Offset/Address/Size: 0xE10 | 0x8000ED5C | size: 0x30
  */
-void cCharacter::SetFacingDirection(unsigned short)
+void cCharacter::SetFacingDirection(unsigned short dir) 
 {
+    m_unk_0x44 = m_unk_0x42;
+    m_unk_0x42 = dir;
+    m_unk_0x14->SetFacingDirection(dir);
 }
 
 /**
@@ -190,8 +216,24 @@ void cCharacter::SetAnimID(int animID)
 /**
  * Offset/Address/Size: 0xF90 | 0x8000EEDC | size: 0x50
  */
-void cCharacter::SeekSpeedExponential(float, float, float, float)
+float cCharacter::SeekSpeedExponential(float currentValue, float targetValue, float responsiveness, float deltaTime)
 {
+    float adjustment;
+    float distance;
+    float difference;
+    
+    difference = targetValue - currentValue;
+    distance = fabs(difference);
+
+    if (distance > 0.1f) {
+        adjustment = distance - (1.0f / ((responsiveness * deltaTime) + (1.0f / distance)));
+        if (difference > 0.0f) {
+            return currentValue + adjustment;
+        }
+        return currentValue - adjustment;
+    }
+
+    return targetValue;
 }
 
 /**
@@ -199,6 +241,9 @@ void cCharacter::SeekSpeedExponential(float, float, float, float)
  */
 void cCharacter::ResetEffects()
 {
+    u32 characterIndex = GetCharacterIndex(this);
+    EmissionManager::Destroy(characterIndex, nullptr);
+    m_unk_0x11C = 0;
 }
 
 /**
@@ -213,6 +258,10 @@ void cCharacter::PostPhysicsUpdate()
  */
 void cCharacter::CreateWorldMatrix()
 {
+    nlMakeRotationMatrixZ(m_worldMatrix, 0.0000958738f * (f32) m_unk_0x42);
+    m_worldMatrix.m[3][0] = m_position.f.x;
+    m_worldMatrix.m[3][1] = m_position.f.y;
+    m_worldMatrix.m[3][2] = m_position.f.z;
 }
 
 /**
@@ -395,8 +444,8 @@ void cCharacter::GetSkinMesh() const
  */
 cCharacter::~cCharacter()
 {
-    EmissionManager *emissionManager = NULL; //(EmissionManager *)CharacterTemplate::GetCharacterIndex();
-    emissionManager->Destroy(false, NULL);
+    u32 characterIndex = GetCharacterIndex(this);
+    EmissionManager::Destroy(characterIndex, nullptr);
 }
 
 /**

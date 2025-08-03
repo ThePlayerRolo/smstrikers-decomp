@@ -8,6 +8,7 @@
 #include "Blinker.h"
 
 #include "PhysicsCharacter.h"
+#include "CharacterAudio.h"
 
 class Event;
 
@@ -39,20 +40,6 @@ enum PosUpdateMethod
     PosUpdateMethod_0 = 0
 };
 
-// Audio namespace and types (forward declarations)
-namespace Audio
-{
-enum eCharSFX
-{
-    eCharSFX_0 = 0
-};
-
-struct SoundAttributes
-{
-    // Placeholder structure
-};
-} // namespace Audio
-
 class cPN_SAnimController;
 
 class cCharacter //: public PhysicsCharacterBase
@@ -75,10 +62,10 @@ public:
     void Play3DSFX(Audio::eCharSFX, PosUpdateMethod, float);
     void StopPlayingAllTrackedSFX();
     void StopSFX(Audio::eCharSFX);
-    void PlaySFX(Audio::SoundAttributes&);
+    int PlaySFX(Audio::SoundAttributes&);
     void SetSFX(SoundPropAccessor*);
     void UpdateMovementState(float);
-    void IsPlayingEffect(const EffectsGroup*) const;
+    bool IsPlayingEffect(const EffectsGroup*) const;
     void EndEffect(const EffectsGroup*);
     void KillEffect(const EffectsGroup*);
     void ShouldStartCrossBlend(int);
@@ -86,7 +73,7 @@ public:
     virtual void SetPosition(const nlVector3&);
     void SetFacingDirection(unsigned short);
     void SetAnimState(int, bool, float, bool, bool);
-    void SeekSpeedExponential(float, float, float, float);
+    float SeekSpeedExponential(float, float, float, float);
     void ResetEffects();
     void CreateWorldMatrix();
     void PoseSkinMesh(cPoseAccumulator*);
@@ -122,17 +109,23 @@ public:
 
     /* 0x30 */ nlVector3 m_velocity;
 
-    /* 0x3C */ u8 m_padding_0x3C[0x58];
+    /* 0x3C */ u8 m_padding_0x3C[0x06];
+
+    /* 0x42 */ unsigned short m_unk_0x42; 
+    /* 0x44 */ unsigned short m_unk_0x44;
+    
+    /* 0x46 */ u8 m_padding_0x46[0x4E];
 
     /* 0x94 */ u32 m_unk_0x94;
 
     /* 0x98 */ u8 m_padding_0x98[0x20];
 
-
     /* 0xB8 */ bool m_unk_0xB8;
+    /* 0xBC */ Audio::cCharacterSFX *m_sfx;
 
-    /* 0xBC */ u8 m_padding_0xBC[0x50];
+    /* 0xC0 */ u8 m_padding_0xC0[0xC];
 
+    /* 0xCC */ nlMatrix4 m_worldMatrix;
     /* 0x10C */ float m_unk_0x10C;
     /* 0x110 */ float m_unk_0x110;
 

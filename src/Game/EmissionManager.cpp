@@ -66,8 +66,9 @@ void EmissionManager::DestroyAll(bool)
 /**
  * Offset/Address/Size: 0x68C | 0x801F8FAC | size: 0x60
  */
-void EmissionManager::IsPlaying(unsigned long, const EffectsGroup*)
+bool EmissionManager::IsPlaying(unsigned long, const EffectsGroup*)
 {
+    return false;
 }
 
 /**

@@ -30,10 +30,10 @@ public:
     void Replay(LoadFrame&);
     void AddError(const char*, ...);
     void ResetLingerers();
-    void Destroy(unsigned long, const EffectsGroup*);
+    static void Destroy(unsigned long, const EffectsGroup*);
     void DestroyAll(bool);
-    void IsPlaying(unsigned long, const EffectsGroup*);
-    void Kill(unsigned long, const EffectsGroup*);
+    static bool IsPlaying(unsigned long, const EffectsGroup*);
+    static void Kill(unsigned long, const EffectsGroup*);
     void IsStillAlive(EmissionController*);
     void Create(EffectsGroup*, unsigned short);
     void GetContainer();
