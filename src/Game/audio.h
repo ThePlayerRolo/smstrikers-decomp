@@ -1,13 +1,28 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
+#include "NL/nlMath.h"
+
 // void ReadVolGroupSettings();
 // void nlDeleteList<FadeAudioData>(FadeAudioData**);
 // void nlListRemoveElement<FadeAudioData>(FadeAudioData**, FadeAudioData*, FadeAudioData**);
 // void nlListAddStart<FadeAudioData>(FadeAudioData**, FadeAudioData*, FadeAudioData**);
 
+class PhysicsObject;
+
 namespace Audio 
 {
+    class SoundAttributes
+    {
+    public:
+        void UseStationaryPosVector(const nlVector3&);
+        void UseVectors(const nlVector3&, const nlVector3&);
+        void UseVectorPtrs(const nlVector3*, const nlVector3*);
+        void UsePhysObj(PhysicsObject*);
+        void SetSoundType(unsigned long, bool);
+        void Init();
+    };
+
     // void MasterVolume::GetVoiceVolume();
     // void MasterVolume::SetVoiceVolume(float, int);
     // void MasterVolume::SetVolume(Audio::MasterVolume::VOLUME_GROUP, float);
@@ -36,7 +51,7 @@ namespace Audio
     // void SetSFXVolume(unsigned long, float);
     // void Update3DSFXEmitters();
     // void UpdateFades(float);
-    // void Update(float);
+    void Update(float);
     // void GetSndIDError();
     // void IsSFXPlaying(unsigned long);
     // void StopSFX(unsigned long);
@@ -51,25 +66,19 @@ namespace Audio
     // void PlaySFXbyID(const Audio::SoundAttributes&, unsigned long, float, float, int);
     // void PlaySFX(const SFXStartInfo&);
     // void GetAudioTimer();
-    // void Shutdown();
-    // void Silence();
-    // void ResetForNewGame();
-    // void ResetPauseStatus();
-    // void UnloadWorldSFX();
-    // void IsWorldSFXLoaded();
-    // void LoadWorldSFX();
-    // void UnloadInGameSFX();
-    // void LoadInGameSFX();
+    void Shutdown();
+    void Silence();
+    void ResetForNewGame();
+    void ResetPauseStatus();
+    void UnloadWorldSFX();
+    bool IsWorldSFXLoaded();
+    void LoadWorldSFX();
+    void UnloadInGameSFX();
+    void LoadInGameSFX();
     bool IsInited();
     // void ShutdownReverb();
     // void InitializeReverb(eStadiumID, unsigned char);
     // void Initialize(bool);
-    // void SoundAttributes::UseStationaryPosVector(const nlVector3&);
-    // void SoundAttributes::UseVectors(const nlVector3&, const nlVector3&);
-    // void SoundAttributes::UseVectorPtrs(const nlVector3*, const nlVector3*);
-    // void SoundAttributes::UsePhysObj(PhysicsObject*);
-    // void SoundAttributes::SetSoundType(unsigned long, bool);
-    // void SoundAttributes::Init();
     // void CreateTrackMgr<3>();
 };
 

@@ -5,6 +5,7 @@
 #include "NL/nlMath.h"
 
 #include "GameAudio.h"
+#include "PhysicsCharacter.h"
 
 namespace Audio 
 {

@@ -1,6 +1,10 @@
 #ifndef _GAMEAUDIO_H_
 #define _GAMEAUDIO_H_
 
+#include "types.h"
+#include "audio.h"
+
+#include "NL/nlMath.h"
 #include "NL/nlDLRing.h"
 
 // void TrackedSFXPriorityCallback(SFXPlaySet*, unsigned long, cGameSFX*);
@@ -13,14 +17,6 @@
 
 class SFXPlaySet;
 class SFXEmitter;
-
-namespace Audio
-{
-    struct SoundAttributes
-    {
-        // Placeholder structure
-    };    
-}
 
 struct SoundPropAccessor
 {
@@ -37,7 +33,7 @@ public:
     virtual void DeInit();
     virtual void SetSFX(SoundPropAccessor*);
     virtual int Play(Audio::SoundAttributes&);
-    virtual void GetClassType() const; // position not clear
+    virtual u32 GetClassType() const; 
 
     enum StopFlag
     {
@@ -59,6 +55,9 @@ public:
     void StopTrackedSFX(nlDLListIterator<SFXPlaySet*>*);
     void StopPlayingAllTrackedSFX();
     void UpdateAllTrackedSFX(float);
+
+    /* 0x04 */ u8 m_passing_0x04[0x24];
+    /* 0x28 */ u32 m_classType;
 };
 
 

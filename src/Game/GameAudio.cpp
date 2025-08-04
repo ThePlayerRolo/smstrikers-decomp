@@ -52,8 +52,9 @@ void cGameSFX::KeepTrack(SFXEmitter*, const Audio::SoundAttributes&, unsigned lo
 /**
  * Offset/Address/Size: 0x1104 | 0x80152648 | size: 0xACC
  */
-void cGameSFX::Play(Audio::SoundAttributes&)
+int cGameSFX::Play(Audio::SoundAttributes&)
 {
+    return 0;
 }
 
 /**
@@ -161,58 +162,58 @@ cGameSFX::cGameSFX()
 {
 }
 
-/**
- * Offset/Address/Size: 0x0 | 0x80153BF0 | size: 0x24
- */
-void DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::DeleteEntry(DLListEntry<SFXPlaySet*>*)
-{
-}
+// /**
+//  * Offset/Address/Size: 0x0 | 0x80153BF0 | size: 0x24
+//  */
+// void DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::DeleteEntry(DLListEntry<SFXPlaySet*>*)
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x0 | 0x80153C14 | size: 0x3C
- */
-void nlWalkDLRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
-{
-}
+// /**
+//  * Offset/Address/Size: 0x0 | 0x80153C14 | size: 0x3C
+//  */
+// void nlWalkDLRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x3C | 0x80153C50 | size: 0x20
- */
-void nlDLRingIsEnd<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>*, DLListEntry<SFXPlaySet*>*)
-{
-}
+// /**
+//  * Offset/Address/Size: 0x3C | 0x80153C50 | size: 0x20
+//  */
+// void nlDLRingIsEnd<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>*, DLListEntry<SFXPlaySet*>*)
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x5C | 0x80153C70 | size: 0x18
- */
-void nlDLRingGetStart<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>*)
-{
-}
+// /**
+//  * Offset/Address/Size: 0x5C | 0x80153C70 | size: 0x18
+//  */
+// void nlDLRingGetStart<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>*)
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x74 | 0x80153C88 | size: 0x44
- */
-void nlDLRingRemove<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>**, DLListEntry<SFXPlaySet*>*)
-{
-}
+// /**
+//  * Offset/Address/Size: 0x74 | 0x80153C88 | size: 0x44
+//  */
+// void nlDLRingRemove<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>**, DLListEntry<SFXPlaySet*>*)
+// {
+// }
 
-/**
- * Offset/Address/Size: 0xB8 | 0x80153CCC | size: 0x38
- */
-void nlDLRingAddStart<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>**, DLListEntry<SFXPlaySet*>*)
-{
-}
+// /**
+//  * Offset/Address/Size: 0xB8 | 0x80153CCC | size: 0x38
+//  */
+// void nlDLRingAddStart<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>**, DLListEntry<SFXPlaySet*>*)
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x0 | 0x80153D04 | size: 0x60
- */
-void nlWalkRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
-{
-}
+// /**
+//  * Offset/Address/Size: 0x0 | 0x80153D04 | size: 0x60
+//  */
+// void nlWalkRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x68 | 0x80153DCC | size: 0x64
- */
-void SlotPool<SFXPlaySet>::~SlotPool()
-{
-}
+// /**
+//  * Offset/Address/Size: 0x68 | 0x80153DCC | size: 0x64
+//  */
+// void SlotPool<SFXPlaySet>::~SlotPool()
+// {
+// }

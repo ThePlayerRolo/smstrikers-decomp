@@ -1858,7 +1858,7 @@ Game/PhysicsWall.cpp:
 	.data       start:0x802AFE68 end:0x802AFE90
 	.sdata2     start:0x80376360 end:0x80376368
 
-audio.o:
+Game/audio.cpp:
 	.text       start:0x8013C514 end:0x8014122C
 	.text       start:0x8014122C end:0x8014122C
 	.text       start:0x8014122C end:0x8014122C
@@ -1966,7 +1966,7 @@ AudioStream.o:
 	.sdata      start:0x80372538 end:0x803725B0
 	.sbss       start:0x80373BC0 end:0x80373BC8
 
-CharacterAudio.o:
+Game/CharacterAudio.cpp:
 	.text       start:0x8014C3A4 end:0x8014D714
 	.text       start:0x8014D714 end:0x8014D714
 	.text       start:0x8014D714 end:0x8014D714
@@ -1987,7 +1987,7 @@ CrowdMood.o:
 	.sbss       start:0x80373BC8 end:0x80373BD0
 	.sdata2     start:0x80376438 end:0x80376490
 
-GameAudio.o:
+Game/GameAudio.cpp:
 	.text       start:0x80151544 end:0x80153BF0
 	.text       start:0x80153BF0 end:0x80153BF0
 	.text       start:0x80153BF0 end:0x80153BF0

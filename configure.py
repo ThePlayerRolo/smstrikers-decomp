@@ -678,6 +678,11 @@ config.libs = [
             # related to character
             Object(NonMatching, "Game/Blinker.cpp"),   
 
+            # Audio
+            Object(NonMatching, "Game/CharacterAudio.cpp"),   
+            Object(NonMatching, "Game/GameAudio.cpp"),   
+            Object(NonMatching, "Game/audio.cpp"),   
+
             # Physics
             Object(NonMatching, "Game/RayCollider.cpp"),
             Object(NonMatching, "Game/PhysicsAIBall.cpp"),
