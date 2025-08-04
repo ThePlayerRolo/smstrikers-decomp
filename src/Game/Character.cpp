@@ -106,19 +106,24 @@ void cCharacter::StopSFX(Audio::eCharSFX sfxType)
 // void cCharacter::PlaySFX(Audio::SoundAttributes&)
 int cCharacter::PlaySFX(Audio::SoundAttributes& attributes) 
 {
-    if (Audio::IsInited())
+    if (Audio::IsInited()) 
     {
-        return m_sfx->Play(attributes);  // virtual function call
+        return m_sfx->Play(attributes);
     }
-
-    return -1;
+    return -1;    
 }
 
 /**
  * Offset/Address/Size: 0x394 | 0x8000E2E0 | size: 0x78
  */
-void cCharacter::SetSFX(SoundPropAccessor*)
+void cCharacter::SetSFX(SoundPropAccessor* arg0)
 {
+    if (Audio::IsInited()) 
+    {
+        m_sfx->Init();
+        m_sfx->m_physicsCharacter = m_physicsCharacter;
+        m_sfx->SetSFX(arg0);
+    }    
 }
 
 /**
@@ -175,7 +180,7 @@ void cCharacter::ShouldStartCrossBlend(int)
 void cCharacter::SetVelocity(const nlVector3& velocity)
 {
     m_velocity = velocity;
-    m_unk_0x14->SetCharacterVelocityXY(m_velocity);
+    m_physicsCharacter->SetCharacterVelocityXY(m_velocity);
 }
 
 /**
@@ -185,7 +190,7 @@ void cCharacter::SetPosition(const nlVector3& position)
 {
     m_position = position;
     m_unk_0x24 = m_position;
-    m_unk_0x14->SetCharacterPositionXY(m_position);
+    m_physicsCharacter->SetCharacterPositionXY(m_position);
 }
 
 /**
@@ -195,7 +200,7 @@ void cCharacter::SetFacingDirection(unsigned short dir)
 {
     m_unk_0x44 = m_unk_0x42;
     m_unk_0x42 = dir;
-    m_unk_0x14->SetFacingDirection(dir);
+    m_physicsCharacter->SetFacingDirection(dir);
 }
 
 /**

@@ -1,6 +1,8 @@
 #ifndef _GAMEAUDIO_H_
 #define _GAMEAUDIO_H_
 
+#include "NL/nlDLRing.h"
+
 // void TrackedSFXPriorityCallback(SFXPlaySet*, unsigned long, cGameSFX*);
 // void TrackedSFXFilterFreqTypeCheckCallback(unsigned long, cGameSFX*);
 // void TrackedSFXPitchFreqTypeCheckCallback(unsigned long, cGameSFX*);
@@ -9,35 +11,54 @@
 // void nlDLRingRemove<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>**, DLListEntry<SFXPlaySet*>*);
 // void nlDLRingAddStart<DLListEntry<SFXPlaySet*>>(DLListEntry<SFXPlaySet*>**, DLListEntry<SFXPlaySet*>*);
 
+class SFXPlaySet;
+class SFXEmitter;
+
+namespace Audio
+{
+    struct SoundAttributes
+    {
+        // Placeholder structure
+    };    
+}
+
+struct SoundPropAccessor
+{
+
+};
+
 class cGameSFX
 {
 public:
+    cGameSFX();
+    virtual ~cGameSFX();
+
+    virtual void Init();
+    virtual void DeInit();
+    virtual void SetSFX(SoundPropAccessor*);
+    virtual int Play(Audio::SoundAttributes&);
+    virtual void GetClassType() const; // position not clear
+
     enum StopFlag
     {
         StopFlag_0 = 0,
         StopFlag_1, // Immediate?
     };
 
-    // void UpdateAllTrackedSFX(float);
-    void StopPlayingAllTrackedSFX();
-    // void StopTrackedSFX(nlDLListIterator<SFXPlaySet*>*);
-    // void StopTrackedSFX(SFXPlaySet*);
-    // void StopEmitter(SFXEmitter*, unsigned long);
-    // void Stop(unsigned long, cGameSFX::StopFlag);
-    // void KeepTrack(SFXEmitter*, const Audio::SoundAttributes&, unsigned long);
-    // void Play(Audio::SoundAttributes&);
-    // void SetPitchBendOnAllDialogueSFX(unsigned short);
-    // void SetFilterFreqOnAllTrackedSFX(unsigned short);
-    // void ActivateFilterOnAllTrackedSFX(bool);
-    // void IsKeepingTrackOf(unsigned long, SFXPlaySet**);
-    // void GetSFXVolReverb(unsigned long) const;
-    // void GetSFXVol(unsigned long) const;
-    // void SetSFX(SoundPropAccessor*);
     void ShutdownPlaySet();
-    void DeInit();
-    void Init();
-    ~cGameSFX();
-    cGameSFX();
+    void GetSFXVol(unsigned long) const;
+    void GetSFXVolReverb(unsigned long) const;
+    void IsKeepingTrackOf(unsigned long, SFXPlaySet**);
+    void ActivateFilterOnAllTrackedSFX(bool);
+    void SetFilterFreqOnAllTrackedSFX(unsigned short);
+    void SetPitchBendOnAllDialogueSFX(unsigned short);
+    void KeepTrack(SFXEmitter*, const Audio::SoundAttributes&, unsigned long);
+    void Stop(unsigned long, cGameSFX::StopFlag);
+    void StopEmitter(SFXEmitter*, unsigned long);
+    void StopTrackedSFX(SFXPlaySet*);
+    void StopTrackedSFX(nlDLListIterator<SFXPlaySet*>*);
+    void StopPlayingAllTrackedSFX();
+    void UpdateAllTrackedSFX(float);
 };
 
 

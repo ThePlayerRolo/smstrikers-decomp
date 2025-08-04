@@ -185,4 +185,51 @@ void nlWalkRing(T* head, CallbackType* callback, void (CallbackType::*callbackFu
     }
 }
 
+// =======================================================
+// Iterator for nlDLRing
+// =======================================================
+
+template <typename T>
+class nlDLListIterator
+{
+public:
+    typedef T ValueType;
+    typedef T* Pointer;
+    typedef T& Reference;
+
+    nlDLListIterator(Pointer head)
+    {
+        m_head = head;
+        m_current = (head ? head->m_next : 0);
+        m_first = true;
+    }
+
+    bool hasNext() const
+    {
+        return (m_current != 0) && (m_first || m_current != m_head);
+    }
+
+    Pointer next()
+    {
+        if (!hasNext())
+            return 0;
+
+        Pointer ret = m_current;
+        m_current = m_current->m_next;
+        m_first = false;
+        return ret;
+    }
+
+    void reset()
+    {
+        m_current = (m_head ? m_head->m_next : 0);
+        m_first = true;
+    }
+
+private:
+    Pointer m_head;
+    Pointer m_current;
+    bool m_first;
+};
+
 #endif // _NLDLRING_H_

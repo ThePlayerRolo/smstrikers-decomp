@@ -21,7 +21,6 @@ class cPoseAccumulator;
 class GLSkinMesh;
 class glModel;
 class EmissionController;
-class SoundPropAccessor;
 class EffectsGroup;
 
 // Enums
@@ -103,7 +102,7 @@ public:
     virtual void Update(float);
 
     /* 0x00 */ u8 m_padding_0x00[0x10];
-    /* 0x14 */ PhysicsCharacter* m_unk_0x14;
+    /* 0x14 */ PhysicsCharacter* m_physicsCharacter;
     /* 0x18 */ nlVector3 m_position;
     /* 0x24 */ nlVector3 m_unk_0x24;
 

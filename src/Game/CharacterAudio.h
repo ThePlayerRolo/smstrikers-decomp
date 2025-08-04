@@ -13,32 +13,30 @@ namespace Audio
         eCharSFX_0 = 0
     };
 
-    struct SoundAttributes
-    {
-        // Placeholder structure
-    };
-
     class cCharacterSFX : public cGameSFX
     {
     public:
-        void IsMovementLoopStarted();
-        void IsMovementLoopPlaying();
-        void StopMovementLoop();
-        void StartMovementLoop();
-        // void GetCharacterFromNisCharClass(NisCharacterClass);
-        // void PlayNISRandomCharDialogue(CharDialogueType, NisCharacterClass, float, float, bool, const nlVector3*, const nlVector3*, unsigned long*);
-        // void PlayRandomWalkFootstep(float, bool);
-        // void StopPlayingAllRandomCharDialogue();
-        // void StopPlayingRandomCharDialogue(CharDialogueType);
-        // void IsPlayingRandomCharDialogue(CharDialogueType);
-        // void PlayRandomCharDialogue(CharDialogueType, Audio::SoundAttributes&, bool, unsigned long*);
-        // void PlayRandomCharDialogue(CharDialogueType, PosUpdateMethod, float, float, bool);
+         cCharacterSFX();
+        virtual ~cCharacterSFX();
+
+        virtual void Init();
+        virtual int Play(Audio::SoundAttributes&);
         void Stop(Audio::eCharSFX, cGameSFX::StopFlag);
-        int Play(Audio::SoundAttributes&);
-        void Init();
-        
-        ~cCharacterSFX();
-        cCharacterSFX();
+        // void PlayRandomCharDialogue(CharDialogueType, PosUpdateMethod, float, float, bool);
+        // void PlayRandomCharDialogue(CharDialogueType, Audio::SoundAttributes&, bool, unsigned long*);
+        // void IsPlayingRandomCharDialogue(CharDialogueType);
+        // void StopPlayingRandomCharDialogue(CharDialogueType);
+        // void StopPlayingAllRandomCharDialogue();
+        // void PlayRandomWalkFootstep(float, bool);
+        // void PlayNISRandomCharDialogue(CharDialogueType, NisCharacterClass, float, float, bool, const nlVector3*, const nlVector3*, unsigned long*);
+        // void GetCharacterFromNisCharClass(NisCharacterClass);
+        void StartMovementLoop();
+        void StopMovementLoop();
+        void IsMovementLoopPlaying();
+        void IsMovementLoopStarted();
+
+        /* 0x04 */ u8 m_padding_0x04[0x3390];
+        /* 0x3394 */ PhysicsCharacter* m_physicsCharacter;
     };
 
 }
