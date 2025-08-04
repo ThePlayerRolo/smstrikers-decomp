@@ -28,18 +28,47 @@ Supported versions:
 
 - `G4QE01`: Rev 0 (USA)
 
+---
 
-Contributing
-============
+## Contributing
 
 Everybody can and is warmly welcome to contribute to this project! Whether you're experienced with decompilation or just getting started, your contributions are valuable.
 
 **How to contribute:**
 
-1. **Make a pull request** - Simply create a pull request with your changes. No need to ask for permission first!
-2. **Join our Discord server** - Connect with other contributors to exchange ideas, coordinate work, or get help: [Discord Server](https://discord.gg/hKx3FJJgrV)
+1. **Make a pull request** – Simply create a pull request with your changes. No need to ask for permission first!
+2. **Join our Discord server** – Connect with other contributors to exchange ideas, coordinate work, or get help: [Discord Server](https://discord.gg/hKx3FJJgrV)
 
-**Learning together:** I'm learning myself throughout this process, so I'm very open to adapting and improving things for this project. Don't hesitate to suggest better approaches or point out areas that could be enhanced.
+**Partial matches welcome:**
+Don’t worry if your function or class translation isn’t a perfect match yet — partial matches are still valuable. They can help others understand the general structure of the codebase, and getting all the details 100% correct becomes easier with more routine and context.
+
+**File coordination:**
+To prevent double work, we use a [Trello board](https://trello.com/b/dGvF3W3v/super-mario-striker) to track which files are currently in progress.
+The setup is minimal:
+
+* Move a file to **"In Progress"** when you start working on it.
+* Request access to the board, and you’ll be added as a member.
+
+**Code style:**
+Please run [`clang-format`](https://clang.llvm.org/docs/ClangFormat.html) to ensure minimal, consistent formatting before committing.
+
+**Tooling tip:**
+You can use `class_gen.py` (found under `tools/scripts`) to speed up the basic setup of C++ class structures from object files:
+
+```bash
+./tools/scripts/class_gen.py --obj-file ./build/G4QE01/obj/GameAudio.o
+```
+
+This will create a C++ source and header file. After generation:
+
+* Clean up and fix `#include` statements.
+* Remove function definitions from the generated templates.
+* Move the files to the proper location in the `src` and `include` hierarchy.
+
+**Learning together:**
+I'm learning myself throughout this process, so I'm very open to adapting and improving things for this project. Don't hesitate to suggest better approaches or point out areas that could be enhanced.
+
+---
 
 Dependencies
 ============
@@ -130,6 +159,8 @@ Once the initial build succeeds, an `objdiff.json` should exist in the project r
 Download the latest release from [encounter/objdiff](https://github.com/encounter/objdiff). Under project settings, set `Project directory`. The configuration should be loaded automatically.
 
 Select an object from the left sidebar to begin diffing. Changes to the project will rebuild automatically: changes to source files, headers, `configure.py`, `splits.txt` or `symbols.txt`.
+
+---
 
 Acknowledgements
 ================
