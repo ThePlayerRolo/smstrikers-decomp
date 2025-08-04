@@ -27,17 +27,20 @@ namespace Audio
         // void PlayRandomCharDialogue(CharDialogueType, Audio::SoundAttributes&, bool, unsigned long*);
         // void IsPlayingRandomCharDialogue(CharDialogueType);
         // void StopPlayingRandomCharDialogue(CharDialogueType);
-        // void StopPlayingAllRandomCharDialogue();
-        // void PlayRandomWalkFootstep(float, bool);
+        void StopPlayingAllRandomCharDialogue();
+        void PlayRandomWalkFootstep(float, bool);
         // void PlayNISRandomCharDialogue(CharDialogueType, NisCharacterClass, float, float, bool, const nlVector3*, const nlVector3*, unsigned long*);
         // void GetCharacterFromNisCharClass(NisCharacterClass);
         void StartMovementLoop();
         void StopMovementLoop();
-        void IsMovementLoopPlaying();
-        void IsMovementLoopStarted();
+        bool IsMovementLoopPlaying();
+        bool IsMovementLoopStarted();
 
-        /* 0x04 */ u8 m_padding_0x04[0x3390];
-        /* 0x3394 */ PhysicsCharacter* m_physicsCharacter;
+        /* 0x3390 */ s32 m_unk_0x3390;
+        /* 0x3394 */ PhysicsCharacter *m_physicsCharacter;
+        /* 0x3398 */ SFXEmitter* m_movementLoopEmitter;
+        /* 0x339C */ f32 m_unk_0x339C;
+        /* 0x33A0 */ bool m_unk_0x33A0;
     };
 
 }

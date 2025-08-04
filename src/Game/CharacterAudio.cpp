@@ -6,15 +6,18 @@ namespace Audio
 /**
  * Offset/Address/Size: 0x0 | 0x8014C3A4 | size: 0x14
  */
-void cCharacterSFX::IsMovementLoopStarted()
+bool cCharacterSFX::IsMovementLoopStarted()
 {
+    // return m_movementLoopStarted != 0;
+    return m_movementLoopEmitter != NULL;
 }
 
 /**
  * Offset/Address/Size: 0x14 | 0x8014C3B8 | size: 0x24
  */
-void cCharacterSFX::IsMovementLoopPlaying()
+bool cCharacterSFX::IsMovementLoopPlaying()
 {
+    return Audio::IsEmitterActive(m_movementLoopEmitter);
 }
 
 /**
@@ -22,6 +25,12 @@ void cCharacterSFX::IsMovementLoopPlaying()
  */
 void cCharacterSFX::StopMovementLoop()
 {
+    if (m_movementLoopEmitter) {
+        // Stop emitter with stop flag 0
+        cGameSFX::StopEmitter(m_movementLoopEmitter, 0);
+        m_movementLoopEmitter = nullptr;
+        m_unk_0x33A0 = false;
+    }    
 }
 
 /**
@@ -48,16 +57,16 @@ void cCharacterSFX::StartMovementLoop()
 /**
  * Offset/Address/Size: 0x4B8 | 0x8014C85C | size: 0x148
  */
-// void cCharacterSFX::PlayRandomWalkFootstep(float, bool)
-// {
-// }
+void cCharacterSFX::PlayRandomWalkFootstep(float, bool)
+{
+}
 
 /**
  * Offset/Address/Size: 0x600 | 0x8014C9A4 | size: 0x98
  */
-// void cCharacterSFX::StopPlayingAllRandomCharDialogue()
-// {
-// }
+void cCharacterSFX::StopPlayingAllRandomCharDialogue()
+{
+}
 
 /**
  * Offset/Address/Size: 0x698 | 0x8014CA3C | size: 0x98
@@ -90,16 +99,29 @@ void cCharacterSFX::StartMovementLoop()
 /**
  * Offset/Address/Size: 0x112C | 0x8014D4D0 | size: 0x20
  */
-void cCharacterSFX::Stop(eCharSFX, cGameSFX::StopFlag)
+void cCharacterSFX::Stop(eCharSFX sfxType, cGameSFX::StopFlag flag) 
 {
+    cGameSFX::Stop(sfxType, flag);
 }
 
 /**
  * Offset/Address/Size: 0x114C | 0x8014D4F0 | size: 0x7C
  */
-int cCharacterSFX::Play(SoundAttributes&)
+int cCharacterSFX::Play(SoundAttributes& attrs)
 {
-    return 0;
+    attrs.m_unk_0x00 = 1;
+    attrs.m_unk_0x70 = m_unk_0x3390;
+
+    if (attrs.m_unk_0x5C == 1) {
+        attrs.UsePhysObj(m_physicsCharacter);
+    }
+
+    if (attrs.m_unk_0x04 == 0U) 
+    {
+        return Audio::GetSndIDError();
+    }
+
+    return cGameSFX::Play(attrs);
 }
 
 /**
@@ -114,6 +136,11 @@ void cCharacterSFX::Init()
  */
 cCharacterSFX::~cCharacterSFX()
 {
+    m_physicsCharacter = NULL;
+    m_unk_0x3390 = 0;
+    m_movementLoopEmitter = NULL;
+    m_unk_0x339C = 100.0f;
+    m_unk_0x33A0 = false;    
 }
 
 /**
@@ -121,6 +148,12 @@ cCharacterSFX::~cCharacterSFX()
  */
 cCharacterSFX::cCharacterSFX()
 {
+    m_unk_0x3390 = 0;
+    m_physicsCharacter = NULL;
+    m_movementLoopEmitter = NULL;
+    m_unk_0x339C = 100.0f;
+    m_unk_0x33A0 = false;
+    m_classType = 1;        
 }
 
 }

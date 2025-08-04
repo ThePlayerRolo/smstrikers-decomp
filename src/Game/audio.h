@@ -9,12 +9,23 @@
 // void nlListAddStart<FadeAudioData>(FadeAudioData**, FadeAudioData*, FadeAudioData**);
 
 class PhysicsObject;
+class SFXEmitter;
 
 namespace Audio 
 {
-    class SoundAttributes
+    // class SoundAttributes
+    struct SoundAttributes
     {
-    public:
+    // public:
+        /* 0x00 */ s32 m_unk_0x00;
+        /* 0x04 */ u32 m_unk_0x04;
+        /* 0x08 */ char m_padding_0x08[0x24];
+        /* 0x2C */ u8 m_unk_0x2C;
+        /* 0x2D */ char pm_padding_0x2D[0x2F];
+        /* 0x5C */ s32 m_unk_0x5C;
+        /* 0x60 */ char m_padding_0x60[0x10];
+        /* 0x70 */ s32 m_unk_0x70;
+
         void UseStationaryPosVector(const nlVector3&);
         void UseVectors(const nlVector3&, const nlVector3&);
         void UseVectorPtrs(const nlVector3*, const nlVector3*);
@@ -32,14 +43,14 @@ namespace Audio
     // void PitchBend(float, float, float, float);
     // void FadeFilter(float, float, float, float);
     // void ClearFadeData();
-    // void IsEmitterActive(SFXEmitter*);
+    bool IsEmitterActive(SFXEmitter*);
     // void GetEmitterVoiceID(SFXEmitter*);
     // void Remove3DSFXEmitter(SFXEmitter*);
     // void Add3DSFXEmitter(const EmitterStartInfo&);
     // void GetFreeEmitter(unsigned long&);
     // void GetEmitter(unsigned long);
     // void SetListenerActive(bool);
-    // void IsListenerActive();
+    bool IsListenerActive();
     // void SetOutputMode(MusyXOutputType);
     // void SetPitchBendOnSFX(unsigned long, unsigned short);
     // void SetFilterFreqOnSFX(unsigned long, unsigned short);
@@ -52,7 +63,7 @@ namespace Audio
     // void Update3DSFXEmitters();
     // void UpdateFades(float);
     void Update(float);
-    // void GetSndIDError();
+    int GetSndIDError();
     // void IsSFXPlaying(unsigned long);
     // void StopSFX(unsigned long);
     // void PlaySFXEventFromScript(const SoundEventData&, const char*, float, float);

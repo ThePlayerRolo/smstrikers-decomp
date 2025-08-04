@@ -56,8 +56,9 @@ public:
     void StopPlayingAllTrackedSFX();
     void UpdateAllTrackedSFX(float);
 
-    /* 0x04 */ u8 m_passing_0x04[0x24];
+    /* 0x04 */ u8 m_padding_0x04[0x24];
     /* 0x28 */ u32 m_classType;
+    /* 0x2C */ u8 m_padding_0x2C[0x3364];
 };
 
 

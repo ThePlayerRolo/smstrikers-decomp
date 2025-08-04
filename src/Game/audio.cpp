@@ -70,9 +70,10 @@ namespace Audio
 /**
  * Offset/Address/Size: 0xD04 | 0x8013D218 | size: 0x20
  */
-// void IsEmitterActive(SFXEmitter*)
-// {
-// }
+bool IsEmitterActive(SFXEmitter*)
+{
+    return false;
+}
 
 /**
  * Offset/Address/Size: 0xD24 | 0x8013D238 | size: 0x20
@@ -119,9 +120,10 @@ namespace Audio
 /**
  * Offset/Address/Size: 0xDCC | 0x8013D2E0 | size: 0x8
  */
-// void IsListenerActive()
-// {
-// }
+bool IsListenerActive()
+{
+    return false;
+}
 
 /**
  * Offset/Address/Size: 0xDD4 | 0x8013D2E8 | size: 0x20
@@ -210,9 +212,10 @@ void Update(float)
 /**
  * Offset/Address/Size: 0x2324 | 0x8013E838 | size: 0x20
  */
-// void GetSndIDError()
-// {
-// }
+int GetSndIDError()
+{
+    return 0;
+}
 
 /**
  * Offset/Address/Size: 0x2344 | 0x8013E858 | size: 0x34
