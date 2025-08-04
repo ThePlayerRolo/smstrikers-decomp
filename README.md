@@ -28,9 +28,8 @@ Supported versions:
 
 - `G4QE01`: Rev 0 (USA)
 
----
-
-## Contributing
+Contributing
+============
 
 Everybody can and is warmly welcome to contribute to this project! Whether you're experienced with decompilation or just getting started, your contributions are valuable.
 
@@ -67,8 +66,6 @@ This will create a C++ source and header file. After generation:
 
 **Learning together:**
 I'm learning myself throughout this process, so I'm very open to adapting and improving things for this project. Don't hesitate to suggest better approaches or point out areas that could be enhanced.
-
----
 
 Dependencies
 ============
@@ -159,8 +156,6 @@ Once the initial build succeeds, an `objdiff.json` should exist in the project r
 Download the latest release from [encounter/objdiff](https://github.com/encounter/objdiff). Under project settings, set `Project directory`. The configuration should be loaded automatically.
 
 Select an object from the left sidebar to begin diffing. Changes to the project will rebuild automatically: changes to source files, headers, `configure.py`, `splits.txt` or `symbols.txt`.
-
----
 
 Acknowledgements
 ================
