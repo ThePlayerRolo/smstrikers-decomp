@@ -116,7 +116,7 @@ int cCharacterSFX::Play(SoundAttributes& attrs)
         attrs.UsePhysObj(m_physicsCharacter);
     }
 
-    if (attrs.m_unk_0x04 == 0U) 
+    if (attrs.m_soundType == 0U) 
     {
         return Audio::GetSndIDError();
     }
