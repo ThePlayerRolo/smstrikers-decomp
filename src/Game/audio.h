@@ -1,7 +1,9 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
+#include "types.h"
 #include "NL/nlMath.h"
+#include "NL/plat/plataudio.h"
 
 // void ReadVolGroupSettings();
 // void nlDeleteList<FadeAudioData>(FadeAudioData**);
@@ -9,7 +11,6 @@
 // void nlListAddStart<FadeAudioData>(FadeAudioData**, FadeAudioData*, FadeAudioData**);
 
 class PhysicsObject;
-class SFXEmitter;
 
 namespace Audio 
 {
@@ -27,25 +28,29 @@ namespace Audio
         /* 0x20 */ f32 m_unk_0x20;                           
         /* 0x24 */ f32 m_unk_0x24;                           
         /* 0x28 */ f32 m_unk_0x28;                           
-        /* 0x2C */ s8  m_unk_0x2C;                           
-        /* 0x2D */ s8  m_unk_0x2D;                           
-        /* 0x2E */ s8  m_unk_0x2E;                           
-        /* 0x2F */ s8  m_unk_0x2F;                           
-        /* 0x30 */ bool  m_unk_0x30;                           
-        /* 0x31 */ s8  m_unk_0x31;                           
-        /* 0x32 */ s8  m_unk_0x32;                           
-        /* 0x33 */ s8  m_unk_0x33;                           
-        /* 0x34 */ s8  m_unk_0x34;                           
+        /* 0x2C */ bool m_unk_0x2C;                           
+        /* 0x2D */ bool m_unk_0x2D;                           
+        /* 0x2E */ bool m_unk_0x2E;                           
+        /* 0x2F */ bool m_unk_0x2F;                           
+        /* 0x30 */ bool m_unk_0x30;                           
+        /* 0x31 */ bool m_unk_0x31;                           
+        /* 0x32 */ bool m_unk_0x32;                           
+        /* 0x33 */ bool m_unk_0x33;                           
+        /* 0x34 */ bool m_unk_0x34;                           
         /* 0x35 */ char m_pad_0x35[3];                       
         /* 0x38 */ f32 m_unk_0x38;                           
         /* 0x3C */ s32 m_unk_0x3C;                           
-        /* 0x40 */ PhysicsObject* m_physicsObject;                
-        /* 0x44 */ nlVector3 m_unk_0x44;                 
-        // /* 0x48 */ f32 m_unk_0x48;                           
-        // /* 0x4C */ f32 m_unk_0x4C;                           
-        /* 0x50 */ nlVector3 m_unk_0x50;                    
-        // /* 0x54 */ f32 m_unk_0x54;                           
-        // /* 0x58 */ f32 m_unk_0x58;                           
+        /* 0x40 */ PhysicsObject* m_physicsObject;  
+        
+        union {
+            nlVector3 m_vec_0x44;
+            const nlVector3* m_vecPtr_0x44;
+        };
+        union {
+            nlVector3 m_vec_0x50;
+            const nlVector3* m_vecPtr_0x50;
+        };        
+
         /* 0x5C */ s32 m_unk_0x5C;                           
         /* 0x60 */ s32 m_unk_0x60;                           
         /* 0x64 */ s32 m_unk_0x64;                           
@@ -78,12 +83,12 @@ namespace Audio
     // void FadeFilter(float, float, float, float);
     // void ClearFadeData();
     bool IsEmitterActive(SFXEmitter*);
-    // void GetEmitterVoiceID(SFXEmitter*);
-    // void Remove3DSFXEmitter(SFXEmitter*);
-    // void Add3DSFXEmitter(const EmitterStartInfo&);
-    // void GetFreeEmitter(unsigned long&);
-    // void GetEmitter(unsigned long);
-    // void SetListenerActive(bool);
+    u32 GetEmitterVoiceID(SFXEmitter*);
+    void Remove3DSFXEmitter(SFXEmitter*);
+    void Add3DSFXEmitter(const EmitterStartInfo&);
+    void GetFreeEmitter(unsigned long&);
+    SFXEmitter* GetEmitter(unsigned long);
+    void SetListenerActive(bool);
     bool IsListenerActive();
     // void SetOutputMode(MusyXOutputType);
     // void SetPitchBendOnSFX(unsigned long, unsigned short);

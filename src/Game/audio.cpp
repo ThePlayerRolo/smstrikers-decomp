@@ -4,8 +4,18 @@
 
 #include "NL/plat/plataudio.h"
 
+bool gbFilterOn = false;
+bool gbPitchBent = false;
+bool gbUseHiQualityReverb = false;
+bool gbListenerInit = false;
+
+bool g_bAudioInitialized = false;
+bool g_bWorldSFXInitialized = false;
+
 namespace Audio 
 {
+
+    bool gbGameIsPaused = false;
 
 /**
  * Offset/Address/Size: 0x0 | 0x8013C514 | size: 0x10
@@ -73,59 +83,65 @@ namespace Audio
 /**
  * Offset/Address/Size: 0xD04 | 0x8013D218 | size: 0x20
  */
-bool IsEmitterActive(SFXEmitter*)
+bool IsEmitterActive(SFXEmitter* emitter)
 {
-    return false;
+    return PlatAudio::IsEmitterActive(emitter);
 }
 
 /**
  * Offset/Address/Size: 0xD24 | 0x8013D238 | size: 0x20
  */
-// void GetEmitterVoiceID(SFXEmitter*)
-// {
-// }
+u32 GetEmitterVoiceID(SFXEmitter* emitter)
+{
+    return PlatAudio::GetEmitterVoiceID(emitter);
+}
 
 /**
  * Offset/Address/Size: 0xD44 | 0x8013D258 | size: 0x20
  */
-// void Remove3DSFXEmitter(SFXEmitter*)
-// {
-// }
+void Remove3DSFXEmitter(SFXEmitter* emitter)
+{
+    PlatAudio::RemoveEmitter(emitter);
+}
 
 /**
  * Offset/Address/Size: 0xD64 | 0x8013D278 | size: 0x20
  */
-// void Add3DSFXEmitter(const EmitterStartInfo&)
-// {
-// }
+void Add3DSFXEmitter(const EmitterStartInfo& emitterStartInfo)
+{
+    PlatAudio::Add3DSFXEmitter(emitterStartInfo);
+}
 
 /**
  * Offset/Address/Size: 0xD84 | 0x8013D298 | size: 0x20
  */
-// void GetFreeEmitter(unsigned long&)
-// {
-// }
+void GetFreeEmitter(unsigned long& id)
+{
+    return PlatAudio::GetFreeEmitter(id);
+}
 
 /**
  * Offset/Address/Size: 0xDA4 | 0x8013D2B8 | size: 0x20
  */
-// void GetEmitter(unsigned long)
-// {
-// }
+SFXEmitter* GetEmitter(unsigned long id)
+{
+    return PlatAudio::GetSFXEmitter(id);
+}
 
 /**
  * Offset/Address/Size: 0xDC4 | 0x8013D2D8 | size: 0x8
  */
-// void SetListenerActive(bool)
-// {
-// }
+void SetListenerActive(bool active)
+{
+    gbListenerInit = active;
+}
 
 /**
  * Offset/Address/Size: 0xDCC | 0x8013D2E0 | size: 0x8
  */
 bool IsListenerActive()
 {
-    return false;
+    return gbListenerInit;
 }
 
 /**
@@ -337,6 +353,7 @@ void ResetForNewGame()
  */
 void ResetPauseStatus()
 {
+    gbGameIsPaused = false;
 }
 
 /**
@@ -351,7 +368,7 @@ void UnloadWorldSFX()
  */
 bool IsWorldSFXLoaded()
 {
-    return false;
+    return g_bWorldSFXInitialized;
 }
 
 /**
@@ -380,7 +397,7 @@ void LoadInGameSFX()
  */
 bool IsInited()
 {
-    return false;
+    return g_bAudioInitialized;
 }
 
 /**
@@ -416,7 +433,7 @@ bool IsInited()
  */
 void SoundAttributes::UseStationaryPosVector(const nlVector3& position)
 {
-    m_unk_0x44 = position;
+    m_vec_0x44 = position;
     m_unk_0x5C = 2;
     m_unk_0x30 = true;    
 }
@@ -426,8 +443,8 @@ void SoundAttributes::UseStationaryPosVector(const nlVector3& position)
  */
 void SoundAttributes::UseVectors(const nlVector3& v1, const nlVector3& v2)
 {
-    m_unk_0x44 = v1;
-    m_unk_0x50 = v2;
+    m_vec_0x44 = v1;
+    m_vec_0x50 = v2;
     m_unk_0x5C = 2;
     m_unk_0x30 = true;    
 }
@@ -437,8 +454,10 @@ void SoundAttributes::UseVectors(const nlVector3& v1, const nlVector3& v2)
  */
 void SoundAttributes::UseVectorPtrs(const nlVector3* v1, const nlVector3* v2)
 {
-    *(const nlVector3**)&m_unk_0x44 = v1;
-    *(const nlVector3**)&m_unk_0x50 = v2;    
+    // *(const nlVector3**)&m_unk_0x44 = v1;
+    // *(const nlVector3**)&m_unk_0x50 = v2;    
+    m_vecPtr_0x44 = v1;
+    m_vecPtr_0x50 = v2;
     m_unk_0x5C = 3;
     m_unk_0x30 = true;    
 }
@@ -465,10 +484,6 @@ void SoundAttributes::SetSoundType(unsigned long soundType, bool arg)
 /**
  * Offset/Address/Size: 0x4C18 | 0x8014112C | size: 0x100
  */
-// void SoundAttributes::Init()
-// {
-// }
-
 void SoundAttributes::Init()
 {
     m_unk_0x00 = 0;
@@ -484,15 +499,15 @@ void SoundAttributes::Init()
     m_unk_0x24 = 0.5f;       // from "@1977"
     m_unk_0x28 = 256.0f;     // same as "@1976"
 
-    m_unk_0x2C = 0;
-    m_unk_0x2D = 0;
-    m_unk_0x2E = 1;
-    m_unk_0x2F = 0;
-    m_unk_0x30 = 0;
-    m_unk_0x31 = 0;
-    m_unk_0x32 = 0;
-    m_unk_0x33 = 0;
-    m_unk_0x34 = 0;
+    m_unk_0x2C = false;
+    m_unk_0x2D = false;
+    m_unk_0x2E = true;
+    m_unk_0x2F = false;
+    m_unk_0x30 = false;
+    m_unk_0x31 = false;
+    m_unk_0x32 = false;
+    m_unk_0x33 = false;
+    m_unk_0x34 = false;
 
     m_unk_0x38 = 0.5f;       // from "@1977"
     m_unk_0x3C = 0;
@@ -502,11 +517,11 @@ void SoundAttributes::Init()
     // m_unk_0x44.f = { 256.0f, 256.0f, 256.0f };
     // m_unk_0x50.f = { 256.0f, 256.0f, 256.0f };
 
-    *(nlVector3**)&m_unk_0x44 = NULL;
-    *(nlVector3**)&m_unk_0x50 = NULL;    
+    m_vecPtr_0x44 = NULL;
+    m_vecPtr_0x50 = NULL;    
 
-    NL_VECTOR3_SET(m_unk_0x44, 256.0f, 256.0f, 256.0f);
-    NL_VECTOR3_SET(m_unk_0x50, 256.0f, 256.0f, 256.0f);
+    NL_VECTOR3_SET(m_vec_0x44, 256.0f, 256.0f, 256.0f);
+    NL_VECTOR3_SET(m_vec_0x50, 256.0f, 256.0f, 256.0f);
 
     m_unk_0x5C = 0;
     m_unk_0x60 = 0;

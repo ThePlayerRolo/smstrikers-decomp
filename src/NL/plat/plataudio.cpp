@@ -1,10 +1,13 @@
 #include "plataudio.h"
 
+namespace PlatAudio
+{
 /**
  * Offset/Address/Size: 0x0 | 0x801C47FC | size: 0x8
  */
- u32 PlatAudio::GetSndIDError()
+u32 GetSndIDError()
 {
+    return 0;
 }
 
 /**
@@ -59,7 +62,7 @@ void PlatAudio::GetEmitterVoiceID(SFXEmitter*)
 /**
  * Offset/Address/Size: 0x4D8 | 0x801C4CD4 | size: 0x20
  */
-void PlatAudio::IsEmitterActive(SFXEmitter*)
+ bool IsEmitterActive(SFXEmitter*)
 {
 }
 
@@ -315,6 +318,8 @@ void PlatAudio::SetOutputMode(MusyXOutputType)
 {
 }
 
+} // namespace PlatAudio
+
 /**
  * Offset/Address/Size: 0x2558 | 0x801C6D54 | size: 0x278
  */
@@ -343,9 +348,9 @@ void musyXAlloc(unsigned long)
 {
 }
 
-/**
- * Offset/Address/Size: 0x288C | 0x801C7088 | size: 0x3C
- */
-void 0x8028D524..0x8028D528 | size: 0x4
-{
-}
+// /**
+//  * Offset/Address/Size: 0x288C | 0x801C7088 | size: 0x3C
+//  */
+// void 0x8028D524..0x8028D528 | size: 0x4
+// {
+// }

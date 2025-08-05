@@ -20,6 +20,11 @@ class MusyXOutputType;
 class SFXStartInfo;
 class SND_LISTENER;
 
+struct SFXEmitter
+{
+    // todo: implement
+};
+
 struct EmitterStartInfo
 {
     // todo: implement
@@ -34,10 +39,10 @@ namespace PlatAudio
     void InitEmitter(unsigned long);
     void RemoveEmitter(SFXEmitter*);
     void RemoveEmitter(unsigned long);
-    void GetSFXEmitter(unsigned long);
+    SFXEmitter* GetSFXEmitter(unsigned long);
     void GetFreeEmitter(unsigned long&);
-    void GetEmitterVoiceID(SFXEmitter*);
-    void IsEmitterActive(SFXEmitter*);
+    u32 GetEmitterVoiceID(SFXEmitter*);
+    bool IsEmitterActive(SFXEmitter*);
     void Update3DSFXEmitter(SFXEmitter*, const nlVector3&, const nlVector3&, float);
     void Add3DSFXEmitter(const EmitterStartInfo&);
     void Remove3DSFXListener(SND_LISTENER*);
