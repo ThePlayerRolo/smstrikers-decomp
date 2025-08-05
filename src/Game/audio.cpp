@@ -1,5 +1,8 @@
+
 #include "audio.h"
 #include "GameAudio.h"
+
+#include "NL/plat/plataudio.h"
 
 namespace Audio 
 {
@@ -214,7 +217,7 @@ void Update(float)
  */
 int GetSndIDError()
 {
-    return 0;
+    return PlatAudio::GetSndIDError();
 }
 
 /**
@@ -411,43 +414,113 @@ bool IsInited()
 /**
  * Offset/Address/Size: 0x4B6C | 0x80141080 | size: 0x2C
  */
-void SoundAttributes::UseStationaryPosVector(const nlVector3&)
+void SoundAttributes::UseStationaryPosVector(const nlVector3& position)
 {
+    m_unk_0x44 = position;
+    m_unk_0x5C = 2;
+    m_unk_0x30 = true;    
 }
 
 /**
  * Offset/Address/Size: 0x4B98 | 0x801410AC | size: 0x44
  */
-void SoundAttributes::UseVectors(const nlVector3&, const nlVector3&)
+void SoundAttributes::UseVectors(const nlVector3& v1, const nlVector3& v2)
 {
+    m_unk_0x44 = v1;
+    m_unk_0x50 = v2;
+    m_unk_0x5C = 2;
+    m_unk_0x30 = true;    
 }
 
 /**
  * Offset/Address/Size: 0x4BDC | 0x801410F0 | size: 0x1C
  */
-void SoundAttributes::UseVectorPtrs(const nlVector3*, const nlVector3*)
+void SoundAttributes::UseVectorPtrs(const nlVector3* v1, const nlVector3* v2)
 {
+    *(const nlVector3**)&m_unk_0x44 = v1;
+    *(const nlVector3**)&m_unk_0x50 = v2;    
+    m_unk_0x5C = 3;
+    m_unk_0x30 = true;    
 }
 
 /**
  * Offset/Address/Size: 0x4BF8 | 0x8014110C | size: 0x14
  */
-void SoundAttributes::UsePhysObj(PhysicsObject*)
+void SoundAttributes::UsePhysObj(PhysicsObject* obj)
 {
+    m_physicsObject = obj;
+    m_unk_0x5C = 1;
+    m_unk_0x30 = true;    
 }
 
 /**
  * Offset/Address/Size: 0x4C0C | 0x80141120 | size: 0xC
  */
-void SoundAttributes::SetSoundType(unsigned long, bool)
+void SoundAttributes::SetSoundType(unsigned long soundType, bool arg)
 {
+    m_soundType = soundType;
+    m_unk_0x2C = arg;
 }
 
 /**
  * Offset/Address/Size: 0x4C18 | 0x8014112C | size: 0x100
  */
+// void SoundAttributes::Init()
+// {
+// }
+
 void SoundAttributes::Init()
 {
+    m_unk_0x00 = 0;
+    m_soundType = -1;
+    m_unk_0x08 = -1;
+    m_unk_0x0C = PlatAudio::GetSndIDError();
+
+    m_unk_0x10 = 1.0f;       // from "@3248"
+    m_unk_0x14 = 1.0f;       // same as above
+    m_unk_0x18 = 0.0f;       // from "@2159"
+    m_unk_0x1C = 256.0f;     // from "@1976"
+    m_unk_0x20 = 1.0f;       // same as "@3248"
+    m_unk_0x24 = 0.5f;       // from "@1977"
+    m_unk_0x28 = 256.0f;     // same as "@1976"
+
+    m_unk_0x2C = 0;
+    m_unk_0x2D = 0;
+    m_unk_0x2E = 1;
+    m_unk_0x2F = 0;
+    m_unk_0x30 = 0;
+    m_unk_0x31 = 0;
+    m_unk_0x32 = 0;
+    m_unk_0x33 = 0;
+    m_unk_0x34 = 0;
+
+    m_unk_0x38 = 0.5f;       // from "@1977"
+    m_unk_0x3C = 0;
+    m_physicsObject = NULL;
+
+    // Clear both vector slots
+    // m_unk_0x44.f = { 256.0f, 256.0f, 256.0f };
+    // m_unk_0x50.f = { 256.0f, 256.0f, 256.0f };
+
+    *(nlVector3**)&m_unk_0x44 = NULL;
+    *(nlVector3**)&m_unk_0x50 = NULL;    
+
+    NL_VECTOR3_SET(m_unk_0x44, 256.0f, 256.0f, 256.0f);
+    NL_VECTOR3_SET(m_unk_0x50, 256.0f, 256.0f, 256.0f);
+
+    m_unk_0x5C = 0;
+    m_unk_0x60 = 0;
+    m_unk_0x64 = 0;
+    m_unk_0x68 = -1;
+    m_unk_0x6C = -1;
+    m_unk_0x70 = 0;
+
+    m_unk_0x74 = 0;
+    m_unk_0x76 = 0;
+    m_unk_0x78 = 0x2000;     // li r0, 0x2000
+    m_unk_0x7A = 1;
+    m_unk_0x7B = 0;
+    m_unk_0x7C = 1;
 }
 
 /**

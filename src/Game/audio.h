@@ -16,15 +16,49 @@ namespace Audio
     // class SoundAttributes
     struct SoundAttributes
     {
-    // public:
-        /* 0x00 */ s32 m_unk_0x00;
-        /* 0x04 */ u32 m_unk_0x04;
-        /* 0x08 */ char m_padding_0x08[0x24];
-        /* 0x2C */ u8 m_unk_0x2C;
-        /* 0x2D */ char pm_padding_0x2D[0x2F];
-        /* 0x5C */ s32 m_unk_0x5C;
-        /* 0x60 */ char m_padding_0x60[0x10];
-        /* 0x70 */ s32 m_unk_0x70;
+        /* 0x00 */ s32 m_unk_0x00;                           
+        /* 0x04 */ u32 m_soundType;                           
+        /* 0x08 */ s32 m_unk_0x08;                           
+        /* 0x0C */ s32 m_unk_0x0C;                           
+        /* 0x10 */ f32 m_unk_0x10;                           
+        /* 0x14 */ f32 m_unk_0x14;                           
+        /* 0x18 */ f32 m_unk_0x18;                           
+        /* 0x1C */ f32 m_unk_0x1C;                           
+        /* 0x20 */ f32 m_unk_0x20;                           
+        /* 0x24 */ f32 m_unk_0x24;                           
+        /* 0x28 */ f32 m_unk_0x28;                           
+        /* 0x2C */ s8  m_unk_0x2C;                           
+        /* 0x2D */ s8  m_unk_0x2D;                           
+        /* 0x2E */ s8  m_unk_0x2E;                           
+        /* 0x2F */ s8  m_unk_0x2F;                           
+        /* 0x30 */ bool  m_unk_0x30;                           
+        /* 0x31 */ s8  m_unk_0x31;                           
+        /* 0x32 */ s8  m_unk_0x32;                           
+        /* 0x33 */ s8  m_unk_0x33;                           
+        /* 0x34 */ s8  m_unk_0x34;                           
+        /* 0x35 */ char m_pad_0x35[3];                       
+        /* 0x38 */ f32 m_unk_0x38;                           
+        /* 0x3C */ s32 m_unk_0x3C;                           
+        /* 0x40 */ PhysicsObject* m_physicsObject;                
+        /* 0x44 */ nlVector3 m_unk_0x44;                 
+        // /* 0x48 */ f32 m_unk_0x48;                           
+        // /* 0x4C */ f32 m_unk_0x4C;                           
+        /* 0x50 */ nlVector3 m_unk_0x50;                    
+        // /* 0x54 */ f32 m_unk_0x54;                           
+        // /* 0x58 */ f32 m_unk_0x58;                           
+        /* 0x5C */ s32 m_unk_0x5C;                           
+        /* 0x60 */ s32 m_unk_0x60;                           
+        /* 0x64 */ s32 m_unk_0x64;                           
+        /* 0x68 */ s32 m_unk_0x68;                           
+        /* 0x6C */ s32 m_unk_0x6C;                           
+        /* 0x70 */ s32 m_unk_0x70;                           
+        /* 0x74 */ s8  m_unk_0x74;                           
+        /* 0x75 */ char m_pad_0x75[1];                       
+        /* 0x76 */ s16 m_unk_0x76;                           
+        /* 0x78 */ s16 m_unk_0x78;                           
+        /* 0x7A */ s8  m_unk_0x7A;                           
+        /* 0x7B */ s8  m_unk_0x7B;                           
+        /* 0x7C */ s8  m_unk_0x7C;                           
 
         void UseStationaryPosVector(const nlVector3&);
         void UseVectors(const nlVector3&, const nlVector3&);
