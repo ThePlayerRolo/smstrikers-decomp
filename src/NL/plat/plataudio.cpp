@@ -1,4 +1,6 @@
-#include "plataudio.h"
+#include "NL/plat/plataudio.h"
+
+SFXEmitter gEmitters[16];
 
 namespace PlatAudio
 {
@@ -7,273 +9,290 @@ namespace PlatAudio
  */
 u32 GetSndIDError()
 {
-    return 0;
+    return -1;
 }
 
 /**
  * Offset/Address/Size: 0x8 | 0x801C4804 | size: 0x30
  */
-void PlatAudio::IsSFXPlaying(unsigned long)
+bool IsSFXPlaying(unsigned long id)
 {
+    SND_VOICEID result = sndFXCheck(id);
+    return result != -1;
 }
 
 /**
  * Offset/Address/Size: 0x38 | 0x801C4834 | size: 0xC0
  */
-void PlatAudio::InitEmitter(unsigned long)
+void InitEmitter(unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0xF8 | 0x801C48F4 | size: 0x20
  */
-void PlatAudio::RemoveEmitter(SFXEmitter*)
+void RemoveEmitter(SFXEmitter* emitter)
 {
+    // sndRemoveEmitter(emitter->m_sndEmitter);
+    sndRemoveEmitter((SND_EMITTER*)emitter);
 }
 
 /**
  * Offset/Address/Size: 0x118 | 0x801C4914 | size: 0x30
  */
-void PlatAudio::RemoveEmitter(unsigned long)
+void RemoveEmitter(unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0x148 | 0x801C4944 | size: 0x14
  */
-void PlatAudio::GetSFXEmitter(unsigned long)
+ SFXEmitter* GetSFXEmitter(unsigned long id)
 {
+    return &gEmitters[id];
 }
 
 /**
  * Offset/Address/Size: 0x15C | 0x801C4958 | size: 0x35C
  */
-void PlatAudio::GetFreeEmitter(unsigned long&)
+void GetFreeEmitter(unsigned long&)
 {
 }
 
 /**
  * Offset/Address/Size: 0x4B8 | 0x801C4CB4 | size: 0x20
  */
-void PlatAudio::GetEmitterVoiceID(SFXEmitter*)
+ SND_VOICEID GetEmitterVoiceID(SFXEmitter* emitter)
 {
+    return sndEmitterVoiceID((SND_EMITTER*)emitter);
 }
 
 /**
  * Offset/Address/Size: 0x4D8 | 0x801C4CD4 | size: 0x20
- */
- bool IsEmitterActive(SFXEmitter*)
+ */ 
+bool IsEmitterActive(SFXEmitter* emitter)
 {
+    return sndCheckEmitter((SND_EMITTER*)emitter);
 }
 
 /**
  * Offset/Address/Size: 0x4F8 | 0x801C4CF4 | size: 0x90
  */
-void PlatAudio::Update3DSFXEmitter(SFXEmitter*, const nlVector3&, const nlVector3&, float)
+void Update3DSFXEmitter(SFXEmitter* emitter, const nlVector3& pos, const nlVector3& dir, float volume)
 {
+    float var_f0;
+    float temp_f6 = 127.0f * volume;
+
+    SND_FVECTOR pos_vec = {pos.f.x, pos.f.y, pos.f.z};    
+    SND_FVECTOR dir_vec = {dir.f.x, dir.f.y, dir.f.z};
+
+    if (temp_f6 < 0.0f) {
+        var_f0 = -0.5f;
+    } else {
+        var_f0 = 0.5f;
+    }
+    // bool sndUpdateEmitter(SND_EMITTER* em, SND_FVECTOR* pos, SND_FVECTOR* dir, u8 maxVol, SND_ROOM* room);    
+    sndUpdateEmitter(emitter->m_sndEmitter, &pos_vec, &dir_vec, (s8)(temp_f6+var_f0), NULL);
 }
 
 /**
  * Offset/Address/Size: 0x588 | 0x801C4D84 | size: 0x2E4
  */
-void PlatAudio::Add3DSFXEmitter(const EmitterStartInfo&)
+void Add3DSFXEmitter(const EmitterStartInfo&)
 {
 }
 
 /**
  * Offset/Address/Size: 0x86C | 0x801C5068 | size: 0x20
  */
-void PlatAudio::Remove3DSFXListener(SND_LISTENER*)
+void Remove3DSFXListener(SND_LISTENER* listener)
 {
+    sndRemoveListener(listener);
 }
 
 /**
  * Offset/Address/Size: 0x88C | 0x801C5088 | size: 0xC8
  */
-void PlatAudio::Update3DSFXListener(SND_LISTENER*, const nlVector3&, const nlVector3&, const nlVector3&, const nlVector3&, float)
+void Update3DSFXListener(SND_LISTENER*, const nlVector3&, const nlVector3&, const nlVector3&, const nlVector3&, float)
 {
 }
 
 /**
  * Offset/Address/Size: 0x954 | 0x801C5150 | size: 0x10C
  */
-void PlatAudio::Add3DSFXListener(SND_LISTENER*, const nlVector3&, const nlVector3&, const nlVector3&, const nlVector3&, float, float, float, float, bool, float)
+void Add3DSFXListener(SND_LISTENER*, const nlVector3&, const nlVector3&, const nlVector3&, const nlVector3&, float, float, float, float, bool, float)
 {
 }
 
 /**
  * Offset/Address/Size: 0xA60 | 0x801C525C | size: 0x68
  */
-void PlatAudio::SetPitchBendOnSFX(unsigned long, unsigned short)
+bool SetPitchBendOnSFX(SND_VOICEID vid, u16 value)
 {
+    if (vid == -1 || sndFXCheck(vid) == -1) {
+        return true;
+    }
+    return sndFXCtrl14(vid, 0x80, value);
 }
 
 /**
  * Offset/Address/Size: 0xAC8 | 0x801C52C4 | size: 0x7C
  */
-void PlatAudio::SetFilterFreqOnSFX(unsigned long, unsigned short)
+bool SetFilterFreqOnSFX(SND_VOICEID vid, u16 value)
 {
+    u16 v = value;
+    if (value > 0x3FFFU) {
+        v = 0x3FFF;
+    }
+
+    if (vid == -1 || sndFXCheck(vid) == -1) {
+        return true;
+    }
+    return sndFXCtrl14(vid, 0x1, v);
 }
 
 /**
  * Offset/Address/Size: 0xB44 | 0x801C5340 | size: 0x20
  */
-void PlatAudio::SetMIDIControllerVal14Bit(unsigned long, unsigned char, unsigned short)
+// void SetMIDIControllerVal14Bit(unsigned long, unsigned char, unsigned short)
+bool SetMIDIControllerVal14Bit(SND_VOICEID vid, u8 ctrl, u16 value)
 {
+    return sndFXCtrl14(vid, ctrl, value);
 }
 
 /**
  * Offset/Address/Size: 0xB64 | 0x801C5360 | size: 0x58
  */
-void PlatAudio::SetVolGroupVolume(unsigned char, float, unsigned short)
+void SetVolGroupVolume(unsigned char, float, unsigned short)
 {
 }
 
 /**
  * Offset/Address/Size: 0xBBC | 0x801C53B8 | size: 0x24
  */
-void PlatAudio::SetSFXVolumeGroup(unsigned long, unsigned char)
+void SetSFXVolumeGroup(unsigned long, unsigned char)
 {
 }
 
 /**
  * Offset/Address/Size: 0xBE0 | 0x801C53DC | size: 0x68
  */
-void PlatAudio::SetSFXReverbVol(unsigned long, float)
+void SetSFXReverbVol(unsigned long, float)
 {
 }
 
 /**
  * Offset/Address/Size: 0xC48 | 0x801C5444 | size: 0x88
  */
-void PlatAudio::SetSFXVolume(unsigned long, float)
+void SetSFXVolume(unsigned long, float)
 {
 }
 
 /**
  * Offset/Address/Size: 0xCD0 | 0x801C54CC | size: 0x48
  */
-void PlatAudio::StopSFX(unsigned long)
+void StopSFX(unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0xD18 | 0x801C5514 | size: 0x244
  */
-void PlatAudio::PlaySFX(const SFXStartInfo&)
+void PlaySFX(const SFXStartInfo&)
 {
 }
 
 /**
  * Offset/Address/Size: 0xF5C | 0x801C5758 | size: 0x120
  */
-void PlatAudio::UnloadAllSoundGroupsOnStack(AudioFileData&, unsigned long)
+void UnloadAllSoundGroupsOnStack(AudioFileData&, unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0x107C | 0x801C5878 | size: 0x150
  */
-void PlatAudio::UnloadAllSoundGroups(AudioFileData&)
+void UnloadAllSoundGroups(AudioFileData&)
 {
 }
 
 /**
  * Offset/Address/Size: 0x11CC | 0x801C59C8 | size: 0x184
  */
-void PlatAudio::UnloadSoundGroup(AudioFileData&, unsigned long)
+void UnloadSoundGroup(AudioFileData&, unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0x1350 | 0x801C5B4C | size: 0x328
  */
-void PlatAudio::LoadSoundGroup(AudioFileData&, unsigned long, unsigned long, bool)
+void LoadSoundGroup(AudioFileData&, unsigned long, unsigned long, bool)
 {
 }
 
 /**
  * Offset/Address/Size: 0x1678 | 0x801C5E74 | size: 0x16C
  */
-void PlatAudio::SetupSoundBuffers(AudioFileData&, bool)
+void SetupSoundBuffers(AudioFileData&, bool)
 {
 }
 
 /**
  * Offset/Address/Size: 0x17E4 | 0x801C5FE0 | size: 0x20
  */
-void PlatAudio::StopAllSound()
+void StopAllSound()
 {
 }
 
 /**
  * Offset/Address/Size: 0x1804 | 0x801C6000 | size: 0x78
  */
-void PlatAudio::Shutdown()
+void Shutdown()
 {
 }
 
 /**
  * Offset/Address/Size: 0x187C | 0x801C6078 | size: 0x11C
  */
-void PlatAudio::Initialize(bool)
+void Initialize(bool)
 {
 }
 
 /**
  * Offset/Address/Size: 0x1998 | 0x801C6194 | size: 0x74
  */
-void PlatAudio::PurgeSampleFileBuffer()
+void PurgeSampleFileBuffer()
 {
 }
 
 /**
  * Offset/Address/Size: 0x1A0C | 0x801C6208 | size: 0x14
  */
-void PlatAudio::IsEntireSampleFileInMem()
+void IsEntireSampleFileInMem()
 {
 }
 
 /**
  * Offset/Address/Size: 0x1A20 | 0x801C621C | size: 0x124
  */
-void PlatAudio::ReadEntireSampleFileIntoMemSync(const char*)
+void ReadEntireSampleFileIntoMemSync(const char*)
 {
 }
 
 /**
  * Offset/Address/Size: 0x1B44 | 0x801C6340 | size: 0x100
  */
-void PlatAudio::ReadEntireSampleFileIntoMem(const char*)
-{
-}
-
-/**
- * Offset/Address/Size: 0x1C44 | 0x801C6440 | size: 0x54
- */
-void ARAMTransferHelperLoadEntireFile::LoadEntireFileCallback(nlFile*, void*, unsigned int, unsigned long)
-{
-}
-
-/**
- * Offset/Address/Size: 0x1C98 | 0x801C6494 | size: 0x13C
- */
-void ARAMTransferHelperLoadEntireFile::sndPushGroupCallback(unsigned long, unsigned long)
-{
-}
-
-/**
- * Offset/Address/Size: 0x1DD4 | 0x801C65D0 | size: 0x148
- */
-void ARAMTransferHelper::sndPushGroupCallback(unsigned long, unsigned long)
+void ReadEntireSampleFileIntoMem(const char*)
 {
 }
 
 /**
  * Offset/Address/Size: 0x1F1C | 0x801C6718 | size: 0x10C
  */
-void PlatAudio::UpdateAuxEffectA(MusyXEffectType, void*)
+void UpdateAuxEffectA(MusyXEffectType, void*)
 {
+}
+
 }
 
 /**
@@ -283,43 +302,67 @@ void AddAuxEffect(MusyXEffectType, void*, bool, unsigned char)
 {
 }
 
+namespace PlatAudio
+{
+
 /**
  * Offset/Address/Size: 0x226C | 0x801C6A68 | size: 0x28
  */
-void PlatAudio::AddAuxEffectA(MusyXEffectType, void*, unsigned char)
+void AddAuxEffectA(MusyXEffectType, void*, unsigned char)
 {
 }
 
 /**
  * Offset/Address/Size: 0x2294 | 0x801C6A90 | size: 0x21C
  */
-void PlatAudio::ShutdownAuxEffectA()
+void ShutdownAuxEffectA()
 {
 }
 
 /**
  * Offset/Address/Size: 0x24B0 | 0x801C6CAC | size: 0x24
  */
-void PlatAudio::DeactivateDPL2()
+void DeactivateDPL2()
 {
 }
 
 /**
  * Offset/Address/Size: 0x24D4 | 0x801C6CD0 | size: 0x24
  */
-void PlatAudio::ActivateDPL2()
+void ActivateDPL2()
 {
 }
 
 /**
  * Offset/Address/Size: 0x24F8 | 0x801C6CF4 | size: 0x60
  */
-void PlatAudio::SetOutputMode(MusyXOutputType)
+void SetOutputMode(MusyXOutputType)
 {
 }
 
 } // namespace PlatAudio
 
+/**
+ * Offset/Address/Size: 0x1C44 | 0x801C6440 | size: 0x54
+ */
+ void ARAMTransferHelperLoadEntireFile::LoadEntireFileCallback(nlFile*, void*, unsigned int, unsigned long)
+ {
+ }
+ 
+ /**
+  * Offset/Address/Size: 0x1C98 | 0x801C6494 | size: 0x13C
+  */
+ void ARAMTransferHelperLoadEntireFile::sndPushGroupCallback(unsigned long, unsigned long)
+ {
+ }
+ 
+ /**
+  * Offset/Address/Size: 0x1DD4 | 0x801C65D0 | size: 0x148
+  */
+ void ARAMTransferHelper::sndPushGroupCallback(unsigned long, unsigned long)
+ {
+ }
+ 
 /**
  * Offset/Address/Size: 0x2558 | 0x801C6D54 | size: 0x278
  */

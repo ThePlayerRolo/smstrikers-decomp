@@ -3869,7 +3869,7 @@ NL/platqmath.cpp:
 	.rodata     start:0x802A0518 end:0x802A0528
 	.sdata2     start:0x80376F90 end:0x80376FA8
 
-plataudio.o:
+NL/plat/plataudio.cpp:
 	.text       start:0x801C47FC end:0x801C70C4
 	.text       start:0x801C70C4 end:0x801C70C4
 	.ctors      start:0x8028D524 end:0x8028D528

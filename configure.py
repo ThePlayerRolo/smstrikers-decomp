@@ -447,14 +447,14 @@ def RuntimeLib_MSL_C(lib_name: str, objects: Objects) -> Library:
         category="runtime",
     )
 
-
-def GameLib(lib_name: str, objects: Objects) -> Library:
+def NLLib(lib_name: str, objects: Objects) -> Library:
     return Lib(
         lib_name,
         objects,
         includes=[
             *includes_base,
             "src/ode",
+            "extern/musyx/include",
         ],
         system_includes=[
             *system_includes_base,
@@ -470,6 +470,36 @@ def GameLib(lib_name: str, objects: Objects) -> Library:
             "-DdTHREADING_INTF_DISABLED",
             "-DHAVE_MALLOC_H=1",
             "-DdODE_SMStricker_Patch"
+        ],            
+        category="game",
+    )
+
+def GameLib(lib_name: str, objects: Objects) -> Library:
+    return Lib(
+        lib_name,
+        objects,
+        includes=[
+            *includes_base,
+            "src/ode",
+            "extern/musyx/include",
+        ],
+        system_includes=[
+            *system_includes_base,
+        ],
+        mw_version="GC/2.0",
+        # mw_version="GC/1.3.2",
+        # mw_version="GC/1.2.5n",
+        cflags=[
+            *cflags_base,
+            "-DdNODEBUG=ON",
+            "-DdIDESINGLE",
+            "-DdSINGLE=1",
+            "-DdTHREADING_INTF_DISABLED",
+            "-DHAVE_MALLOC_H=1",
+            "-DdODE_SMStricker_Patch"
+            "-DMUSY_VERSION_MAJOR=2",
+            "-DMUSY_VERSION_MINOR=0",
+            "-DMUSY_VERSION_PATCH=3",
         ],            
         category="game",
     )
@@ -759,6 +789,9 @@ config.libs = [
             Object(NonMatching, "NL/nlTextEscape.cpp"),
             Object(NonMatching, "NL/nlTicker.cpp"),
             Object(NonMatching, "NL/nlTimer.cpp"),     
+
+            # Ext/Platform
+            Object(NonMatching, "NL/plat/plataudio.cpp"),
 
             # Ext/Peripherals
             Object(NonMatching, "NL/globalpad.cpp"),

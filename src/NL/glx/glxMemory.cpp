@@ -82,8 +82,7 @@ void glplatResourceMark()
  unsigned long glplatResourceAlloc(unsigned long arg0, eGLMemory arg1)
 {
     s32 temp_r30;
-    s32 temp_r4;
-    u32 temp_r3;
+    s32 temp_r3;
     u32 *temp_r5;
 
     temp_r30 = (p_phys + (n_phys + 0x1F)) & 0xFFFFFFE0;
@@ -95,7 +94,7 @@ void glplatResourceMark()
         nlBreak();
     }
     temp_r5 = (u32*)&g_uResourceAlloc[g_uResourceMarker];
-    temp_r5[temp_r4]  = temp_r5[temp_r4] + arg0;
+    temp_r5[temp_r3]  = temp_r5[temp_r3] + arg0;
     return temp_r30;
 }
 
