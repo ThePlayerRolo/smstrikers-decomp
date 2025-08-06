@@ -1,6 +1,22 @@
 #include "NL/plat/plataudio.h"
+#include "NL/nlMemory.h"
+
+#include <dolphin/ai.h>
+#include <dolphin/arq.h>
 
 SFXEmitter gEmitters[16];
+
+struct _struct_stack_list_0x10 {
+    /* 0x00 */ u32 *unk0;                             /* inferred */
+    /* 0x04 */ s8  *unk4;                            /* inferred */
+    /* 0x08 */ s32 unk8;                            /* inferred */
+    /* 0x0C */ u32 unkC;                            /* inferred */
+}; 
+
+static struct _struct_stack_list_0x10 stack_list[2] = {
+    { NULL, (s8 *)0xFFFFFFFEU, 0, 0U },
+    { NULL, (s8 *)0xFFFFFFFFU, 0x2B4000, 0U },
+};
 
 namespace PlatAudio
 {
@@ -92,7 +108,7 @@ void Update3DSFXEmitter(SFXEmitter* emitter, const nlVector3& pos, const nlVecto
         var_f0 = 0.5f;
     }
     // bool sndUpdateEmitter(SND_EMITTER* em, SND_FVECTOR* pos, SND_FVECTOR* dir, u8 maxVol, SND_ROOM* room);    
-    sndUpdateEmitter(emitter->m_sndEmitter, &pos_vec, &dir_vec, (s8)(temp_f6+var_f0), NULL);
+    sndUpdateEmitter(&emitter->m_sndEmitter, &pos_vec, &dir_vec, (s8)(temp_f6+var_f0), NULL);
 }
 
 /**
@@ -163,22 +179,44 @@ bool SetMIDIControllerVal14Bit(SND_VOICEID vid, u8 ctrl, u16 value)
 /**
  * Offset/Address/Size: 0xB64 | 0x801C5360 | size: 0x58
  */
-void SetVolGroupVolume(unsigned char, float, unsigned short)
+void SetVolGroupVolume(u8 volGroup, float volume, u16 time)
 {
+    f32 temp_f1;
+    f32 var_f0;
+
+    temp_f1 = 127.0f * volume;
+    if (temp_f1 < 0.0f) {
+        var_f0 = -0.5f;
+    } else {
+        var_f0 = 0.5f;
+    }
+    sndVolume((s8) (temp_f1 + var_f0), time, volGroup);    
 }
 
 /**
  * Offset/Address/Size: 0xBBC | 0x801C53B8 | size: 0x24
  */
-void SetSFXVolumeGroup(unsigned long, unsigned char)
+bool SetSFXVolumeGroup(u32 fid, u8 vGroup)
 {
+    return sndFXAssignVolGroup2FXId((SND_FXID)fid, vGroup);
 }
 
 /**
  * Offset/Address/Size: 0xBE0 | 0x801C53DC | size: 0x68
  */
-void SetSFXReverbVol(unsigned long, float)
+bool SetSFXReverbVol(SND_VOICEID vid, float value)
 {
+    int v;
+    
+    // u8 ctrl = 0x5B;
+    if (value == 1.0f) {
+        value = 0.0f; // Fallback
+    }
+
+    float value2 = 255.0f * value;
+    value2 += (value2 < 0.0f ? -0.5f : 0.5f);
+    v = value2;
+    return sndFXCtrl(vid, 0x5B, v);  
 }
 
 /**
@@ -242,6 +280,7 @@ void SetupSoundBuffers(AudioFileData&, bool)
  */
 void StopAllSound()
 {
+    sndSilence();    
 }
 
 /**
@@ -249,6 +288,17 @@ void StopAllSound()
  */
 void Shutdown()
 {
+    sndQuit();
+
+    for (int i = 0; i < 2; i++) {
+        ARFree(stack_list[i].unk0);
+        delete stack_list[i].unk0;
+        stack_list[i].unk0 = NULL;
+    }
+
+    AIReset();
+    ARQReset();
+    ARReset();
 }
 
 /**
@@ -380,15 +430,17 @@ void PrintAvailableARAMMemory()
 /**
  * Offset/Address/Size: 0x2844 | 0x801C7040 | size: 0x20
  */
-void musyXFree(void*)
+void musyXFree(void* ptr)
 {
+    nlFree(ptr);
 }
 
 /**
  * Offset/Address/Size: 0x2864 | 0x801C7060 | size: 0x28
  */
-void musyXAlloc(unsigned long)
+void *musyXAlloc(u32 size)
 {
+    return nlMalloc(size, 0x20, false);
 }
 
 // /**

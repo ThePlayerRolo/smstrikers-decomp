@@ -6,8 +6,8 @@
 // void AddAuxEffect(MusyXEffectType, void*, bool, unsigned char);
 // void PrintSoundStackInfo();
 // void PrintAvailableARAMMemory();
-// void musyXFree(void*);
-// void musyXAlloc(unsigned long);
+void musyXFree(void*);
+void *musyXAlloc(u32);
 // void 0x8028D524..0x8028D528 | size: 0x4;
 
 #include "types.h"
@@ -32,7 +32,7 @@ class nlFile;
 // class MusyXOutputType;
 class SFXStartInfo;
 
-struct SFXEmitter
+struct SFXEmitter__
 {
     /* 0x00 */ SND_EMITTER *m_sndEmitter;      // Possibly a pointer to a sound instance or data block
     /* 0x04 */ s32       m_unk_0x04;      // Sound ID or index (-1 = unused)
@@ -57,6 +57,30 @@ struct SFXEmitter
     /* 0x50 */ u32       m_unk_0x50;
     /* 0x54 */ u8        m_padding[0x34];
 };
+
+struct SFXEmitter
+{
+    // /* 0x00 */ char pad0[0x50];
+    SND_EMITTER m_sndEmitter;
+    /* 0x50 */ s8 unk50;                            /* inferred */
+    // /* 0x51 */ char pad51[3];                       /* maybe part of unk50[4]? */
+    /* 0x54 */ s32 unk54;                           /* inferred */
+    /* 0x58 */ f32 unk58;                           /* inferred */
+    /* 0x5C */ u8 unk5C;                            /* inferred */
+    /* 0x5D */ u8 unk5D;                            /* inferred */
+    /* 0x5E */ s8 unk5E;                            /* inferred */
+    /* 0x5F */ s8 unk5F;                            /* inferred */
+    /* 0x60 */ s32 unk60;                           /* inferred */
+    /* 0x64 */ s32 unk64;                           /* inferred */
+    /* 0x68 */ f32 unk68;                           /* inferred */
+    /* 0x6C */ f32 unk6C;                           /* inferred */
+    /* 0x70 */ f32 unk70;                           /* inferred */
+    /* 0x74 */ f32 unk74;                           /* inferred */
+    /* 0x78 */ f32 unk78;                           /* inferred */
+    /* 0x7C */ f32 unk7C;                           /* inferred */
+    /* 0x80 */ s32 unk80;                           /* inferred */
+    /* 0x84 */ void *unk84;                         /* inferred */
+}; 
 
 struct EmitterStartInfo
 {
@@ -84,9 +108,9 @@ namespace PlatAudio
     bool SetPitchBendOnSFX(SND_VOICEID vid, u16 value);
     bool SetFilterFreqOnSFX(SND_VOICEID vid, u16 value);
     bool SetMIDIControllerVal14Bit(SND_VOICEID vid, u8 ctrl, u16 value);
-    void SetVolGroupVolume(unsigned char, float, unsigned short);
-    void SetSFXVolumeGroup(unsigned long, unsigned char);
-    void SetSFXReverbVol(unsigned long, float);
+    void SetVolGroupVolume(u8 volGroup, float volume, u16 time);
+    bool SetSFXVolumeGroup(u32 fid, u8 vGroup);
+    bool SetSFXReverbVol(unsigned long, float);
     void SetSFXVolume(unsigned long, float);
     void StopSFX(unsigned long);
     void PlaySFX(const SFXStartInfo&);
