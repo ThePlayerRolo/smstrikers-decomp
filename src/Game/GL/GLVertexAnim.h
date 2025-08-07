@@ -9,10 +9,11 @@
 class GLVertexAnim
 {
 public:
-    void Reset();
-    void Update(float);
-    void GetModel(int);
     GLVertexAnim();
+
+    void GetModel(int);
+    void Update(float);
+    void Reset();
 
     /* 0x00 */ s32 m_unk_0x00;
     /* 0x04 */ s32 m_unk_0x04;

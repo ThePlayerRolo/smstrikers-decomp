@@ -760,8 +760,8 @@ config.libs = [
 
             # GL
             Object(Matching, "Game/GL/GLMaterial.cpp"),
-            Object(NonMatching, "Game/GL/GLTextureAnim.cpp"),
-            Object(NonMatching, "Game/GL/GLVertexAnim.cpp"),
+            Object(Matching, "Game/GL/GLTextureAnim.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/GL/GLVertexAnim.cpp", extra_cflags=["-inline deferred"]),
 
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
