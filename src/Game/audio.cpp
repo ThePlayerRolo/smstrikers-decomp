@@ -4,7 +4,6 @@
 
 #include "NL/plat/plataudio.h"
 
-
 bool gbFilterOn = false;
 bool gbPitchBent = false;
 bool gbUseHiQualityReverb = false;
@@ -13,38 +12,41 @@ bool gbListenerInit = false;
 bool g_bAudioInitialized = false;
 bool g_bWorldSFXInitialized = false;
 
-namespace Audio 
+static f32 gfVolumeGroups[0x18];
+
+namespace Audio
 {
 
-    bool gbGameIsPaused = false;
+bool gbGameIsPaused = false;
 
 /**
  * Offset/Address/Size: 0x0 | 0x8013C514 | size: 0x10
  */
-// void MasterVolume::GetVoiceVolume()
-// {
-// }
+float MasterVolume::GetVoiceVolume()
+{
+    return gfVolumeGroups[3];
+}
 
 /**
  * Offset/Address/Size: 0x10 | 0x8013C524 | size: 0x208
  */
-// void MasterVolume::SetVoiceVolume(float, int)
-// {
-// }
+void MasterVolume::SetVoiceVolume(float, int)
+{
+}
 
 /**
  * Offset/Address/Size: 0x218 | 0x8013C72C | size: 0x14
  */
-// void MasterVolume::SetVolume(MasterVolume::VOLUME_GROUP, float)
-// {
-// }
+void MasterVolume::SetVolume(MasterVolume::VOLUME_GROUP, float)
+{
+}
 
 /**
  * Offset/Address/Size: 0x22C | 0x8013C740 | size: 0x14
  */
-// void MasterVolume::GetVolume(MasterVolume::VOLUME_GROUP)
-// {
-// }
+void MasterVolume::GetVolume(MasterVolume::VOLUME_GROUP)
+{
+}
 
 /**
  * Offset/Address/Size: 0x240 | 0x8013C754 | size: 0x1A0
@@ -148,9 +150,10 @@ bool IsListenerActive()
 /**
  * Offset/Address/Size: 0xDD4 | 0x8013D2E8 | size: 0x20
  */
-// void SetOutputMode(MusyXOutputType)
-// {
-// }
+void SetOutputMode(MusyXOutputType outputType)
+{
+    PlatAudio::SetOutputMode(outputType);
+}
 
 /**
  * Offset/Address/Size: 0xDF4 | 0x8013D308 | size: 0x78
@@ -436,7 +439,7 @@ void SoundAttributes::UseStationaryPosVector(const nlVector3& position)
 {
     m_vec_0x44 = position;
     m_unk_0x5C = 2;
-    m_unk_0x30 = true;    
+    m_unk_0x30 = true;
 }
 
 /**
@@ -447,7 +450,7 @@ void SoundAttributes::UseVectors(const nlVector3& v1, const nlVector3& v2)
     m_vec_0x44 = v1;
     m_vec_0x50 = v2;
     m_unk_0x5C = 2;
-    m_unk_0x30 = true;    
+    m_unk_0x30 = true;
 }
 
 /**
@@ -456,11 +459,11 @@ void SoundAttributes::UseVectors(const nlVector3& v1, const nlVector3& v2)
 void SoundAttributes::UseVectorPtrs(const nlVector3* v1, const nlVector3* v2)
 {
     // *(const nlVector3**)&m_unk_0x44 = v1;
-    // *(const nlVector3**)&m_unk_0x50 = v2;    
+    // *(const nlVector3**)&m_unk_0x50 = v2;
     m_vecPtr_0x44 = v1;
     m_vecPtr_0x50 = v2;
     m_unk_0x5C = 3;
-    m_unk_0x30 = true;    
+    m_unk_0x30 = true;
 }
 
 /**
@@ -470,7 +473,7 @@ void SoundAttributes::UsePhysObj(PhysicsObject* obj)
 {
     m_physicsObject = obj;
     m_unk_0x5C = 1;
-    m_unk_0x30 = true;    
+    m_unk_0x30 = true;
 }
 
 /**
@@ -492,13 +495,13 @@ void SoundAttributes::Init()
     m_unk_0x08 = -1;
     m_unk_0x0C = PlatAudio::GetSndIDError();
 
-    m_unk_0x10 = 1.0f;       // from "@3248"
-    m_unk_0x14 = 1.0f;       // same as above
-    m_unk_0x18 = 0.0f;       // from "@2159"
-    m_unk_0x1C = 256.0f;     // from "@1976"
-    m_unk_0x20 = 1.0f;       // same as "@3248"
-    m_unk_0x24 = 0.5f;       // from "@1977"
-    m_unk_0x28 = 256.0f;     // same as "@1976"
+    m_unk_0x10 = 1.0f;   // from "@3248"
+    m_unk_0x14 = 1.0f;   // same as above
+    m_unk_0x18 = 0.0f;   // from "@2159"
+    m_unk_0x1C = 256.0f; // from "@1976"
+    m_unk_0x20 = 1.0f;   // same as "@3248"
+    m_unk_0x24 = 0.5f;   // from "@1977"
+    m_unk_0x28 = 256.0f; // same as "@1976"
 
     m_unk_0x2C = false;
     m_unk_0x2D = false;
@@ -510,7 +513,7 @@ void SoundAttributes::Init()
     m_unk_0x33 = false;
     m_unk_0x34 = false;
 
-    m_unk_0x38 = 0.5f;       // from "@1977"
+    m_unk_0x38 = 0.5f; // from "@1977"
     m_unk_0x3C = 0;
     m_physicsObject = NULL;
 
@@ -519,7 +522,7 @@ void SoundAttributes::Init()
     // m_unk_0x50.f = { 256.0f, 256.0f, 256.0f };
 
     m_vecPtr_0x44 = NULL;
-    m_vecPtr_0x50 = NULL;    
+    m_vecPtr_0x50 = NULL;
 
     NL_VECTOR3_SET(m_vec_0x44, 256.0f, 256.0f, 256.0f);
     NL_VECTOR3_SET(m_vec_0x50, 256.0f, 256.0f, 256.0f);
@@ -533,7 +536,7 @@ void SoundAttributes::Init()
 
     m_unk_0x74 = 0;
     m_unk_0x76 = 0;
-    m_unk_0x78 = 0x2000;     // li r0, 0x2000
+    m_unk_0x78 = 0x2000; // li r0, 0x2000
     m_unk_0x7A = 1;
     m_unk_0x7B = 0;
     m_unk_0x7C = 1;
@@ -550,7 +553,8 @@ u32 cGameSFX::GetClassType() const
 // /**
 //  * Offset/Address/Size: 0x0 | 0x80141234 | size: 0x8C
 //  */
-// void nlBSearch<nlSortedSlot<AudioStreamTrack::StreamTrack, 3>::EntryLookup<AudioStreamTrack::StreamTrack>, unsigned long>(const unsigned long&, nlSortedSlot<AudioStreamTrack::StreamTrack, 3>::EntryLookup<AudioStreamTrack::StreamTrack>*, int)
+// void nlBSearch<nlSortedSlot<AudioStreamTrack::StreamTrack, 3>::EntryLookup<AudioStreamTrack::StreamTrack>, unsigned long>(const unsigned
+// long&, nlSortedSlot<AudioStreamTrack::StreamTrack, 3>::EntryLookup<AudioStreamTrack::StreamTrack>*, int)
 // {
 // }
 
@@ -578,49 +582,78 @@ u32 cGameSFX::GetClassType() const
 // /**
 //  * Offset/Address/Size: 0x0 | 0x801413D8 | size: 0x3C
 //  */
-// void nlWalkDLRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*, DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>*, void (DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
+// void nlWalkDLRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*,
+// DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>*, void
+// (DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x3C | 0x80141414 | size: 0x3C
 //  */
-// void nlWalkDLRing<DLListEntry<GCAudioStreaming::StereoAudioStream*>, DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>>(DLListEntry<GCAudioStreaming::StereoAudioStream*>*, DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>*, void (DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>::*)(DLListEntry<GCAudioStreaming::StereoAudioStream*>*))
+// void nlWalkDLRing<DLListEntry<GCAudioStreaming::StereoAudioStream*>, DLListContainerBase<GCAudioStreaming::StereoAudioStream*,
+// BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>>(DLListEntry<GCAudioStreaming::StereoAudioStream*>*,
+// DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>*, void
+// (DLListContainerBase<GCAudioStreaming::StereoAudioStream*,
+// BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>::*)(DLListEntry<GCAudioStreaming::StereoAudioStream*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x78 | 0x80141450 | size: 0x3C
 //  */
-// void nlWalkDLRing<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM, nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>>(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*, DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM, nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>*, void (DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM, nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>::*)(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*))
+// void nlWalkDLRing<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>,
+// DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM,
+// nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>,
+// 4>>>(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*, DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM,
+// nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>*, void
+// (DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM,
+// nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>,
+// 4>>::*)(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xB4 | 0x8014148C | size: 0x3C
 //  */
-// void nlWalkDLRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*, WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>*, void (WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
+// void nlWalkDLRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// AudioStreamTrack::TrackManagerBase::FadeManager>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*,
+// WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>*, void
+// (WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// AudioStreamTrack::TrackManagerBase::FadeManager>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xF0 | 0x801414C8 | size: 0x20
 //  */
-// void nlDLRingIsEnd<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*, DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*)
+// void
+// nlDLRingIsEnd<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*,
+// DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x110 | 0x801414E8 | size: 0x18
 //  */
-// void nlDLRingGetStart<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>>(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*)
+// void
+// nlDLRingGetStart<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>>(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x128 | 0x80141500 | size: 0x18
 //  */
-// void nlDLRingGetStart<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*)
+// void
+// nlDLRingGetStart<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*)
 // {
 // }
 
@@ -718,29 +751,54 @@ u32 cGameSFX::GetClassType() const
 // /**
 //  * Offset/Address/Size: 0x0 | 0x80142234 | size: 0x60
 //  */
-// void nlWalkRing<DLListEntry<GCAudioStreaming::StereoAudioStream*>, DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>>(DLListEntry<GCAudioStreaming::StereoAudioStream*>*, DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>*, void (DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>::*)(DLListEntry<GCAudioStreaming::StereoAudioStream*>*))
+// void nlWalkRing<DLListEntry<GCAudioStreaming::StereoAudioStream*>, DLListContainerBase<GCAudioStreaming::StereoAudioStream*,
+// BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>>(DLListEntry<GCAudioStreaming::StereoAudioStream*>*,
+// DLListContainerBase<GCAudioStreaming::StereoAudioStream*, BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>*, void
+// (DLListContainerBase<GCAudioStreaming::StereoAudioStream*,
+// BasicSlotPool<DLListEntry<GCAudioStreaming::StereoAudioStream*>>>::*)(DLListEntry<GCAudioStreaming::StereoAudioStream*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x60 | 0x80142294 | size: 0x60
 //  */
-// void nlWalkRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*, DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>*, void (DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
+// void nlWalkRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*,
+// DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>*, void
+// (DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xC0 | 0x801422F4 | size: 0x60
 //  */
-// void nlWalkRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*, WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>*, void (WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL, DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
+// void nlWalkRing<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// AudioStreamTrack::TrackManagerBase::FadeManager>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*,
+// WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>, AudioStreamTrack::TrackManagerBase::FadeManager>*, void
+// (WalkHelper<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
+// DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>,
+// AudioStreamTrack::TrackManagerBase::FadeManager>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x120 | 0x80142354 | size: 0x60
 //  */
-// void nlWalkRing<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM, nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>>(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*, DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM, nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>*, void (DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM, nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>::*)(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*))
+// void nlWalkRing<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>,
+// DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM,
+// nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>,
+// 4>>>(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*, DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM,
+// nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>, 4>>*, void
+// (DLListContainerBase<AudioStreamTrack::StreamTrack::QUEUED_STREAM,
+// nlStaticArrayAllocator<DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>,
+// 4>>::*)(DLListEntry<AudioStreamTrack::StreamTrack::QUEUED_STREAM>*))
 // {
 // }
 
-}
+} // namespace Audio
