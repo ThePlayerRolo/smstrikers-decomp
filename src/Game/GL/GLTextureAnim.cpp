@@ -6,80 +6,67 @@
  */
 void GLTextureAnim::Update(float deltaTime)
 {
-    // Early return if animation is stopped
-    if (m_isStopped)
+    s32 temp_r0;
+    s32 temp_r0_2;
+    s32 temp_r0_3;
+    s32 temp_r4;
+    s32 temp_r4_2;
+    s32 temp_r4_3;
+
+    if (m_isStopped || m_frameCount < 2)
     {
         return;
     }
 
-    // Early return if we have less than 2 textures
-    if (m_numTextures < 2)
-    {
-        return;
-    }
-
-    // Update current time
     m_currentTime += deltaTime;
-
-    // Get the time threshold for the current frame
-    u32 frameIndex = m_currentFrame;
-    GLAnimTex* textureArray = m_textureArray;
-    u32 offset = frameIndex * 8 + 4; // 8 bytes per GLAnimTex, +4 for time field
-    f32 timeThreshold = *(f32*)((u8*)textureArray + offset);
-
-    // Check if we've reached the time threshold for the current frame
-    if (m_currentTime >= timeThreshold)
+    if (m_currentTime >= m_frames[m_currentFrame].time)
     {
-        // Reset current time
         m_currentTime = 0.0f;
-
-        // Handle different animation types
-        switch (m_animationType)
+        switch (m_mode)
         {
-            case 0: // Loop
-                m_currentFrame++;
-                if (m_currentFrame >= m_numTextures)
+        case 0:
+            temp_r4 = m_currentFrame + 1;
+            m_currentFrame = temp_r4;
+            if (temp_r4 >= m_frameCount)
+            {
+                m_currentFrame = 0;
+                return;
+            }
+            break;
+        case 1:
+            if (m_direction > 0)
+            {
+                temp_r4_2 = m_currentFrame + 1;
+                m_currentFrame = temp_r4_2;
+                if (temp_r4_2 >= m_frameCount)
                 {
-                    m_currentFrame = 0;
+                    m_currentFrame -= 2;
+                    m_direction = -1;
+                    return;
                 }
-                break;
-
-            case 1: // Ping-pong
-                if (m_direction > 0)
+            }
+            else
+            {
+                temp_r0_2 = m_currentFrame - 1;
+                m_currentFrame = temp_r0_2;
+                if (temp_r0_2 < 0)
                 {
-                    m_currentFrame++;
-                    if (m_currentFrame >= m_numTextures)
-                    {
-                        m_currentFrame = m_numTextures - 2;
-                        m_direction = -1;
-                    }
+                    m_currentFrame = 1;
+                    m_direction = 1;
+                    return;
                 }
-                else
-                {
-                    m_currentFrame--;
-                    if (m_currentFrame < 0)
-                    {
-                        m_currentFrame = 1;
-                        m_direction = 1;
-                    }
-                }
-                break;
-
-            case 2: // Once
-                m_currentFrame++;
-                if (m_currentFrame >= m_numTextures)
-                {
-                    m_currentFrame = m_numTextures - 1;
-                }
-                break;
-
-            case 3: // Reverse
-                m_currentFrame++;
-                if (m_currentFrame >= m_numTextures)
-                {
-                    m_currentFrame = m_numTextures - 1;
-                }
-                break;
+            }
+            break;
+        case 2:
+            temp_r0_3 = m_currentFrame + 1;
+            m_currentFrame = temp_r0_3;
+            temp_r4_3 = m_frameCount;
+            if (temp_r0_3 >= temp_r4_3)
+            {
+                m_currentFrame = temp_r4_3 - 1;
+                return;
+            }
+            break;
         }
     }
 }
@@ -89,68 +76,48 @@ void GLTextureAnim::Update(float deltaTime)
  */
 u32 GLTextureAnim::GetTextureHandle(float time)
 {
-    GLAnimTex* textureArray = m_textureArray;
-    u32 frameIndex = 0;
+    u32 texture;
+    float delta = time;
+    int index = 0;
 
     while (true)
     {
-        u32 actualFrame;
-        if (frameIndex < 0)
+        int actualIndex = (index < 0) ? m_currentFrame : index;
+
+        delta -= m_frames[actualIndex].time;
+        texture = m_frames[actualIndex].textureHandle;
+
+        if (delta >= 0.0f)
         {
-            actualFrame = m_currentFrame;
+            switch (m_mode)
+            {
+            case 0:
+            {
+                index++;
+                if (index >= m_frameCount)
+                {
+                    index = 0;
+                }
+                break;
+            }
+            case 2:
+            {
+                index++;
+                if (index >= m_frameCount)
+                {
+                    return texture;
+                }
+                break;
+            }
+            }
         }
         else
         {
-            actualFrame = frameIndex;
-        }
-
-        u32 offset = actualFrame * 8;
-        GLAnimTex* currentTex = (GLAnimTex*)((u8*)textureArray + offset);
-        f32 timeThreshold = currentTex->m_time;
-        u32 textureHandle = currentTex->m_textureHandle;
-
-        // Check if we've found the right time slot
-        if (time < timeThreshold)
-        {
-            return textureHandle;
-        }
-
-        // Handle different animation types for frame progression
-        switch (m_animationType)
-        {
-            case 0: // Loop
-                frameIndex++;
-                if (frameIndex >= m_numTextures)
-                {
-                    frameIndex = 0;
-                }
-                break;
-
-            case 1: // Ping-pong
-                frameIndex++;
-                if (frameIndex >= m_numTextures)
-                {
-                    frameIndex = 0;
-                }
-                break;
-
-            case 2: // Once
-                frameIndex++;
-                if (frameIndex >= m_numTextures)
-                {
-                    return textureHandle; // Return last texture
-                }
-                break;
-
-            case 3: // Reverse
-                frameIndex++;
-                if (frameIndex >= m_numTextures)
-                {
-                    return textureHandle; // Return last texture
-                }
-                break;
+            break;
         }
     }
+
+    return texture;
 }
 
 /**
@@ -158,8 +125,8 @@ u32 GLTextureAnim::GetTextureHandle(float time)
  */
 GLAnimTex* GLTextureAnim::GetTexture(int frameIndex)
 {
-    GLAnimTex* textureArray = m_textureArray;
-    
+    GLAnimTex* textureArray = m_frames;
+
     // If frameIndex is negative, use current frame
     if (frameIndex < 0)
     {
@@ -175,12 +142,12 @@ GLAnimTex* GLTextureAnim::GetTexture(int frameIndex)
  */
 void GLTextureAnim::SetTexture(int frameIndex, const GLAnimTex& animTex)
 {
-    GLAnimTex* textureArray = m_textureArray;
+    GLAnimTex* textureArray = m_frames;
     u32 offset = frameIndex * 8;
     GLAnimTex* targetTex = (GLAnimTex*)((u8*)textureArray + offset);
-    
-    targetTex->m_textureHandle = animTex.m_textureHandle;
-    targetTex->m_time = animTex.m_time;
+
+    targetTex->textureHandle = animTex.textureHandle;
+    targetTex->time = animTex.time;
 }
 
 /**
@@ -188,7 +155,7 @@ void GLTextureAnim::SetTexture(int frameIndex, const GLAnimTex& animTex)
  */
 void GLTextureAnim::SetFrame(int frameIndex)
 {
-    m_currentFrame = frameIndex % m_numTextures;
+    m_currentFrame = frameIndex % m_frameCount;
 }
 
 /**
@@ -196,16 +163,16 @@ void GLTextureAnim::SetFrame(int frameIndex)
  */
 void GLTextureAnim::SetNumTextures(int numTextures)
 {
-    if (m_textureArray != nullptr)
+    if (m_frames != nullptr)
     {
-        delete [] m_textureArray;
+        delete[] m_frames;
     }
 
     // Allocate new texture array
     u32 size = numTextures * 8; // 8 bytes per GLAnimTex
-    m_textureArray = (GLAnimTex*)nlMalloc(size, 8, 0);
-    
-    m_numTextures = numTextures;
+    m_frames = (GLAnimTex*)nlMalloc(size, 8, 0);
+
+    m_frameCount = numTextures;
     m_direction = 1;
     m_currentFrame = 0;
     m_currentTime = 0.0f;
@@ -217,9 +184,9 @@ void GLTextureAnim::SetNumTextures(int numTextures)
 GLTextureAnim::~GLTextureAnim()
 {
     // Free texture array if it exists
-    if (m_textureArray != nullptr)
+    if (m_frames != nullptr)
     {
-        delete [] m_textureArray;
+        delete[] m_frames;
     }
 }
 
@@ -229,10 +196,10 @@ GLTextureAnim::~GLTextureAnim()
 GLTextureAnim::GLTextureAnim()
 {
     m_unk_0x00 = -1;
-    m_numTextures = 0;
-    m_animationType = 0;
+    m_frameCount = 0;
+    m_mode = 0;
     m_direction = 1;
     m_currentFrame = 0;
-    m_textureArray = nullptr;
+    m_frames = nullptr;
     m_isStopped = false;
 }
