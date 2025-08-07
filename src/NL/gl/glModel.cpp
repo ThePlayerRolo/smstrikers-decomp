@@ -110,13 +110,13 @@ glModel* glModelDup(const glModel* src, bool arg1)
     dst_packets = packets;
     src_packets = src->m_packets;
     model->m_packets = packets;
-   
+
     u8* last_pack = (u8*)src_packets + src->m_count * 0x4A;
 
     while ((u8*)src_packets < last_pack)
     {
-        dst_packets->m_unk_0x0C = (VertexData*)glFrameAlloc(dst_packets->m_unk_0x0B * 6, eGLMemory_0);
-        memcpy(dst_packets->m_unk_0x0C, src_packets->m_unk_0x0C, dst_packets->m_unk_0x0B * 6);
+        dst_packets->m_vertexData = (VertexData*)glFrameAlloc(dst_packets->m_unk_0x0B * 6, eGLMemory_0);
+        memcpy(dst_packets->m_vertexData, src_packets->m_vertexData, dst_packets->m_unk_0x0B * 6);
 
         if ((arg1 != 0) && (src_packets->m_unk_0x00 != NULL))
         {
@@ -125,7 +125,7 @@ glModel* glModelDup(const glModel* src, bool arg1)
         }
 
         src_packets = (glModelPacket*)((u8*)src_packets + 0x4A);
-        dst_packets = (glModelPacket*)((u8*)dst_packets + 0x4A);        
+        dst_packets = (glModelPacket*)((u8*)dst_packets + 0x4A);
     }
 
     return model;

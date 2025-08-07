@@ -23,7 +23,7 @@ public:
     /* 0x14 */ bool m_unk_0x14;
     /* 0x18 */ f32 m_unk_0x18;
     /* 0x1C */ f32 m_unk_0x1C;
-    /* 0x20 */ FrameVertexData* m_unk_0x20;
+    /* 0x20 */ FrameVertexData* m_frames;
     /* 0x24 */ glModel* m_unk_0x24;
 };
 

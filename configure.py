@@ -759,9 +759,9 @@ config.libs = [
             Object(NonMatching, "Game/InterpreterCore.cpp", extra_cflags=["-inline deferred"]),
 
             # GL
-            Object(Matching, "Game/GL/GLMaterial.cpp"),
+            Object(Matching, "Game/GL/GLMaterial.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/GL/GLTextureAnim.cpp", extra_cflags=["-inline deferred"]),
-            Object(NonMatching, "Game/GL/GLVertexAnim.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/GL/GLVertexAnim.cpp", extra_cflags=["-inline deferred"]),
 
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),

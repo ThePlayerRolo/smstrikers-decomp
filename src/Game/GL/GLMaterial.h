@@ -13,14 +13,15 @@ struct GLMaterialEntry // size = 0xC
 class GLMaterialList
 {
 public:
-    GLMaterialEntry* FindMaterial(unsigned long) const;
-    void SetMaterials(int, const GLMaterialEntry*);
-    ~GLMaterialList();
     GLMaterialList();
+    ~GLMaterialList();
+
+    void SetMaterials(int, const GLMaterialEntry*);
+    GLMaterialEntry* FindMaterial(unsigned long) const;
 
     /* 0x00 */ s32 m_unk_0x00;
-    /* 0x04 */ s32 m_numEntries;
-    /* 0x08 */ GLMaterialEntry *m_materialEntries;   
+    /* 0x04 */ s32 m_count;
+    /* 0x08 */ GLMaterialEntry* m_entries;
 };
 
 #endif // _GLMATERIAL_H_

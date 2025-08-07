@@ -2,21 +2,24 @@
 #include "NL/nlMemory.h"
 
 /**
- * Offset/Address/Size: 0x0 | 0x801E7E70 | size: 0x48
+ * Offset/Address/Size: 0x128 | 0x801E7F98 | size: 0x18
  */
-GLMaterialEntry* GLMaterialList::FindMaterial(unsigned long searchId) const
+GLMaterialList::GLMaterialList()
 {
-    GLMaterialEntry* current = m_materialEntries;
-    GLMaterialEntry* end = current + m_numEntries;
-    while (current < end)
+    m_unk_0x00 = -1;
+    m_count = 0;
+    m_entries = NULL;
+}
+
+/**
+ * Offset/Address/Size: 0xCC | 0x801E7F3C | size: 0x5C
+ */
+GLMaterialList::~GLMaterialList()
+{
+    if (m_entries)
     {
-        if (current->m_id == searchId) {
-            return current;
-        }
-        current++;
+        delete[] m_entries;
     }
-    
-    return NULL;
 }
 
 /**
@@ -26,34 +29,32 @@ void GLMaterialList::SetMaterials(int arg0, const GLMaterialEntry* arg1)
 {
     u32 size;
 
-    if (m_materialEntries)
+    if (m_entries)
     {
-        delete[] m_materialEntries;
+        delete[] m_entries;
     }
 
     size = arg0 * 0xC;
-    m_numEntries = arg0;
-    m_materialEntries = (GLMaterialEntry*)nlMalloc(size, 8, 0);
-    memcpy(m_materialEntries, arg1, size);    
+    m_count = arg0;
+    m_entries = (GLMaterialEntry*)nlMalloc(size, 8, 0);
+    memcpy(m_entries, arg1, size);
 }
 
 /**
- * Offset/Address/Size: 0xCC | 0x801E7F3C | size: 0x5C
+ * Offset/Address/Size: 0x0 | 0x801E7E70 | size: 0x48
  */
-GLMaterialList::~GLMaterialList()
+GLMaterialEntry* GLMaterialList::FindMaterial(unsigned long searchId) const
 {
-    if (m_materialEntries)
+    GLMaterialEntry* current = m_entries;
+    GLMaterialEntry* end = current + m_count;
+    while (current < end)
     {
-        delete[] m_materialEntries;
+        if (current->m_id == searchId)
+        {
+            return current;
+        }
+        current++;
     }
-}
 
-/**
- * Offset/Address/Size: 0x128 | 0x801E7F98 | size: 0x18
- */
-GLMaterialList::GLMaterialList()
-{
-    m_unk_0x00 = -1;
-    m_numEntries = 0;
-    m_materialEntries = NULL;    
+    return NULL;
 }

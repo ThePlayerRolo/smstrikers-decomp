@@ -13,7 +13,7 @@ GLVertexAnim::GLVertexAnim()
     m_unk_0x14 = false;
     m_unk_0x1C = 0.0f;
     m_unk_0x18 = 1.0f;
-    m_unk_0x20 = NULL;
+    m_frames = NULL;
     m_unk_0x24 = NULL;
 }
 
@@ -22,38 +22,24 @@ GLVertexAnim::GLVertexAnim()
  */
 void GLVertexAnim::GetModel(int frameIndex)
 {
-    int actualFrame;
+    int actualFrame = (frameIndex < 0) ? (int)m_unk_0x1C : frameIndex;
 
-    if (frameIndex < 0)
+    glModel* model = glModelDup(m_unk_0x24, true);
+    FrameVertexData* frameVertexData = m_frames + actualFrame * m_unk_0x08;
+
+    for (glModelPacket* packet = model->m_packets; packet < model->m_packets + model->m_count; packet++)
     {
-        actualFrame = (int)m_unk_0x1C; // Convert float to int
-    }
-    else
-    {
-        actualFrame = frameIndex;
-    }
-
-    glModel* duplicatedModel = glModelDup(m_unk_0x24, true);
-
-    FrameVertexData* frameVertexData = m_unk_0x20 + actualFrame * m_unk_0x08;
-
-    glModelPacket* packet = duplicatedModel->m_packets;
-    glModelPacket* endPacket = duplicatedModel->m_packets + duplicatedModel->m_count;
-
-    while (packet < endPacket)
-    {
-        VertexData* packetVertexData = packet->m_unk_0x0C;
+        VertexData* packetVertexData = packet->m_vertexData;
         VertexData* endVertexData = packetVertexData + packet->m_unk_0x0B;
         while (packetVertexData < endVertexData)
         {
             if (packetVertexData->m_unk_0x04 == 0)
             {
-                packetVertexData->m_unk_0x00 = (FrameVertexData*)frameVertexData;
-                break; // Found and updated the vertex data, move to next packet
+                packetVertexData->m_unk_0x00 = frameVertexData;
+                break;
             }
             packetVertexData++;
         }
-        packet++;
     }
 }
 

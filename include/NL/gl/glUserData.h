@@ -26,13 +26,13 @@ struct VertexData // size: 0x6
 
 struct glModelPacket // size: 0x4A
 {
-    /* 0x00 */ u32 *m_unk_0x00;
+    /* 0x00 */ u32* m_unk_0x00;
     /* 0x04 */ u32 m_unk_0x04;
     /* 0x08 */ u8 m_unk_0x08;
     /* 0x09 */ u8 m_unk_0x09;
     /* 0x0A */ u8 m_unk_0x0A;
     /* 0x0B */ u8 m_unk_0x0B;
-    /* 0x0C */ VertexData *m_unk_0x0C;
+    /* 0x0C */ VertexData* m_vertexData;
     /* 0x10 */ u8 m_padding_0x10[0x0C];
     /* 0x1C */ u32 m_unk_0x1C;
     /* 0x20 */ u32 m_unk_0x20;
@@ -48,13 +48,11 @@ struct glModelPacket // size: 0x4A
     /* 0x48 */ u32 m_unk_0x48;
     /* 0x48 */ u8 m_unk_0x4A;
 
-
     // /* 0x41 */ u8 m_unk_0x41; // used? or alignment?
     // /* 0x42 */ u8 m_unk_0x42; // used? or alignment?
     // /* 0x43 */ u8 m_unk_0x43; // used? or alignment?
 };
 #pragma pop
-
 
 u32 glUserHasType(eGLUserData, const glModelPacket*);
 void glUserDetach(eGLUserData, glModelPacket*);
