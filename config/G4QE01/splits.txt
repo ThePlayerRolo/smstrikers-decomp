@@ -4749,7 +4749,7 @@ NL/nlTimer.cpp:
 	.text       start:0x80212F6C end:0x80213148
 	.sdata2     start:0x803775D8 end:0x803775F0
 
-InterpreterCore.o:
+Game/InterpreterCore.cpp:
 	.text       start:0x80213148 end:0x80213820
 	.text       start:0x80213820 end:0x802138AC
 	.data       start:0x80303A30 end:0x80303A70

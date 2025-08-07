@@ -755,6 +755,9 @@ config.libs = [
             Object(NonMatching, "Game/Drawable/DrawableTmModel.cpp"),
             Object(NonMatching, "Game/Drawable/DrawableSkinModel.cpp"),
 
+            # Interpreter
+            Object(NonMatching, "Game/InterpreterCore.cpp", extra_cflags=["-inline deferred"]),
+
             # GL
             Object(Matching, "Game/GL/GLMaterial.cpp"),
             Object(NonMatching, "Game/GL/GLTextureAnim.cpp"),
