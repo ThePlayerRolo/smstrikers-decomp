@@ -25,61 +25,86 @@ InterpreterCore::~InterpreterCore()
  */
 void InterpreterCore::LoadByteCode(void* arg0)
 {
-    void *temp_r5;
-    void *temp_r6;
-    void *temp_r6_2;
-    void *temp_r6_3;
-
-    m_unk_0x08 = arg0;
-    temp_r5 = m_unk_0x08;
-    // temp_r5->unk14 = (void *) (temp_r5 + 0x24);
-    temp_r6 = m_unk_0x08;
-    // temp_r6->unk18 = (void *) (temp_r6->unk14 + (temp_r6->unk4 * 8));
-    temp_r6_2 = m_unk_0x08;
-    // temp_r6_2->unk1C = (void *) (temp_r6_2->unk18 + temp_r6_2->unk8);
-    temp_r6_3 = m_unk_0x08;
-    // temp_r6_3->unk20 = (void *) (temp_r6_3->unk1C + temp_r6_3->unkC);
+    m_unk_0x08 = (FunctionEntryPoint *)arg0;
+    m_unk_0x08->current = (FunctionEntryPoint *) ((u8*)m_unk_0x08 + 0x24);
+    m_unk_0x08->next = (FunctionEntryPoint *) ((u8*)m_unk_0x08->current + (m_unk_0x08->size * 8));
+    m_unk_0x08->unk_0x1C = (FunctionEntryPoint *) ((u8*)m_unk_0x08->next + m_unk_0x08->unk_0x08);
+    m_unk_0x08->unk_0x20 = (FunctionEntryPoint *) ((u8*)m_unk_0x08->unk_0x1C + m_unk_0x08->unk_0x0C);
     
     m_unk_0x14 = m_unk_0x0C;
     m_unk_0x1C = m_unk_0x14;
-    // m_unk_0x10 = m_unk_0x08->unk1C;
+    m_unk_0x10 = (u32*)(m_unk_0x08->unk_0x1C);
     m_unk_0x18 = m_unk_0x14;
     
-    m_unk_0x20 &= ~0x60;    
+    m_unk_0x20 = m_unk_0x20 & ~0x60;    
 }
 
 /**
  * Offset/Address/Size: 0x4C4 | 0x8021360C | size: 0xE0
  */
-void InterpreterCore::CallFunction(unsigned long)
+void InterpreterCore::CallFunction(unsigned long id)
 {
+    u32 sp8;
+    u32 temp_r0;
+    // void *temp_r5;
+
+    // temp_r5 = m_unk_0x08;
+    FunctionEntryPoint *fnc_ptr = (FunctionEntryPoint*)nlBSearch<FunctionEntryPoint,u32>(id, m_unk_0x08->current, m_unk_0x08->size);
+    m_unk_0x10 = (u32*)((u8*)m_unk_0x08->unk_0x1C + fnc_ptr->size);
+
+    // m_unk_0x10 = this->unk8->unk1C + (nlBSearch<18FunctionEntryPoint,Ul>__FRCUlP18FunctionEntryPointi(&sp8, temp_r5->unk14, temp_r5->unk4))->unk4;
+    m_unk_0x14 = m_unk_0x0C;
+    m_unk_0x1C = m_unk_0x14;
+    m_unk_0x18 = m_unk_0x14;
+    m_unk_0x20 &= ~0x60;
+    temp_r0 = ((u8) m_unk_0x20 >> 5U) & 3;
+    if (temp_r0 != 2) {
+        if (temp_r0 == 0) {
+            *m_unk_0x14 = 0;
+            m_unk_0x14++;
+            m_unk_0x20 = (m_unk_0x20 & ~0x60) | 0x20;
+        }
+        m_unk_0x20 &= ~0x80;
+
+        while (!(((u8) m_unk_0x20 >> 7U) & 1))
+        {
+            Step();
+        }
+// loop_5:
+//         if (!(((u8) m_unk_0x20 >> 7U) & 1)) {
+//             Step__15InterpreterCoreFv(this);
+//             goto loop_5;
+//         }
+    }    
 }
 
 /**
  * Offset/Address/Size: 0x400 | 0x80213548 | size: 0xC4
  */
-void InterpreterCore::CallFunctionAt(unsigned long)
+void InterpreterCore::CallFunctionAt(unsigned long offset)
 {
-    // u32 temp_r0;
-//     this->unk10 = this->unk8->unk1C + arg0;
-//     this->unk14 = this->unkC;
-//     this->unk1C = this->unk14;
-//     this->unk18 = this->unk14;
-//     this->unk20 &= ~0x60;
-//     temp_r0 = ((u8) this->unk20 >> 5U) & 3;
-//     if (temp_r0 != 2) {
-//         if (temp_r0 == 0) {
-//             *this->unk14 = 0;
-//             this->unk14 += 4;
-//             this->unk20 = (this->unk20 & ~0x60) | 0x20;
-//         }
-//         this->unk20 &= ~0x80;
-// loop_5:
-//         if (!(((u8) this->unk20 >> 7U) & 1)) {
-//             Step__15InterpreterCoreFv(this);
-//             goto loop_5;
-//         }
-//     }    
+    u32 temp_r0;
+    m_unk_0x10 = (u32*)((u8*)m_unk_0x08->unk_0x1C + offset);
+    m_unk_0x14 = m_unk_0x0C;
+    m_unk_0x1C = m_unk_0x14;
+    m_unk_0x18 = m_unk_0x14;
+    m_unk_0x20 &= ~0x60;
+    temp_r0 = ((u8) m_unk_0x20 >> 5U) & 3;
+    if (temp_r0 != 2) 
+    {
+            if (temp_r0 == 0) 
+            {
+                *m_unk_0x14 = 0;
+                m_unk_0x14++;
+                m_unk_0x20 = (m_unk_0x20 & ~0x60) | 0x20;
+            }
+            m_unk_0x20 &= ~0x80;
+
+            while(!(((u8) m_unk_0x20 >> 7U) & 1))
+            {
+                Step();
+            }
+    }    
 }
 
 /**
@@ -91,7 +116,7 @@ bool InterpreterCore::FunctionExists(unsigned long id)
     FunctionEntryPoint *temp_r5;
 
     temp_r5 = (FunctionEntryPoint*)m_unk_0x08;
-    temp_r3 = nlBSearch<FunctionEntryPoint,u32>(id, temp_r5->next, temp_r5->size);
+    temp_r3 = nlBSearch<FunctionEntryPoint,u32>(id, temp_r5->current, temp_r5->size);
     return temp_r3 != NULL;  
 }
 
@@ -138,7 +163,7 @@ void InterpreterCore::StopWithUndo()
  */
  void InterpreterCore::Step() 
  {
-    u16 instr = *(u16*)m_unk_0x10;
+    u16 instr = *(u32*)m_unk_0x10;
     u16 op_high = instr & 0xFC00;
     u16 op_low = instr & 0x03FF;
 
@@ -187,7 +212,7 @@ void InterpreterCore::StopWithUndo()
 
                 case 0x2: { // pop, store to m_unk_0x10
                     m_unk_0x14--;
-                    m_unk_0x10 = *(u8**)m_unk_0x14;
+                    m_unk_0x10 = *(u32**)m_unk_0x14;
                     m_unk_0x14 -= (instr & 0xFF);
                     if (!m_unk_0x10) {
                         m_unk_0x20 |= 0x80; // stop
@@ -248,7 +273,7 @@ void InterpreterCore::StopWithUndo()
                     s32* funcTable = (s32*)((u8*)m_unk_0x08 + 0x14);
                     u8* base = (u8*)m_unk_0x08 + 0x1C;
                     u32 index = ((u16*)m_unk_0x10)[1];
-                    m_unk_0x10 = base + (funcTable[index] & ~1);
+                    m_unk_0x10 = (u32*)(base + (funcTable[index] & ~1));
                     break;
                 }
 
