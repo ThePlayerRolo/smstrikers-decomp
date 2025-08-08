@@ -787,7 +787,7 @@ config.libs = [
             Object(NonMatching, "NL/nlPrint.cpp"),
             Object(Matching, "NL/nlSlotPool.cpp"),
             Object(NonMatching, "NL/nlString.cpp"),
-            Object(NonMatching, "NL/nlTask.cpp"),
+            Object(Matching, "NL/nlTask.cpp"),
             Object(NonMatching, "NL/nlTextBox.cpp"),
             Object(NonMatching, "NL/nlTextEscape.cpp"),
             Object(NonMatching, "NL/nlTicker.cpp"),

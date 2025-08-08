@@ -8,10 +8,9 @@
 u8 g_StackWatermarkFiller = 0x78;
 float g_fTaskTimeUpperBound = 0.1f;
 
+nlTaskManager* nlTaskManager::m_pInstance = nullptr;
 u8 g_DoStackWatermarkTests;
 float g_fTaskTimeLowerBound;
-
-nlTaskManager* nlTaskManager::m_pInstance = nullptr;
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D28FC | size: 0xC
@@ -37,9 +36,9 @@ void nlTaskManager::RunAllTasks()
     f32 tickerDifference;
     f32 deltaTime;
     f32 clampedDeltaTime;
-    s32 currentTicker;
     nlTask* currentTask;
     nlTask* taskIterator;
+    s32 currentTicker;
 
     currentTask = nlDLRingGetStart<nlTask>(m_pInstance->m_taskRingHead);
     if (currentTask != NULL)
@@ -56,7 +55,7 @@ void nlTaskManager::RunAllTasks()
             m_pInstance->m_taskCount = (u32)m_pInstance->m_unk_0x08;
             m_pInstance->m_unk_0x08 = (u32)m_pInstance->m_nextState;
         }
-        
+
         taskIterator = nlDLRingGetStart<nlTask>(m_pInstance->m_taskRingHead);
     loop_6:
         currentTicker = nlGetTicker();
