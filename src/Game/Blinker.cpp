@@ -124,11 +124,6 @@ Blinker::Blinker(const char* name, unsigned long arg1, GLMaterialList* list0, GL
     m_unk_0x20 = -1;
     m_unk_0x24 = -1;
 
-    // Three naming pattern variants
-    static const char* const fmt0 = "%s/%s_eye_%d";
-    static const char* const fmt1 = "%s/%s_eye%d";
-    static const char* const fmt2 = "%s/%seye_%d";
-
     // Stack buffers laid out like asm (0x80 each): sp188, sp108, sp88, sp8
     char sp188[0x80];
     char sp108[0x80];
@@ -144,15 +139,15 @@ Blinker::Blinker(const char* name, unsigned long arg1, GLMaterialList* list0, GL
     {
         if (var_r28 == 0)
         {
-            nlSNPrintf(sp188, 0x80, fmt0, name, name, 0);
+            nlSNPrintf(sp188, 0x80, "%s/%s_eye_%d", name, name, 0);
         }
         else if (var_r28 == 1)
         {
-            nlSNPrintf(sp188, 0x80, fmt1, name, name, 0);
+            nlSNPrintf(sp188, 0x80, "%s/%s_eye%d", name, name, 0);
         }
         else if (var_r28 == 2)
         {
-            nlSNPrintf(sp188, 0x80, fmt2, name, name, 0);
+            nlSNPrintf(sp188, 0x80, "%s/%seye_%d", name, name, 0);
         }
         else
         {
@@ -169,15 +164,15 @@ Blinker::Blinker(const char* name, unsigned long arg1, GLMaterialList* list0, GL
 
         if (var_r28 == 0)
         {
-            nlSNPrintf(sp108, 0x80, fmt0, name, name, 1);
+            nlSNPrintf(sp108, 0x80, "%s/%s_eye_%d", name, name, 1);
         }
         else if (var_r28 == 1)
         {
-            nlSNPrintf(sp108, 0x80, fmt1, name, name, 1);
+            nlSNPrintf(sp108, 0x80, "%s/%s_eye%d", name, name, 1);
         }
         else // var_r28 == 2
         {
-            nlSNPrintf(sp108, 0x80, fmt2, name, name, 1);
+            nlSNPrintf(sp108, 0x80, "%s/%seye_%d", name, name, 1);
         }
 
         m_unk_0x18 = glGetTexture(sp108);
@@ -195,22 +190,20 @@ Blinker::Blinker(const char* name, unsigned long arg1, GLMaterialList* list0, GL
 
     if (var_r30)
     {
-        // Compute indices via sign-prop bit trick to match asm
-        // temp = ((-x | x) >> 31), idx2 = temp + 2, idx3 = temp + 3
-        int tmp = ((-static_cast<int>(var_r27)) | static_cast<int>(var_r27)) >> 31;
+        int tmp = (var_r27 != 0) ? -1 : 0;
         int idx2 = tmp + 2;
 
         if (var_r28 == 0)
         {
-            nlSNPrintf(sp88, 0x80, fmt0, name, name, idx2);
+            nlSNPrintf(sp88, 0x80, "%s/%s_eye_%d", name, name, idx2);
         }
         else if (var_r28 == 1)
         {
-            nlSNPrintf(sp88, 0x80, fmt1, name, name, idx2);
+            nlSNPrintf(sp88, 0x80, "%s/%s_eye%d", name, name, idx2);
         }
         else // var_r28 == 2
         {
-            nlSNPrintf(sp88, 0x80, fmt2, name, name, idx2);
+            nlSNPrintf(sp88, 0x80, "%s/%seye_%d", name, name, idx2);
         }
 
         m_unk_0x1C = glGetTexture(sp88);
@@ -218,15 +211,15 @@ Blinker::Blinker(const char* name, unsigned long arg1, GLMaterialList* list0, GL
         int idx3 = tmp + 3;
         if (var_r28 == 0)
         {
-            nlSNPrintf(sp8, 0x80, fmt0, name, name, idx3);
+            nlSNPrintf(sp8, 0x80, "%s/%s_eye_%d", name, name, idx3);
         }
         else if (var_r28 == 1)
         {
-            nlSNPrintf(sp8, 0x80, fmt1, name, name, idx3);
+            nlSNPrintf(sp8, 0x80, "%s/%s_eye%d", name, name, idx3);
         }
         else // var_r28 == 2
         {
-            nlSNPrintf(sp8, 0x80, fmt2, name, name, idx3);
+            nlSNPrintf(sp8, 0x80, "%s/%seye_%d", name, name, idx3);
         }
 
         m_unk_0x20 = glGetTexture(sp8);
