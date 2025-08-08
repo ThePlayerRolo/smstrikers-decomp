@@ -2,7 +2,18 @@
 #include "CharacterTemplate.h"
 #include "EmissionManager.h"
 
+#include "NL/nlString.h"
+
+#include "NL/gl/glState.h"
+#include "NL/gl/glTexture.h"
+
+#include "Team.h"
+
 #include "audio.h"
+
+f32 CANT_COLLIDE = *(f32*)__float_max;
+
+const char* szMushroomBlurTextureBase = "global/mushroomstreak";
 
 extern unsigned int nlDefaultSeed;
 
@@ -372,8 +383,14 @@ void cCharacter::InitMovementFromAnimSeek(float arg0, float arg1)
 /**
  * Offset/Address/Size: 0x16F4 | 0x8000F640 | size: 0x3C
  */
-void cCharacter::InitMovementFromAnim(short, const nlVector3&, float, bool)
+void cCharacter::InitMovementFromAnim(short arg0, const nlVector3& arg1, float arg2, bool arg3)
 {
+    m_unk_0x3C = 0x02;
+    m_unk_0x70 = arg0;
+    m_unk_0x74 = arg1;
+    // this->unk4C = this->unk90->unk18;
+    // this->unk50 = arg2;
+    // this->unk4A = arg3;
 }
 
 /**
@@ -398,13 +415,49 @@ void cCharacter::InitMovementCoast()
  */
 void cCharacter::EndBlur()
 {
+    if (m_unk_0x114 != NULL)
+    {
+        m_unk_0x114->Die(0.0f);
+        m_unk_0x114 = NULL;
+    }
 }
 
 /**
  * Offset/Address/Size: 0x1790 | 0x8000F6DC | size: 0xBC
  */
-void cCharacter::InitBlur(int)
+void cCharacter::InitBlur(int arg0)
 {
+    char* sp8;
+    // BlurHandler* temp_r3;
+    // BlurManager* var_r3;
+    s32 var_r31;
+
+    var_r31 = arg0;
+    // temp_r3 = m_unk_0x114;
+    if (m_unk_0x114 != NULL)
+    {
+        BlurManager::DestroyHandler(m_unk_0x114, 0.15f);
+        m_unk_0x114 = NULL;
+    }
+
+    if (var_r31 == 0)
+    {
+        var_r31 = 0x1E;
+    }
+
+    if (m_unk_0xB4 == 2)
+    {
+        nlStrNCat<char>(sp8, szMushroomBlurTextureBase, m_unk_0x1CC->GetCaptain()->m_unk_0xB0, 0x40);
+    }
+
+    const char* var_r3 = szMushroomBlurTextureBase;
+
+    if (glTextureLoad(glGetTexture(sp8)))
+    {
+        var_r3 = sp8;
+    }
+
+    m_unk_0x114 = BlurManager::GetNewHandler(var_r3, 0.35f, var_r31, true);
 }
 
 /**

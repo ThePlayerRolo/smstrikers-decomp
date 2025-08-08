@@ -11,7 +11,6 @@
 // void nlDLRingAddStart<BlurHandler>(BlurHandler**, BlurHandler*);
 // void nlDeleteRing<BlurHandler>(BlurHandler**);
 
-
 class BlurHandler
 {
 public:
@@ -26,8 +25,8 @@ class BlurManager
 public:
     void Shutdown();
     void Update(float);
-    void DestroyHandler(BlurHandler*, float);
-    void GetNewHandler(const char*, float, int, bool);
+    static void DestroyHandler(BlurHandler*, float);
+    static BlurHandler* GetNewHandler(const char*, float, int, bool);
 };
 
 // class SlotPool<BlurHandler>

@@ -110,8 +110,9 @@ void glGetRasterState(eGLState)
 /**
  * Offset/Address/Size: 0x76C | 0x801DC3B0 | size: 0x30
  */
-void* glGetTexture(const char*)
+u32 glGetTexture(const char*)
 {
+    return 0;
 }
 
 /**
@@ -155,7 +156,7 @@ void glSetCurrentRasterState(unsigned long)
 void glGetCurrentRasterState()
 {
 }
-    
+
 /**
  * Offset/Address/Size: 0x840 | 0x801DC484 | size: 0x18
  */

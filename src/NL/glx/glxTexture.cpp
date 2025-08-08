@@ -82,8 +82,9 @@ u32 glplatTextureGetWidth()
 /**
  * Offset/Address/Size: 0x810 | 0x801B7ACC | size: 0x64
  */
-void glplatTextureLoad(unsigned long)
+bool glplatTextureLoad(unsigned long)
 {
+    return false;
 }
 
 /**

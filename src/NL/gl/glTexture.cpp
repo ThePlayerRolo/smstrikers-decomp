@@ -37,14 +37,14 @@ u32 glTextureGetHeight()
  * Offset/Address/Size: 0x80 | 0x801DF1E0 | size: 0x20
  */
 u32 glTextureGetWidth()
-{   
+{
     return glplatTextureGetWidth();
 }
 
 /**
  * Offset/Address/Size: 0xA0 | 0x801DF200 | size: 0x20
  */
-void glTextureLoad(unsigned long arg0)
+bool glTextureLoad(unsigned long arg0)
 {
-    glplatTextureLoad(arg0);
+    return glplatTextureLoad(arg0);
 }

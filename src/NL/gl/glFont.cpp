@@ -8,7 +8,7 @@
 
 #include "font_data.h"
 
-glPoly2 *g_poly = NULL;
+glPoly2* g_poly = NULL;
 void* handle = NULL;
 bool bInsideBegin = false;
 bool bEnabled = false;
@@ -22,7 +22,7 @@ bool glFontPrintf(eGLView view, int x, int y, const nlColour& col, const char* f
 {
     char string[0x80];
     va_list args;
-    
+
     if (bEnabled == false)
     {
         return false;
@@ -31,18 +31,18 @@ bool glFontPrintf(eGLView view, int x, int y, const nlColour& col, const char* f
     va_start(args, format);
     nlVSNPrintf(string, 0x80, format, args);
     va_end(args);
-    
+
     return glFontPrint(view, x, y, col, string);
 }
 
 /**
  * Offset/Address/Size: 0xE8 | 0x801D8480 | size: 0xF4
  */
- bool glFontPrintf(eGLView view, int x, int y, const char* format, ...)
+bool glFontPrintf(eGLView view, int x, int y, const char* format, ...)
 {
     char string[0x80];
     va_list args;
-    
+
     if (bEnabled == false)
     {
         return false;
@@ -51,7 +51,7 @@ bool glFontPrintf(eGLView view, int x, int y, const nlColour& col, const char* f
     va_start(args, format);
     nlVSNPrintf(string, 0x80, format, args);
     va_end(args);
-    
+
     nlColour col;
     col.r = 255;
     col.g = 255;
@@ -64,23 +64,26 @@ bool glFontPrintf(eGLView view, int x, int y, const nlColour& col, const char* f
 /**
  * Offset/Address/Size: 0x1DC | 0x801D8574 | size: 0x3EC
  */
- bool glFontPrint(eGLView view, int x, int y, const nlColour& col, const char* text)
+bool glFontPrint(eGLView view, int x, int y, const nlColour& col, const char* text)
 {
-    if (nlStrLen(text) == 0) {
+    if (nlStrLen(text) == 0)
+    {
         return false;
     }
 
-    if (bEnabled == false) {
+    if (bEnabled == false)
+    {
         return false;
     }
 
     int pos_x = x;
     int pos_y = y;
-    if ((u8) bVirtualCoords != 0) {
+    if ((u8)bVirtualCoords != 0)
+    {
         pos_x = (pos_x * 0xA) + 0x28;
         pos_y = (pos_y * 0xB) + 0x20;
     }
-    
+
     int str_len = nlStrLen(text);
 
     // todo
@@ -124,7 +127,7 @@ void glFontBegin(bool drop)
 void glFontVirtualPosToScreenCoordPos(float x, float y, float& outX, float& outY)
 {
     outX = (10.0f * x) + 40.0f;
-    outY = (11.0f * y) + 32.0f;    
+    outY = (11.0f * y) + 32.0f;
 }
 
 /**
@@ -132,7 +135,7 @@ void glFontVirtualPosToScreenCoordPos(float x, float y, float& outX, float& outY
  */
 void gl_FontStartup()
 {
-    void* temp_r3 = glGetTexture("font/fixed8x8");
+    void* temp_r3 = (void*)glGetTexture("font/fixed8x8");
     handle = temp_r3;
     glplatCreateFont(0x40, 0x80, _fontData, (unsigned long)temp_r3);
     bInsideBegin = 0;

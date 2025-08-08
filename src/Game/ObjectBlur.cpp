@@ -24,8 +24,9 @@ void BlurManager::DestroyHandler(BlurHandler*, float)
 /**
  * Offset/Address/Size: 0x1DC | 0x801629B0 | size: 0xD0
  */
-void BlurManager::GetNewHandler(const char*, float, int, bool)
+BlurHandler* BlurManager::GetNewHandler(const char*, float, int, bool)
 {
+    return NULL;
 }
 
 /**

@@ -10,6 +10,8 @@
 #include "PhysicsCharacter.h"
 #include "CharacterAudio.h"
 
+#include "ObjectBlur.h"
+
 class Event;
 
 // Forward declarations
@@ -22,6 +24,7 @@ class GLSkinMesh;
 class glModel;
 class EmissionController;
 class EffectsGroup;
+class cTeam;
 
 // Enums
 enum eCharacterClass
@@ -122,12 +125,18 @@ public:
     /* 0x5C */ float m_unk_0x5C;
     /* 0x60 */ float m_unk_0x60;
 
-    /* 0x64 */ u8 m_padding_0x64[0x30];
+    /* 0x64 */ u8 m_padding_0x64[0x0C];
+
+    /* 0x70 */ s16 m_unk_0x70;
+    /* 0x74 */ nlVector3 m_unk_0x74;
+
+    /* 0x80 */ u8 m_padding_0x80[0x14];
 
     /* 0x94 */ u32 m_unk_0x94;
 
-    /* 0x98 */ u8 m_padding_0x98[0x20];
+    /* 0x98 */ u8 m_padding_0x98[0x1C];
 
+    /* 0xB4 */ u32 m_unk_0xB4;
     /* 0xB8 */ bool m_unk_0xB8;
     /* 0xBC */ Audio::cCharacterSFX* m_sfx;
 
@@ -137,9 +146,13 @@ public:
     /* 0x10C */ float m_unk_0x10C;
     /* 0x110 */ float m_unk_0x110;
 
-    /* 0x114 */ u32 m_unk_0x114;
+    /* 0x114 */ BlurHandler* m_unk_0x114;
     /* 0x118 */ Blinker* m_unk_0x118;
     /* 0x11C */ u32 m_unk_0x11C;
+
+    /* 0x120 */ u8 m_padding_0x120[0xAC];
+
+    /* 0x1CC */ cTeam* m_unk_0x1CC;
 };
 
 class cPN_SAnimController

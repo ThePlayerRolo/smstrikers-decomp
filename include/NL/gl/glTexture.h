@@ -8,6 +8,6 @@ void glTextureAdd(unsigned long, const void*, unsigned long);
 void glTextureGetNumBits(int);
 u32 glTextureGetHeight();
 u32 glTextureGetWidth();
-void glTextureLoad(unsigned long);
+bool glTextureLoad(unsigned long);
 
 #endif // _GLTEXTURE_H_

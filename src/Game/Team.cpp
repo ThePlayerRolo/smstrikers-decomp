@@ -15,7 +15,7 @@ cFielder* cTeam::GetStriker() const
     return this->striker;
 }
 
-int cTeam::GetCaptain()
+cFielder* cTeam::GetCaptain()
 {
     return this->captain;
 }

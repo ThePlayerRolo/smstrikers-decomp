@@ -40,7 +40,7 @@ void glx_CreatePlatTexture();
 void glplatTextureGetNumBits(int);
 u32 glplatTextureGetHeight();
 u32 glplatTextureGetWidth();
-void glplatTextureLoad(unsigned long);
+bool glplatTextureLoad(unsigned long);
 void glplatEndLoadTextureBundle(void*, unsigned long);
 void glplatBeginLoadTextureBundle(const char*, void (*)(void*, unsigned long, void*), void*);
 void glxParseTextureBundle(const char*);
@@ -70,43 +70,40 @@ public:
     ~PlatTexture();
 };
 
-
 class TexDestructor
 {
 public:
     void CallDestructor(const unsigned long&, PlatTexture**);
 };
 
-
 // class AVLTreeBase<unsigned long, PlatTexture*, NewAdapter<AVLTreeEntry<unsigned long, PlatTexture*>>, DefaultKeyCompare<unsigned long>>
 // {
 // public:
 //     void DeleteEntry(AVLTreeEntry<unsigned long, PlatTexture*>*);
 //     void Clear();
-//     void DestroyTree(void (AVLTreeBase<unsigned long, PlatTexture*, NewAdapter<AVLTreeEntry<unsigned long, PlatTexture*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, PlatTexture*>*));
-//     void PostorderTraversal(AVLTreeEntry<unsigned long, PlatTexture*>*, void (AVLTreeBase<unsigned long, PlatTexture*, NewAdapter<AVLTreeEntry<unsigned long, PlatTexture*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, PlatTexture*>*));
-//     void CastUp(AVLTreeNode*) const;
-//     void Walk<TexDestructor>(TexDestructor*, void (TexDestructor::*)(const unsigned long&, PlatTexture**));
-//     void InorderWalk<TexDestructor>(AVLTreeEntry<unsigned long, PlatTexture*>*, TexDestructor*, void (TexDestructor::*)(const unsigned long&, PlatTexture**));
-//     void CompareNodes(AVLTreeNode*, AVLTreeNode*);
-//     void CompareKey(void*, AVLTreeNode*);
-//     void AllocateEntry(void*, void*);
+//     void DestroyTree(void (AVLTreeBase<unsigned long, PlatTexture*, NewAdapter<AVLTreeEntry<unsigned long, PlatTexture*>>,
+//     DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, PlatTexture*>*)); void PostorderTraversal(AVLTreeEntry<unsigned
+//     long, PlatTexture*>*, void (AVLTreeBase<unsigned long, PlatTexture*, NewAdapter<AVLTreeEntry<unsigned long, PlatTexture*>>,
+//     DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, PlatTexture*>*)); void CastUp(AVLTreeNode*) const; void
+//     Walk<TexDestructor>(TexDestructor*, void (TexDestructor::*)(const unsigned long&, PlatTexture**)); void
+//     InorderWalk<TexDestructor>(AVLTreeEntry<unsigned long, PlatTexture*>*, TexDestructor*, void (TexDestructor::*)(const unsigned long&,
+//     PlatTexture**)); void CompareNodes(AVLTreeNode*, AVLTreeNode*); void CompareKey(void*, AVLTreeNode*); void AllocateEntry(void*,
+//     void*);
 // };
 
-
-// class nlWalkList<ListEntry<PlatTexture*>, ListContainerBase<PlatTexture*, NewAdapter<ListEntry<PlatTexture*>>>>(ListEntry<PlatTexture*>*, ListContainerBase<PlatTexture*, NewAdapter<ListEntry<PlatTexture*>>>*, void (ListContainerBase<PlatTexture*, NewAdapter<ListEntry<PlatTexture*>>>
+// class nlWalkList<ListEntry<PlatTexture*>, ListContainerBase<PlatTexture*, NewAdapter<ListEntry<PlatTexture*>>>>(ListEntry<PlatTexture*>*,
+// ListContainerBase<PlatTexture*, NewAdapter<ListEntry<PlatTexture*>>>*, void (ListContainerBase<PlatTexture*,
+// NewAdapter<ListEntry<PlatTexture*>>>
 // {
 // public:
 //     void *)(ListEntry<PlatTexture*>*));
 // };
-
 
 // class ListContainerBase<PlatTexture*, NewAdapter<ListEntry<PlatTexture*>>>
 // {
 // public:
 //     void DeleteEntry(ListEntry<PlatTexture*>*);
 // };
-
 
 // class nlListContainer<PlatTexture*>
 // {

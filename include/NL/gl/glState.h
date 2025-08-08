@@ -30,7 +30,7 @@ void glSetRasterState(unsigned long&, eGLState, unsigned long);
 void glSetRasterState(eGLState, unsigned long);
 void glGetRasterState(unsigned long, eGLState);
 void glGetRasterState(eGLState);
-void* glGetTexture(const char*);
+u32 glGetTexture(const char*);
 void glGetProgram(const char*);
 void glSetCurrentMatrix(unsigned long);
 void glSetCurrentTextureState(unsigned long long state);

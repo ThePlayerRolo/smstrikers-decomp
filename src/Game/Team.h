@@ -17,7 +17,7 @@ class cTeam
 {
 private:
     unknown32 unk_00;
-    int captain;         // Offset 0x04, size: 0x4
+    cFielder* captain;   // Offset 0x04, size: 0x4
     unknown8 pad_08[16]; // Offset 0x08, size: 0x10
     cFielder* striker;   // Offset 0x18, size: 0x4
     unknown32 unk_1C;
@@ -30,7 +30,7 @@ public:
     cFielder* GetDefense() const;
     cFielder* GetMidfield() const;
     cFielder* GetStriker() const;
-    int GetCaptain();
+    cFielder* GetCaptain();
 
     void AssignMarks(bool);
     void UpdateTeamAI(float);
