@@ -98,7 +98,7 @@ public:
 // void FadeFilterToFullStrength();
 // void PitchBend(float, float, float, float);
 // void FadeFilter(float, float, float, float);
-// void ClearFadeData();
+void ClearFadeData();
 bool IsEmitterActive(SFXEmitter*);
 u32 GetEmitterVoiceID(SFXEmitter*);
 void Remove3DSFXEmitter(SFXEmitter*);

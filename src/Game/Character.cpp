@@ -12,14 +12,16 @@ extern unsigned int nlDefaultSeed;
 void cCharacter::AddRandomDirt()
 {
     m_unk_0x110 += nlRandomf(0.05f, &nlDefaultSeed);
-    if (m_unk_0x110 > 0.2f) {
+    if (m_unk_0x110 > 0.2f)
+    {
         m_unk_0x110 = 0.2f;
     }
 
     m_unk_0x10C += 0.5f + nlRandomf(0.39999998f, &nlDefaultSeed);
-    if (m_unk_0x10C > 1.0f) {
+    if (m_unk_0x10C > 1.0f)
+    {
         m_unk_0x10C = 1.0f;
-    }    
+    }
 }
 
 /**
@@ -27,17 +29,17 @@ void cCharacter::AddRandomDirt()
  */
 void cCharacter::SetElectrocutionTextureEnabled(bool arg0)
 {
-    if ((m_unk_0xB8 == false) && (arg0 != false)) 
+    if ((m_unk_0xB8 == false) && (arg0 != false))
     {
-        m_unk_0x11C = fxGetTexturing((eEffectsTextureType) 4);
+        m_unk_0x11C = fxGetTexturing((eEffectsTextureType)4);
     }
 
-    if ((m_unk_0xB8 != false) && (arg0 == false)) 
+    if ((m_unk_0xB8 != false) && (arg0 == false))
     {
         m_unk_0x11C = 0;
     }
 
-    m_unk_0xB8 = arg0;    
+    m_unk_0xB8 = arg0;
 }
 
 /**
@@ -45,11 +47,11 @@ void cCharacter::SetElectrocutionTextureEnabled(bool arg0)
  */
 void cCharacter::PerformBlinking(GLSkinMesh* skinMesh, glModel* model) const
 {
-    Blinker *temp_r3 = m_unk_0x118;
-    if (temp_r3 != NULL) 
+    Blinker* temp_r3 = m_unk_0x118;
+    if (temp_r3 != NULL)
     {
         temp_r3->Blink(model);
-    } 
+    }
 }
 
 /**
@@ -57,11 +59,11 @@ void cCharacter::PerformBlinking(GLSkinMesh* skinMesh, glModel* model) const
  */
 void cCharacter::UpdateBlinking(float arg0)
 {
-    Blinker *temp_r3 = m_unk_0x118;
-    if (temp_r3 != NULL) 
+    Blinker* temp_r3 = m_unk_0x118;
+    if (temp_r3 != NULL)
     {
         temp_r3->Update(arg0);
-    }    
+    }
 }
 
 /**
@@ -83,10 +85,10 @@ void cCharacter::Play3DSFX(Audio::eCharSFX, PosUpdateMethod, float)
  */
 void cCharacter::StopPlayingAllTrackedSFX()
 {
-    if (Audio::IsInited()) 
+    if (Audio::IsInited())
     {
         m_sfx->StopPlayingAllTrackedSFX();
-    }    
+    }
 }
 
 /**
@@ -94,23 +96,23 @@ void cCharacter::StopPlayingAllTrackedSFX()
  */
 void cCharacter::StopSFX(Audio::eCharSFX sfxType)
 {
-    if (Audio::IsInited()) 
+    if (Audio::IsInited())
     {
         m_sfx->Stop(sfxType, cGameSFX::StopFlag_1);
-    }    
+    }
 }
 
 /**
  * Offset/Address/Size: 0x334 | 0x8000E280 | size: 0x60
  */
 // void cCharacter::PlaySFX(Audio::SoundAttributes&)
-int cCharacter::PlaySFX(Audio::SoundAttributes& attributes) 
+int cCharacter::PlaySFX(Audio::SoundAttributes& attributes)
 {
-    if (Audio::IsInited()) 
+    if (Audio::IsInited())
     {
         return m_sfx->Play(attributes);
     }
-    return -1;    
+    return -1;
 }
 
 /**
@@ -118,12 +120,12 @@ int cCharacter::PlaySFX(Audio::SoundAttributes& attributes)
  */
 void cCharacter::SetSFX(SoundPropAccessor* arg0)
 {
-    if (Audio::IsInited()) 
+    if (Audio::IsInited())
     {
         m_sfx->Init();
         m_sfx->m_physicsCharacter = m_physicsCharacter;
         m_sfx->SetSFX(arg0);
-    }    
+    }
 }
 
 /**
@@ -196,7 +198,7 @@ void cCharacter::SetPosition(const nlVector3& position)
 /**
  * Offset/Address/Size: 0xE10 | 0x8000ED5C | size: 0x30
  */
-void cCharacter::SetFacingDirection(unsigned short dir) 
+void cCharacter::SetFacingDirection(unsigned short dir)
 {
     m_unk_0x44 = m_unk_0x42;
     m_unk_0x42 = dir;
@@ -226,13 +228,15 @@ float cCharacter::SeekSpeedExponential(float currentValue, float targetValue, fl
     float adjustment;
     float distance;
     float difference;
-    
+
     difference = targetValue - currentValue;
     distance = fabs(difference);
 
-    if (distance > 0.1f) {
+    if (distance > 0.1f)
+    {
         adjustment = distance - (1.0f / ((responsiveness * deltaTime) + (1.0f / distance)));
-        if (difference > 0.0f) {
+        if (difference > 0.0f)
+        {
             return currentValue + adjustment;
         }
         return currentValue - adjustment;
@@ -263,7 +267,7 @@ void cCharacter::PostPhysicsUpdate()
  */
 void cCharacter::CreateWorldMatrix()
 {
-    nlMakeRotationMatrixZ(m_worldMatrix, 0.0000958738f * (f32) m_unk_0x42);
+    nlMakeRotationMatrixZ(m_worldMatrix, 0.0000958738f * (f32)m_unk_0x42);
     m_worldMatrix.m[3][0] = m_position.f.x;
     m_worldMatrix.m[3][1] = m_position.f.y;
     m_worldMatrix.m[3][2] = m_position.f.z;
@@ -314,36 +318,55 @@ void cCharacter::MatchAnimSpeedToCharacterSpeed(unsigned int, cPN_SAnimControlle
 /**
  * Offset/Address/Size: 0x1680 | 0x8000F5CC | size: 0x1C
  */
-void cCharacter::InitMovementStrafing(float, float, float, float)
+void cCharacter::InitMovementStrafing(float arg0, float arg1, float arg2, float arg3)
 {
+    m_unk_0x3C = 0x07;
+    m_unk_0x54 = arg0;
+    m_unk_0x58 = arg1;
+    m_unk_0x5C = arg2;
+    m_unk_0x60 = arg3;
 }
 
 /**
  * Offset/Address/Size: 0x169C | 0x8000F5E8 | size: 0x14
  */
-void cCharacter::InitMovementRunningNoTurn(float, float)
+void cCharacter::InitMovementRunningNoTurn(float arg0, float arg1)
 {
+    m_unk_0x3C = 0x06;
+    m_unk_0x5C = arg0;
+    m_unk_0x60 = arg1;
 }
 
 /**
  * Offset/Address/Size: 0x16B0 | 0x8000F5FC | size: 0x1C
  */
-void cCharacter::InitMovementRunning(float, float, float, float)
+void cCharacter::InitMovementRunning(float arg0, float arg1, float arg2, float arg3)
 {
+    m_unk_0x3C = 0x05;
+    m_unk_0x54 = arg0;
+    m_unk_0x58 = arg1;
+    m_unk_0x5C = arg2;
+    m_unk_0x60 = arg3;
 }
 
 /**
  * Offset/Address/Size: 0x16CC | 0x8000F618 | size: 0x14
  */
-void cCharacter::InitMovementNone(float, float)
+void cCharacter::InitMovementNone(float arg0, float arg1)
 {
+    m_unk_0x3C = 0x04;
+    m_unk_0x54 = arg0;
+    m_unk_0x58 = arg1;
 }
 
 /**
  * Offset/Address/Size: 0x16E0 | 0x8000F62C | size: 0x14
  */
-void cCharacter::InitMovementFromAnimSeek(float, float)
+void cCharacter::InitMovementFromAnimSeek(float arg0, float arg1)
 {
+    m_unk_0x3C = 0x03;
+    m_unk_0x54 = arg0;
+    m_unk_0x58 = arg1;
 }
 
 /**
@@ -356,8 +379,10 @@ void cCharacter::InitMovementFromAnim(short, const nlVector3&, float, bool)
 /**
  * Offset/Address/Size: 0x1730 | 0x8000F67C | size: 0x10
  */
-void cCharacter::InitMovementDecelerateExponential(float)
+void cCharacter::InitMovementDecelerateExponential(float arg0)
 {
+    m_unk_0x3C = 0x01;
+    m_unk_0x60 = arg0;
 }
 
 /**
@@ -365,6 +390,7 @@ void cCharacter::InitMovementDecelerateExponential(float)
  */
 void cCharacter::InitMovementCoast()
 {
+    m_unk_0x3C = 0x00;
 }
 
 /**
@@ -456,7 +482,8 @@ cCharacter::~cCharacter()
 /**
  * Offset/Address/Size: 0x2238 | 0x80010184 | size: 0x468
  */
-cCharacter::cCharacter(eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, float, float, AnimRetargetList*, eClassTypes)
+cCharacter::cCharacter(eCharacterClass, const int*, cSHierarchy*, cAnimInventory*, const CharacterPhysicsData*, float, float,
+                       AnimRetargetList*, eClassTypes)
 {
 }
 
@@ -500,7 +527,7 @@ GLSkinMesh::~GLSkinMesh()
  */
 u32 CharacterDirectionData::GetID()
 {
-    return 0x175;   
+    return 0x175;
 }
 
 /**

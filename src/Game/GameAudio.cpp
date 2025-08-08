@@ -1,4 +1,5 @@
 #include "GameAudio.h"
+#include "types.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x80151544 | size: 0x8D8
@@ -12,6 +13,8 @@ void cGameSFX::UpdateAllTrackedSFX(float)
  */
 void cGameSFX::StopPlayingAllTrackedSFX()
 {
+    // todo: implement
+    FORCE_DONT_INLINE;
 }
 
 /**
@@ -132,6 +135,26 @@ void cGameSFX::SetSFX(SoundPropAccessor*)
  */
 void cGameSFX::ShutdownPlaySet()
 {
+    FORCE_DONT_INLINE;
+
+    // s32 sp10;
+    // s32 spC;
+    // s32 sp8;
+
+    m_unk_0x1C = false;
+    StopPlayingAllTrackedSFX();
+
+    // sp8 = @565.unk0;
+    // spC = @565.unk4;
+    // sp10 = @565.unk8;
+
+    // nlWalkDLRing<26DLListEntry < P10SFXPlaySet>, 77DLListContainerBase < P10SFXPlaySet,
+    //     40NewAdapter < 26DLListEntry < P10SFXPlaySet >>>> __FP26DLListEntry<P10SFXPlaySet> P77DLListContainerBase < P10SFXPlaySet,
+    //     40NewAdapter < 26DLListEntry < P10SFXPlaySet >>> M77DLListContainerBase < P10SFXPlaySet,
+    //     40NewAdapter < 26DLListEntry < P10SFXPlaySet
+    //         >>> FPCvPvP26DLListEntry<P10SFXPlaySet> _v(this->unk18, &this->unk14, &sp8, @565.unk0, &@565);
+
+    m_unk_0x18 = NULL;
 }
 
 /**
@@ -139,6 +162,13 @@ void cGameSFX::ShutdownPlaySet()
  */
 void cGameSFX::DeInit()
 {
+    ShutdownPlaySet();
+    m_unk_0x10 = NULL;
+    m_unk_0x24 = 0;
+    m_unk_0x2C = false;
+    m_unk_0x2E = 0;
+    m_unk_0x30 = 0x2000;
+    m_unk_0x04 = false;
 }
 
 /**
@@ -146,6 +176,8 @@ void cGameSFX::DeInit()
  */
 void cGameSFX::Init()
 {
+    m_unk_0x04 = true;
+    m_unk_0x1C = true;
 }
 
 /**
@@ -172,7 +204,10 @@ cGameSFX::cGameSFX()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x80153C14 | size: 0x3C
 //  */
-// void nlWalkDLRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
+// void nlWalkDLRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*,
+// NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*,
+// NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*,
+// NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
 // {
 // }
 
@@ -207,7 +242,10 @@ cGameSFX::cGameSFX()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x80153D04 | size: 0x60
 //  */
-// void nlWalkRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*, NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
+// void nlWalkRing<DLListEntry<SFXPlaySet*>, DLListContainerBase<SFXPlaySet*,
+// NewAdapter<DLListEntry<SFXPlaySet*>>>>(DLListEntry<SFXPlaySet*>*, DLListContainerBase<SFXPlaySet*,
+// NewAdapter<DLListEntry<SFXPlaySet*>>>*, void (DLListContainerBase<SFXPlaySet*,
+// NewAdapter<DLListEntry<SFXPlaySet*>>>::*)(DLListEntry<SFXPlaySet*>*))
 // {
 // }
 

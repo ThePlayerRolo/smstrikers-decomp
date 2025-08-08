@@ -2,7 +2,26 @@
 #include "audio.h"
 #include "GameAudio.h"
 
+#include "NL/nlMemory.h"
+#include "NL/nlTimer.h"
 #include "NL/plat/plataudio.h"
+
+struct FadeAudioData
+{
+    /* 0x00 */ char padding[0x28];
+    /* 0x28 */ FadeAudioData* next; // Pointer to next node for nlDeleteList
+};
+
+struct DelayTimer
+{
+    float _unk_0x0;
+    // todo: implement
+};
+
+FadeAudioData* g_pFadeList;
+
+// extern cGame *g_pGame;
+// extern cTeam *g_pTeams;
 
 bool gbFilterOn = false;
 bool gbPitchBent = false;
@@ -10,6 +29,7 @@ bool gbUseHiQualityReverb = false;
 bool gbListenerInit = false;
 
 bool g_bAudioInitialized = false;
+bool g_bAudioInGameLoaded = false;
 bool g_bWorldSFXInitialized = false;
 
 static f32 gfVolumeGroups[0x18];
@@ -17,7 +37,10 @@ static f32 gfVolumeGroups[0x18];
 namespace Audio
 {
 
+DelayTimer gChantDelayTimer;
 bool gbGameIsPaused = false;
+bool gbStartingGame = true;
+bool g_bHomeTeamHasJustScored = false;
 
 /**
  * Offset/Address/Size: 0x0 | 0x8013C514 | size: 0x10
@@ -79,9 +102,11 @@ void MasterVolume::GetVolume(MasterVolume::VOLUME_GROUP)
 /**
  * Offset/Address/Size: 0xCD8 | 0x8013D1EC | size: 0x2C
  */
-// void ClearFadeData()
-// {
-// }
+void ClearFadeData()
+{
+    nlDeleteList<FadeAudioData>(&g_pFadeList);
+    g_pFadeList = NULL;
+}
 
 /**
  * Offset/Address/Size: 0xD04 | 0x8013D218 | size: 0x20
@@ -148,7 +173,7 @@ bool IsListenerActive()
 }
 
 /**
- * Offset/Address/Size: 0xDD4 | 0x8013D2E8 | size: 0x20
+ * Offset/Address/Size: 0xDCC | 0x8013D2E0 | size: 0x8
  */
 void SetOutputMode(MusyXOutputType outputType)
 {
@@ -350,6 +375,12 @@ void Silence()
  */
 void ResetForNewGame()
 {
+    gbGameIsPaused = false;
+    gbStartingGame = true;
+    g_bHomeTeamHasJustScored = true;
+    gChantDelayTimer._unk_0x0 = 0.0f;
+    nlDeleteList<FadeAudioData>(&g_pFadeList);
+    g_pFadeList = NULL;
 }
 
 /**
@@ -586,8 +617,6 @@ u32 cGameSFX::GetClassType() const
 // DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
 // BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>>(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*,
 // DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
-// BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>*, void
-// (DLListContainerBase<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL,
 // BasicSlotPool<DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>>>::*)(DLListEntry<AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL>*))
 // {
 // }

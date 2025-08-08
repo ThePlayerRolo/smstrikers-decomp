@@ -6,6 +6,36 @@
 #include "types.h"
 
 template <typename T>
+class DLListEntry
+{
+public:
+    DLListEntry<T>* m_next; // Offset 0x0 - Next entry in the ring
+    DLListEntry<T>* m_prev; // Offset 0x4 - Previous entry in the ring
+
+    T* m_data; // Offset 0x8 - Pointer to the actual data
+
+    DLListEntry()
+        : m_next(nullptr)
+        , m_prev(nullptr)
+        , m_data(nullptr)
+    {
+    }
+
+    DLListEntry(T* data)
+        : m_next(nullptr)
+        , m_prev(nullptr)
+        , m_data(data)
+    {
+    }
+
+    // // Destructor
+    // ~DLListEntry()
+    // {
+    //     // Note: Does not delete m_data - that's the responsibility of the container
+    // }
+};
+
+template <typename T>
 void nlDLRingInsert(T** head, T* afterNode, T* newNode)
 {
 
@@ -59,7 +89,8 @@ T* nlDLRingGetStart(T* current)
 template <typename T>
 T* nlDLRingGetEnd(T* current)
 {
-    if (current != 0) {
+    if (current != 0)
+    {
         return current;
     }
     return NULL;
@@ -79,54 +110,56 @@ template <typename T>
 void nlDLRingRemove(T** head, T* current)
 {
     T* tmp_node = current->m_next;
-    
-    if (tmp_node == current) 
+
+    if (tmp_node == current)
     {
         *head = NULL;
         return;
     }
-    
+
     current->m_prev->m_next = tmp_node;
     current->m_next->m_prev = current->m_prev;
-    
-    if (*head == current) 
+
+    if (*head == current)
     {
         *head = current->m_prev;
-    }    
+    }
 }
 
 template <typename T>
 bool nlDLRingValidateContainsElement(T* head, const T* node)
 {
-    if (head == NULL) {
+    if (head == NULL)
+    {
         return false;
     }
 
     T* var_r5 = head->m_next;
 loop_3:
-    if (node == var_r5) 
+    if (node == var_r5)
     {
         return true;
     }
 
-    if (var_r5 != head) 
+    if (var_r5 != head)
     {
         var_r5 = var_r5->m_next;
         goto loop_3;
     }
 
-    return false;    
+    return false;
 }
 
 template <typename T>
-void nlDLRingAppendRing(T **head, T *current) {
-    T *temp_r5;
-    T *temp_r6;
+void nlDLRingAppendRing(T** head, T* current)
+{
+    T* temp_r5;
+    T* temp_r6;
 
-    if (current != NULL) 
+    if (current != NULL)
     {
         temp_r5 = *head;
-        if (temp_r5 == NULL) 
+        if (temp_r5 == NULL)
         {
             *head = current;
             return;
@@ -144,20 +177,22 @@ void nlDLRingAppendRing(T **head, T *current) {
 template <typename T>
 bool nlDLRingRemoveSafely(T** head, const T* node)
 {
-    T *temp_r0;
+    T* temp_r0;
 
-    if (nlDLRingValidateContainsElement(*head, node) == 0) {
+    if (nlDLRingValidateContainsElement(*head, node) == 0)
+    {
         return false;
-    }    
+    }
 
     temp_r0 = node->m_next;
-    if (temp_r0 == node) {
+    if (temp_r0 == node)
+    {
         *head = NULL;
         return 1;
     }
     node->m_prev->m_next = temp_r0;
     node->m_next->m_prev = node->m_prev;
-    if (*head == node) 
+    if (*head == node)
     {
         *head = node->m_prev;
         return true;
@@ -166,21 +201,22 @@ bool nlDLRingRemoveSafely(T** head, const T* node)
     return true;
 }
 
-template<typename T, typename CallbackType>
+template <typename T, typename CallbackType>
 void nlWalkDLRing(T* head, CallbackType* callback, void (CallbackType::*callbackFunc)(T*))
 {
     nlWalkRing(head, callback, callbackFunc);
 }
 
-template<typename T, typename CallbackType>
+template <typename T, typename CallbackType>
 void nlWalkRing(T* head, CallbackType* callback, void (CallbackType::*callbackFunc)(T*))
 {
-    if (head != NULL) 
+    if (head != NULL)
     {
-        T* current = head;  // This likely uses r27
-        do {
-            current = current->m_next;  // This likely uses r30/r31
-            (callback->*callbackFunc)(current);  // This uses r28, r29
+        T* current = head; // This likely uses r27
+        do
+        {
+            current = current->m_next;          // This likely uses r30/r31
+            (callback->*callbackFunc)(current); // This uses r28, r29
         } while (current != head);
     }
 }
@@ -204,10 +240,7 @@ public:
         m_first = true;
     }
 
-    bool hasNext() const
-    {
-        return (m_current != 0) && (m_first || m_current != m_head);
-    }
+    bool hasNext() const { return (m_current != 0) && (m_first || m_current != m_head); }
 
     Pointer next()
     {

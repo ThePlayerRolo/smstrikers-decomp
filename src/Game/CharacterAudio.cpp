@@ -2,7 +2,7 @@
 
 namespace Audio
 {
-    
+
 /**
  * Offset/Address/Size: 0x0 | 0x8014C3A4 | size: 0x14
  */
@@ -25,12 +25,13 @@ bool cCharacterSFX::IsMovementLoopPlaying()
  */
 void cCharacterSFX::StopMovementLoop()
 {
-    if (m_movementLoopEmitter) {
+    if (m_movementLoopEmitter)
+    {
         // Stop emitter with stop flag 0
         cGameSFX::StopEmitter(m_movementLoopEmitter, 0);
         m_movementLoopEmitter = nullptr;
         m_unk_0x33A0 = false;
-    }    
+    }
 }
 
 /**
@@ -50,7 +51,8 @@ void cCharacterSFX::StartMovementLoop()
 /**
  * Offset/Address/Size: 0x2F0 | 0x8014C694 | size: 0x1C8
  */
-// void cCharacterSFX::PlayNISRandomCharDialogue(CharDialogueType, NisCharacterClass, float, float, bool, const nlVector3*, const nlVector3*, unsigned long*)
+// void cCharacterSFX::PlayNISRandomCharDialogue(CharDialogueType, NisCharacterClass, float, float, bool, const nlVector3*, const
+// nlVector3*, unsigned long*)
 // {
 // }
 
@@ -99,7 +101,7 @@ void cCharacterSFX::StopPlayingAllRandomCharDialogue()
 /**
  * Offset/Address/Size: 0x112C | 0x8014D4D0 | size: 0x20
  */
-void cCharacterSFX::Stop(eCharSFX sfxType, cGameSFX::StopFlag flag) 
+void cCharacterSFX::Stop(eCharSFX sfxType, cGameSFX::StopFlag flag)
 {
     cGameSFX::Stop(sfxType, flag);
 }
@@ -112,11 +114,12 @@ int cCharacterSFX::Play(SoundAttributes& attrs)
     attrs.m_unk_0x00 = 1;
     attrs.m_unk_0x70 = m_unk_0x3390;
 
-    if (attrs.m_unk_0x5C == 1) {
+    if (attrs.m_unk_0x5C == 1)
+    {
         attrs.UsePhysObj(m_physicsCharacter);
     }
 
-    if (attrs.m_soundType == 0U) 
+    if (attrs.m_soundType == 0U)
     {
         return Audio::GetSndIDError();
     }
@@ -129,6 +132,7 @@ int cCharacterSFX::Play(SoundAttributes& attrs)
  */
 void cCharacterSFX::Init()
 {
+    cGameSFX::Init();
 }
 
 /**
@@ -140,7 +144,7 @@ cCharacterSFX::~cCharacterSFX()
     m_unk_0x3390 = 0;
     m_movementLoopEmitter = NULL;
     m_unk_0x339C = 100.0f;
-    m_unk_0x33A0 = false;    
+    m_unk_0x33A0 = false;
 }
 
 /**
@@ -153,7 +157,7 @@ cCharacterSFX::cCharacterSFX()
     m_movementLoopEmitter = NULL;
     m_unk_0x339C = 100.0f;
     m_unk_0x33A0 = false;
-    m_classType = 1;        
+    m_classType = 1;
 }
 
-}
+} // namespace Audio
