@@ -1487,7 +1487,7 @@ Game/Drawable/DrawableNetMesh.cpp:
 	.sbss       start:0x80373930 end:0x80373978
 	.sdata2     start:0x80375E78 end:0x80375EA0
 
-NisPlayer.o:
+Game/NisPlayer.cpp:
 	.text       start:0x80114CDC end:0x801186C4
 	.text       start:0x801186C4 end:0x801186C4
 	.text       start:0x801186C4 end:0x801186C4
