@@ -698,7 +698,7 @@ config.libs = [
             Object(NonMatching, "Game/NisPlayer.cpp"),
 
             # related to character template
-            Object(NonMatching, "Game/PoseNode.cpp"),
+            Object(NonMatching, "Game/PoseNode.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/PoseAccumulator.cpp"),
             Object(NonMatching, "Game/SHierarchy.cpp"),
 

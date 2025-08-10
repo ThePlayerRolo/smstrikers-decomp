@@ -3,38 +3,29 @@
 
 #include "NL/nlMath.h"
 
-class cPoseNode;
-
-struct cPoseNodeData {
-/* 0x00 */ void *m_unk_0x00;
-/* 0x04 */ cPoseNode *m_unk_0x04;
-};
-
 class cPoseNode
 {
 public:
-    virtual void unk8(int) = 0;
-    virtual void unkC() = 0;
-    virtual void unk10() = 0;
-    virtual void unk14() = 0;
-    virtual void unk18() = 0;
-    virtual void unk1C(float*, float*, float) = 0;
-    virtual void unk20(float*, float) = 0;
-
-    void GetRootRot(unsigned short*);
-    void GetRootTrans(nlVector3*, unsigned short);
-    void SetChild(int, cPoseNode*);
-    cPoseNode* GetChildPtr(int);
-    cPoseNode* GetChild(int) const;
-    cPoseNode* GetChild(int);
-
     cPoseNode();
     cPoseNode(int);
     virtual ~cPoseNode();
 
-    /* 0x04 */ cPoseNodeData **m_unk_0x04;
-    /* 0x08 */ u8 m_padding_0x08[0x8];
-    /* 0x10 */ s32 m_unk_0x10;
+    /* 0x0C */ virtual void V_unkC(int) = 0;
+    /* 0x10 */ virtual void V_unk10() = 0;
+    /* 0x14 */ virtual void V_unk14() = 0;
+    /* 0x18 */ virtual void V_unk18() = 0;
+    /* 0x1C */ virtual void V_GetRootTrans(nlVector3* outBase, float weight, float* scratch) = 0;
+    /* 0x20 */ virtual void V_GetRootRot(unsigned short* outRot, float weight, float* scratch) = 0;
+
+    void GetRootRot(unsigned short*);
+    void GetRootTrans(nlVector3*, unsigned short);
+    void SetChild(int, cPoseNode*);
+    cPoseNode** GetChildPtr(int);
+    cPoseNode* GetChild(int) const;
+    cPoseNode* GetChild(int);
+
+    cPoseNode* m_children[3];
+    int m_numChildren;
 };
 
 #endif // _POSENODE_H_
