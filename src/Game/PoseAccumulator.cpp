@@ -30,15 +30,179 @@ void cPoseAccumulator::InitAccumulators()
 /**
  * Offset/Address/Size: 0x644 | 0x801EBBE4 | size: 0x3F4
  */
-void cPoseAccumulator::BuildNodeMatrices(const nlMatrix4&)
+void cPoseAccumulator::BuildNodeMatrices(const nlMatrix4& world)
 {
+    if (m_unk_0x14 == m_unk_0x08)
+    {
+        s32 tmp = m_unk_0x14;
+        m_unk_0x14 = m_unk_0x08;
+        m_unk_0x08 = tmp;
+
+        tmp = m_unk_0x18;
+        m_unk_0x18 = m_unk_0x0C;
+        m_unk_0x0C = tmp;
+
+        nlMatrix4* tmp_mat = m_matsB;
+        m_matsB = m_matsA;
+        m_matsA = tmp_mat;
+    }
+
+    int parentStack[32];
+    int parentTop = -1;
+
+    for (int idx = 0; idx < m_hierarchy->m_nodeCount; ++idx)
+    {
+        nlMatrix4* local = &m_matsA[idx + 1];
+
+        RotAccum* r = &m_rot[idx];
+        if (!r->locked)
+        {
+            if (r->weight == 0.0f)
+            {
+                nlMakeRotationMatrixZ(*local, 0.0000958738f * r->angleZ);
+            }
+            else
+            {
+                if (r->weightZ != 0.0f)
+                {
+                    float s, c;
+                    nlSinCos(&s, &c, r->angleZ);
+
+                    nlQuaternion qz;
+                    qz.x = 0.0f;
+                    qz.y = 0.0f;
+                    qz.z = s;
+                    qz.w = c;
+
+                    float t = r->weightZ / (r->weight + r->weightZ);
+                    nlQuatNLerp(r->q, r->q, qz, t);
+                }
+
+                nlQuatToMatrix(*local, r->q);
+            }
+        }
+        else
+        {
+            local->SetIdentity();
+        }
+
+        TransAccum* ta = &m_trans[idx];
+        if (!ta->locked)
+        {
+            local->m[3][0] = ta->x;
+            local->m[3][1] = ta->y;
+            local->m[3][2] = ta->z;
+        }
+
+        int parentIdx = -1;
+        if (idx > 0 && parentTop >= 0)
+        {
+            parentIdx = parentStack[parentTop];
+            const ScaleAccum* ps = &m_scale[parentIdx];
+
+            local->m[3][0] *= ps->x;
+            local->m[3][1] *= ps->y;
+            local->m[3][2] *= ps->z;
+        }
+
+        nlMatrix4* out = &m_matsA[idx];
+        if (parentIdx >= 0)
+        {
+            const nlMatrix4* parentWorld = &m_matsA[parentIdx];
+            nlMultMatrices(*out, *local, *parentWorld);
+        }
+        else
+        {
+            nlMultMatrices(*out, *local, world);
+        }
+
+        int delta = m_hierarchy->GetPushPop(idx);
+        parentTop += delta;
+        if (delta > 0)
+        {
+            parentStack[parentTop] = idx;
+        }
+
+        BuildNodeCB* cb = &m_cb[idx];
+        if (cb->fn)
+        {
+            int parentForCallback = (parentIdx >= 0) ? parentIdx : -1;
+            cb->fn(cb->a, cb->b, this, idx, parentForCallback);
+        }
+    }
+
+    for (int idx = 0; idx < m_hierarchy->m_nodeCount; ++idx)
+    {
+        const ScaleAccum* s = &m_scale[idx];
+        if (!s->locked)
+        {
+            nlMatrix4* mtx = &m_matsA[idx];
+            mtx->m[0][0] *= s->x;
+            mtx->m[0][1] *= s->x;
+            mtx->m[0][2] *= s->x;
+            mtx->m[1][0] *= s->y;
+            mtx->m[1][1] *= s->y;
+            mtx->m[1][2] *= s->y;
+            mtx->m[2][0] *= s->z;
+            mtx->m[2][1] *= s->z;
+            mtx->m[2][2] *= s->z;
+        }
+    }
 }
 
 /**
  * Offset/Address/Size: 0x4FC | 0x801EBA9C | size: 0x148
  */
-void cPoseAccumulator::BlendRot(int, const nlQuaternion*, float, bool)
+void cPoseAccumulator::BlendRot(int idx, const nlQuaternion* q, float w, bool special)
 {
+    if (fabsf(w) < 0.001f)
+        return;
+
+    RotAccum* e = &m_rot[idx]; // m_rot is at +0x1C, stride = 0x20
+
+    nlQuaternion qtemp;
+
+    if (special)
+    {
+        cSHierarchy* h = m_hierarchy;
+
+        // special orientation adjustments depending on index and min/max node
+        if (idx == h->m_maxNode || idx == h->m_minNode)
+        {
+            // store: (-x, -w, y, z)
+            qtemp.x = -q->x;
+            qtemp.y = q->y;
+            qtemp.z = q->z;
+            qtemp.w = -q->w;
+        }
+        else if (idx < h->m_minNode)
+        {
+            // store: (-x, y, -z, w)
+            qtemp.x = -q->x;
+            qtemp.y = q->y;
+            qtemp.z = -q->z;
+            qtemp.w = q->w;
+        }
+        else
+        {
+            // store: (-x, -y, z, w)
+            qtemp.x = -q->x;
+            qtemp.y = -q->y;
+            qtemp.z = q->z;
+            qtemp.w = q->w;
+        }
+
+        q = &qtemp;
+    }
+
+    e->weight += w;
+
+    float t = w / e->weight;
+
+    nlQuaternion tmp = e->q;
+    nlQuatNLerp(e->q, tmp, *q, t);
+
+    e->locked = false;
 }
 
 /**

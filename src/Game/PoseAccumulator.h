@@ -67,21 +67,10 @@ public:
     void MultNodeMatrices(const nlMatrix4*);
     void SetBuildNodeMatrixCallback(int, BuildNodeMatrixFn, unsigned int, unsigned int);
 
-    // /* 0x00 */ cSHierarchy* m_hier;
-    // /* 0x04 */ nlMatrix4* m_matsA;
-    // /* 0x08 */ int m_countA;
-    // /* 0x0C */ int m_countB;
-    // /* 0x10 */ nlMatrix4* m_matsB;
-    // /* 0x14 */ int m_swapGuard;
-    // /* 0x1C */ RotAccum* m_rot;
-    // /* 0x28 */ VecAccum* m_scale;
-    // /* 0x34 */ VecAccum* m_trans;
-    // /* 0x40 */ BuildNodeCB* m_cb;
-
     /* 0x00 */ cSHierarchy* m_hierarchy;
     /* 0x04 */ nlMatrix4* m_matsA;
-    /* 0x08 */ s32 m_countA;
-    /* 0x0C */ s32 m_countB;
+    /* 0x08 */ s32 m_unk_0x08;
+    /* 0x0C */ s32 m_unk_0x0C;
     /* 0x10 */ nlMatrix4* m_matsB;
     /* 0x14 */ s32 m_unk_0x14;
     /* 0x18 */ s32 m_unk_0x18;
