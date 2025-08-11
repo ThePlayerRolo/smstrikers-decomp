@@ -699,7 +699,7 @@ config.libs = [
 
             # related to character template
             Object(NonMatching, "Game/PoseNode.cpp", extra_cflags=["-inline deferred"]),
-            Object(NonMatching, "Game/PoseAccumulator.cpp"),
+            Object(NonMatching, "Game/PoseAccumulator.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/SHierarchy.cpp"),
 
             Object(NonMatching, "Game/EmissionController.cpp"),
