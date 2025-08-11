@@ -30,7 +30,8 @@ public:
     /* 0x18 */ void* m_childArrays;         // Array of child index arrays for each node
     /* 0x1C */ void* m_pushPopFlags;        // Push/pop flags for hierarchy traversal
     /* 0x20 */ void* m_mirroredNodeIndices; // Mirrored node indices for symmetry
-    /* 0x24 */ char m_pad_0x24[8];
+    /* 0x24 */ s32 m_minNode;
+    /* 0x28 */ s32 m_maxNode;
     /* 0x2C */ nlVector3* m_translationOffsets; // Translation offset data for each node
     /* 0x30 */ bool* m_boneLengthFlags;         // Array of bone length preservation flags
 };
