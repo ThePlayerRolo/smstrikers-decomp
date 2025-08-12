@@ -708,6 +708,7 @@ config.libs = [
             Object(NonMatching, "Game/GLInventory.cpp"),
 
             # related to character
+            Object(NonMatching, "Game/AnimInventory.cpp"),
             Object(NonMatching, "Game/Blinker.cpp"),   
 
             # Audio
