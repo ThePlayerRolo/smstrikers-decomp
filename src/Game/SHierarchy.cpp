@@ -4,9 +4,9 @@
 /**
  * Offset/Address/Size: 0x0 | 0x801EDFEC | size: 0x18
  */
-u32 cSHierarchy::PreserveBoneLength(int nodeIndex) const
+bool cSHierarchy::PreserveBoneLength(int nodeIndex) const
 {
-    return m_boneLengthFlags[nodeIndex] ? 1 : 0;
+    return m_boneLengthFlags[nodeIndex] ? true : false;
 }
 
 /**

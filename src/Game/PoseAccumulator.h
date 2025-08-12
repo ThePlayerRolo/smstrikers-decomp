@@ -10,8 +10,16 @@ class cPoseAccumulator;
 
 typedef void (*BuildNodeMatrixFn)(unsigned int, unsigned int, cPoseAccumulator*, unsigned int, int);
 
-struct BuildNodeCB
+class cBuildNodeMatrixCallbackInfo
 {
+public:
+    cBuildNodeMatrixCallbackInfo()
+    {
+        fn = nullptr;
+        a = 0;
+        b = 0;
+    }
+
     /* 0x00 */ BuildNodeMatrixFn fn;
     /* 0x04 */ unsigned int a;
     /* 0x08 */ unsigned int b;
@@ -21,7 +29,7 @@ struct RotAccum
 {
     /* 0x00 */ nlQuaternion q;
     /* 0x10 */ float weight;
-    /* 0x14 */ u32 angleZ;
+    /* 0x14 */ s16 angleZ;
     /* 0x18 */ float weightZ;
     /* 0x1C */ bool locked;
     /* 0x1D */ u8 _pad[3];
@@ -78,17 +86,16 @@ public:
     /* 0x20 */ s32 m_unk_0x20;
     /* 0x24 */ s32 m_unk_0x24;
     /* 0x28 */ ScaleAccum* m_scale;
-    /* 0x2C */ s32 _unk_0x2C;
-    /* 0x30 */ s32 _unk_0x30;
+    /* 0x2C */ s32 m_unk_0x2C;
+    /* 0x30 */ s32 m_unk_0x30;
     /* 0x34 */ TransAccum* m_trans;
-    /* 0x38 */ s32 _unk_0x38;
-    /* 0x3C */ s32 _unk_0x3C;
-    /* 0x40 */ BuildNodeCB m_cb[2];
-    // /* 0x44 */ s32 unk44;
-    // /* 0x48 */ s32 unk48;
-    // /* 0x4C */ void* unk4C;
-    // /* 0x50 */ s32 unk50;
-    // /* 0x54 */ s32 unk54;
+    /* 0x38 */ s32 m_unk_0x38;
+    /* 0x3C */ s32 m_unk_0x3C;
+    /* 0x40 */ cBuildNodeMatrixCallbackInfo* m_cb;
+    /* 0x44 */ s32 m_unk_0x44;
+    /* 0x48 */ s32 m_unk_0x48;
+    /* 0x4C */ float* m_floatArray;
+    /* 0x50 */ s32 m_floatCount;
 };
 
 #endif // _POSEACCUMULATOR_H_

@@ -8,6 +8,11 @@ inline void* operator new(unsigned long, void* p)
     return p;
 }
 
+inline void* operator new[](unsigned long, void* p)
+{
+    return p;
+}
+
 void nlFree(void*);
 void* nlMalloc(unsigned long, unsigned int, bool);
 void* nlMalloc(unsigned long);

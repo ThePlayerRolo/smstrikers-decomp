@@ -1,4 +1,5 @@
 #include "PoseAccumulator.h"
+#include "NL/nlMemory.h"
 
 #include "math.h"
 
@@ -6,18 +7,159 @@ static const nlQuaternion qRotIdentity = { 0, 0, 0, 1 };
 static const nlVector3 v3ScaleIdentity(1.0f, 1.0f, 1.0f);
 static const nlVector3 v3TransIdentity(0.0f, 0.0f, 0.0f);
 
+extern const nlMatrix4 kPose64Template;
+extern const RotAccum kRotAccumTemplate;
+extern const ScaleAccum kScaleAccumTemplate;
+extern const TransAccum kTransAccumTemplate;
+
 /**
  * Offset/Address/Size: 0xCD8 | 0x801EC278 | size: 0x1D74
  */
-cPoseAccumulator::cPoseAccumulator(cSHierarchy*, bool)
+cPoseAccumulator::cPoseAccumulator(cSHierarchy* h, bool withSecondary)
 {
+    m_hierarchy = h;
+
+    const int n = h->m_nodeCount; // boneCount
+    int i;
+
+    {
+        const int count = n + 1;
+        m_matsA = (nlMatrix4*)nlMalloc((unsigned long)(count * sizeof(nlMatrix4)), 8, 0);
+        m_unk_0x08 = count;
+        m_unk_0x0C = count;
+
+        for (i = 0; i < count; ++i)
+        {
+            m_matsA[i] = kPose64Template; // copy 0x40 bytes template
+        }
+    }
+
+    {
+        const int countB = withSecondary ? (n + 1) : 0;
+        m_matsB = (nlMatrix4*)nlMalloc((unsigned long)(countB * sizeof(nlMatrix4)), 8, 0);
+        m_unk_0x14 = countB;
+        m_unk_0x18 = countB;
+
+        for (i = 0; i < countB; ++i)
+        {
+            m_matsB[i] = kPose64Template;
+        }
+    }
+
+    {
+        m_rot = (RotAccum*)nlMalloc((unsigned long)(n * sizeof(RotAccum)), 8, 0);
+        m_unk_0x20 = n;
+        m_unk_0x24 = n;
+
+        for (i = 0; i < n; ++i)
+        {
+            m_rot[i] = kRotAccumTemplate;
+        }
+    }
+
+    {
+        m_scale = (ScaleAccum*)nlMalloc((unsigned long)(n * sizeof(ScaleAccum)), 8, 0);
+        m_unk_0x2C = n;
+        m_unk_0x30 = n;
+
+        for (i = 0; i < n; ++i)
+        {
+            m_scale[i] = kScaleAccumTemplate;
+        }
+    }
+
+    {
+        m_trans = (TransAccum*)nlMalloc((unsigned long)(n * sizeof(TransAccum)), 8, 0);
+        m_unk_0x38 = n;
+        m_unk_0x3C = n;
+
+        for (i = 0; i < n; ++i)
+        {
+            m_trans[i] = kTransAccumTemplate; // zero/locked baseline
+        }
+    }
+
+    {
+        void* buffer = nlMalloc(n * sizeof(cBuildNodeMatrixCallbackInfo), 8, 0);
+        m_cb = new (buffer) cBuildNodeMatrixCallbackInfo[n];
+
+        m_unk_0x44 = n;
+        m_unk_0x48 = n;
+
+        for (i = 0; i < n; ++i)
+        {
+            new (&m_cb[i]) cBuildNodeMatrixCallbackInfo(); // Call constructor manually
+        }
+    }
+
+    {
+        m_floatArray = (float*)nlMalloc((unsigned long)(8 * sizeof(float)), 8, 0);
+        m_floatCount = 8;
+
+        for (i = 0; i < 8; ++i)
+        {
+            m_floatArray[i] = 0.0f;
+        }
+    }
+
+    for (i = 0; i < n; ++i)
+    {
+        if (m_hierarchy->PreserveBoneLength(i))
+        {
+            const nlVector3* t = m_hierarchy->GetTranslationOffset(i);
+            m_trans[i].x = t->f.x;
+            m_trans[i].y = t->f.y;
+            m_trans[i].z = t->f.z;
+            m_trans[i].weight = 1.0f;
+            m_trans[i].locked = false;
+        }
+    }
 }
 
 /**
  * Offset/Address/Size: 0xB7C | 0x801EC11C | size: 0x15C
  */
-void cPoseAccumulator::Pose(const cPoseNode&, const nlMatrix4&)
+void cPoseAccumulator::Pose(const cPoseNode& node, const nlMatrix4& mat)
 {
+    int i;
+    for (i = 0; i < m_hierarchy->m_nodeCount; i++)
+    {
+        RotAccum& r = m_rot[i];
+        r.q.x = 0.0f;
+        r.q.y = 0.0f;
+        r.q.z = 0.0f;
+        r.q.w = 1.0f;
+        r.weight = 0.0f;
+        r.angleZ = 0;
+        r.weightZ = 0.0f;
+        r.locked = true;
+
+        ScaleAccum& s = m_scale[i];
+        s.x = 1.0f;
+        s.y = 1.0f;
+        s.z = 1.0f;
+        s.weight = 0.0f;
+        s.locked = true;
+
+        if (!m_hierarchy->PreserveBoneLength(i))
+        {
+            TransAccum& t = m_trans[i];
+            t.x = 0.0f;
+            t.y = 0.0f;
+            t.z = 0.0f;
+            t.weight = 0.0f;
+            t.locked = true;
+        }
+    }
+
+    for (i = 0; i < m_floatCount; i++)
+    {
+        m_floatArray[i] = 0.0f;
+    }
+
+    node.V_unk10(this, 1.0f);
+
+    BuildNodeMatrices(mat);
 }
 
 /**
@@ -25,6 +167,42 @@ void cPoseAccumulator::Pose(const cPoseNode&, const nlMatrix4&)
  */
 void cPoseAccumulator::InitAccumulators()
 {
+    for (int i = 0; i < m_hierarchy->m_nodeCount; ++i)
+    {
+        // --- rotation accum (stride 0x20) ---
+        RotAccum& r = m_rot[i];
+        r.q.x = 0.0f;
+        r.q.y = 0.0f;
+        r.q.z = 0.0f;
+        r.q.w = 1.0f;
+        r.weight = 0.0f;
+        r.angleZ = 0;
+        r.weightZ = 0.0f;
+        r.locked = true;
+
+        // --- scale accum (stride 0x14) ---
+        ScaleAccum& s = m_scale[i];
+        s.x = 1.0f;
+        s.y = 1.0f;
+        s.z = 1.0f;
+        s.weight = 0.0f;
+        s.locked = true;
+
+        if (!m_hierarchy->PreserveBoneLength(i))
+        {
+            TransAccum& t = m_trans[i];
+            t.x = 0.0f;
+            t.y = 0.0f;
+            t.z = 0.0f;
+            t.weight = 0.0f;
+            t.locked = true;
+        }
+    }
+
+    for (int k = 0; k < m_floatCount; ++k)
+    {
+        m_floatArray[k] = 0.0f;
+    }
 }
 
 /**
@@ -123,7 +301,7 @@ void cPoseAccumulator::BuildNodeMatrices(const nlMatrix4& world)
             parentStack[parentTop] = idx;
         }
 
-        BuildNodeCB* cb = &m_cb[idx];
+        cBuildNodeMatrixCallbackInfo* cb = &m_cb[idx];
         if (cb->fn)
         {
             int parentForCallback = (parentIdx >= 0) ? parentIdx : -1;
@@ -402,8 +580,8 @@ void cPoseAccumulator::MultNodeMatrices(const nlMatrix4* arg0)
  */
 void cPoseAccumulator::SetBuildNodeMatrixCallback(int idx, BuildNodeMatrixFn fn, unsigned int a, unsigned int b)
 {
-    BuildNodeCB* cb = m_cb + idx;
-    cb->fn = fn;
-    cb->a = a;
-    cb->b = b;
+    cBuildNodeMatrixCallbackInfo& cb = m_cb[idx];
+    cb.fn = fn;
+    cb.a = a;
+    cb.b = b;
 }

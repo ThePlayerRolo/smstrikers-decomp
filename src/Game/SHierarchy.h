@@ -9,7 +9,7 @@ class nlChunk;
 class cSHierarchy
 {
 public:
-    u32 PreserveBoneLength(int) const;
+    bool PreserveBoneLength(int) const;
     nlVector3* GetTranslationOffset(int) const;
     s32 GetParent(int) const;
     s32 GetPushPop(int) const;
