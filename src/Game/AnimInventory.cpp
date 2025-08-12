@@ -1,58 +1,13 @@
 #include "AnimInventory.h"
 
-/**
- * Offset/Address/Size: 0x0 | 0x80006F7C | size: 0x14
- */
-void cAnimInventory::GetMatchCharacterSpeed(int)
-{
-}
+#include "NL/nlString.h"
+#include "NL/nlMemory.h"
+#include "NL/nlFileGC.h"
 
 /**
- * Offset/Address/Size: 0x14 | 0x80006F90 | size: 0x14
+ * Offset/Address/Size: 0x438 | 0x800073B4 | size: 0xA0
  */
-void cAnimInventory::GetEndPhase(int)
-{
-}
-
-/**
- * Offset/Address/Size: 0x28 | 0x80006FA4 | size: 0x14
- */
-void cAnimInventory::GetBallRotationMode(int)
-{
-}
-
-/**
- * Offset/Address/Size: 0x3C | 0x80006FB8 | size: 0x14
- */
-void cAnimInventory::GetMirrored(int)
-{
-}
-
-/**
- * Offset/Address/Size: 0x50 | 0x80006FCC | size: 0x14
- */
-void cAnimInventory::GetBlendTime(int)
-{
-}
-
-/**
- * Offset/Address/Size: 0x64 | 0x80006FE0 | size: 0x14
- */
-void cAnimInventory::GetPlayMode(int)
-{
-}
-
-/**
- * Offset/Address/Size: 0x78 | 0x80006FF4 | size: 0x10
- */
-void cAnimInventory::GetAnim(int)
-{
-}
-
-/**
- * Offset/Address/Size: 0x88 | 0x80007004 | size: 0x214
- */
-void cAnimInventory::AddAnimBundle(const char*)
+cAnimInventory::cAnimInventory(const AnimProperties*, int)
 {
 }
 
@@ -64,10 +19,66 @@ cAnimInventory::~cAnimInventory()
 }
 
 /**
- * Offset/Address/Size: 0x438 | 0x800073B4 | size: 0xA0
+ * Offset/Address/Size: 0x88 | 0x80007004 | size: 0x214
  */
-cAnimInventory::cAnimInventory(const AnimProperties*, int)
+void cAnimInventory::AddAnimBundle(const char*)
 {
+}
+
+/**
+ * Offset/Address/Size: 0x78 | 0x80006FF4 | size: 0x10
+ */
+cSAnim* cAnimInventory::GetAnim(int)
+{
+    return nullptr;
+}
+
+/**
+ * Offset/Address/Size: 0x64 | 0x80006FE0 | size: 0x14
+ */
+int cAnimInventory::GetPlayMode(int)
+{
+    return 0;
+}
+
+/**
+ * Offset/Address/Size: 0x50 | 0x80006FCC | size: 0x14
+ */
+float cAnimInventory::GetBlendTime(int)
+{
+    return 0.0f;
+}
+
+/**
+ * Offset/Address/Size: 0x3C | 0x80006FB8 | size: 0x14
+ */
+bool cAnimInventory::GetMirrored(int)
+{
+    return false;
+}
+
+/**
+ * Offset/Address/Size: 0x28 | 0x80006FA4 | size: 0x14
+ */
+int cAnimInventory::GetBallRotationMode(int)
+{
+    return 0;
+}
+
+/**
+ * Offset/Address/Size: 0x14 | 0x80006F90 | size: 0x14
+ */
+int cAnimInventory::GetEndPhase(int)
+{
+    return 0;
+}
+
+/**
+ * Offset/Address/Size: 0x0 | 0x80006F7C | size: 0x14
+ */
+u8 cAnimInventory::GetMatchCharacterSpeed(int)
+{
+    return 0;
 }
 
 // /**

@@ -3,6 +3,10 @@
 
 #include "types.h"
 
+#ifndef nlPrintf
+extern void nlPrintf(const char*, ...);
+#endif
+
 void nlStrToWcs(const char*, unsigned short*, unsigned long);
 void nlZeroMemory(void*, unsigned long);
 int nlStringLowerHash(const char*);

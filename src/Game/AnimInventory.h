@@ -1,31 +1,58 @@
 #ifndef _ANIMINVENTORY_H_
 #define _ANIMINVENTORY_H_
 
+#include "types.h"
+#include "NL/nlDLRing.h"
+
 // void nlPrintf(const char*, ...);
-// void nlListRemoveStart<ListEntry<char*>>(ListEntry<char*>**, ListEntry<char*>**);
-// void nlListAddStart<ListEntry<cSAnim*>>(ListEntry<cSAnim*>**, ListEntry<cSAnim*>*, ListEntry<cSAnim*>**);
-// void nlListAddStart<ListEntry<char*>>(ListEntry<char*>**, ListEntry<char*>*, ListEntry<char*>**);
+class cSAnim;
+
+struct SAnimContainer
+{
+    /* 0x00 */ void* unused0;
+    /* 0x04 */ DLListEntry<cSAnim*>* animHead;
+    /* 0x08 */ DLListEntry<cSAnim*>* animTail;
+    /* 0x0C */ void* unused0C;
+    /* 0x10 */ DLListEntry<char*>* fileHead;
+    /* 0x14 */ DLListEntry<char*>* fileTail;
+    /* 0x18 */ int animCount;
+};
 
 struct AnimProperties
 {
-    /* 0x0 */ char* name;
-    /* 0x4 */ char* name2;
-    /* 0x8 */ char* name3;
+    /* 0x00 */ const char* name0;
+    /* 0x04 */ const char* name;
+    /* 0x08 */ int playMode;
+    /* 0x0C */ float blendTime;
+    /* 0x10 */ u8 mirrored;
+    /* 0x11 */ u8 pad11[3];
+    /* 0x14 */ int ballRotMode;
+    /* 0x18 */ int endPhase;
+    /* 0x1C */ u8 matchCharSpd;
+    /* 0x1D */ u8 pad1d[3];
 };
 
 class cAnimInventory
 {
 public:
-    void GetMatchCharacterSpeed(int);
-    void GetEndPhase(int);
-    void GetBallRotationMode(int);
-    void GetMirrored(int);
-    void GetBlendTime(int);
-    void GetPlayMode(int);
-    void GetAnim(int);
-    void AddAnimBundle(const char*);
+    cAnimInventory(const AnimProperties* props, int count);
     ~cAnimInventory();
-    cAnimInventory(const AnimProperties*, int);
+
+    // bundle ingest and lookups
+    void AddAnimBundle(const char* bundlePath);
+    cSAnim* GetAnim(int i);
+    int GetPlayMode(int i);
+    float GetBlendTime(int i);
+    bool GetMirrored(int i);
+    int GetBallRotationMode(int i);
+    int GetEndPhase(int i);
+    u8 GetMatchCharacterSpeed(int i);
+
+private:
+    /* 0x00 */ int m_count;
+    /* 0x04 */ SAnimContainer* m_cont;
+    /* 0x08 */ cSAnim** m_anims;
+    /* 0x0C */ const AnimProperties* m_props;
 };
 
 // class ListContainerBase<cSAnim*, NewAdapter<ListEntry<cSAnim*>>>
