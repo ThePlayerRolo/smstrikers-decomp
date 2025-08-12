@@ -2,18 +2,18 @@
 #define _ANIMINVENTORY_H_
 
 #include "types.h"
-#include "NL/nlDLRing.h"
+#include "NL/nlList.h"
 
 #include "SAnim.h"
 
 struct SAnimContainer
 {
     /* 0x00 */ void* unused0;
-    /* 0x04 */ DLListEntry<cSAnim*>* animHead;
-    /* 0x08 */ DLListEntry<cSAnim*>* animTail;
+    /* 0x04 */ ListEntry<cSAnim*>* animHead;
+    /* 0x08 */ ListEntry<cSAnim*>* animTail;
     /* 0x0C */ void* unused0C;
-    /* 0x10 */ DLListEntry<char*>* fileHead;
-    /* 0x14 */ DLListEntry<char*>* fileTail;
+    /* 0x10 */ ListEntry<char*>* fileHead;
+    /* 0x14 */ ListEntry<char*>* fileTail;
     /* 0x18 */ int animCount;
 };
 

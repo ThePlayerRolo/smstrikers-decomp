@@ -48,17 +48,4 @@ extern "C"
 }
 #endif
 
-template <typename T>
-void nlDeleteList(T** head)
-{
-    T* next;
-    while (*head != NULL)
-    {
-        next = (*head)->next;
-        delete *head;
-        *head = next;
-    }
-    *head = NULL;
-}
-
 #endif // _NLMEMORY_H_

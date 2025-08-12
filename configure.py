@@ -708,8 +708,8 @@ config.libs = [
             Object(NonMatching, "Game/GLInventory.cpp"),
 
             # related to character
-            Object(NonMatching, "Game/SAnim.cpp"),
-            Object(NonMatching, "Game/AnimInventory.cpp"),
+            Object(NonMatching, "Game/SAnim.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/AnimInventory.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Blinker.cpp"),   
 
             # Audio

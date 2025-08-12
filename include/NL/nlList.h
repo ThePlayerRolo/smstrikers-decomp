@@ -9,7 +9,7 @@ class ListEntry
 public:
     /* 0x00 */ ListEntry<T>* next;
     /* 0x04 */ ListEntry<T>* prev; // not sure if this is used
-    /* 0x08 */ T* data;
+    /* 0x08 */ T data;
 
     ListEntry()
         : next(nullptr)
@@ -28,9 +28,7 @@ template <typename T>
 class NewAdapter
 {
 public:
-    using EntryType = ListEntry<T>;
-
-    static void DeleteEntry(EntryType* entry)
+    static void DeleteEntry(ListEntry<T>* entry)
     {
         if (entry)
         {
@@ -43,7 +41,7 @@ template <typename T, typename Adapter>
 class ListContainerBase
 {
 public:
-    using EntryType = typename Adapter::EntryType;
+    typedef typename Adapter::EntryType EntryType;
 
     void DeleteEntry(EntryType* entry) { Adapter::DeleteEntry(entry); }
 
@@ -106,20 +104,14 @@ void nlListAddStart(ListEntry<T>** head, ListEntry<T>* newEntry, ListEntry<T>** 
 template <typename T>
 void nlDeleteList(T** head)
 {
-    if (!head || !*head)
-        return;
-
-    T* current = *head;
     T* next;
-
-    while (current)
+    while (*head != NULL)
     {
-        next = current->next;
-        delete current;
-        current = next;
+        next = (*head)->next;
+        delete *head;
+        *head = next;
     }
-
-    *head = nullptr;
+    *head = NULL;
 }
 
 #endif

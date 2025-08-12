@@ -4,11 +4,32 @@
 #include "NL/nlMemory.h"
 #include "NL/nlFileGC.h"
 
+SAnimContainer* g_pDefaultSAnimInventory = nullptr;
+
 /**
  * Offset/Address/Size: 0x438 | 0x800073B4 | size: 0xA0
  */
-cAnimInventory::cAnimInventory(const AnimProperties*, int)
+cAnimInventory::cAnimInventory(const AnimProperties* props, int count)
 {
+    m_count = count;
+    m_cont = 0;
+    m_anims = 0;
+    m_props = props;
+
+    m_cont = (SAnimContainer*)nlMalloc(0x1C, 8, 0);
+    if (m_cont)
+    {
+        m_cont->animHead = 0;
+        m_cont->animTail = 0;
+        m_cont->fileHead = 0;
+        m_cont->fileTail = 0;
+        m_cont->animCount = 0;
+    }
+
+    if (g_pDefaultSAnimInventory == NULL)
+        g_pDefaultSAnimInventory = m_cont;
+
+    m_anims = (cSAnim**)nlMalloc((unsigned long)(m_count << 2), 8, 0);
 }
 
 /**
@@ -16,6 +37,53 @@ cAnimInventory::cAnimInventory(const AnimProperties*, int)
  */
 cAnimInventory::~cAnimInventory()
 {
+    SAnimContainer* c = m_cont;
+    if (c)
+    {
+        // 1) Destroy each cSAnim
+        ListEntry<cSAnim*>* it = c->animHead;
+        while (it)
+        {
+            cSAnim* a = it->data;
+            if (a)
+            {
+                a->Destroy();
+            }
+            it = it->next;
+        }
+
+        // 2) Free all anim list entries (walk and delete each entry)
+        c->animHead = 0;
+        c->animTail = 0;
+
+        // 3) Pop all file list entries; free entry, then free char*
+        ListEntry<char*>* popped;
+        do
+        {
+            nlListRemoveStart(&c->fileHead, &popped);
+            if (popped)
+            {
+                char* filename = popped->data;
+                delete popped;   // free entry
+                delete filename; // free char* that came from loader
+            }
+        } while (c->fileHead != 0);
+        c->animCount = 0;
+
+        // 4) Ensure file list head/tail nulled (mirrors second walk)
+        c->fileHead = 0;
+        c->fileTail = 0;
+
+        // 5) Delete the container itself
+        delete c;
+    }
+
+    if (m_anims)
+    {
+        delete[] m_anims;
+    }
+
+    g_pDefaultSAnimInventory = (SAnimContainer*)0;
 }
 
 /**
@@ -36,49 +104,49 @@ cSAnim* cAnimInventory::GetAnim(int i)
 /**
  * Offset/Address/Size: 0x64 | 0x80006FE0 | size: 0x14
  */
-int cAnimInventory::GetPlayMode(int)
+int cAnimInventory::GetPlayMode(int i)
 {
-    return 0;
+    return m_props[i].playMode;
 }
 
 /**
  * Offset/Address/Size: 0x50 | 0x80006FCC | size: 0x14
  */
-float cAnimInventory::GetBlendTime(int)
+float cAnimInventory::GetBlendTime(int i)
 {
-    return 0.0f;
+    return m_props[i].blendTime;
 }
 
 /**
  * Offset/Address/Size: 0x3C | 0x80006FB8 | size: 0x14
  */
-bool cAnimInventory::GetMirrored(int)
+bool cAnimInventory::GetMirrored(int i)
 {
-    return false;
+    return m_props[i].mirrored;
 }
 
 /**
  * Offset/Address/Size: 0x28 | 0x80006FA4 | size: 0x14
  */
-int cAnimInventory::GetBallRotationMode(int)
+int cAnimInventory::GetBallRotationMode(int i)
 {
-    return 0;
+    return m_props[i].ballRotMode;
 }
 
 /**
  * Offset/Address/Size: 0x14 | 0x80006F90 | size: 0x14
  */
-int cAnimInventory::GetEndPhase(int)
+int cAnimInventory::GetEndPhase(int i)
 {
-    return 0;
+    return m_props[i].endPhase;
 }
 
 /**
  * Offset/Address/Size: 0x0 | 0x80006F7C | size: 0x14
  */
-u8 cAnimInventory::GetMatchCharacterSpeed(int)
+u8 cAnimInventory::GetMatchCharacterSpeed(int i)
 {
-    return 0;
+    return m_props[i].matchCharSpd;
 }
 
 // /**
