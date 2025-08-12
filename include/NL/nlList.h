@@ -93,6 +93,22 @@ void nlListAddStart(ListEntry<T>** head, ListEntry<T>* entry, ListEntry<T>** tai
 }
 
 template <typename T>
+void nlListAddStart(T** head, T* entry, T** tail)
+{
+    if (tail != 0)
+    {
+        if (*head == 0)
+        {
+            *tail = entry;
+        }
+    }
+
+    // Insert at start
+    entry->next = *head;
+    *head = entry;
+}
+
+template <typename T>
 void nlDeleteList(T** head)
 {
     T* next;

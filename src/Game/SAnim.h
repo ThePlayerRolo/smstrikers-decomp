@@ -4,7 +4,7 @@
 #include "types.h"
 
 #include "NL/nlMath.h"
-#include "NL/nlList.h"
+// #include "NL/nlList.h"
 
 #include "PoseAccumulator.h"
 
@@ -12,7 +12,7 @@ typedef struct cSAnimCallback
 {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ u32 unk4;
-    /* 0x08 */ void (*unk8)(u32);
+    /* 0x08 */ void (*unk8)(unsigned int);
     /* 0x0C */ cSAnimCallback* next;
 } cSAnimCallback; // size: 0x10
 
