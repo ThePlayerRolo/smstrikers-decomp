@@ -428,12 +428,12 @@ void cPoseAccumulator::BlendScale(int idx, const nlVector3* v, float w, bool /*u
 /**
  * Offset/Address/Size: 0x2E4 | 0x801EB884 | size: 0xF8
  */
-void cPoseAccumulator::BlendTrans(int idx, const nlVector3* v, float w, bool special)
+void cPoseAccumulator::BlendTrans(int idx, const nlVector3* v, float w, bool flip)
 {
     if (fabsf(w) < 0.001f)
         return;
 
-    if (special)
+    if (flip)
     {
         cSHierarchy* h = m_hierarchy;
 
@@ -452,7 +452,7 @@ void cPoseAccumulator::BlendTrans(int idx, const nlVector3* v, float w, bool spe
         v = &vtemp;
     }
 
-    TransAccum* e = &m_trans[idx];
+    TransAccum* e = m_trans + idx;
     e->weight += w;
 
     float t = w / e->weight;
@@ -462,6 +462,7 @@ void cPoseAccumulator::BlendTrans(int idx, const nlVector3* v, float w, bool spe
     e->y = inv * e->y + t * v->f.y;
     e->z = inv * e->z + t * v->f.z;
 
+    e = m_trans + idx;
     e->locked = false;
 }
 
@@ -542,11 +543,12 @@ nlMatrix4* cPoseAccumulator::GetNodeMatrix(int i) const
  */
 nlMatrix4* cPoseAccumulator::GetNodeMatrixByHashID(unsigned int hash) const
 {
-    cSHierarchy* hierarchy = m_hierarchy;
-    int index = 0;
+    cSHierarchy* hierarchy = m_hierarchy; // r3->0x00
+    int index = 0;                        // r30 = 0
 
+    // Loop through all nodes in the hierarchy
     while (index < hierarchy->m_nodeCount)
-    {
+    { // r31->0x08
         unsigned int nodeID = hierarchy->GetNodeID(index);
         if (hash == nodeID)
         {
@@ -555,7 +557,7 @@ nlMatrix4* cPoseAccumulator::GetNodeMatrixByHashID(unsigned int hash) const
         index++;
     }
 
-    return &m_matsA[index];
+    return (nlMatrix4*)((char*)m_matsA + (index << 6));
 }
 
 /**
