@@ -58,47 +58,38 @@ public:
 };
 
 template <typename T>
-void nlListRemoveStart(ListEntry<T>** head, ListEntry<T>** tail)
+ListEntry<T>* nlListRemoveStart(ListEntry<T>** head, ListEntry<T>** tail)
 {
-    if (!head || !*head)
-        return;
+    ListEntry<T>* first = *head;
+    if (first == 0)
+        return 0;
 
-    ListEntry<T>* oldHead = *head;
-    *head = oldHead->next;
-
-    if (*head)
+    if (tail != 0)
     {
-        (*head)->prev = nullptr;
-    }
-    else
-    {
-        // List is now empty
-        *tail = nullptr;
+        if (*tail == first)
+            *tail = 0;
     }
 
-    delete oldHead;
+    // Remove first element
+    ListEntry<T>* tmp = *head;
+    *head = tmp->next;
+    return tmp;
 }
 
 template <typename T>
-void nlListAddStart(ListEntry<T>** head, ListEntry<T>* newEntry, ListEntry<T>** tail)
+void nlListAddStart(ListEntry<T>** head, ListEntry<T>* entry, ListEntry<T>** tail)
 {
-    if (!newEntry)
-        return;
-
-    newEntry->next = *head;
-    newEntry->prev = nullptr;
-
-    if (*head)
+    if (tail != 0)
     {
-        (*head)->prev = newEntry;
-    }
-    else
-    {
-        // List was empty, update tail
-        *tail = newEntry;
+        if (*head == 0)
+        {
+            *tail = entry;
+        }
     }
 
-    *head = newEntry;
+    // Insert at start
+    entry->next = *head;
+    *head = entry;
 }
 
 template <typename T>

@@ -4,16 +4,12 @@
 #include "types.h"
 
 #include "NL/nlMath.h"
-// #include "NL/nlChunk.h"
 
 #include "PoseAccumulator.h"
 
 struct nlChunk
 {
 };
-
-// void nlDeleteList<cSAnimCallback>(cSAnimCallback**);
-// void nlListAddStart<cSAnimCallback>(cSAnimCallback**, cSAnimCallback*, cSAnimCallback**);
 
 class cSAnim
 {
@@ -26,7 +22,8 @@ public:
     void BlendTrans(int, int, float, float, cPoseAccumulator*, bool) const;
     void BlendScale(int, int, float, float, cPoseAccumulator*, bool) const;
     void BlendRot(int, int, float, float, cPoseAccumulator*, bool) const;
-    void Initialize(nlChunk*);
+
+    static cSAnim* Initialize(nlChunk*);
 };
 
 #endif // _SANIM_H_

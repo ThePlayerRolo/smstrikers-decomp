@@ -89,8 +89,107 @@ cAnimInventory::~cAnimInventory()
 /**
  * Offset/Address/Size: 0x88 | 0x80007004 | size: 0x214
  */
-void cAnimInventory::AddAnimBundle(const char*)
+void cAnimInventory::AddAnimBundle(const char* path)
 {
+    int fileSize = 0;
+    void* base = nlLoadEntireFileToVirtualMemory(path, &fileSize, 1, 0, eAllocType_0);
+    char* p = (char*)base;
+    char* end = p + fileSize;
+
+    // Remember the loaded block in the container’s file list
+    {
+        ListEntry<char*>* e = (ListEntry<char*>*)nlMalloc(8, 8, 0);
+        if (e)
+        {
+            e->next = 0;
+            e->data = (char*)base;
+        }
+        nlListAddStart(&m_cont->fileHead, e, &m_cont->fileTail); // :contentReference[oaicite:16]{index=16}
+    }
+
+    // Walk chunks
+    while (p != end)
+    {
+        u32 id = *(u32*)p;
+        u32 masked = id & 0xFFFFFF00;
+        if (((masked + 0x7FFF0000u) & 0xFFFF0000u) == 0x70000000u) // chunk family check.  :contentReference[oaicite:17]{index=17}
+        {
+            // cSAnim::Initialize(nlChunk*)
+            cSAnim* a = cSAnim::Initialize((nlChunk*)p);
+
+            // push into anim list
+            ListEntry<cSAnim*>* e = (ListEntry<cSAnim*>*)nlMalloc(8, 8, 0);
+            if (e)
+            {
+                e->next = 0;
+                e->data = a;
+            }
+            nlListAddStart(&m_cont->animHead, e, &m_cont->animTail); // :contentReference[oaicite:18]{index=18}
+            m_cont->animCount++;
+        }
+        else
+        {
+            nlPrintf("Warning: inventory encountered an unknown chunk type\n"); // @392.  :contentReference[oaicite:19]{index=19}
+        }
+
+        // advance by chunk->size + header (header size is 8)
+        u32 chunkSize = *(u32*)(p + 4);
+        p += (int)chunkSize + 8;
+    }
+
+    // Resolve each desired animation name to a cSAnim*
+    int i;
+    int ofs = 0;
+    int dst = 0;
+    for (i = 0; i < m_count; ++i)
+    {
+        const char* name = *(const char**)((char*)m_props + ofs + 4); // +4 = name.  :contentReference[oaicite:20]{index=20}
+        u32 h = nlStringHash(name);
+
+        // search in this container
+        ListEntry<cSAnim*>* it = m_cont->animHead;
+        cSAnim* found = 0;
+        while (it)
+        {
+            cSAnim* a = it->data;
+            // a->mHash at +4 (compared in asm)
+            if (*(u32*)((char*)a + 4) == h)
+            {
+                found = a;
+                break;
+            }
+            it = it->next;
+        }
+        m_anims[dst >> 2] = found;
+
+        // not found? warn and try default container
+        if (m_anims[dst >> 2] == 0)
+        {
+            nlPrintf("Warning! Could not find \"%s\" in bundle \"%s\"\n", name, path); // @393.  :contentReference[oaicite:21]{index=21}
+
+            SAnimContainer* defc = g_pDefaultSAnimInventory;
+            it = defc ? defc->animHead : 0;
+            found = 0;
+            while (it)
+            {
+                cSAnim* a = it->data;
+                if (*(u32*)((char*)a + 4) == h)
+                {
+                    found = a;
+                    break;
+                }
+                it = it->next;
+            }
+            m_anims[dst >> 2] = found;
+
+            // still not found? fall back to first entry
+            if (m_anims[dst >> 2] == 0)
+                m_anims[dst >> 2] = m_anims[0];
+        }
+
+        ofs += 0x20; // next property
+        dst += 4;    // next anim pointer slot
+    }
 }
 
 /**

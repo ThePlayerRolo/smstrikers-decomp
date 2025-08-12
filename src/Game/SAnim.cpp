@@ -59,8 +59,9 @@ void cSAnim::BlendRot(int, int, float, float, cPoseAccumulator*, bool) const
 /**
  * Offset/Address/Size: 0xD40 | 0x801E9F54 | size: 0x68C
  */
-void cSAnim::Initialize(nlChunk*)
+cSAnim* cSAnim::Initialize(nlChunk*)
 {
+    return NULL;
 }
 
 // /**

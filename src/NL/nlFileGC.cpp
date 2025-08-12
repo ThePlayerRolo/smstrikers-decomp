@@ -10,7 +10,8 @@ u8 asyncToVirMemBuffer[0x4000];
 /**
  * Offset/Address/Size: 0x0 | 0x801CED54 | size: 0xEC
  */
-void nlReadAsyncToVirtualMemory(nlFile* file, void* buffer, int size, ReadAsyncCallback callback, unsigned long alignment, unsigned long length, void* userData)
+void nlReadAsyncToVirtualMemory(nlFile* file, void* buffer, int size, ReadAsyncCallback callback, unsigned long alignment,
+                                unsigned long length, void* userData)
 {
     s32 var_r11 = 0;
     nlReadAsync(file, buffer, size, &nlFileGC::AsyncToVirMemBufferCallback, var_r11);
@@ -91,8 +92,9 @@ void nlAsyncReadsPending(nlFile*)
 /**
  * Offset/Address/Size: 0x2F8 | 0x801CF04C | size: 0x2D0
  */
-void nlLoadEntireFileToVirtualMemory(const char*, int*, unsigned int, void*, eAllocType)
+void* nlLoadEntireFileToVirtualMemory(const char*, int*, unsigned int, void*, eAllocType)
 {
+    return NULL;
 }
 
 /**
