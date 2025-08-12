@@ -103,4 +103,23 @@ void nlListAddStart(ListEntry<T>** head, ListEntry<T>* newEntry, ListEntry<T>** 
     *head = newEntry;
 }
 
+template <typename T>
+void nlDeleteList(T** head)
+{
+    if (!head || !*head)
+        return;
+
+    T* current = *head;
+    T* next;
+
+    while (current)
+    {
+        next = current->next;
+        delete current;
+        current = next;
+    }
+
+    *head = nullptr;
+}
+
 #endif

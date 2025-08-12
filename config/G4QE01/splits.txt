@@ -4205,7 +4205,7 @@ Game/PoseNode.cpp:
 	.data       start:0x80302410 end:0x80302438
 	.sdata2     start:0x80377190 end:0x80377198
 
-SAnim.o:
+Game/SAnim.cpp:
 	.text       start:0x801E9214 end:0x801EA5E0
 	.text       start:0x801EA5E0 end:0x801EA65C
 	.sdata2     start:0x80377198 end:0x803771C0

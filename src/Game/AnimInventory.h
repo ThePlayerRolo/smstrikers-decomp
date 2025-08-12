@@ -4,8 +4,7 @@
 #include "types.h"
 #include "NL/nlDLRing.h"
 
-// void nlPrintf(const char*, ...);
-class cSAnim;
+#include "SAnim.h"
 
 struct SAnimContainer
 {
@@ -54,31 +53,5 @@ private:
     /* 0x08 */ cSAnim** m_anims;
     /* 0x0C */ const AnimProperties* m_props;
 };
-
-// class ListContainerBase<cSAnim*, NewAdapter<ListEntry<cSAnim*>>>
-// {
-// public:
-//     void DeleteEntry(ListEntry<cSAnim*>*);
-// };
-
-// class ListContainerBase<char*, NewAdapter<ListEntry<char*>>>
-// {
-// public:
-//     void DeleteEntry(ListEntry<char*>*);
-// };
-
-// class nlWalkList<ListEntry<char*>, ListContainerBase<char*, NewAdapter<ListEntry<char*>>>>(ListEntry<char*>*, ListContainerBase<char*,
-// NewAdapter<ListEntry<char*>>>*, void (ListContainerBase<char*, NewAdapter<ListEntry<char*>>>
-// {
-// public:
-//     void *)(ListEntry<char*>*));
-// };
-
-// class nlWalkList<ListEntry<cSAnim*>, ListContainerBase<cSAnim*, NewAdapter<ListEntry<cSAnim*>>>>(ListEntry<cSAnim*>*,
-// ListContainerBase<cSAnim*, NewAdapter<ListEntry<cSAnim*>>>*, void (ListContainerBase<cSAnim*, NewAdapter<ListEntry<cSAnim*>>>
-// {
-// public:
-//     void *)(ListEntry<cSAnim*>*));
-// };
 
 #endif // _ANIMINVENTORY_H_

@@ -28,9 +28,9 @@ void cAnimInventory::AddAnimBundle(const char*)
 /**
  * Offset/Address/Size: 0x78 | 0x80006FF4 | size: 0x10
  */
-cSAnim* cAnimInventory::GetAnim(int)
+cSAnim* cAnimInventory::GetAnim(int i)
 {
-    return nullptr;
+    return m_anims[i];
 }
 
 /**
