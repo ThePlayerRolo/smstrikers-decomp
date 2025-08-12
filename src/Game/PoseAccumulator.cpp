@@ -331,20 +331,18 @@ void cPoseAccumulator::BuildNodeMatrices(const nlMatrix4& world)
 /**
  * Offset/Address/Size: 0x4FC | 0x801EBA9C | size: 0x148
  */
-void cPoseAccumulator::BlendRot(int idx, const nlQuaternion* q, float w, bool special)
+void cPoseAccumulator::BlendRot(int idx, const nlQuaternion* q, float w, bool flip)
 {
     if (fabsf(w) < 0.001f)
         return;
 
-    RotAccum* e = &m_rot[idx]; // m_rot is at +0x1C, stride = 0x20
-
+    RotAccum* e = m_rot + idx;
     nlQuaternion qtemp;
 
-    if (special)
+    if (flip)
     {
         cSHierarchy* h = m_hierarchy;
 
-        // special orientation adjustments depending on index and min/max node
         if (idx == h->m_maxNode || idx == h->m_minNode)
         {
             // store: (-x, -w, y, z)
@@ -380,6 +378,7 @@ void cPoseAccumulator::BlendRot(int idx, const nlQuaternion* q, float w, bool sp
     nlQuaternion tmp = e->q;
     nlQuatNLerp(e->q, tmp, *q, t);
 
+    e = m_rot + idx;
     e->locked = false;
 }
 
@@ -399,7 +398,9 @@ void cPoseAccumulator::BlendRotAroundZ(int idx, unsigned short angle, float w)
     short delta = (short)(angle - e->angleZ);
     delta = (short)(t * delta);
 
-    e->angleZ = (unsigned short)(e->angleZ + delta);
+    e->angleZ = e->angleZ + (short)delta;
+
+    e = m_rot + idx;
     e->locked = false;
 }
 
@@ -411,8 +412,7 @@ void cPoseAccumulator::BlendScale(int idx, const nlVector3* v, float w, bool /*u
     if (fabsf(w) < 0.001f)
         return;
 
-    ScaleAccum* e = &m_scale[idx];
-
+    ScaleAccum* e = m_scale + idx;
     e->weight += w;
 
     float t = w / e->weight;
@@ -422,6 +422,7 @@ void cPoseAccumulator::BlendScale(int idx, const nlVector3* v, float w, bool /*u
     e->y = inv * e->y + t * v->f.y;
     e->z = inv * e->z + t * v->f.z;
 
+    e = m_scale + idx;
     e->locked = false;
 }
 
