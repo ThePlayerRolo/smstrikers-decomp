@@ -16,17 +16,18 @@ cAnimInventory::cAnimInventory(const AnimProperties* props, int count)
     m_anims = 0;
     m_props = props;
 
-    m_cont = (SAnimContainer*)nlMalloc(0x1C, 8, 0);
-    if (m_cont)
+    SAnimContainer* cont = (SAnimContainer*)nlMalloc(0x1C, 8, 0);
+    if (cont)
     {
-        m_cont->animHead = 0;
-        m_cont->animTail = 0;
-        m_cont->fileHead = 0;
-        m_cont->fileTail = 0;
-        m_cont->animCount = 0;
+        cont->animHead = 0;
+        cont->animTail = 0;
+        cont->fileHead = 0;
+        cont->fileTail = 0;
+        cont->animCount = 0;
     }
+    m_cont = cont;
 
-    if (g_pDefaultSAnimInventory == NULL)
+    if (g_pDefaultSAnimInventory == 0)
         g_pDefaultSAnimInventory = m_cont;
 
     m_anims = (cSAnim**)nlMalloc((unsigned long)(m_count << 2), 8, 0);
