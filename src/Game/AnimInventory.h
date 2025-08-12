@@ -23,12 +23,12 @@ struct AnimProperties
     /* 0x04 */ const char* name;
     /* 0x08 */ int playMode;
     /* 0x0C */ float blendTime;
-    /* 0x10 */ u8 mirrored;
-    /* 0x11 */ u8 pad11[3];
+    /* 0x10 */ bool mirrored;
+    // /* 0x11 */ u8 pad11[3];
     /* 0x14 */ int ballRotMode;
     /* 0x18 */ int endPhase;
     /* 0x1C */ u8 matchCharSpd;
-    /* 0x1D */ u8 pad1d[3];
+    // /* 0x1D */ u8 pad1d[3];
 };
 
 class cAnimInventory
