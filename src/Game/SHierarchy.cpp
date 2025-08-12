@@ -96,6 +96,7 @@ s32 cSHierarchy::GetNodeIndexByID(unsigned int nodeID) const
  */
 s32 cSHierarchy::GetChild(int parentIndex, int childIndex) const
 {
+    FORCE_DONT_INLINE;
     return *((s32*)((s32**)this->m_childArrays)[parentIndex] + childIndex);
 }
 

@@ -148,7 +148,7 @@ public:
 
     /* 0x114 */ BlurHandler* m_unk_0x114;
     /* 0x118 */ Blinker* m_unk_0x118;
-    /* 0x11C */ u32 m_unk_0x11C;
+    /* 0x11C */ FxTexturingEntry* m_unk_0x11C;
 
     /* 0x120 */ u8 m_padding_0x120[0xAC];
 
