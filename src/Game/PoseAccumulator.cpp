@@ -542,17 +542,20 @@ nlMatrix4* cPoseAccumulator::GetNodeMatrix(int i) const
  */
 nlMatrix4* cPoseAccumulator::GetNodeMatrixByHashID(unsigned int hash) const
 {
-    cSHierarchy* h = m_hierarchy;
-    int i = 0;
-    while (i < h->m_nodeCount)
+    cSHierarchy* hierarchy = m_hierarchy;
+    int index = 0;
+
+    while (index < hierarchy->m_nodeCount)
     {
-        if (h->GetNodeID(i) == hash)
+        unsigned int nodeID = hierarchy->GetNodeID(index);
+        if (hash == nodeID)
         {
-            return &m_matsA[i];
+            break;
         }
-        ++i;
+        index++;
     }
-    return &m_matsA[i];
+
+    return &m_matsA[index];
 }
 
 /**
