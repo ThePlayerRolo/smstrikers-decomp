@@ -33,6 +33,8 @@ void cSAnim::GetRootRot(float, unsigned short*) const
  */
 void cSAnim::Destroy()
 {
+    nlDeleteList<cSAnimCallback>(&m_unk_0x3C);
+    m_unk_0x3C = NULL;
 }
 
 /**
