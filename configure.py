@@ -683,7 +683,7 @@ config.libs = [
             Object(NonMatching, "Game/main.cpp"),
             Object(NonMatching, "Game/clock.cpp"),
             Object(NonMatching, "Game/Sys/debug.cpp"),
-            Object(NonMatching, "Game/Sys/simpleparser.cpp"),
+            Object(NonMatching, "Game/Sys/simpleparser.cpp", extra_cflags=["-inline deferred"]),
 
             # Game Objects
             Object(NonMatching, "Game/Ball.cpp"),

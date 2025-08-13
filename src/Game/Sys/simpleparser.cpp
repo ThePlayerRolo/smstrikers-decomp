@@ -1,26 +1,12 @@
 #include "simpleparser.h"
 
 /**
- * Offset/Address/Size: 0x0 | 0x801D69A4 | size: 0x160
+ * Offset/Address/Size: 0x988 | 0x801D732C | size: 0x10
  */
-void SimpleParser::AdvanceLine()
+SimpleParser::SimpleParser()
 {
-}
-
-/**
- * Offset/Address/Size: 0x160 | 0x801D6B04 | size: 0x1DC
- */
-char* SimpleParser::NextTokenOnLine(bool)
-{
-    return nullptr;
-}
-
-/**
- * Offset/Address/Size: 0x33C | 0x801D6CE0 | size: 0x4E0
- */
-char* SimpleParser::NextToken(bool)
-{
-    return nullptr;
+    mLineEnd = nullptr;
+    mTokIndex = 0;
 }
 
 /**
@@ -32,8 +18,24 @@ bool SimpleParser::StartParsing(char*, int, bool)
 }
 
 /**
- * Offset/Address/Size: 0x988 | 0x801D732C | size: 0x10
+ * Offset/Address/Size: 0x33C | 0x801D6CE0 | size: 0x4E0
  */
-SimpleParser::SimpleParser()
+char* SimpleParser::NextToken(bool)
+{
+    return nullptr;
+}
+
+/**
+ * Offset/Address/Size: 0x160 | 0x801D6B04 | size: 0x1DC
+ */
+char* SimpleParser::NextTokenOnLine(bool)
+{
+    return nullptr;
+}
+
+/**
+ * Offset/Address/Size: 0x0 | 0x801D69A4 | size: 0x160
+ */
+void SimpleParser::AdvanceLine()
 {
 }
