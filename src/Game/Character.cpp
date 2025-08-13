@@ -427,7 +427,7 @@ void cCharacter::EndBlur()
  */
 void cCharacter::InitBlur(int arg0)
 {
-    char* sp8;
+    char* sp8 = NULL;
     // BlurHandler* temp_r3;
     // BlurManager* var_r3;
     s32 var_r31;

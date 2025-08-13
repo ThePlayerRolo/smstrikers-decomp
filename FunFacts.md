@@ -19,11 +19,10 @@
 ##  Decompilation Insights & the Physics Engine
 
 - **Open-Source Physics:** A noteworthy gem uncovered via the decompilation project is the use of the **Open Dynamics Engine (ODE)**—an early, open-source physics engine written in C/C++ (BSD-licensed)—to power the game's physics simulation.[^3]  
-- **Decompilation Project:** The GitHub project `smstrikers-decomp` is a work-in-progress effort to reverse-engineer *Super Mario Strikers*. Licensed under CC0-1.0, it welcomes contributions via pull requests, includes tools for class generation (e.g., `class_gen.py`), and supports building from original game disc images.[^4]  
 
 ##  Voice Actor Fun Fact
 
-- **Bowser's Voice:** The game features the debut performance of **Kenny James** as Bowser (and as part of the Super Team). He has since become the series' regular English voice for Bowser across multiple variants and titles.[^5]
+- **Bowser's Voice:** The game features the debut performance of **Kenny James** as Bowser (and as part of the Super Team). He has since become the series' regular English voice for Bowser across multiple variants and titles.[^4]
 
 ---
 
@@ -32,5 +31,4 @@
 [^1]: [Next Level Games — Wikipedia](https://en.wikipedia.org/wiki/Next_Level_Games)  
 [^2]: [Super Mario Strikers — Wikipedia](https://en.wikipedia.org/wiki/Super_Mario_Strikers)  
 [^3]: [Open Dynamics Engine — Wikipedia](https://en.wikipedia.org/wiki/Open_Dynamics_Engine)  
-[^4]: [smstrikers-decomp — GitHub](https://github.com/yannicksuter/smstrikers-decomp)  
-[^5]: [Kenny James — Mario Wiki](https://www.mariowiki.com/Kenny_James)  
+[^4]: [Kenny James — Mario Wiki](https://www.mariowiki.com/Kenny_James)  

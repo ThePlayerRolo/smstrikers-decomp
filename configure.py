@@ -681,7 +681,7 @@ config.libs = [
         "SMS (Super Mario Strikers)",
         [
             Object(NonMatching, "Game/main.cpp"),
-            Object(NonMatching, "Game/clock.cpp"),
+            Object(Matching, "Game/Sys/clock.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Sys/debug.cpp"),
             Object(NonMatching, "Game/Sys/simpleparser.cpp", extra_cflags=["-inline deferred"]),
 
