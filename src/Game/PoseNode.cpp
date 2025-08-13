@@ -74,26 +74,19 @@ void cPoseNode::SetChild(int idx, cPoseNode* child)
  */
 void cPoseNode::GetRootTrans(nlVector3* out, unsigned short ang)
 {
-    float baseW; // +0x1C
-    float baseZ; // +0x18
-    float baseY; // +0x14
-    float baseX; // +0x10
+    nlVector3 base;
+    float pw = 0.0f;
+    base.f.x = 0.0f;
+    base.f.y = 0.0f;
+    base.f.z = 0.0f;
 
-    float c = 1.0f;
-    float s = 0.0f;
+    V_GetRootTrans(&base, 1.0f, &pw);
 
-    baseW = 0.0f;
-    baseZ = 0.0f;
-    baseY = 0.0f;
-    baseX = 0.0f;
-
-    // vfunc at vtable+0x1C: r4=&baseY, f1=1.0f, r5=&baseX
-    V_GetRootTrans(reinterpret_cast<nlVector3*>(&baseY), 1.0f, &baseX);
-
+    float c, s;
     nlSinCos(&s, &c, ang);
 
-    out->f.x = baseY * c - (baseZ * s);
-    out->f.y = baseY * s + (baseZ * c);
+    out->f.x = base.f.x * c - (base.f.y * s);
+    out->f.y = base.f.y * c + (base.f.x * s);
 }
 
 /**

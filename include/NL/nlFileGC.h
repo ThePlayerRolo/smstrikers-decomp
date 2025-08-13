@@ -12,7 +12,7 @@ void nlReadAsyncToVirtualMemory(nlFile*, void*, int, ReadAsyncCallback, unsigned
 void nlAsyncLoadFileToVirtualMemory(nlFile*, int, void*, ReadAsyncCallback, unsigned long);
 void nlCancelPendingAsyncReads(nlFile*, void (*)(nlFile*, void*, unsigned int, unsigned long, LoadAsyncCallback));
 void nlAsyncReadsPending(nlFile*);
-void nlLoadEntireFileToVirtualMemory(const char*, int*, unsigned int, void*, eAllocType);
+void* nlLoadEntireFileToVirtualMemory(const char*, int*, unsigned int, void*, eAllocType);
 void nlReadToVirtualMemory(nlFile*, void*, unsigned int, unsigned int);
 u32 nlGetFilePosition(nlFile*);
 void nlSeek(nlFile*, unsigned int, unsigned long);
@@ -23,7 +23,7 @@ void GameCubeReadBlocking(GCFile*, void*, unsigned long);
 static void GameCubeReadAsync(GCFile*, ReadAsyncCallback, void*, unsigned long, unsigned long);
 void UpdateReadState(AsyncEntry*);
 void nlFlushFileCash();
-nlFile *nlOpen(const char*);
+nlFile* nlOpen(const char*);
 
 // void nlDLRingRemoveStart<AsyncEntry>(AsyncEntry**);
 // void nlDLRingGetStart<AsyncEntry>(AsyncEntry*);
@@ -32,12 +32,11 @@ nlFile *nlOpen(const char*);
 // void nlDLRingAddStart<AsyncEntry>(AsyncEntry**, AsyncEntry*);
 // void nlRingIsEnd<AsyncEntry>(AsyncEntry*, AsyncEntry*);
 
-namespace nlFileGC 
+namespace nlFileGC
 {
-    void AsyncToVirMemBufferCallback(nlFile*, void*, unsigned int, unsigned long);
-    void AsyncToVirMemBufferLoad();
-};
-
+void AsyncToVirMemBufferCallback(nlFile*, void*, unsigned int, unsigned long);
+void AsyncToVirMemBufferLoad();
+}; // namespace nlFileGC
 
 class GCFile : public nlFile
 {
@@ -47,10 +46,10 @@ public:
     virtual void Read(void*, unsigned int);
     virtual BOOL GetReadStatus() = 0;
     virtual BOOL ReadAsync(void*, unsigned long, unsigned long) = 0;
-    virtual u32 GetDiscPosition() = 0;    
+    virtual u32 GetDiscPosition() = 0;
 };
 
-class TDEVChunkFile: public GCFile
+class TDEVChunkFile : public GCFile
 {
 public:
     virtual ~TDEVChunkFile();

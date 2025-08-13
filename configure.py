@@ -681,7 +681,9 @@ config.libs = [
         "SMS (Super Mario Strikers)",
         [
             Object(NonMatching, "Game/main.cpp"),
-            Object(NonMatching, "Game/clock.cpp"),
+            Object(Matching, "Game/Sys/clock.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/Sys/debug.cpp"),
+            Object(NonMatching, "Game/Sys/simpleparser.cpp", extra_cflags=["-inline deferred"]),
 
             # Game Objects
             Object(NonMatching, "Game/Ball.cpp"),
@@ -697,8 +699,8 @@ config.libs = [
 
             Object(NonMatching, "Game/NisPlayer.cpp"),
 
-            # related to character template
-            Object(NonMatching, "Game/PoseNode.cpp", extra_cflags=["-inline deferred"]),
+            # related to character
+            Object(Matching, "Game/PoseNode.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/PoseAccumulator.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/SHierarchy.cpp"),
 
@@ -707,8 +709,12 @@ config.libs = [
 
             Object(NonMatching, "Game/GLInventory.cpp"),
 
-            # related to character
+            Object(NonMatching, "Game/SAnim.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/AnimInventory.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Blinker.cpp"),   
+
+            # Terrain / Environment
+            Object(Matching, "Game/TerrainTypes.cpp"),
 
             # Audio
             Object(NonMatching, "Game/CharacterAudio.cpp"),   

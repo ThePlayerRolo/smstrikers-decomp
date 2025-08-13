@@ -3,23 +3,16 @@
 
 #include "NL/nlDLRing.h"
 
-// void nlDLRingAppendRing<Clock>(Clock**, Clock*);
-// void nlDLRingRemoveSafely<Clock>(Clock**, const Clock*);
-// void nlDLRingValidateContainsElement<Clock>(Clock*, const Clock*);
-// void nlDLRingRemove<Clock>(Clock**, Clock*);
-// void nlDLRingAddEnd<Clock>(Clock**, Clock*);
-// void nlDLRingAddStart<Clock>(Clock**, Clock*);
-
 typedef void (*ClockCallback)(unsigned long, unsigned long);
 
 class Clock
 {
 public:
-    void Stop();
+    Clock(float, float, float, unsigned long, ClockCallback);
+    virtual ~Clock();
     void Start();
     void Reset(float, float, float);
-    virtual ~Clock();
-    Clock(float, float, float, unsigned long, ClockCallback);
+    void Stop();
 
     /* 0x04 */ float m_unk_0x04;
     /* 0x08 */ float m_unk_0x08;
@@ -35,12 +28,11 @@ public:
     /* 0x28 */ Clock* m_prev;
 };
 
-
 class ClockManager
 {
 public:
-    void Update(float);
     void Initialize();
+    void Update(float);
 
     /* 0x00 */ static Clock* m_inactiveList;
     /* 0x04 */ static Clock* m_activeList;

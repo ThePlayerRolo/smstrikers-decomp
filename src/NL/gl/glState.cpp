@@ -1,4 +1,13 @@
+#include "NL/gl/gl.h"
 #include "NL/gl/glState.h"
+
+typedef struct PackedTextureInfo
+{
+    u32 start_bit; // packed_texture[s].0
+    u32 count;     // packed_texture[s].4
+} PackedTextureInfo;
+
+extern PackedTextureInfo packed_texture[]; // 8 bytes per entry
 
 /**
  * Offset/Address/Size: 0x0 | 0x801DBC44 | size: 0x184
@@ -110,9 +119,12 @@ void glGetRasterState(eGLState)
 /**
  * Offset/Address/Size: 0x76C | 0x801DC3B0 | size: 0x30
  */
-u32 glGetTexture(const char*)
+u32 glGetTexture(const char* name)
 {
-    return 0;
+    if (name == 0)
+        return 0xFFFFFFFF;
+
+    return glHash(name);
 }
 
 /**

@@ -29,7 +29,7 @@ struct RotAccum
 {
     /* 0x00 */ nlQuaternion q;
     /* 0x10 */ float weight;
-    /* 0x14 */ s16 angleZ;
+    /* 0x14 */ u16 angleZ;
     /* 0x18 */ float weightZ;
     /* 0x1C */ bool locked;
     /* 0x1D */ u8 _pad[3];

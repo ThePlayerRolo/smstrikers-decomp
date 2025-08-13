@@ -2,11 +2,12 @@
 #include "audio.h"
 #include "GameAudio.h"
 
+#include "NL/nlList.h"
 #include "NL/nlMemory.h"
 #include "NL/nlTimer.h"
 #include "NL/plat/plataudio.h"
 
-struct FadeAudioData
+struct FadeAudioData // TODO: this should be a ListEntry<T>
 {
     /* 0x00 */ char padding[0x28];
     /* 0x28 */ FadeAudioData* next; // Pointer to next node for nlDeleteList
