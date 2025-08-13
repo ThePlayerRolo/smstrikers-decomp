@@ -1,6 +1,6 @@
 #include "Blinker.h"
 
-#include "debug.h"
+#include "Sys/debug.h"
 #include "string.h"
 
 #include "NL/nlPrint.h"
@@ -101,7 +101,7 @@ Blinker::Blinker(const char* name, unsigned long arg1, GLMaterialList* list0, GL
     m_unk_0x0C = list0->FindMaterial(matId);
     if (m_unk_0x0C == 0)
     {
-        tDebugPrintManager::Print(tDebugPrintManager::DEBUG_CHANNEL_INFO, "%s has no eyes on material 0\n", name);
+        tDebugPrintManager::Print(DEBUG_RENDER, "%s has no eyes on material 0\n", name);
         return;
     }
 
@@ -227,7 +227,7 @@ Blinker::Blinker(const char* name, unsigned long arg1, GLMaterialList* list0, GL
 
     if (!var_r30 || !glTextureLoad(m_unk_0x1C) || !glTextureLoad(m_unk_0x20))
     {
-        tDebugPrintManager::Print(tDebugPrintManager::DEBUG_CHANNEL_INFO, "Error: %s not properly configured for blinking.\n", name);
+        tDebugPrintManager::Print(DEBUG_RENDER, "Error: %s not properly configured for blinking.\n", name);
         return;
     }
 
