@@ -1,6 +1,8 @@
 #ifndef _FEPOPUPMENU_H_
 #define _FEPOPUPMENU_H_
 
+#include "fePresentation.h"
+
 // void CastToSomeType<TLInstance>(TLInstance*, void*);
 // void CastToSomeType<TLSlide>(TLSlide*, void*);
 // void FindItemByHashID<TLInstance>(TLInstance*, unsigned long);
@@ -17,6 +19,8 @@ public:
     void SceneCreated();
     ~FEPopupMenu();
     FEPopupMenu();
+
+    /* 0x0 */ TLSlide* m_slides;
 };
 
 // class FEFinder<TLTextInstance, 3>

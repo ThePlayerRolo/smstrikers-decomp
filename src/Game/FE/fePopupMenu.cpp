@@ -1,10 +1,40 @@
 #include "fePopupMenu.h"
 
+#include "Game/FE/feTemplates.h"
+
+// template <class T>
+// T* FindItemByHashID(T* head, unsigned long hash)
+// {
+//     if (head == 0)
+//         return 0;
+
+//     T* cur = head->m_next;
+
+//     for (;;)
+//     {
+//         unsigned long id = cur->m_hash; // lwz r0, 0x40(r5)
+//         T* next = cur->m_next;          // lwz r6, 0x0(r5)
+
+//         if (hash == id) // cmplw r4, r0
+//             return cur;
+
+//         if (cur == head) // cmplw r5, r3 ; beq -> return 0
+//             break;
+
+//         cur = next; // mr r5, r6
+//         // loop back                      // b .L_8009C3CC
+//     }
+
+//     return 0;
+// }
+
 /**
  * Offset/Address/Size: 0xA8 | 0x80098354 | size: 0xBC
  */
 void FEPopupMenu::SetOptionTextColourOnCurrent(bool)
 {
+    u32 hash = 0;
+    TLSlide* slide = FindItemByHashID<TLSlide>(m_slides, hash);
 }
 
 /**
