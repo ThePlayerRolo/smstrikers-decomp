@@ -109,7 +109,7 @@ float nlATan2f(float, float);
 void nlTan(unsigned short);
 void nlACos(float);
 void nlSinCos(float*, float*, unsigned short);
-void nlSin(unsigned short);
+float nlSin(unsigned short);
 float nlRecipSqrt(float, bool);
 float nlSqrt(float, bool);
 float nlRandomf(float, float, unsigned int*);

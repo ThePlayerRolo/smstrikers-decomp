@@ -582,7 +582,7 @@ DefaultOffensive.o:
 	.sdata      start:0x80371378 end:0x803713B0
 	.sdata2     start:0x803759D8 end:0x80375A20
 
-feAsyncImage.o:
+Game/FE/feAsyncImage.cpp:
 	.text       start:0x80093A6C end:0x80093F10
 	.text       start:0x80093F10 end:0x80093F1C
 	.text       start:0x80093F1C end:0x80093F1C
@@ -599,7 +599,7 @@ LidOpenMessage.o:
 	.sdata      start:0x803713B0 end:0x803713C0
 	.sbss       start:0x803737F8 end:0x80373810
 
-feAnimModelManager.o:
+Game/FE/feAnimModelManager.cpp:
 	.text       start:0x800947AC end:0x80094C44
 	.text       start:0x80094C44 end:0x80094C44
 	.text       start:0x80094C44 end:0x80094C44
@@ -614,14 +614,14 @@ feAnimModelManager.o:
 	.sbss       start:0x80373810 end:0x80373818
 	.sdata2     start:0x80375A20 end:0x80375A40
 
-FELoader.o:
+Game/FE/FELoader.cpp:
 	.text       start:0x80094C44 end:0x80094C84
 	.text       start:0x80094C84 end:0x80094C84
 	.ctors      start:0x8028D2B4 end:0x8028D2B8
 	.data       start:0x802A8AC8 end:0x802A8AE8
 	.sbss       start:0x80373818 end:0x80373820
 
-Game/feManager.cpp:
+Game/FE/feManager.cpp:
 	.text       start:0x80094C84 end:0x800955BC
 	.text       start:0x800955BC end:0x800955BC
 	.text       start:0x800955BC end:0x800955BC
@@ -651,18 +651,18 @@ GameSceneManager.o:
 	.data       start:0x802A9558 end:0x802A9570
 	.sbss       start:0x80373840 end:0x80373848
 
-feSlideMenu.o:
+Game/FE/feSlideMenu.cpp:
 	.text       start:0x80096C54 end:0x800972F4
 	.text       start:0x800972F4 end:0x80097300
 	.text       start:0x80097300 end:0x80097300
 	.sdata2     start:0x80375A60 end:0x80375A68
 
-feMapMenu.o:
+Game/FE/feMapMenu.cpp:
 	.text       start:0x80097300 end:0x800982AC
 	.data       start:0x802A9570 end:0x802A95E0
 	.sdata2     start:0x80375A68 end:0x80375A78
 
-fePopupMenu.o:
+Game/FE/fePopupMenu.cpp:
 	.text       start:0x800982AC end:0x8009BBDC
 	.text       start:0x8009BBDC end:0x8009BBDC
 	.text       start:0x8009BBDC end:0x8009BBDC
@@ -678,7 +678,7 @@ fePopupMenu.o:
 	.sdata      start:0x803713E8 end:0x80371438
 	.sdata2     start:0x80375A78 end:0x80375AB0
 
-FEAudio.o:
+Game/FE/FEAudio.cpp:
 	.text       start:0x8009EDAC end:0x8009F9A8
 	.text       start:0x8009F9A8 end:0x8009F9B8
 	.text       start:0x8009F9B8 end:0x8009F9B8
@@ -695,7 +695,7 @@ FEAudio.o:
 	.sbss       start:0x80373848 end:0x80373860
 	.sdata2     start:0x80375AB0 end:0x80375AB8
 
-feScrollingTicker.o:
+Game/FE/feScrollingTicker.cpp:
 	.text       start:0x8009FC58 end:0x800A0CA4
 	.text       start:0x800A0CA4 end:0x800A0DCC
 	.text       start:0x800A0DCC end:0x800A0DCC
@@ -708,7 +708,7 @@ feScrollingTicker.o:
 	.sdata      start:0x80371448 end:0x80371468
 	.sdata2     start:0x80375AB8 end:0x80375AD0
 
-feNSNMessenger.o:
+Game/FE/feNSNMessenger.cpp:
 	.text       start:0x800A131C end:0x800A1E60
 	.text       start:0x800A1E60 end:0x800A1F08
 	.text       start:0x800A1F08 end:0x800A1F08
@@ -723,7 +723,7 @@ feNSNMessenger.o:
 	.sbss       start:0x80373860 end:0x80373868
 	.sdata2     start:0x80375AD0 end:0x80375AE0
 
-feTweener.o:
+Game/FE/feTweener.cpp:
 	.text       start:0x800A2254 end:0x800A2D28
 	.text       start:0x800A2D28 end:0x800A2D38
 	.text       start:0x800A2D38 end:0x800A2D38
@@ -733,11 +733,11 @@ feTweener.o:
 	.bss        start:0x80310F88 end:0x80310F98
 	.sdata2     start:0x80375AE0 end:0x80375AE8
 
-feTweenFuncs.o:
+Game/FE/feTweenFuncs.cpp:
 	.text       start:0x800A2EC4 end:0x800A30BC
 	.sdata2     start:0x80375AE8 end:0x80375B18
 
-feHelpFuncs.o:
+Game/FE/feHelpFuncs.cpp:
 	.text       start:0x800A30BC end:0x800A4494
 	.text       start:0x800A4494 end:0x800A4494
 	.text       start:0x800A4494 end:0x800A4494
@@ -873,7 +873,7 @@ SHOptions.o:
 	.sbss       start:0x803738A0 end:0x803738B8
 	.sdata2     start:0x80375B98 end:0x80375BA8
 
-feOptionsSubMenus.o:
+Game/FE/feOptionsSubMenus.cpp:
 	.text       start:0x800B5044 end:0x800BB0F4
 	.text       start:0x800BB0F4 end:0x800BB21C
 	.text       start:0x800BB21C end:0x800BB318
@@ -916,7 +916,7 @@ SHMoviePlayer.o:
 	.sdata      start:0x80371768 end:0x80371788
 	.sdata2     start:0x80375BE8 end:0x80375BF8
 
-feCaptainComponent.o:
+Game/FE/feCaptainComponent.cpp:
 	.text       start:0x800BD99C end:0x800BF7A4
 	.text       start:0x800BF7A4 end:0x800C0F74
 	.text       start:0x800C0F74 end:0x800C15BC
@@ -926,7 +926,7 @@ feCaptainComponent.o:
 	.sdata      start:0x80371788 end:0x803717D8
 	.sdata2     start:0x80375BF8 end:0x80375C00
 
-feCaptainGridComponent.o:
+Game/FE/feCaptainGridComponent.cpp:
 	.text       start:0x800C16F4 end:0x800C226C
 	.text       start:0x800C226C end:0x800C269C
 	.text       start:0x800C269C end:0x800C2810
@@ -937,7 +937,7 @@ feCaptainGridComponent.o:
 	.sdata      start:0x803717D8 end:0x803717E0
 	.sdata2     start:0x80375C00 end:0x80375C08
 
-feSidekickGridComponent.o:
+Game/FE/feSidekickGridComponent.cpp:
 	.text       start:0x800C2810 end:0x800C2EA0
 	.text       start:0x800C2EA0 end:0x800C32D0
 	.text       start:0x800C32D0 end:0x800C3444
@@ -946,7 +946,7 @@ feSidekickGridComponent.o:
 	.data       start:0x802AB128 end:0x802AB230
 	.sdata2     start:0x80375C08 end:0x80375C10
 
-feChooseSideComponent.o:
+Game/FE/feChooseSideComponent.cpp:
 	.text       start:0x800C3444 end:0x800C4BC0
 	.text       start:0x800C4BC0 end:0x800C4BC0
 	.data       start:0x802AB230 end:0x802AB2B0
@@ -987,7 +987,7 @@ OverlayManager.o:
 	.sbss       start:0x803738C0 end:0x803738C8
 	.sdata2     start:0x80375C20 end:0x80375C30
 
-feScrollText.o:
+Game/FE/feScrollText.cpp:
 	.text       start:0x800C89D4 end:0x800C9624
 	.text       start:0x800C9624 end:0x800C9624
 	.text       start:0x800C9624 end:0x800C9624
@@ -1277,7 +1277,7 @@ OverlayHandlerSummary.o:
 	.sdata      start:0x80371EE8 end:0x80371F70
 	.sbss2      start:0x80377F38 end:0x80377F40
 
-feInGameMessengerManager.o:
+Game/FE/feInGameMessengerManager.cpp:
 	.text       start:0x800FF91C end:0x800FFF74
 	.text       start:0x800FFF74 end:0x800FFF98
 	.text       start:0x800FFF98 end:0x800FFF98
@@ -1404,7 +1404,7 @@ SHHealthWarning.o:
 	.sdata      start:0x80372078 end:0x80372090
 	.sdata2     start:0x80375DC0 end:0x80375DD0
 
-feButtonComponent.o:
+Game/FE/feButtonComponent.cpp:
 	.text       start:0x8010DC04 end:0x8010E924
 	.text       start:0x8010E924 end:0x8010EB08
 	.text       start:0x8010EB08 end:0x8010EF38
@@ -1414,7 +1414,7 @@ feButtonComponent.o:
 	.sdata      start:0x80372090 end:0x803720D0
 	.sdata2     start:0x80375DD0 end:0x80375DF8
 
-feSoundKeyframeTrigger.o:
+Game/FE/feSoundKeyframeTrigger.cpp:
 	.text       start:0x8010EF64 end:0x8010F10C
 	.text       start:0x8010F10C end:0x8010F15C
 	.sdata2     start:0x80375DF8 end:0x80375E00
@@ -1441,7 +1441,7 @@ SHProgressiveScan.o:
 	.sdata      start:0x80372148 end:0x80372190
 	.sdata2     start:0x80375E40 end:0x80375E58
 
-feMusic.o:
+Game/FE/feMusic.cpp:
 	.text       start:0x80111C98 end:0x80111D70
 	.text       start:0x80111D70 end:0x80111D70
 	.text       start:0x80111D70 end:0x80111D70
@@ -4556,15 +4556,15 @@ fontmanager.o:
 	.data       start:0x803035F0 end:0x80303640
 	.sbss       start:0x80374408 end:0x80374410
 
-feLibObject.o:
+Game/FE/feLibObject.cpp:
 	.text       start:0x80209D28 end:0x80209D48
 	.text       start:0x80209D48 end:0x80209D48
 
-fePackage.o:
+Game/FE/fePackage.cpp:
 	.text       start:0x80209D48 end:0x80209D74
 	.text       start:0x80209D74 end:0x80209D74
 
-feScene.o:
+Game/FE/feScene.cpp:
 	.text       start:0x80209D74 end:0x8020A1C8
 	.text       start:0x8020A1C8 end:0x8020A1C8
 	.text       start:0x8020A1C8 end:0x8020A1C8
@@ -4573,7 +4573,7 @@ feScene.o:
 	.sbss       start:0x80374410 end:0x80374418
 	.sdata2     start:0x80377520 end:0x80377530
 
-feRender.o:
+Game/FE/feRender.cpp:
 	.text       start:0x8020A288 end:0x8020BA14
 	.text       start:0x8020BA14 end:0x8020BA2C
 	.text       start:0x8020BA2C end:0x8020BA34
@@ -4591,7 +4591,7 @@ feRender.o:
 	.sbss       start:0x80374418 end:0x80374430
 	.sdata2     start:0x80377530 end:0x80377558
 
-feResourceManager.o:
+Game/FE/feResourceManager.cpp:
 	.text       start:0x8020BB40 end:0x8020C8A4
 	.text       start:0x8020C8A4 end:0x8020C8A4
 	.text       start:0x8020C8A4 end:0x8020D244
@@ -4609,17 +4609,17 @@ feResourceManager.o:
 	.bss        start:0x803435B8 end:0x80343618
 	.sbss       start:0x80374430 end:0x80374450
 
-feSceneResource.o:
+Game/FE/feSceneResource.cpp:
 	.text       start:0x8020D608 end:0x8020D628
 
-feTextureResource.o:
+Game/FE/feTextureResource.cpp:
 	.text       start:0x8020D628 end:0x8020D644
 
-feFontResource.o:
+Game/FE/feFontResource.cpp:
 	.text       start:0x8020D644 end:0x8020D64C
 	.text       start:0x8020D64C end:0x8020D64C
 
-feSceneManager.o:
+Game/FE/feSceneManager.cpp:
 	.text       start:0x8020D64C end:0x8020E080
 	.text       start:0x8020E080 end:0x8020E208
 	.text       start:0x8020E208 end:0x8020E208
@@ -4635,13 +4635,13 @@ feSceneManager.o:
 	.bss        start:0x80343618 end:0x80343668
 	.sbss       start:0x80374450 end:0x80374458
 
-feAnimation.o:
+Game/FE/feAnimation.cpp:
 	.text       start:0x8020E580 end:0x8020E9B4
 	.text       start:0x8020E9B4 end:0x8020EA0C
 	.rodata     start:0x802A0760 end:0x802A07A0
 	.sdata2     start:0x80377558 end:0x80377560
 
-feInput.o:
+Game/FE/feInput.cpp:
 	.text       start:0x8020EA0C end:0x8020FB00
 	.text       start:0x8020FB00 end:0x8020FB20
 	.text       start:0x8020FB20 end:0x8020FB68
@@ -4683,7 +4683,7 @@ tlComponentInstance.o:
 	.text       start:0x80210644 end:0x80210644
 	.sdata2     start:0x80377578 end:0x80377580
 
-fePresentation.o:
+Game/FE/fePresentation.cpp:
 	.text       start:0x80210644 end:0x802107AC
 	.text       start:0x802107AC end:0x802107AC
 	.text       start:0x802107AC end:0x802107AC
