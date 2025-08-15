@@ -1,13 +1,18 @@
 #ifndef _FELIBOBJECT_H_
 #define _FELIBOBJECT_H_
 
+#include "types.h"
+
+#include "NL/nlColour.h"
+#include "NL/nlMath.h"
+
 class FELibObject
 {
 public:
-    void GetScale() const;
-    void GetRotation() const;
-    void GetPosition() const;
-    void GetColour() const;
+    nlVector3* GetScale() const;
+    nlVector3* GetRotation() const;
+    nlVector3* GetPosition() const;
+    nlColour* GetColour() const;
 
     // /* 0x00 */ char pad0[8];
     // /* 0x08 */ ? unk8;                              /* inferred */
