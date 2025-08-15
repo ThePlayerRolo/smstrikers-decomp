@@ -786,6 +786,13 @@ config.libs = [
             # Object(NonMatching, "Game/FE/feHelpFuncs.cpp"),
             Object(NonMatching, "Game/FE/feSlideMenu.cpp"),
 
+            Object(NonMatching, "Game/FE/tlSlide.cpp"),
+            Object(Matching, "Game/FE/tlComponent.cpp"),
+            Object(NonMatching, "Game/FE/tlInstance.cpp"),
+            Object(NonMatching, "Game/FE/tlComponentInstance.cpp"),
+            Object(NonMatching, "Game/FE/tlTextInstance.cpp"),
+            Object(NonMatching, "Game/FE/tlTextInstance_runtime.cpp"),
+
             # GFX
             Object(NonMatching, "Game/Drawable/DrawableObj.cpp"),
             Object(NonMatching, "Game/Drawable/DrawableNetMesh.cpp"),

@@ -5,10 +5,17 @@
 
 struct nlColour
 {
+    // union
+    // {
+    //     struct
+    //     {
     u8 r;
     u8 g;
     u8 b;
     u8 a;
+    //     } c;
+    //     u32 as_u32;
+    // };
 
     // nlColour()
     //     : r(0.0f)

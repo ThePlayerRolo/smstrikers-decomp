@@ -4650,35 +4650,35 @@ Game/FE/feInput.cpp:
 	.sbss       start:0x80374458 end:0x80374460
 	.sdata2     start:0x80377560 end:0x80377568
 
-tlComponent.o:
+Game/FE/tlComponent.cpp:
 	.text       start:0x8020FB68 end:0x8020FBE0
 	.text       start:0x8020FBE0 end:0x8020FBE0
 
-tlSlide.o:
+Game/FE/tlSlide.cpp:
 	.text       start:0x8020FBE0 end:0x8020FF48
 	.text       start:0x8020FF48 end:0x8020FF48
 	.text       start:0x8020FF48 end:0x8020FF80
 	.text       start:0x8020FF80 end:0x8020FF80
 
-tlInstance.o:
+Game/FE/tlInstance.cpp:
 	.text       start:0x8020FF80 end:0x80210170
 	.text       start:0x80210170 end:0x80210170
 	.sdata2     start:0x80377568 end:0x80377570
 
-tlTextInstance.o:
+Game/FE/tlTextInstance.cpp:
 	.text       start:0x80210170 end:0x802101D8
 	.text       start:0x802101D8 end:0x802101D8
 	.text       start:0x802101D8 end:0x802101D8
 	.sdata      start:0x803733D8 end:0x803733E0
 
-tlTextInstance_runtime.o:
+Game/FE/tlTextInstance_runtime.cpp:
 	.text       start:0x802101D8 end:0x802104F4
 	.text       start:0x802104F4 end:0x802104F4
 	.text       start:0x802104F4 end:0x802104F4
 	.text       start:0x802104F4 end:0x802104F4
 	.sdata2     start:0x80377570 end:0x80377578
 
-tlComponentInstance.o:
+Game/FE/tlComponentInstance.cpp:
 	.text       start:0x802104F4 end:0x80210644
 	.text       start:0x80210644 end:0x80210644
 	.sdata2     start:0x80377578 end:0x80377580
