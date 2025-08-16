@@ -1,4 +1,6 @@
-#include "feSoundKeyframeTrigger.h"
+#include "Game/FE/feSoundKeyframeTrigger.h"
+
+#include "NL/nlDLRing.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x8010EF64 | size: 0x1A8
