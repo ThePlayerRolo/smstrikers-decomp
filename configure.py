@@ -789,7 +789,7 @@ config.libs = [
             Object(NonMatching, "Game/FE/tlSlide.cpp"),
             Object(Matching, "Game/FE/tlComponent.cpp"),
             Object(Matching, "Game/FE/tlInstance.cpp"),
-            Object(NonMatching, "Game/FE/tlComponentInstance.cpp"),
+            Object(Matching, "Game/FE/tlComponentInstance.cpp"),
             Object(Matching, "Game/FE/tlTextInstance.cpp"),
             Object(NonMatching, "Game/FE/tlTextInstance_runtime.cpp"),
 

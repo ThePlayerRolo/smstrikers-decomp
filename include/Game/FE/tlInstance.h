@@ -4,7 +4,6 @@
 #include "NL/nlColour.h"
 #include "NL/nlMath.h"
 
-// #include "Game/FE/feLibObject.h"
 #include "Game/FE/tlComponent.h"
 
 class TLInstance

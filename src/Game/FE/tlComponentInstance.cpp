@@ -1,4 +1,6 @@
 #include "Game/FE/tlComponentInstance.h"
+#include "Game/FE/tlInstance.h"
+#include "Game/FE/feSoundKeyframeTrigger.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x802104F4 | size: 0xC
@@ -61,10 +63,10 @@ void TLComponentInstance::Update(float dt)
         }
     }
 
-    // if (*(const unsigned char*)((const char*)this + 0x7E) != 0)
     if (m_enableSoundTriggers)
     {
         SoundKeyframeTrigger t;
+        t.m_slide = slide;
         t.Update(slide->m_time, m_time);
     }
 

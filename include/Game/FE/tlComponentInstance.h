@@ -6,12 +6,6 @@
 #include "Game/FE/tlInstance.h"
 #include "Game/FE/tlSlide.h"
 
-// todo !!
-struct SoundKeyframeTrigger
-{
-    void Update(float prevT, float currT);
-};
-
 class TLComponentInstance : public TLInstance
 {
 public:
