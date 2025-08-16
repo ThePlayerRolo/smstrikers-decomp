@@ -769,7 +769,7 @@ config.libs = [
             Object(NonMatching, "Game/FE/feCaptainComponent.cpp"),
             Object(NonMatching, "Game/FE/feTweener.cpp"),
             Object(NonMatching, "Game/FE/feSceneManager.cpp"),
-            Object(NonMatching, "Game/FE/feLibObject.cpp"),
+            Object(Matching, "Game/FE/feLibObject.cpp"),
             Object(NonMatching, "Game/FE/feChooseSideComponent.cpp"),
             Object(NonMatching, "Game/FE/feAnimModelManager.cpp"),
             Object(NonMatching, "Game/FE/feButtonComponent.cpp"),

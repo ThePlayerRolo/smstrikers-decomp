@@ -9,20 +9,17 @@
 class FELibObject
 {
 public:
-    nlVector3* GetScale() const;
-    nlVector3* GetRotation() const;
-    nlVector3* GetPosition() const;
-    nlColour* GetColour() const;
+    const nlVector3* GetScale() const;
+    const nlVector3* GetRotation() const;
+    const nlVector3* GetPosition() const;
+    const nlColour* GetColour() const;
 
-    // /* 0x00 */ char pad0[8];
-    // /* 0x08 */ ? unk8;                              /* inferred */
-    // /* 0x08 */ char pad8[0xC];
-    // /* 0x14 */ ? unk14;                             /* inferred */
-    // /* 0x14 */ char pad14[0xC];
-    // /* 0x20 */ ? unk20;                             /* inferred */
-    // /* 0x20 */ char pad20[0x19];
-    // /* 0x39 */ ? unk39;                             /* inferred */
-    // /* 0x39 */ char pad39[1];
+    /* 0x00 */ u8 pad00[0x08];
+    /* 0x08 */ nlVector3 m_position;
+    /* 0x14 */ nlVector3 m_rotation;
+    /* 0x20 */ nlVector3 m_scale;
+    /* 0x2C */ u8 pad2C[0x0D];
+    /* 0x39 */ nlColour m_colour;
 };
 
 #endif // _FELIBOBJECT_H_

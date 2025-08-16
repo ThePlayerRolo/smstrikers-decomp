@@ -90,7 +90,7 @@ bool TLInstance::IsValidAtTime(float arg0)
 /**
  * Offset/Address/Size: 0xF8 | 0x80210078 | size: 0x38
  */
-nlColour* TLInstance::GetColour() const
+const nlColour* TLInstance::GetColour() const
 {
     if (this->unk74 & 0x10)
     {
@@ -102,7 +102,7 @@ nlColour* TLInstance::GetColour() const
 /**
  * Offset/Address/Size: 0x130 | 0x802100B0 | size: 0x38
  */
-nlVector3* TLInstance::GetScale() const
+const nlVector3* TLInstance::GetScale() const
 {
     if (this->unk74 & 0x4)
     {
@@ -114,7 +114,7 @@ nlVector3* TLInstance::GetScale() const
 /**
  * Offset/Address/Size: 0x168 | 0x802100E8 | size: 0x38
  */
-nlVector3* TLInstance::GetRotation() const
+const nlVector3* TLInstance::GetRotation() const
 {
     if (this->unk74 & 0x2)
     {
@@ -126,7 +126,7 @@ nlVector3* TLInstance::GetRotation() const
 /**
  * Offset/Address/Size: 0x1A0 | 0x80210120 | size: 0x38
  */
-nlVector3* TLInstance::GetPosition() const
+const nlVector3* TLInstance::GetPosition() const
 {
     if (this->unk74 & 0x1)
     {
@@ -138,7 +138,7 @@ nlVector3* TLInstance::GetPosition() const
 /**
  * Offset/Address/Size: 0x1D8 | 0x80210158 | size: 0x8
  */
-nlColour* TLInstance::GetAssetColour() const
+const nlColour* TLInstance::GetAssetColour() const
 {
     return (nlColour*)&this->unk60[13];
 }
@@ -146,7 +146,7 @@ nlColour* TLInstance::GetAssetColour() const
 /**
  * Offset/Address/Size: 0x1E0 | 0x80210160 | size: 0x8
  */
-nlVector3* TLInstance::GetAssetScale() const
+const nlVector3* TLInstance::GetAssetScale() const
 {
     return (nlVector3*)&this->unk54;
 }
@@ -154,7 +154,7 @@ nlVector3* TLInstance::GetAssetScale() const
 /**
  * Offset/Address/Size: 0x1E8 | 0x80210168 | size: 0x8
  */
-nlVector3* TLInstance::GetAssetPosition() const
+const nlVector3* TLInstance::GetAssetPosition() const
 {
     return (nlVector3*)&this->unk3C;
 }

@@ -14,15 +14,15 @@ public:
     void SetAssetRotation(float, float, float);
     void SetAssetPosition(float, float, float);
     bool IsValidAtTime(float);
-    nlColour* GetColour() const;
-    nlVector3* GetScale() const;
-    nlVector3* GetRotation() const;
-    nlVector3* GetPosition() const;
-    nlColour* GetAssetColour() const;
-    nlVector3* GetAssetScale() const;
-    nlVector3* GetAssetPosition() const;
+    const nlColour* GetColour() const;
+    const nlVector3* GetScale() const;
+    const nlVector3* GetRotation() const;
+    const nlVector3* GetPosition() const;
+    const nlColour* GetAssetColour() const;
+    const nlVector3* GetAssetScale() const;
+    const nlVector3* GetAssetPosition() const;
 
-    /* 0x00 */ char pad0[0xC];
+    /* 0x00 */ char pad00[0xC];
     /* 0x0C */ FELibObject* unkC; /* inferred */
     /* 0x10 */ f32 m_start;       /* inferred */
     /* 0x14 */ f32 m_duration;    /* inferred */
