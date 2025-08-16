@@ -8,7 +8,7 @@
  */
 void TLInstance::SetAssetColour(const nlColour& color)
 {
-    this->unk74 |= 0x10;
+    this->m_flags |= 0x10;
     *(u32*)&this->unk60[13] = *(u32*)&color; //???
 }
 
@@ -17,10 +17,10 @@ void TLInstance::SetAssetColour(const nlColour& color)
  */
 void TLInstance::SetAssetScale(float x, float y, float z)
 {
-    this->unk74 |= 4;
-    this->unk54.f.x = x;
-    this->unk54.f.y = y;
-    this->unk54.f.z = z;
+    this->m_flags |= 4;
+    this->m_scale.f.x = x;
+    this->m_scale.f.y = y;
+    this->m_scale.f.z = z;
 }
 
 /**
@@ -28,10 +28,10 @@ void TLInstance::SetAssetScale(float x, float y, float z)
  */
 void TLInstance::SetAssetRotation(float x, float y, float z)
 {
-    this->unk74 |= 2;
-    this->unk48.f.x = x;
-    this->unk48.f.y = y;
-    this->unk48.f.z = z;
+    this->m_flags |= 2;
+    this->m_rot.f.x = x;
+    this->m_rot.f.y = y;
+    this->m_rot.f.z = z;
 }
 
 /**
@@ -39,10 +39,10 @@ void TLInstance::SetAssetRotation(float x, float y, float z)
  */
 void TLInstance::SetAssetPosition(float x, float y, float z)
 {
-    this->unk74 |= 1;
-    this->unk3C.f.x = x;
-    this->unk3C.f.y = y;
-    this->unk3C.f.z = z;
+    this->m_flags |= 1;
+    this->m_pos.f.x = x;
+    this->m_pos.f.y = y;
+    this->m_pos.f.z = z;
 }
 
 /**
@@ -92,11 +92,11 @@ bool TLInstance::IsValidAtTime(float arg0)
  */
 const nlColour* TLInstance::GetColour() const
 {
-    if (this->unk74 & 0x10)
+    if (this->m_flags & 0x10)
     {
         return (nlColour*)&this->unk60[13];
     }
-    return unkC->GetColour();
+    return m_component->GetColour();
 }
 
 /**
@@ -104,11 +104,11 @@ const nlColour* TLInstance::GetColour() const
  */
 const nlVector3* TLInstance::GetScale() const
 {
-    if (this->unk74 & 0x4)
+    if (this->m_flags & 0x4)
     {
-        return (nlVector3*)&this->unk54;
+        return (nlVector3*)&this->m_scale;
     }
-    return unkC->GetScale();
+    return m_component->GetScale();
 }
 
 /**
@@ -116,11 +116,11 @@ const nlVector3* TLInstance::GetScale() const
  */
 const nlVector3* TLInstance::GetRotation() const
 {
-    if (this->unk74 & 0x2)
+    if (this->m_flags & 0x2)
     {
-        return (nlVector3*)&this->unk48;
+        return (nlVector3*)&this->m_rot;
     }
-    return unkC->GetRotation();
+    return m_component->GetRotation();
 }
 
 /**
@@ -128,11 +128,11 @@ const nlVector3* TLInstance::GetRotation() const
  */
 const nlVector3* TLInstance::GetPosition() const
 {
-    if (this->unk74 & 0x1)
+    if (this->m_flags & 0x1)
     {
-        return (nlVector3*)&this->unk3C;
+        return (nlVector3*)&this->m_pos;
     }
-    return unkC->GetPosition();
+    return m_component->GetPosition();
 }
 
 /**
@@ -148,7 +148,7 @@ const nlColour* TLInstance::GetAssetColour() const
  */
 const nlVector3* TLInstance::GetAssetScale() const
 {
-    return (nlVector3*)&this->unk54;
+    return (nlVector3*)&this->m_scale;
 }
 
 /**
@@ -156,5 +156,5 @@ const nlVector3* TLInstance::GetAssetScale() const
  */
 const nlVector3* TLInstance::GetAssetPosition() const
 {
-    return (nlVector3*)&this->unk3C;
+    return (nlVector3*)&this->m_pos;
 }

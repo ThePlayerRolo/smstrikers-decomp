@@ -20,10 +20,10 @@ void FEPresentation::Update(float deltaTime)
         m_fadeDuration += deltaTime;
         temp_r3 = m_currentSlide;
         temp_f2 = m_fadeDuration;
-        temp_f0 = temp_r3->unk10 + temp_r3->unk14;
+        temp_f0 = temp_r3->m_start + temp_r3->m_duration;
         if (temp_f2 > temp_f0)
         {
-            temp_r0 = temp_r3->unk1C;
+            temp_r0 = temp_r3->m_wrapMode;
             switch (temp_r0)
             { /* irregular */
             case 1:

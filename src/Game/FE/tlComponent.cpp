@@ -1,4 +1,5 @@
 #include "Game/FE/tlComponent.h"
+#include "Game/FE/tlSlide.h"
 
 #include "Game/FE/feTemplates.h"
 #include "NL/nlString.h"

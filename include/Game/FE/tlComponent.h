@@ -3,17 +3,19 @@
 
 #include "types.h"
 
-#include "Game/FE/tlSlide.h"
+#include "Game/FE/feLibObject.h"
 
-class TLComponent
+class TLSlide;
+
+class TLComponent : public FELibObject
 {
 public:
     void SetActiveSlide(unsigned long);
     void SetActiveSlide(const char*);
 
-    /* 0x00 */ char pad0[0x68];
-    /* 0x68 */ TLSlide* m_slides;      // Offset 0x68 - linked list of slides
-    /* 0x6C */ TLSlide* m_activeSlide; // Offset 0x6C - currently active slide
+    /* 0x40 */ u8 pad40[0x28];
+    /* 0x68 */ TLSlide* m_slides;
+    /* 0x6C */ TLSlide* m_activeSlide;
 };
 
 #endif // _TLCOMPONENT_H_

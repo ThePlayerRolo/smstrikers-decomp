@@ -29,29 +29,5 @@ const nlVector3* FELibObject::GetPosition() const
  */
 const nlColour* FELibObject::GetColour() const
 {
-    return (nlColour*)&this->m_colour;
+    return &this->m_colour;
 }
-
-// const nlVector3* FELibObject::GetScale() const
-// {
-//     // addi r3, r3, 0x20 ; blr
-//     return reinterpret_cast<const nlVector3*>(reinterpret_cast<const char*>(this) + 0x20);
-// }
-
-// const nlVector3* FELibObject::GetRotation() const
-// {
-//     // addi r3, r3, 0x14 ; blr
-//     return reinterpret_cast<const nlVector3*>(reinterpret_cast<const char*>(this) + 0x14);
-// }
-
-// const nlVector3* FELibObject::GetPosition() const
-// {
-//     // addi r3, r3, 0x08 ; blr
-//     return reinterpret_cast<const nlVector3*>(reinterpret_cast<const char*>(this) + 0x08);
-// }
-
-// const nlColour* FELibObject::GetColour() const
-// {
-//     // addi r3, r3, 0x39 ; blr
-//     return reinterpret_cast<const nlColour*>(reinterpret_cast<const char*>(this) + 0x39);
-// }
