@@ -1,7 +1,9 @@
 #ifndef _FESOUNDKEYFRAMETRIGGER_H_
 #define _FESOUNDKEYFRAMETRIGGER_H_
 
-class TLSlide;
+#include "Game/FE/tlSlide.h"
+
+// class TLSlide;
 
 class SoundKeyframeTrigger
 {
