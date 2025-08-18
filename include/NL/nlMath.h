@@ -104,10 +104,10 @@ struct nlMatrix4
     }
 };
 
-void nlBezier(float*, int, float);
+float nlBezier(float*, int, float);
 float nlATan2f(float, float);
-void nlTan(unsigned short);
-void nlACos(float);
+float nlTan(unsigned short);
+float nlACos(float);
 void nlSinCos(float*, float*, unsigned short);
 float nlSin(unsigned short);
 float nlRecipSqrt(float, bool);

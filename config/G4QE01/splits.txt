@@ -3974,7 +3974,7 @@ NL/nlMain.cpp:
 	.text       start:0x801D1040 end:0x801D1474
 	.data       start:0x802FD880 end:0x802FDC80
 
-NL/NL/nlMath.cpp:
+NL/nlMath.cpp:
 	.text       start:0x801D1474 end:0x801D1EE4
 	.rodata     start:0x802A0528 end:0x802A0568
 	.data       start:0x802FDC80 end:0x802FDCA0

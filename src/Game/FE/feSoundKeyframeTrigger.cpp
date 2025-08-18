@@ -78,7 +78,7 @@ void SoundKeyframeTrigger::Update(float arg0, float arg1)
                     {
                         if (arg1 >= temp_f0)
                         {
-                            if (var_r31->unk0 >= 255.0f)
+                            if (var_r31->unk0.f.x >= 255.0f)
                             {
                                 temp_r5 = var_r29->m_instance;
                                 temp_r3_2 = temp_r5->m_unk_0x18;

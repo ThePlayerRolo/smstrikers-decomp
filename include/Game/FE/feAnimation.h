@@ -8,10 +8,12 @@
 
 typedef struct fAnimationKeyframe
 {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
+    // /* 0x00 */ f32 unk0;
+    // /* 0x04 */ f32 unk4;
+    // /* 0x08 */ f32 unk8;
+    // /* 0x0C */ f32 unkC;
+    /* 0x00 */ nlVector3 unk0;
+    /* 0x0C */ float unkC;
     /* 0x10 */ fAnimationKeyframe* m_next;
     /* 0x14 */ fAnimationKeyframe* m_prev;
 } fAnimationKeyframe; /* size >= 0x18 */
