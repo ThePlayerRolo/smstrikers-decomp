@@ -127,6 +127,15 @@ void nlDLRingRemove(T** head, T* current)
 }
 
 template <typename T>
+T* nlDLRingRemoveStart(T** current)
+{
+    T* temp_r31;
+    temp_r31 = (*current)->m_next;
+    nlDLRingRemove<T>(current, temp_r31);
+    return temp_r31;
+}
+
+template <typename T>
 bool nlDLRingValidateContainsElement(T* head, const T* node)
 {
     if (head == 0)
@@ -199,6 +208,35 @@ void nlDLRingAppendRing(T** head, T* current)
         temp_r6->m_prev = current;
         *head = current;
     }
+}
+
+template <typename T>
+void nlDeleteRing(T** head)
+{
+    T* temp_r30;
+    T* var_r31;
+    T* temp_r3;
+
+    temp_r3 = *head;
+    if (temp_r3 != NULL)
+    {
+        var_r31 = temp_r3;
+    loop_2:
+        temp_r30 = var_r31;
+        delete var_r31;
+        if (var_r31 != *head)
+        {
+            var_r31 = temp_r30;
+            goto loop_2;
+        }
+        *head = NULL;
+    }
+}
+
+template <typename T>
+void nlDeleteDLRing(T** head)
+{
+    nlDeleteRing<T>(head);
 }
 
 template <typename T, typename CallbackType>

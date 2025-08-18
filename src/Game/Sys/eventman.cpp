@@ -1,12 +1,29 @@
 #include "eventman.h"
 
+#include "NL/nlString.h"
 #include "NL/nlDLRing.h"
+#include "NL/nlMemory.h"
 
 /**
  * Offset/Address/Size: 0x488 | 0x801FAE08 | size: 0x94
  */
 EventManager::~EventManager()
 {
+    Event* temp_r3 = this->unk1C;
+    if (temp_r3 != NULL)
+    {
+        delete (temp_r3);
+    }
+    EventHandler* temp_r3_2 = this->unk18;
+    if (temp_r3_2 != NULL)
+    {
+        delete[] temp_r3_2;
+        this->unk18 = NULL;
+    }
+    if (this->unk4 != NULL)
+    {
+        nlDeleteDLRing<EventHandler>(&this->unk4);
+    }
 }
 
 /**
@@ -19,8 +36,14 @@ void EventManager::Create(unsigned long, unsigned long)
 /**
  * Offset/Address/Size: 0x30C | 0x801FAC8C | size: 0x64
  */
-void EventManager::AddEventHandler(void (*)(Event*, void*), void*, unsigned long)
+EventHandler* EventManager::AddEventHandler(EventCallback callback, void* arg1, unsigned long arg2)
 {
+    EventHandler* temp_r3 = (EventHandler*)nlMalloc(0x14, 8, 0);
+    temp_r3->unk8 = callback;
+    temp_r3->unk10 = arg2;
+    temp_r3->unkC = arg1;
+    nlDLRingAddEnd<EventHandler>(&this->unk4, temp_r3);
+    return temp_r3;
 }
 
 /**
@@ -41,8 +64,41 @@ void EventManager::AllocateDestArray(unsigned long, unsigned long)
 /**
  * Offset/Address/Size: 0xF4 | 0x801FAA74 | size: 0xD0
  */
-void EventManager::CreateValidEvent(unsigned long, unsigned long)
+Event* EventManager::CreateValidEvent(unsigned long arg0, unsigned long arg1)
 {
+    Event* var_r31;
+    u32 temp_r4;
+
+    temp_r4 = this->unk24;
+    if (arg1 > temp_r4)
+    {
+        nlPrintf("Event Manager: Size mismatch on event creation (%d vs %d)!\n", temp_r4);
+        return NULL;
+    }
+    if (this->unk8 == NULL)
+    {
+        nlPrintf("Event Manager: There are no more free events in the free event list!\n", temp_r4);
+        var_r31 = NULL;
+    }
+    else
+    {
+        var_r31 = nlDLRingRemoveStart<Event>(&this->unk8);
+        // if (this->unk0 != 0)
+        if (this->unk14)
+        {
+            nlDLRingAddEnd<Event>(&this->unk14, var_r31);
+        }
+        else
+        {
+            nlDLRingAddEnd<Event>(&this->unk10, var_r31);
+        }
+    }
+    if (var_r31 == NULL)
+    {
+        return NULL;
+    }
+    var_r31->unk8 = arg0;
+    return var_r31;
 }
 
 /**
