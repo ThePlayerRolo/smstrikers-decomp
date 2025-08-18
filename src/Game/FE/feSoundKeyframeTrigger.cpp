@@ -45,7 +45,7 @@ void SoundKeyframeTrigger::Update(float arg0, float arg1)
             if ((var_r29->unk10 == 0) && (var_r29->unk14 == 6))
             {
                 // var_r28 = GetAnimationKeyframe(nlDLRingGetStart<fAnimationKeyframe>(var_r29->unk18), var_f29);
-                first_kf = nlDLRingGetStart<fAnimationKeyframe>(var_r29->unk18);
+                first_kf = nlDLRingGetStart<fAnimationKeyframe>((fAnimationKeyframe*)var_r29->m_DLRingHead);
                 var_r4 = first_kf;
             loop_6:
                 if (var_f29 <= var_r4->unkC)

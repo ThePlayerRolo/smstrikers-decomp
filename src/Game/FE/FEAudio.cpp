@@ -2,11 +2,14 @@
 
 class Event;
 
+static bool mIsEnabled = true;
+
 /**
  * Offset/Address/Size: 0x0 | 0x8009EDAC | size: 0x8
  */
-void FEAudio::EnableSounds(bool)
+void FEAudio::EnableSounds(bool enable)
 {
+    mIsEnabled = enable;
 }
 
 /**
