@@ -22,6 +22,7 @@ const struct coeffs coeffs1 = { 0, 7, 26, 98, 223, 400, 649, 1024 };
 const struct coeffs coeffs2 = { 65408, 63104, 59680, 55008, 49536, 43680, 38016, 34112 };
 
 extern void seedMT(u32 p);
+extern double tan(u16, f32, f32);
 
 /**
  * Offset/Address/Size: 0x0 | 0x801D1474 | size: 0x1D4
@@ -193,7 +194,7 @@ float nlATan2f(float arg0, float arg1)
  */
 float nlTan(unsigned short arg0)
 {
-    return 0.f;
+    return tan(arg0, 0.0000958738f * arg0, 0.0000958738f);
 }
 
 /**
@@ -201,7 +202,48 @@ float nlTan(unsigned short arg0)
  */
 float nlACos(float arg0)
 {
-    return 0.f;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f1_3;
+    f32 temp_f2;
+    f32 temp_f8;
+    f32 var_f0;
+    f32 var_f7;
+
+    temp_f8 = 1.0f - fabs(arg0);
+    var_f7 = 2.0f * temp_f8;
+    if (var_f7 >= 0.00001f)
+    {
+    }
+    else
+    {
+        var_f7 = 0.00001f;
+    }
+    if (var_f7 > 0.0f)
+    {
+        temp_f1 = __frsqrte(var_f7);
+        temp_f1_2 = 0.5f * temp_f1 * -((var_f7 * (temp_f1 * temp_f1)) - 3.0f);
+        temp_f1_3 = 0.5f * temp_f1_2 * -((var_f7 * (temp_f1_2 * temp_f1_2)) - 3.0f);
+        var_f0 = 0.5f * temp_f1_3 * -((var_f7 * (temp_f1_3 * temp_f1_3)) - 3.0f);
+    }
+    else if (var_f7 != 0.0f)
+    {
+        var_f0 = *(float*)&__float_nan;
+    }
+    else
+    {
+        var_f0 = *(float*)&__float_huge;
+    }
+    temp_f2
+        = ((temp_f8
+            * ((temp_f8 * ((temp_f8 * ((temp_f8 * ((0.015098966f * temp_f8) + 0.005516444f)) + 0.047654245f)) + 0.16391061f)) + 2.0002916f))
+           + -0.000007239284f)
+        * var_f0;
+    // if ((M2C_ERROR(/* unknown instruction: mfcr $r0 */) >> 0x1F) != 0)
+    {
+        return 10430.378f * (3.1415927f - temp_f2);
+    }
+    return 10430.378f * temp_f2;
 }
 
 /**

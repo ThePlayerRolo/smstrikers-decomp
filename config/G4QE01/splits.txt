@@ -4348,7 +4348,7 @@ Game/EmissionManager.cpp:
 efList.o:
 	.text       start:0x801FA854 end:0x801FA980
 
-eventman.o:
+Game/Sys/eventman.cpp:
 	.text       start:0x801FA980 end:0x801FAE9C
 	.text       start:0x801FAE9C end:0x801FAE9C
 	.text       start:0x801FAE9C end:0x801FAE9C
