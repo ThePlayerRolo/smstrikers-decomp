@@ -3593,7 +3593,7 @@ yoshirubbersoundproperties.o:
 	.bss        start:0x8032BBA8 end:0x8032BBB8
 	.sdata      start:0x80372DF0 end:0x80372DF8
 
-yoshiwoodsoundproperties.o:
+Game/SoundProps/yoshiwoodsoundproperties.cpp:
 	.text       start:0x801B34C0 end:0x801B35C4
 	.text       start:0x801B35C4 end:0x801B35C4
 	.ctors      start:0x8028D4D0 end:0x8028D4D4

@@ -816,6 +816,9 @@ config.libs = [
 
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
+
+            # SoundProps
+            Object(NonMatching, "Game/SoundProps/yoshiwoodsoundproperties.cpp"),
         ],
     ),
     GameLib(
