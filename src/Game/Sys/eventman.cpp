@@ -84,7 +84,7 @@ Event* EventManager::CreateValidEvent(unsigned long arg0, unsigned long arg1)
     {
         var_r31 = nlDLRingRemoveStart<Event>(&this->unk8);
         // if (this->unk0 != 0)
-        if (this->unk14)
+        if (this->unk14) // this is strang... 0x00 cannot exist as class has virtual methods and 0x0 is taken by the vtable
         {
             nlDLRingAddEnd<Event>(&this->unk14, var_r31);
         }
