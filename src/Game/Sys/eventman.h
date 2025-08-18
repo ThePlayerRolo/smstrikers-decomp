@@ -8,13 +8,19 @@ class EventManager;
 
 // Define typedef for the event handler function signature
 
+struct EventData
+{
+    virtual ~EventData() { } // ensures vtable; TU writes __vt__9EventData into Event payload
+};
+
 typedef struct Event /* size >= 0x14 */
 {
     /* 0x00 */ Event* m_next;
     /* 0x04 */ Event* m_prev;
-    /* 0x08 */ u32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ void* unk10;
+    /* 0x08 */ u32 m_type;
+    /* 0x0C */ s32 m_flags;
+    /* 0x10 */ EventData m_data;
+    // /* 0x10 */ EventData* unk10;
 } Event;
 
 typedef void (*EventCallback)(Event*, void*);
@@ -24,9 +30,9 @@ class EventHandler /* size >= 0x2C */
 public:
     /* 0x00 */ EventHandler* m_next;
     /* 0x04 */ EventHandler* m_prev;
-    /* 0x08 */ EventCallback unk8;
+    /* 0x08 */ EventCallback callback;
     /* 0x0C */ void* unkC;
-    /* 0x10 */ u32 unk10;
+    /* 0x10 */ u32 mask;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
     /* 0x1C */ Event* m_event;
@@ -38,24 +44,26 @@ public:
 class EventManager
 {
 public:
-    virtual ~EventManager();
-
     void Create(unsigned long, unsigned long);
+    void SetupDestArray();
     EventHandler* AddEventHandler(EventCallback, void*, unsigned long);
     void RemoveEventHandler(EventHandler*);
     void AllocateDestArray(unsigned long, unsigned long);
     Event* CreateValidEvent(unsigned long, unsigned long);
     void DispatchEvents();
 
-    /* 0x04 */ EventHandler* unk4;
-    /* 0x08 */ Event* unk8;
-    /* 0x0C */ Event* unkC;
-    /* 0x10 */ Event* unk10;
-    /* 0x14 */ Event* unk14;
-    /* 0x18 */ EventHandler* unk18;
-    /* 0x1C */ Event* unk1C; // type is just a guess yet
-    /* 0x20 */ char pad20[4];
-    /* 0x24 */ u32 unk24;
+    /* 0x00 */ bool m_dispatching;
+    /* 0x04 */ EventHandler* m_handlers;
+    /* 0x08 */ Event* m_free;
+    /* 0x0C */ Event* m_keep;
+    /* 0x10 */ Event* m_queue;
+    /* 0x14 */ Event* m_deferred;
+    /* 0x18 */ u32* m_dest;
+    /* 0x1C */ void* m_pool;
+    /* 0x20 */ u32 m_count;
+    /* 0x24 */ u32 m_size;
+
+    virtual ~EventManager();
 };
 
 #endif // _EVENTMAN_H_
