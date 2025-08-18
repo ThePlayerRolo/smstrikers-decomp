@@ -10,46 +10,49 @@
 
 typedef struct cSAnimCallback
 {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ u32 unk4;
-    /* 0x08 */ void (*unk8)(unsigned int);
+    /* 0x00 */ f32 time;
+    /* 0x04 */ u32 mask;
+    /* 0x08 */ void (*fn)(unsigned int);
     /* 0x0C */ cSAnimCallback* next;
 } cSAnimCallback; // size: 0x10
 
 struct nlChunk
 {
+    u32 hdr;  // chunk ID + flags
+    u32 size; // payload size in bytes
+    u8* data;
 };
-
 class cSAnim
 {
 public:
-    void GetMorphWeight(int, float) const;
-    void CreateCallback(float, unsigned int, void (*)(unsigned int));
-    void GetRootTrans(float, nlVector3*) const;
-    void GetRootRot(float, unsigned short*) const;
-    void Destroy();
-    void BlendTrans(int, int, float, float, cPoseAccumulator*, bool) const;
-    void BlendScale(int, int, float, float, cPoseAccumulator*, bool) const;
-    void BlendRot(int, int, float, float, cPoseAccumulator*, bool) const;
-
     static cSAnim* Initialize(nlChunk*);
 
-    /* 0x00 */ char pad0[4];
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u32 unkC;
+    void BlendRot(int, int, float, float, cPoseAccumulator*, bool) const;
+    void BlendScale(int, int, float, float, cPoseAccumulator*, bool) const;
+    void BlendTrans(int, int, float, float, cPoseAccumulator*, bool) const;
+    void Destroy();
+    void GetRootRot(float, unsigned short*) const;
+    void GetRootTrans(float, nlVector3*) const;
+    void CreateCallback(float, unsigned int, void (*)(unsigned int));
+    float GetMorphWeight(int, float) const;
+
+    /* 0x00 */ u32 m_chunkHdr;
+    /* 0x04 */ s32 m_chunkSize;
+    /* 0x08 */ unsigned long m_numFrames;
+    /* 0x0C */ unsigned long m_numBones;
     /* 0x10 */ char pad10[4];
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s32 unk20;
-    /* 0x24 */ u32 unk24;
-    /* 0x28 */ s32 unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ char pad30[4];
-    /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ cSAnimCallback* m_unk_0x3C;
+    /* 0x14 */ unsigned long* m_flags;
+    /* 0x18 */ void** m_rotTracks;
+    /* 0x1C */ void** m_scaleTracks;
+    /* 0x20 */ void** m_transTracks;
+    /* 0x24 */ unsigned long m_rootKeyCount;
+    /* 0x28 */ unsigned short* m_rootRot;
+    /* 0x2C */ nlVector3* m_rootTrans;
+    /* 0x30 */ void* m_morphTable;
+    /* 0x34 */ unsigned long* m_morphIdx;
+    /* 0x38 */ unsigned char* m_morphBytes;
+    /* 0x3C */ cSAnimCallback* m_cbHead;
+    /* 0x40 */ float m_rootSpeed;
 };
 
 #endif // _SANIM_H_

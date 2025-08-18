@@ -36,7 +36,6 @@ void EventManager::Create(unsigned long count, unsigned long size)
     EventManager* m = (EventManager*)nlMalloc(sizeof(EventManager), 8, false);
     if (m)
     {
-        // Zero all state (matches stores in asm)
         m->m_dispatching = 0;
         m->m_handlers = 0;
         m->m_free = 0;
@@ -76,6 +75,9 @@ void EventManager::Create(unsigned long count, unsigned long size)
 /**
  * Offset/Address/Size: 0x30C | 0x801FAC8C | size: 0x64
  */
+#pragma push
+#pragma optimization_level 1
+#pragma optimize_for_size on
 EventHandler* EventManager::AddEventHandler(EventCallback callback, void* arg1, unsigned long arg2)
 {
     EventHandler* temp_r3 = (EventHandler*)nlMalloc(0x14, 8, 0);
@@ -85,6 +87,7 @@ EventHandler* EventManager::AddEventHandler(EventCallback callback, void* arg1, 
     nlDLRingAddEnd<EventHandler>(&this->m_handlers, temp_r3);
     return temp_r3;
 }
+#pragma pop
 
 /**
  * Offset/Address/Size: 0x2D4 | 0x801FAC54 | size: 0x38
@@ -115,14 +118,14 @@ Event* EventManager::CreateValidEvent(unsigned long type, unsigned long sizeChec
     if (sizeCheck > m_size)
     {
         nlPrintf("Event Manager: Size mismatch on event creation (%d vs %d)!\n", sizeCheck, m_size); // @326
-        return 0;
+        return NULL;
     }
 
     Event* e;
     if (!m_free)
     {
         nlPrintf("Event Manager: There are no more free events in the free event list!\n"); // @293
-        e = 0;
+        e = NULL;
     }
     else
     {
@@ -138,43 +141,13 @@ Event* EventManager::CreateValidEvent(unsigned long type, unsigned long sizeChec
     }
 
     if (!e)
-        return 0;
+    {
+        return NULL;
+    }
+
     e->m_type = type; // stw at +0x08
+
     return e;
-
-    // Event* var_r31;
-    // u32 temp_r4;
-
-    // temp_r4 = this->unk24;
-    // if (arg1 > temp_r4)
-    // {
-    //     nlPrintf("Event Manager: Size mismatch on event creation (%d vs %d)!\n", temp_r4);
-    //     return NULL;
-    // }
-    // if (this->m_free == NULL)
-    // {
-    //     nlPrintf("Event Manager: There are no more free events in the free event list!\n", temp_r4);
-    //     var_r31 = NULL;
-    // }
-    // else
-    // {
-    //     var_r31 = nlDLRingRemoveStart<Event>(&this->m_free);
-    //     // if (this->unk0 != 0)
-    //     if (this->m_dispatching) // this is strang... 0x00 cannot exist as class has virtual methods and 0x0 is taken by the vtable
-    //     {
-    //         nlDLRingAddEnd<Event>(&this->m_deferred, var_r31);
-    //     }
-    //     else
-    //     {
-    //         nlDLRingAddEnd<Event>(&this->m_queue, var_r31);
-    //     }
-    // }
-    // if (var_r31 == NULL)
-    // {
-    //     return NULL;
-    // }
-    // var_r31->m_type = arg0;
-    // return var_r31;
 }
 
 /**
@@ -182,7 +155,6 @@ Event* EventManager::CreateValidEvent(unsigned long type, unsigned long sizeChec
  */
 void EventManager::DispatchEvents()
 {
-
     m_dispatching = 1; // stb 1 at +0
     while (m_queue != 0)
     {
@@ -217,113 +189,7 @@ void EventManager::DispatchEvents()
         }
     }
 
-    //     Event* event;
-    //     EventHandler* eventHandlers;
-    //     EventHandler* eventHandler;
-
-    // loop_10:
-    //     if (this->m_queue != NULL)
-    //     {
-    //         eventHandlers = this->unk4;
-    //         event = nlDLRingRemoveStart<Event>(&this->m_queue);
-    //         if (eventHandlers != NULL)
-    //         {
-    //             eventHandler = nlDLRingGetStart<EventHandler>(eventHandlers);
-    //         loop_3:
-    //             // if (eventHandler->unk10 & *(this->unk18[event->unk8]))
-    //             if (eventHandler->unk10 == (this->unk18[event->m_type]).unk10)
-    //             {
-    //                 eventHandler->unk8(event, eventHandler->unkC);
-    //             }
-
-    //             if (eventHandler != this->unk4)
-    //             {
-    //                 eventHandler = eventHandler->m_next;
-    //                 goto loop_3;
-    //             }
-    //         }
-    //         if (event->m_flags != 0)
-    //         {
-    //             nlDLRingAddEnd<Event>(&this->unkC, event);
-    //         }
-    //         else
-    //         {
-    //             nlDLRingAddEnd<Event>(&this->unk8, event);
-    //         }
-    //         goto loop_10;
-    //     }
-
     m_dispatching = 0;
     m_queue = m_deferred;
     m_deferred = NULL;
 }
-
-// /**
-//  * Offset/Address/Size: 0x0 | 0x801FAE9C | size: 0x20
-//  */
-// void nlDeleteDLRing<EventHandler>(EventHandler**)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x20 | 0x801FAEBC | size: 0x38
-//  */
-// void nlDLRingRemoveStart<Event>(Event**)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x58 | 0x801FAEF4 | size: 0x18
-//  */
-// void nlDLRingGetStart<EventHandler>(EventHandler*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x70 | 0x801FAF0C | size: 0x44
-//  */
-// void nlDLRingRemove<EventHandler>(EventHandler**, EventHandler*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0xB4 | 0x801FAF50 | size: 0x44
-//  */
-// void nlDLRingRemove<Event>(Event**, Event*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0xF8 | 0x801FAF94 | size: 0x3C
-//  */
-// void nlDLRingAddEnd<EventHandler>(EventHandler**, EventHandler*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x134 | 0x801FAFD0 | size: 0x3C
-//  */
-// void nlDLRingAddEnd<Event>(Event**, Event*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x170 | 0x801FB00C | size: 0x38
-//  */
-// void nlDLRingAddStart<Event>(Event**, Event*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x1A8 | 0x801FB044 | size: 0x38
-//  */
-// void nlDLRingAddStart<EventHandler>(EventHandler**, EventHandler*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x0 | 0x801FB07C | size: 0x70
-//  */
-// void nlDeleteRing<EventHandler>(EventHandler**)
-// {
-// }

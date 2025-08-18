@@ -272,8 +272,9 @@ float nlRecipSqrt(float, bool)
 /**
  * Offset/Address/Size: 0x800 | 0x801D1C74 | size: 0xEC
  */
-float nlSqrt(float, bool)
+float nlSqrt(float arg0, bool arg1)
 {
+    return sqrt(arg0);
 }
 
 /**
