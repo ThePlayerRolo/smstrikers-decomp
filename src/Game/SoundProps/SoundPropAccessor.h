@@ -17,25 +17,19 @@ struct SoundProperties
 class SoundPropAccessor
 {
 public:
-    SoundPropAccessor()
-        : m_unk_0x08(0)
-    {
-        ResetSoundPropTable();
-    } // leaves table pointer uninitialized (set later)
-
-    // vtable order matches the disassembly:
+    SoundPropAccessor() { m_unk_0x08 = 0; };
     virtual SoundProperties* GetSoundProperty(unsigned int index) const = 0;
     virtual SoundProperties* GetSoundPropTable() = 0;
     virtual u32 GetNumSFX() const = 0;
     virtual const char* GetSoundPropTableName() const = 0;
     virtual const char* GetHTMLFileName() const = 0;
-    virtual u32 IsUsingOrigTable() const = 0;
-    virtual void SetSoundPropTable(SoundProperties* table) = 0;
+    virtual bool IsUsingOrigTable() const = 0;
+    virtual inline void SetSoundPropTable(SoundProperties* table) { m_pTable = table; };
     virtual void ResetSoundPropTable() = 0;
 
 protected:
     /* 0x04 */ SoundProperties* m_pTable;
-    /* 0x08 */ u8 m_unk_0x08;
+    /* 0x08 */ bool m_unk_0x08;
 };
 
 #endif // SOUND_PROP_ACCESSOR_H

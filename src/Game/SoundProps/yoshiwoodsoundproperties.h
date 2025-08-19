@@ -6,14 +6,14 @@
 class YOSHIWOODSoundPropAccessor : public SoundPropAccessor
 {
 public:
-    SoundProperties* GetSoundProperty(unsigned int index) const;
-    SoundProperties* GetSoundPropTable();
-    u32 GetNumSFX() const;
-    const char* GetSoundPropTableName() const;
-    const char* GetHTMLFileName() const;
-    u32 IsUsingOrigTable() const;
-    void SetSoundPropTable(SoundProperties* table);
-    void ResetSoundPropTable();
+    YOSHIWOODSoundPropAccessor() { ResetSoundPropTable(); };
+    virtual SoundProperties* GetSoundProperty(unsigned int index) const;
+    virtual SoundProperties* GetSoundPropTable();
+    virtual u32 GetNumSFX() const;
+    virtual const char* GetSoundPropTableName() const;
+    virtual const char* GetHTMLFileName() const;
+    virtual bool IsUsingOrigTable() const;
+    virtual void ResetSoundPropTable();
 };
 
 #endif // _YOSHIWOODSOUNDPROPERTIES_H_

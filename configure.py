@@ -818,7 +818,8 @@ config.libs = [
             Object(NonMatching, "Game/ObjectBlur.cpp"),
 
             # SoundProps
-            Object(NonMatching, "Game/SoundProps/yoshiwoodsoundproperties.cpp"),
+            Object(Matching, "Game/SoundProps/yoshiwoodsoundproperties.cpp", extra_cflags=["-inline off"]),
+            # Object(Matching, "Game/SoundProps/yoshiwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
         ],
     ),
     GameLib(
