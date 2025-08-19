@@ -3505,7 +3505,7 @@ waluigiwoodsoundproperties.o:
 	.bss        start:0x8032BAF8 end:0x8032BB08
 	.sdata      start:0x80372D88 end:0x80372D90
 
-wariogensoundproperties.o:
+Game/SoundProps/wariogensoundproperties.cpp:
 	.text       start:0x801B299C end:0x801B2A9C
 	.text       start:0x801B2A9C end:0x801B2A9C
 	.ctors      start:0x8028D4A4 end:0x8028D4A8

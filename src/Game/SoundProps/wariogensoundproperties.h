@@ -1,17 +1,22 @@
 #ifndef _WARIOGENSOUNDPROPERTIES_H_
 #define _WARIOGENSOUNDPROPERTIES_H_
 
+#include "SoundPropAccessor.h"
 
-class WARIOSoundPropAccessor
+class WARIOSoundPropAccessor : public SoundPropAccessor
 {
 public:
-    void GetSoundProperty(unsigned int) const;
-    void GetSoundPropTable();
-    void GetNumSFX() const;
-    void GetSoundPropTableName() const;
-    void GetHTMLFileName() const;
-    void IsUsingOrigTable() const;
-    void ResetSoundPropTable();
+    WARIOSoundPropAccessor() { ResetSoundPropTable(); };
+    virtual inline SoundProperties* GetSoundProperty(unsigned int index) const;
+    virtual inline SoundProperties* GetSoundPropTable();
+    virtual inline u32 GetNumSFX() const;
+    virtual inline const char* GetSoundPropTableName() const;
+    virtual inline const char* GetHTMLFileName() const;
+    virtual inline bool IsUsingOrigTable() const;
+    virtual inline void ResetSoundPropTable();
 };
+
+extern WARIOSoundPropAccessor gWARIOSoundPropAccessor;
+extern SoundPropAccessor* gpWARIOSoundPropAccessor;
 
 #endif // _WARIOGENSOUNDPROPERTIES_H_
