@@ -689,7 +689,8 @@ config.libs = [
 
             # Game Objects
             Object(NonMatching, "Game/Ball.cpp"),
-            Object(NonMatching, "Game/Net.cpp"),
+            Object(Matching, "Game/Net.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/Field.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Character.cpp"),
             Object(NonMatching, "Game/CharacterTemplate.cpp"),
             Object(NonMatching, "Game/CharacterTweaks.cpp", extra_cflags=["-inline deferred"]),
