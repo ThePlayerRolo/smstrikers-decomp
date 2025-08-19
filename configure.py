@@ -818,6 +818,28 @@ config.libs = [
             Object(NonMatching, "Game/ObjectBlur.cpp"),
 
             # SoundProps
+            Object(Matching, "Game/SoundProps/birdogensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/birdograsssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/birdoconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/birdometalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/birdorubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/birdowoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),    
+
+            Object(Matching, "Game/SoundProps/bowsergensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/bowsergrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/bowserconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/bowsermetalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/bowserrubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/bowserwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
+            Object(Matching, "Game/SoundProps/crittergensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/crittergrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/critterconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/crittermetalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/critterrubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/critterwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/critterrobotsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
             Object(Matching, "Game/SoundProps/daisygensoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/daisygrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/daisyconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),

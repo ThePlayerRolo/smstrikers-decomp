@@ -2873,7 +2873,7 @@ CallStackDumper.o:
 	.data       start:0x802C40F8 end:0x802C4EE8
 	.sdata      start:0x80372A80 end:0x80372AA0
 
-birdogensoundproperties.o:
+Game/SoundProps/birdogensoundproperties.cpp:
 	.text       start:0x801AD998 end:0x801ADA98
 	.text       start:0x801ADA98 end:0x801ADAA0
 	.ctors      start:0x8028D368 end:0x8028D36C
@@ -2881,7 +2881,7 @@ birdogensoundproperties.o:
 	.bss        start:0x8032B618 end:0x8032B628
 	.sdata      start:0x80372AA0 end:0x80372AB0
 
-birdograsssoundproperties.o:
+Game/SoundProps/birdograsssoundproperties.cpp:
 	.text       start:0x801ADAA0 end:0x801ADBA4
 	.text       start:0x801ADBA4 end:0x801ADBA4
 	.ctors      start:0x8028D36C end:0x8028D370
@@ -2889,7 +2889,7 @@ birdograsssoundproperties.o:
 	.bss        start:0x8032B628 end:0x8032B638
 	.sdata      start:0x80372AB0 end:0x80372AB8
 
-birdometalsoundproperties.o:
+Game/SoundProps/birdometalsoundproperties.cpp:
 	.text       start:0x801ADBA4 end:0x801ADCA8
 	.text       start:0x801ADCA8 end:0x801ADCA8
 	.ctors      start:0x8028D370 end:0x8028D374
@@ -2897,7 +2897,7 @@ birdometalsoundproperties.o:
 	.bss        start:0x8032B638 end:0x8032B648
 	.sdata      start:0x80372AB8 end:0x80372AC0
 
-birdoconcretesoundproperties.o:
+Game/SoundProps/birdoconcretesoundproperties.cpp:
 	.text       start:0x801ADCA8 end:0x801ADDAC
 	.text       start:0x801ADDAC end:0x801ADDAC
 	.ctors      start:0x8028D374 end:0x8028D378
@@ -2905,7 +2905,7 @@ birdoconcretesoundproperties.o:
 	.bss        start:0x8032B648 end:0x8032B658
 	.sdata      start:0x80372AC0 end:0x80372AC8
 
-birdorubbersoundproperties.o:
+Game/SoundProps/birdorubbersoundproperties.cpp:
 	.text       start:0x801ADDAC end:0x801ADEB0
 	.text       start:0x801ADEB0 end:0x801ADEB0
 	.ctors      start:0x8028D378 end:0x8028D37C
@@ -2913,7 +2913,7 @@ birdorubbersoundproperties.o:
 	.bss        start:0x8032B658 end:0x8032B668
 	.sdata      start:0x80372AC8 end:0x80372AD0
 
-birdowoodsoundproperties.o:
+Game/SoundProps/birdowoodsoundproperties.cpp:
 	.text       start:0x801ADEB0 end:0x801ADFB4
 	.text       start:0x801ADFB4 end:0x801ADFB4
 	.ctors      start:0x8028D37C end:0x8028D380
@@ -2921,7 +2921,7 @@ birdowoodsoundproperties.o:
 	.bss        start:0x8032B668 end:0x8032B678
 	.sdata      start:0x80372AD0 end:0x80372AD8
 
-bowsergensoundproperties.o:
+Game/SoundProps/bowsergensoundproperties.cpp:
 	.text       start:0x801ADFB4 end:0x801AE0B4
 	.text       start:0x801AE0B4 end:0x801AE0B4
 	.ctors      start:0x8028D380 end:0x8028D384
@@ -2929,7 +2929,7 @@ bowsergensoundproperties.o:
 	.bss        start:0x8032B678 end:0x8032B688
 	.sdata      start:0x80372AD8 end:0x80372AE8
 
-bowsergrasssoundproperties.o:
+Game/SoundProps/bowsergrasssoundproperties.cpp:
 	.text       start:0x801AE0B4 end:0x801AE1B8
 	.text       start:0x801AE1B8 end:0x801AE1B8
 	.ctors      start:0x8028D384 end:0x8028D388
@@ -2937,7 +2937,7 @@ bowsergrasssoundproperties.o:
 	.bss        start:0x8032B688 end:0x8032B698
 	.sdata      start:0x80372AE8 end:0x80372AF0
 
-bowsermetalsoundproperties.o:
+Game/SoundProps/bowsermetalsoundproperties.cpp:
 	.text       start:0x801AE1B8 end:0x801AE2BC
 	.text       start:0x801AE2BC end:0x801AE2BC
 	.ctors      start:0x8028D388 end:0x8028D38C
@@ -2945,7 +2945,7 @@ bowsermetalsoundproperties.o:
 	.bss        start:0x8032B698 end:0x8032B6A8
 	.sdata      start:0x80372AF0 end:0x80372AF8
 
-bowserconcretesoundproperties.o:
+Game/SoundProps/bowserconcretesoundproperties.cpp:
 	.text       start:0x801AE2BC end:0x801AE3C0
 	.text       start:0x801AE3C0 end:0x801AE3C0
 	.ctors      start:0x8028D38C end:0x8028D390
@@ -2953,7 +2953,7 @@ bowserconcretesoundproperties.o:
 	.bss        start:0x8032B6A8 end:0x8032B6B8
 	.sdata      start:0x80372AF8 end:0x80372B00
 
-bowserrubbersoundproperties.o:
+Game/SoundProps/bowserrubbersoundproperties.cpp:
 	.text       start:0x801AE3C0 end:0x801AE4C4
 	.text       start:0x801AE4C4 end:0x801AE4C4
 	.ctors      start:0x8028D390 end:0x8028D394
@@ -2961,7 +2961,7 @@ bowserrubbersoundproperties.o:
 	.bss        start:0x8032B6B8 end:0x8032B6C8
 	.sdata      start:0x80372B00 end:0x80372B08
 
-bowserwoodsoundproperties.o:
+Game/SoundProps/bowserwoodsoundproperties.cpp:
 	.text       start:0x801AE4C4 end:0x801AE5C8
 	.text       start:0x801AE5C8 end:0x801AE5C8
 	.ctors      start:0x8028D394 end:0x8028D398
@@ -2969,7 +2969,7 @@ bowserwoodsoundproperties.o:
 	.bss        start:0x8032B6C8 end:0x8032B6D8
 	.sdata      start:0x80372B08 end:0x80372B10
 
-crittergensoundproperties.o:
+Game/SoundProps/crittergensoundproperties.cpp:
 	.text       start:0x801AE5C8 end:0x801AE6C8
 	.text       start:0x801AE6C8 end:0x801AE6C8
 	.ctors      start:0x8028D398 end:0x8028D39C
@@ -2977,7 +2977,7 @@ crittergensoundproperties.o:
 	.bss        start:0x8032B6D8 end:0x8032B6E8
 	.sdata      start:0x80372B10 end:0x80372B20
 
-crittergrasssoundproperties.o:
+Game/SoundProps/crittergrasssoundproperties.cpp:
 	.text       start:0x801AE6C8 end:0x801AE7CC
 	.text       start:0x801AE7CC end:0x801AE7CC
 	.ctors      start:0x8028D39C end:0x8028D3A0
@@ -2985,7 +2985,7 @@ crittergrasssoundproperties.o:
 	.bss        start:0x8032B6E8 end:0x8032B6F8
 	.sdata      start:0x80372B20 end:0x80372B28
 
-crittermetalsoundproperties.o:
+Game/SoundProps/crittermetalsoundproperties.cpp:
 	.text       start:0x801AE7CC end:0x801AE8D0
 	.text       start:0x801AE8D0 end:0x801AE8D0
 	.ctors      start:0x8028D3A0 end:0x8028D3A4
@@ -2993,7 +2993,7 @@ crittermetalsoundproperties.o:
 	.bss        start:0x8032B6F8 end:0x8032B708
 	.sdata      start:0x80372B28 end:0x80372B30
 
-critterconcretesoundproperties.o:
+Game/SoundProps/critterconcretesoundproperties.cpp:
 	.text       start:0x801AE8D0 end:0x801AE9D4
 	.text       start:0x801AE9D4 end:0x801AE9D4
 	.ctors      start:0x8028D3A4 end:0x8028D3A8
@@ -3001,7 +3001,7 @@ critterconcretesoundproperties.o:
 	.bss        start:0x8032B708 end:0x8032B718
 	.sdata      start:0x80372B30 end:0x80372B38
 
-critterrubbersoundproperties.o:
+Game/SoundProps/critterrubbersoundproperties.cpp:
 	.text       start:0x801AE9D4 end:0x801AEAD8
 	.text       start:0x801AEAD8 end:0x801AEAD8
 	.ctors      start:0x8028D3A8 end:0x8028D3AC
@@ -3009,7 +3009,7 @@ critterrubbersoundproperties.o:
 	.bss        start:0x8032B718 end:0x8032B728
 	.sdata      start:0x80372B38 end:0x80372B40
 
-critterrobotsoundproperties.o:
+Game/SoundProps/critterrobotsoundproperties.cpp:
 	.text       start:0x801AEAD8 end:0x801AEBDC
 	.text       start:0x801AEBDC end:0x801AEBDC
 	.ctors      start:0x8028D3AC end:0x8028D3B0
@@ -3017,7 +3017,7 @@ critterrobotsoundproperties.o:
 	.bss        start:0x8032B728 end:0x8032B738
 	.sdata      start:0x80372B40 end:0x80372B48
 
-critterwoodsoundproperties.o:
+Game/SoundProps/critterwoodsoundproperties.cpp:
 	.text       start:0x801AEBDC end:0x801AECE0
 	.text       start:0x801AECE0 end:0x801AECE0
 	.ctors      start:0x8028D3B0 end:0x8028D3B4
