@@ -3025,7 +3025,7 @@ critterwoodsoundproperties.o:
 	.bss        start:0x8032B738 end:0x8032B748
 	.sdata      start:0x80372B48 end:0x80372B50
 
-daisygensoundproperties.o:
+Game/SoundProps/daisygensoundproperties.cpp:
 	.text       start:0x801AECE0 end:0x801AEDE0
 	.text       start:0x801AEDE0 end:0x801AEDE0
 	.ctors      start:0x8028D3B4 end:0x8028D3B8
@@ -3033,7 +3033,7 @@ daisygensoundproperties.o:
 	.bss        start:0x8032B748 end:0x8032B758
 	.sdata      start:0x80372B50 end:0x80372B60
 
-daisygrasssoundproperties.o:
+Game/SoundProps/daisygrasssoundproperties.cpp:
 	.text       start:0x801AEDE0 end:0x801AEEE4
 	.text       start:0x801AEEE4 end:0x801AEEE4
 	.ctors      start:0x8028D3B8 end:0x8028D3BC
@@ -3041,7 +3041,7 @@ daisygrasssoundproperties.o:
 	.bss        start:0x8032B758 end:0x8032B768
 	.sdata      start:0x80372B60 end:0x80372B68
 
-daisymetalsoundproperties.o:
+Game/SoundProps/daisymetalsoundproperties.cpp:
 	.text       start:0x801AEEE4 end:0x801AEFE8
 	.text       start:0x801AEFE8 end:0x801AEFE8
 	.ctors      start:0x8028D3BC end:0x8028D3C0
@@ -3049,7 +3049,7 @@ daisymetalsoundproperties.o:
 	.bss        start:0x8032B768 end:0x8032B778
 	.sdata      start:0x80372B68 end:0x80372B70
 
-daisyconcretesoundproperties.o:
+Game/SoundProps/daisyconcretesoundproperties.cpp:
 	.text       start:0x801AEFE8 end:0x801AF0EC
 	.text       start:0x801AF0EC end:0x801AF0EC
 	.ctors      start:0x8028D3C0 end:0x8028D3C4
@@ -3057,7 +3057,7 @@ daisyconcretesoundproperties.o:
 	.bss        start:0x8032B778 end:0x8032B788
 	.sdata      start:0x80372B70 end:0x80372B78
 
-daisyrubbersoundproperties.o:
+Game/SoundProps/daisyrubbersoundproperties.cpp:
 	.text       start:0x801AF0EC end:0x801AF1F0
 	.text       start:0x801AF1F0 end:0x801AF1F0
 	.ctors      start:0x8028D3C4 end:0x8028D3C8
@@ -3065,7 +3065,7 @@ daisyrubbersoundproperties.o:
 	.bss        start:0x8032B788 end:0x8032B798
 	.sdata      start:0x80372B78 end:0x80372B80
 
-daisywoodsoundproperties.o:
+Game/SoundProps/daisywoodsoundproperties.cpp:
 	.text       start:0x801AF1F0 end:0x801AF2F4
 	.text       start:0x801AF2F4 end:0x801AF2F4
 	.ctors      start:0x8028D3C8 end:0x8028D3CC
@@ -3073,7 +3073,7 @@ daisywoodsoundproperties.o:
 	.bss        start:0x8032B798 end:0x8032B7A8
 	.sdata      start:0x80372B80 end:0x80372B88
 
-hambrosgensoundproperties.o:
+Game/SoundProps/hambrosgensoundproperties.cpp:
 	.text       start:0x801AF2F4 end:0x801AF3F4
 	.text       start:0x801AF3F4 end:0x801AF3F4
 	.ctors      start:0x8028D3CC end:0x8028D3D0
@@ -3081,7 +3081,7 @@ hambrosgensoundproperties.o:
 	.bss        start:0x8032B7A8 end:0x8032B7B8
 	.sdata      start:0x80372B88 end:0x80372B98
 
-hambrosgrasssoundproperties.o:
+Game/SoundProps/hambrosgrasssoundproperties.cpp:
 	.text       start:0x801AF3F4 end:0x801AF4F8
 	.text       start:0x801AF4F8 end:0x801AF4F8
 	.ctors      start:0x8028D3D0 end:0x8028D3D4
@@ -3089,7 +3089,7 @@ hambrosgrasssoundproperties.o:
 	.bss        start:0x8032B7B8 end:0x8032B7C8
 	.sdata      start:0x80372B98 end:0x80372BA0
 
-hambrosmetalsoundproperties.o:
+Game/SoundProps/hambrosmetalsoundproperties.cpp:
 	.text       start:0x801AF4F8 end:0x801AF5FC
 	.text       start:0x801AF5FC end:0x801AF5FC
 	.ctors      start:0x8028D3D4 end:0x8028D3D8
@@ -3097,7 +3097,7 @@ hambrosmetalsoundproperties.o:
 	.bss        start:0x8032B7C8 end:0x8032B7D8
 	.sdata      start:0x80372BA0 end:0x80372BA8
 
-hambrosconcretesoundproperties.o:
+Game/SoundProps/hambrosconcretesoundproperties.cpp:
 	.text       start:0x801AF5FC end:0x801AF700
 	.text       start:0x801AF700 end:0x801AF700
 	.ctors      start:0x8028D3D8 end:0x8028D3DC
@@ -3105,7 +3105,7 @@ hambrosconcretesoundproperties.o:
 	.bss        start:0x8032B7D8 end:0x8032B7E8
 	.sdata      start:0x80372BA8 end:0x80372BB0
 
-hambrosrubbersoundproperties.o:
+Game/SoundProps/hambrosrubbersoundproperties.cpp:
 	.text       start:0x801AF700 end:0x801AF804
 	.text       start:0x801AF804 end:0x801AF804
 	.ctors      start:0x8028D3DC end:0x8028D3E0
@@ -3113,7 +3113,7 @@ hambrosrubbersoundproperties.o:
 	.bss        start:0x8032B7E8 end:0x8032B7F8
 	.sdata      start:0x80372BB0 end:0x80372BB8
 
-hambroswoodsoundproperties.o:
+Game/SoundProps/hambroswoodsoundproperties.cpp:
 	.text       start:0x801AF804 end:0x801AF908
 	.text       start:0x801AF908 end:0x801AF908
 	.ctors      start:0x8028D3E0 end:0x8028D3E4
@@ -3217,7 +3217,7 @@ Game/SoundProps/mariowoodsoundproperties.cpp:
 	.bss        start:0x8032B8B8 end:0x8032B8C8
 	.sdata      start:0x80372C28 end:0x80372C30
 
-dkgensoundproperties.o:
+Game/SoundProps/dkgensoundproperties.cpp:
 	.text       start:0x801B0530 end:0x801B0630
 	.text       start:0x801B0630 end:0x801B0630
 	.ctors      start:0x8028D414 end:0x8028D418
@@ -3225,7 +3225,7 @@ dkgensoundproperties.o:
 	.bss        start:0x8032B8C8 end:0x8032B8D8
 	.sdata      start:0x80372C30 end:0x80372C38
 
-dkgrasssoundproperties.o:
+Game/SoundProps/dkgrasssoundproperties.cpp:
 	.text       start:0x801B0630 end:0x801B0730
 	.text       start:0x801B0730 end:0x801B0730
 	.ctors      start:0x8028D418 end:0x8028D41C
@@ -3233,7 +3233,7 @@ dkgrasssoundproperties.o:
 	.bss        start:0x8032B8D8 end:0x8032B8E8
 	.sdata      start:0x80372C38 end:0x80372C48
 
-dkmetalsoundproperties.o:
+Game/SoundProps/dkmetalsoundproperties.cpp:
 	.text       start:0x801B0730 end:0x801B0830
 	.text       start:0x801B0830 end:0x801B0830
 	.ctors      start:0x8028D41C end:0x8028D420
@@ -3241,7 +3241,7 @@ dkmetalsoundproperties.o:
 	.bss        start:0x8032B8E8 end:0x8032B8F8
 	.sdata      start:0x80372C48 end:0x80372C58
 
-dkconcretesoundproperties.o:
+Game/SoundProps/dkconcretesoundproperties.cpp:
 	.text       start:0x801B0830 end:0x801B0934
 	.text       start:0x801B0934 end:0x801B0934
 	.ctors      start:0x8028D420 end:0x8028D424
@@ -3249,7 +3249,7 @@ dkconcretesoundproperties.o:
 	.bss        start:0x8032B8F8 end:0x8032B908
 	.sdata      start:0x80372C58 end:0x80372C60
 
-dkrubbersoundproperties.o:
+Game/SoundProps/dkrubbersoundproperties.cpp:
 	.text       start:0x801B0934 end:0x801B0A38
 	.text       start:0x801B0A38 end:0x801B0A38
 	.ctors      start:0x8028D424 end:0x8028D428
@@ -3257,7 +3257,7 @@ dkrubbersoundproperties.o:
 	.bss        start:0x8032B908 end:0x8032B918
 	.sdata      start:0x80372C60 end:0x80372C68
 
-dkwoodsoundproperties.o:
+Game/SoundProps/dkwoodsoundproperties.cpp:
 	.text       start:0x801B0A38 end:0x801B0B38
 	.text       start:0x801B0B38 end:0x801B0B38
 	.ctors      start:0x8028D428 end:0x8028D42C
@@ -3601,7 +3601,7 @@ Game/SoundProps/yoshiwoodsoundproperties.cpp:
 	.bss        start:0x8032BBB8 end:0x8032BBC8
 	.sdata      start:0x80372DF8 end:0x80372E00
 
-crowdsoundproperties.o:
+Game/SoundProps/crowdsoundproperties.cpp:
 	.text       start:0x801B35C4 end:0x801B36C4
 	.text       start:0x801B36C4 end:0x801B36C4
 	.ctors      start:0x8028D4D4 end:0x8028D4D8

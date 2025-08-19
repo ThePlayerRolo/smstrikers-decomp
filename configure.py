@@ -818,6 +818,27 @@ config.libs = [
             Object(NonMatching, "Game/ObjectBlur.cpp"),
 
             # SoundProps
+            Object(Matching, "Game/SoundProps/daisygensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/daisygrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/daisyconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/daisymetalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/daisyrubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/daisywoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
+            Object(Matching, "Game/SoundProps/dkgensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/dkgrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/dkconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/dkmetalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/dkrubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/dkwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
+            Object(Matching, "Game/SoundProps/hambrosgensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/hambrosgrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/hambrosconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/hambrosmetalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/hambrosrubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/hambroswoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
             Object(Matching, "Game/SoundProps/koopagensoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/koopagrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/koopaconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
@@ -895,6 +916,7 @@ config.libs = [
             Object(Matching, "Game/SoundProps/stadundersoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/stadwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
 
+            Object(Matching, "Game/SoundProps/crowdsoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/powerupsoundproperties.cpp", extra_cflags=["-inline deferred"]),  
             Object(Matching, "Game/SoundProps/worldsoundproperties.cpp", extra_cflags=["-inline deferred"]),
         ],
