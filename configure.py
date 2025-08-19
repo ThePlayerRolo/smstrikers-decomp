@@ -818,8 +818,21 @@ config.libs = [
             Object(NonMatching, "Game/ObjectBlur.cpp"),
 
             # SoundProps
-            Object(Matching, "Game/SoundProps/yoshiwoodsoundproperties.cpp", extra_cflags=["-inline off"]),
-            # Object(Matching, "Game/SoundProps/yoshiwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/warioconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            # Object(Matching, "Game/SoundProps/wariogensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/wariograsssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/wariometalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/wariorubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/wariowoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
+            Object(Matching, "Game/SoundProps/yoshiconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/yoshigensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/yoshigrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/yoshimetalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/yoshirubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/yoshiwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
+            Object(NonMatching, "Game/SoundProps/worldsoundproperties.cpp", extra_cflags=["-inline deferred"]),
         ],
     ),
     GameLib(

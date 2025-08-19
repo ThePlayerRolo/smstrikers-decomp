@@ -1,12 +1,12 @@
-#ifndef _YOSHIWOODSOUNDPROPERTIES_H_
-#define _YOSHIWOODSOUNDPROPERTIES_H_
+#ifndef _WARIORUBBERSOUNDPROPERTIES_H_
+#define _WARIORUBBERSOUNDPROPERTIES_H_
 
 #include "SoundPropAccessor.h"
 
-class YOSHIWOODSoundPropAccessor : public SoundPropAccessor
+class WARIORUBBERSoundPropAccessor : public SoundPropAccessor
 {
 public:
-    YOSHIWOODSoundPropAccessor() { ResetSoundPropTable(); };
+    WARIORUBBERSoundPropAccessor() { ResetSoundPropTable(); };
     virtual inline SoundProperties* GetSoundProperty(unsigned int index) const;
     virtual inline SoundProperties* GetSoundPropTable();
     virtual inline u32 GetNumSFX() const;
@@ -16,7 +16,7 @@ public:
     virtual inline void ResetSoundPropTable();
 };
 
-extern YOSHIWOODSoundPropAccessor gYOSHIWOODSoundPropAccessor;
-extern SoundPropAccessor* gpYOSHIWOODSoundPropAccessor;
+extern WARIORUBBERSoundPropAccessor gWARIORUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpWARIORUBBERSoundPropAccessor;
 
-#endif // _YOSHIWOODSOUNDPROPERTIES_H_
+#endif // _WARIORUBBERSOUNDPROPERTIES_H_

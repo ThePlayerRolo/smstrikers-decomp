@@ -3,10 +3,11 @@
 
 #include "SoundPropAccessor.h"
 
-class YOSHIWOODSoundPropAccessor : public SoundPropAccessor
+class WARIOWOODSoundPropAccessor : public SoundPropAccessor
 {
 public:
-    YOSHIWOODSoundPropAccessor() { ResetSoundPropTable(); };
+    WARIOWOODSoundPropAccessor() { ResetSoundPropTable(); };
+
     virtual inline SoundProperties* GetSoundProperty(unsigned int index) const;
     virtual inline SoundProperties* GetSoundPropTable();
     virtual inline u32 GetNumSFX() const;
@@ -16,7 +17,7 @@ public:
     virtual inline void ResetSoundPropTable();
 };
 
-extern YOSHIWOODSoundPropAccessor gYOSHIWOODSoundPropAccessor;
-extern SoundPropAccessor* gpYOSHIWOODSoundPropAccessor;
+extern WARIOWOODSoundPropAccessor gWARIOWOODSoundPropAccessor;
+extern SoundPropAccessor* gpWARIOWOODSoundPropAccessor;
 
 #endif // _YOSHIWOODSOUNDPROPERTIES_H_

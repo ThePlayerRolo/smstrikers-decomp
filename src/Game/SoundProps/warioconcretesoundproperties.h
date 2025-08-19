@@ -1,12 +1,12 @@
-#ifndef _YOSHIWOODSOUNDPROPERTIES_H_
-#define _YOSHIWOODSOUNDPROPERTIES_H_
+#ifndef _WARIOCONCRETESOUNDPROPERTIES_H_
+#define _WARIOCONCRETESOUNDPROPERTIES_H_
 
 #include "SoundPropAccessor.h"
 
-class YOSHIWOODSoundPropAccessor : public SoundPropAccessor
+class WARIOCONCRETESoundPropAccessor : public SoundPropAccessor
 {
 public:
-    YOSHIWOODSoundPropAccessor() { ResetSoundPropTable(); };
+    WARIOCONCRETESoundPropAccessor() { ResetSoundPropTable(); };
     virtual inline SoundProperties* GetSoundProperty(unsigned int index) const;
     virtual inline SoundProperties* GetSoundPropTable();
     virtual inline u32 GetNumSFX() const;
@@ -16,7 +16,7 @@ public:
     virtual inline void ResetSoundPropTable();
 };
 
-extern YOSHIWOODSoundPropAccessor gYOSHIWOODSoundPropAccessor;
-extern SoundPropAccessor* gpYOSHIWOODSoundPropAccessor;
+extern WARIOCONCRETESoundPropAccessor gWARIOCONCRETEoundPropAccessor;
+extern SoundPropAccessor* gpWARIOCONCRETESoundPropAccessor;
 
-#endif // _YOSHIWOODSOUNDPROPERTIES_H_
+#endif // _WARIOCONCRETESOUNDPROPERTIES_H_

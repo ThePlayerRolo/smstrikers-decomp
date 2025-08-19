@@ -23,6 +23,9 @@ static SoundProperties YOSHIWOODSoundProperties[] = {
     { "CHARSFX_BODYFALL", "SFXCHAR_GEN_Bodyfall_Wood", 0.5f, 0.0f, 0.5f, 1, 0 },
 };
 
+YOSHIWOODSoundPropAccessor gYOSHIWOODSoundPropAccessor;
+SoundPropAccessor* gpYOSHIWOODSoundPropAccessor = &gYOSHIWOODSoundPropAccessor;
+
 /**
  * Offset/Address/Size: 0xF4 | 0x801B35B4 | size: 0x10
  */
@@ -75,9 +78,6 @@ SoundProperties* YOSHIWOODSoundPropAccessor::GetSoundProperty(unsigned int index
 {
     u32 n = GetNumSFX();
     if (index >= n)
-        return 0;
+        return NULL;
     return &m_pTable[index];
 }
-
-YOSHIWOODSoundPropAccessor gYOSHIWOODSoundPropAccessor;
-SoundPropAccessor* gpYOSHIWOODSoundPropAccessor = &gYOSHIWOODSoundPropAccessor;
