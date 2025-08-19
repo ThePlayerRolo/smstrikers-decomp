@@ -3121,7 +3121,7 @@ hambroswoodsoundproperties.o:
 	.bss        start:0x8032B7F8 end:0x8032B808
 	.sdata      start:0x80372BB8 end:0x80372BC0
 
-koopagensoundproperties.o:
+Game/SoundProps/koopagensoundproperties.cpp:
 	.text       start:0x801AF908 end:0x801AFA08
 	.text       start:0x801AFA08 end:0x801AFA08
 	.ctors      start:0x8028D3E4 end:0x8028D3E8
@@ -3129,7 +3129,7 @@ koopagensoundproperties.o:
 	.bss        start:0x8032B808 end:0x8032B818
 	.sdata      start:0x80372BC0 end:0x80372BD0
 
-koopagrasssoundproperties.o:
+Game/SoundProps/koopagrasssoundproperties.cpp:
 	.text       start:0x801AFA08 end:0x801AFB0C
 	.text       start:0x801AFB0C end:0x801AFB0C
 	.ctors      start:0x8028D3E8 end:0x8028D3EC
@@ -3137,7 +3137,7 @@ koopagrasssoundproperties.o:
 	.bss        start:0x8032B818 end:0x8032B828
 	.sdata      start:0x80372BD0 end:0x80372BD8
 
-koopametalsoundproperties.o:
+Game/SoundProps/koopametalsoundproperties.cpp:
 	.text       start:0x801AFB0C end:0x801AFC10
 	.text       start:0x801AFC10 end:0x801AFC10
 	.ctors      start:0x8028D3EC end:0x8028D3F0
@@ -3145,7 +3145,7 @@ koopametalsoundproperties.o:
 	.bss        start:0x8032B828 end:0x8032B838
 	.sdata      start:0x80372BD8 end:0x80372BE0
 
-koopaconcretesoundproperties.o:
+Game/SoundProps/koopaconcretesoundproperties.cpp:
 	.text       start:0x801AFC10 end:0x801AFD14
 	.text       start:0x801AFD14 end:0x801AFD14
 	.ctors      start:0x8028D3F0 end:0x8028D3F4
@@ -3153,7 +3153,7 @@ koopaconcretesoundproperties.o:
 	.bss        start:0x8032B838 end:0x8032B848
 	.sdata      start:0x80372BE0 end:0x80372BE8
 
-kooparubbersoundproperties.o:
+Game/SoundProps/kooparubbersoundproperties.cpp:
 	.text       start:0x801AFD14 end:0x801AFE18
 	.text       start:0x801AFE18 end:0x801AFE18
 	.ctors      start:0x8028D3F4 end:0x8028D3F8
@@ -3161,7 +3161,7 @@ kooparubbersoundproperties.o:
 	.bss        start:0x8032B848 end:0x8032B858
 	.sdata      start:0x80372BE8 end:0x80372BF0
 
-koopawoodsoundproperties.o:
+Game/SoundProps/koopawoodsoundproperties.cpp:
 	.text       start:0x801AFE18 end:0x801AFF1C
 	.text       start:0x801AFF1C end:0x801AFF1C
 	.ctors      start:0x8028D3F8 end:0x8028D3FC
@@ -3169,7 +3169,7 @@ koopawoodsoundproperties.o:
 	.bss        start:0x8032B858 end:0x8032B868
 	.sdata      start:0x80372BF0 end:0x80372BF8
 
-mariogensoundproperties.o:
+Game/SoundProps/mariogensoundproperties.cpp:
 	.text       start:0x801AFF1C end:0x801B001C
 	.text       start:0x801B001C end:0x801B001C
 	.ctors      start:0x8028D3FC end:0x8028D400
@@ -3177,7 +3177,7 @@ mariogensoundproperties.o:
 	.bss        start:0x8032B868 end:0x8032B878
 	.sdata      start:0x80372BF8 end:0x80372C08
 
-mariograsssoundproperties.o:
+Game/SoundProps/mariograsssoundproperties.cpp:
 	.text       start:0x801B001C end:0x801B0120
 	.text       start:0x801B0120 end:0x801B0120
 	.ctors      start:0x8028D400 end:0x8028D404
@@ -3185,7 +3185,7 @@ mariograsssoundproperties.o:
 	.bss        start:0x8032B878 end:0x8032B888
 	.sdata      start:0x80372C08 end:0x80372C10
 
-mariometalsoundproperties.o:
+Game/SoundProps/mariometalsoundproperties.cpp:
 	.text       start:0x801B0120 end:0x801B0224
 	.text       start:0x801B0224 end:0x801B0224
 	.ctors      start:0x8028D404 end:0x8028D408
@@ -3193,7 +3193,7 @@ mariometalsoundproperties.o:
 	.bss        start:0x8032B888 end:0x8032B898
 	.sdata      start:0x80372C10 end:0x80372C18
 
-marioconcretesoundproperties.o:
+Game/SoundProps/marioconcretesoundproperties.cpp:
 	.text       start:0x801B0224 end:0x801B0328
 	.text       start:0x801B0328 end:0x801B0328
 	.ctors      start:0x8028D408 end:0x8028D40C
@@ -3201,7 +3201,7 @@ marioconcretesoundproperties.o:
 	.bss        start:0x8032B898 end:0x8032B8A8
 	.sdata      start:0x80372C18 end:0x80372C20
 
-mariorubbersoundproperties.o:
+Game/SoundProps/mariorubbersoundproperties.cpp:
 	.text       start:0x801B0328 end:0x801B042C
 	.text       start:0x801B042C end:0x801B042C
 	.ctors      start:0x8028D40C end:0x8028D410
@@ -3209,7 +3209,7 @@ mariorubbersoundproperties.o:
 	.bss        start:0x8032B8A8 end:0x8032B8B8
 	.sdata      start:0x80372C20 end:0x80372C28
 
-mariowoodsoundproperties.o:
+Game/SoundProps/mariowoodsoundproperties.cpp:
 	.text       start:0x801B042C end:0x801B0530
 	.text       start:0x801B0530 end:0x801B0530
 	.ctors      start:0x8028D410 end:0x8028D414
@@ -3265,7 +3265,7 @@ dkwoodsoundproperties.o:
 	.bss        start:0x8032B918 end:0x8032B928
 	.sdata      start:0x80372C68 end:0x80372C78
 
-luigigensoundproperties.o:
+Game/SoundProps/luigigensoundproperties.cpp:
 	.text       start:0x801B0B38 end:0x801B0C38
 	.text       start:0x801B0C38 end:0x801B0C38
 	.ctors      start:0x8028D42C end:0x8028D430
@@ -3273,7 +3273,7 @@ luigigensoundproperties.o:
 	.bss        start:0x8032B928 end:0x8032B938
 	.sdata      start:0x80372C78 end:0x80372C88
 
-luigigrasssoundproperties.o:
+Game/SoundProps/luigigrasssoundproperties.cpp:
 	.text       start:0x801B0C38 end:0x801B0D3C
 	.text       start:0x801B0D3C end:0x801B0D3C
 	.ctors      start:0x8028D430 end:0x8028D434
@@ -3281,7 +3281,7 @@ luigigrasssoundproperties.o:
 	.bss        start:0x8032B938 end:0x8032B948
 	.sdata      start:0x80372C88 end:0x80372C90
 
-luigimetalsoundproperties.o:
+Game/SoundProps/luigimetalsoundproperties.cpp:
 	.text       start:0x801B0D3C end:0x801B0E40
 	.text       start:0x801B0E40 end:0x801B0E40
 	.ctors      start:0x8028D434 end:0x8028D438
@@ -3289,7 +3289,7 @@ luigimetalsoundproperties.o:
 	.bss        start:0x8032B948 end:0x8032B958
 	.sdata      start:0x80372C90 end:0x80372C98
 
-luigiconcretesoundproperties.o:
+Game/SoundProps/luigiconcretesoundproperties.cpp:
 	.text       start:0x801B0E40 end:0x801B0F44
 	.text       start:0x801B0F44 end:0x801B0F44
 	.ctors      start:0x8028D438 end:0x8028D43C
@@ -3297,7 +3297,7 @@ luigiconcretesoundproperties.o:
 	.bss        start:0x8032B958 end:0x8032B968
 	.sdata      start:0x80372C98 end:0x80372CA0
 
-luigirubbersoundproperties.o:
+Game/SoundProps/luigirubbersoundproperties.cpp:
 	.text       start:0x801B0F44 end:0x801B1048
 	.text       start:0x801B1048 end:0x801B1048
 	.ctors      start:0x8028D43C end:0x8028D440
@@ -3305,7 +3305,7 @@ luigirubbersoundproperties.o:
 	.bss        start:0x8032B968 end:0x8032B978
 	.sdata      start:0x80372CA0 end:0x80372CA8
 
-luigiwoodsoundproperties.o:
+Game/SoundProps/luigiwoodsoundproperties.cpp:
 	.text       start:0x801B1048 end:0x801B114C
 	.text       start:0x801B114C end:0x801B114C
 	.ctors      start:0x8028D440 end:0x8028D444
@@ -3313,7 +3313,7 @@ luigiwoodsoundproperties.o:
 	.bss        start:0x8032B978 end:0x8032B988
 	.sdata      start:0x80372CA8 end:0x80372CB0
 
-peachgensoundproperties.o:
+Game/SoundProps/peachgensoundproperties.cpp:
 	.text       start:0x801B114C end:0x801B124C
 	.text       start:0x801B124C end:0x801B124C
 	.ctors      start:0x8028D444 end:0x8028D448
@@ -3321,7 +3321,7 @@ peachgensoundproperties.o:
 	.bss        start:0x8032B988 end:0x8032B998
 	.sdata      start:0x80372CB0 end:0x80372CC0
 
-peachgrasssoundproperties.o:
+Game/SoundProps/peachgrasssoundproperties.cpp:
 	.text       start:0x801B124C end:0x801B1350
 	.text       start:0x801B1350 end:0x801B1350
 	.ctors      start:0x8028D448 end:0x8028D44C
@@ -3329,7 +3329,7 @@ peachgrasssoundproperties.o:
 	.bss        start:0x8032B998 end:0x8032B9A8
 	.sdata      start:0x80372CC0 end:0x80372CC8
 
-peachmetalsoundproperties.o:
+Game/SoundProps/peachmetalsoundproperties.cpp:
 	.text       start:0x801B1350 end:0x801B1454
 	.text       start:0x801B1454 end:0x801B1454
 	.ctors      start:0x8028D44C end:0x8028D450
@@ -3337,7 +3337,7 @@ peachmetalsoundproperties.o:
 	.bss        start:0x8032B9A8 end:0x8032B9B8
 	.sdata      start:0x80372CC8 end:0x80372CD0
 
-peachconcretesoundproperties.o:
+Game/SoundProps/peachconcretesoundproperties.cpp:
 	.text       start:0x801B1454 end:0x801B1558
 	.text       start:0x801B1558 end:0x801B1558
 	.ctors      start:0x8028D450 end:0x8028D454
@@ -3345,7 +3345,7 @@ peachconcretesoundproperties.o:
 	.bss        start:0x8032B9B8 end:0x8032B9C8
 	.sdata      start:0x80372CD0 end:0x80372CD8
 
-peachrubbersoundproperties.o:
+Game/SoundProps/peachrubbersoundproperties.cpp:
 	.text       start:0x801B1558 end:0x801B165C
 	.text       start:0x801B165C end:0x801B165C
 	.ctors      start:0x8028D454 end:0x8028D458
@@ -3353,7 +3353,7 @@ peachrubbersoundproperties.o:
 	.bss        start:0x8032B9C8 end:0x8032B9D8
 	.sdata      start:0x80372CD8 end:0x80372CE0
 
-peachwoodsoundproperties.o:
+Game/SoundProps/peachwoodsoundproperties.cpp:
 	.text       start:0x801B165C end:0x801B1760
 	.text       start:0x801B1760 end:0x801B1760
 	.ctors      start:0x8028D458 end:0x8028D45C
@@ -3361,7 +3361,7 @@ peachwoodsoundproperties.o:
 	.bss        start:0x8032B9D8 end:0x8032B9E8
 	.sdata      start:0x80372CE0 end:0x80372CE8
 
-supergensoundproperties.o:
+Game/SoundProps/supergensoundproperties.cpp:
 	.text       start:0x801B1760 end:0x801B1860
 	.text       start:0x801B1860 end:0x801B1860
 	.ctors      start:0x8028D45C end:0x8028D460
@@ -3369,7 +3369,7 @@ supergensoundproperties.o:
 	.bss        start:0x8032B9E8 end:0x8032B9F8
 	.sdata      start:0x80372CE8 end:0x80372CF8
 
-supergrasssoundproperties.o:
+Game/SoundProps/supergrasssoundproperties.cpp:
 	.text       start:0x801B1860 end:0x801B1964
 	.text       start:0x801B1964 end:0x801B1964
 	.ctors      start:0x8028D460 end:0x8028D464
@@ -3377,7 +3377,7 @@ supergrasssoundproperties.o:
 	.bss        start:0x8032B9F8 end:0x8032BA08
 	.sdata      start:0x80372CF8 end:0x80372D00
 
-supermetalsoundproperties.o:
+Game/SoundProps/supermetalsoundproperties.cpp:
 	.text       start:0x801B1964 end:0x801B1A68
 	.text       start:0x801B1A68 end:0x801B1A68
 	.ctors      start:0x8028D464 end:0x8028D468
@@ -3385,7 +3385,7 @@ supermetalsoundproperties.o:
 	.bss        start:0x8032BA08 end:0x8032BA18
 	.sdata      start:0x80372D00 end:0x80372D08
 
-superconcretesoundproperties.o:
+Game/SoundProps/superconcretesoundproperties.cpp:
 	.text       start:0x801B1A68 end:0x801B1B6C
 	.text       start:0x801B1B6C end:0x801B1B6C
 	.ctors      start:0x8028D468 end:0x8028D46C
@@ -3393,7 +3393,7 @@ superconcretesoundproperties.o:
 	.bss        start:0x8032BA18 end:0x8032BA28
 	.sdata      start:0x80372D08 end:0x80372D10
 
-superrubbersoundproperties.o:
+Game/SoundProps/superrubbersoundproperties.cpp:
 	.text       start:0x801B1B6C end:0x801B1C70
 	.text       start:0x801B1C70 end:0x801B1C70
 	.ctors      start:0x8028D46C end:0x8028D470
@@ -3401,7 +3401,7 @@ superrubbersoundproperties.o:
 	.bss        start:0x8032BA28 end:0x8032BA38
 	.sdata      start:0x80372D10 end:0x80372D18
 
-superwoodsoundproperties.o:
+Game/SoundProps/superwoodsoundproperties.cpp:
 	.text       start:0x801B1C70 end:0x801B1D74
 	.text       start:0x801B1D74 end:0x801B1D74
 	.ctors      start:0x8028D470 end:0x8028D474
@@ -3409,7 +3409,7 @@ superwoodsoundproperties.o:
 	.bss        start:0x8032BA38 end:0x8032BA48
 	.sdata      start:0x80372D18 end:0x80372D20
 
-toadgensoundproperties.o:
+Game/SoundProps/toadgensoundproperties.cpp:
 	.text       start:0x801B1D74 end:0x801B1E74
 	.text       start:0x801B1E74 end:0x801B1E74
 	.ctors      start:0x8028D474 end:0x8028D478
@@ -3417,7 +3417,7 @@ toadgensoundproperties.o:
 	.bss        start:0x8032BA48 end:0x8032BA58
 	.sdata      start:0x80372D20 end:0x80372D30
 
-toadgrasssoundproperties.o:
+Game/SoundProps/toadgrasssoundproperties.cpp:
 	.text       start:0x801B1E74 end:0x801B1F78
 	.text       start:0x801B1F78 end:0x801B1F78
 	.ctors      start:0x8028D478 end:0x8028D47C
@@ -3425,7 +3425,7 @@ toadgrasssoundproperties.o:
 	.bss        start:0x8032BA58 end:0x8032BA68
 	.sdata      start:0x80372D30 end:0x80372D38
 
-toadmetalsoundproperties.o:
+Game/SoundProps/toadmetalsoundproperties.cpp:
 	.text       start:0x801B1F78 end:0x801B207C
 	.text       start:0x801B207C end:0x801B207C
 	.ctors      start:0x8028D47C end:0x8028D480
@@ -3433,7 +3433,7 @@ toadmetalsoundproperties.o:
 	.bss        start:0x8032BA68 end:0x8032BA78
 	.sdata      start:0x80372D38 end:0x80372D40
 
-toadconcretesoundproperties.o:
+Game/SoundProps/toadconcretesoundproperties.cpp:
 	.text       start:0x801B207C end:0x801B2180
 	.text       start:0x801B2180 end:0x801B2180
 	.ctors      start:0x8028D480 end:0x8028D484
@@ -3441,7 +3441,7 @@ toadconcretesoundproperties.o:
 	.bss        start:0x8032BA78 end:0x8032BA88
 	.sdata      start:0x80372D40 end:0x80372D48
 
-toadrubbersoundproperties.o:
+Game/SoundProps/toadrubbersoundproperties.cpp:
 	.text       start:0x801B2180 end:0x801B2284
 	.text       start:0x801B2284 end:0x801B2284
 	.ctors      start:0x8028D484 end:0x8028D488
@@ -3449,7 +3449,7 @@ toadrubbersoundproperties.o:
 	.bss        start:0x8032BA88 end:0x8032BA98
 	.sdata      start:0x80372D48 end:0x80372D50
 
-toadwoodsoundproperties.o:
+Game/SoundProps/toadwoodsoundproperties.cpp:
 	.text       start:0x801B2284 end:0x801B2388
 	.text       start:0x801B2388 end:0x801B2388
 	.ctors      start:0x8028D488 end:0x8028D48C
@@ -3609,7 +3609,7 @@ crowdsoundproperties.o:
 	.bss        start:0x8032BBC8 end:0x8032BBD8
 	.sdata      start:0x80372E00 end:0x80372E10
 
-powerupsoundproperties.o:
+Game/SoundProps/powerupsoundproperties.cpp:
 	.text       start:0x801B36C4 end:0x801B37C4
 	.text       start:0x801B37C4 end:0x801B37C4
 	.ctors      start:0x8028D4D8 end:0x8028D4DC
@@ -3625,7 +3625,7 @@ Game/SoundProps/worldsoundproperties.cpp:
 	.bss        start:0x8032BBE8 end:0x8032BBF8
 	.sdata      start:0x80372E20 end:0x80372E30
 
-stadgensoundproperties.o:
+Game/SoundProps/stadgensoundproperties.cpp:
 	.text       start:0x801B38C4 end:0x801B39C4
 	.text       start:0x801B39C4 end:0x801B39C4
 	.ctors      start:0x8028D4E0 end:0x8028D4E4
@@ -3633,7 +3633,7 @@ stadgensoundproperties.o:
 	.bss        start:0x8032BBF8 end:0x8032BC08
 	.sdata      start:0x80372E30 end:0x80372E40
 
-stadgrasssoundproperties.o:
+Game/SoundProps/stadgrasssoundproperties.cpp:
 	.text       start:0x801B39C4 end:0x801B3AC8
 	.text       start:0x801B3AC8 end:0x801B3AC8
 	.ctors      start:0x8028D4E4 end:0x8028D4E8
@@ -3641,7 +3641,7 @@ stadgrasssoundproperties.o:
 	.bss        start:0x8032BC08 end:0x8032BC18
 	.sdata      start:0x80372E40 end:0x80372E48
 
-stadmetalsoundproperties.o:
+Game/SoundProps/stadmetalsoundproperties.cpp:
 	.text       start:0x801B3AC8 end:0x801B3BCC
 	.text       start:0x801B3BCC end:0x801B3BCC
 	.ctors      start:0x8028D4E8 end:0x8028D4EC
@@ -3649,7 +3649,7 @@ stadmetalsoundproperties.o:
 	.bss        start:0x8032BC18 end:0x8032BC28
 	.sdata      start:0x80372E48 end:0x80372E50
 
-stadconcretesoundproperties.o:
+Game/SoundProps/stadconcretesoundproperties.cpp:
 	.text       start:0x801B3BCC end:0x801B3CD0
 	.text       start:0x801B3CD0 end:0x801B3CD0
 	.ctors      start:0x8028D4EC end:0x8028D4F0
@@ -3657,7 +3657,7 @@ stadconcretesoundproperties.o:
 	.bss        start:0x8032BC28 end:0x8032BC38
 	.sdata      start:0x80372E50 end:0x80372E58
 
-stadrubbersoundproperties.o:
+Game/SoundProps/stadrubbersoundproperties.cpp:
 	.text       start:0x801B3CD0 end:0x801B3DD4
 	.text       start:0x801B3DD4 end:0x801B3DD4
 	.ctors      start:0x8028D4F0 end:0x8028D4F4
@@ -3665,7 +3665,7 @@ stadrubbersoundproperties.o:
 	.bss        start:0x8032BC38 end:0x8032BC48
 	.sdata      start:0x80372E58 end:0x80372E60
 
-stadwoodsoundproperties.o:
+Game/SoundProps/stadwoodsoundproperties.cpp:
 	.text       start:0x801B3DD4 end:0x801B3ED8
 	.text       start:0x801B3ED8 end:0x801B3ED8
 	.ctors      start:0x8028D4F4 end:0x8028D4F8
@@ -3673,7 +3673,7 @@ stadwoodsoundproperties.o:
 	.bss        start:0x8032BC48 end:0x8032BC58
 	.sdata      start:0x80372E60 end:0x80372E68
 
-stadpipesoundproperties.o:
+Game/SoundProps/stadpipesoundproperties.cpp:
 	.text       start:0x801B3ED8 end:0x801B3FDC
 	.text       start:0x801B3FDC end:0x801B3FDC
 	.ctors      start:0x8028D4F8 end:0x8028D4FC
@@ -3681,7 +3681,7 @@ stadpipesoundproperties.o:
 	.bss        start:0x8032BC58 end:0x8032BC68
 	.sdata      start:0x80372E68 end:0x80372E70
 
-stadpalacesoundproperties.o:
+Game/SoundProps/stadpalacesoundproperties.cpp:
 	.text       start:0x801B3FDC end:0x801B40E0
 	.text       start:0x801B40E0 end:0x801B40E0
 	.ctors      start:0x8028D4FC end:0x8028D500
@@ -3689,7 +3689,7 @@ stadpalacesoundproperties.o:
 	.bss        start:0x8032BC68 end:0x8032BC78
 	.sdata      start:0x80372E70 end:0x80372E78
 
-stadundersoundproperties.o:
+Game/SoundProps/stadundersoundproperties.cpp:
 	.text       start:0x801B40E0 end:0x801B41E4
 	.text       start:0x801B41E4 end:0x801B41E4
 	.ctors      start:0x8028D500 end:0x8028D504
@@ -3697,7 +3697,7 @@ stadundersoundproperties.o:
 	.bss        start:0x8032BC78 end:0x8032BC88
 	.sdata      start:0x80372E78 end:0x80372E80
 
-stadbowsersoundproperties.o:
+Game/SoundProps/stadbowsersoundproperties.cpp:
 	.text       start:0x801B41E4 end:0x801B42E8
 	.text       start:0x801B42E8 end:0x801B42E8
 	.ctors      start:0x8028D504 end:0x8028D508
@@ -3705,7 +3705,7 @@ stadbowsersoundproperties.o:
 	.bss        start:0x8032BC88 end:0x8032BC98
 	.sdata      start:0x80372E80 end:0x80372E88
 
-stadbattlesoundproperties.o:
+Game/SoundProps/stadbattlesoundproperties.cpp:
 	.text       start:0x801B42E8 end:0x801B43EC
 	.text       start:0x801B43EC end:0x801B43EC
 	.ctors      start:0x8028D508 end:0x8028D50C
@@ -3713,7 +3713,7 @@ stadbattlesoundproperties.o:
 	.bss        start:0x8032BC98 end:0x8032BCA8
 	.sdata      start:0x80372E88 end:0x80372E90
 
-stadkongasoundproperties.o:
+Game/SoundProps/stadkongasoundproperties.cpp:
 	.text       start:0x801B43EC end:0x801B44F0
 	.text       start:0x801B44F0 end:0x801B44F0
 	.ctors      start:0x8028D50C end:0x8028D510
@@ -3721,7 +3721,7 @@ stadkongasoundproperties.o:
 	.bss        start:0x8032BCA8 end:0x8032BCB8
 	.sdata      start:0x80372E90 end:0x80372E98
 
-stadcratersoundproperties.o:
+Game/SoundProps/stadcratersoundproperties.cpp:
 	.text       start:0x801B44F0 end:0x801B45F4
 	.text       start:0x801B45F4 end:0x801B45F4
 	.ctors      start:0x8028D510 end:0x8028D514

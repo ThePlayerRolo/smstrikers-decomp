@@ -8,6 +8,7 @@ import re
 import struct
 import sys
 import os
+import argparse
 
 def hex_to_float(hex_str):
     """Convert hex string to float."""
@@ -56,7 +57,7 @@ def extract_string_references(assembly_text):
     
     return sorted(list(string_refs))
 
-def find_sound_properties_section(assembly_text):
+def find_sound_properties_section(assembly_text, verbose=False):
     """Find the SoundProperties section in the assembly file."""
     # Look for patterns like:
     # .obj WORLDSoundProperties, global
@@ -68,11 +69,13 @@ def find_sound_properties_section(assembly_text):
     obj_match = re.search(obj_pattern, assembly_text)
     
     if not obj_match:
-        print("Could not find .obj line for SoundProperties")
+        if verbose:
+            print("Could not find .obj line for SoundProperties")
         return None, None
     
     section_name = obj_match.group(1)
-    print(f"Found .obj line: {section_name}")
+    if verbose:
+        print(f"Found .obj line: {section_name}")
     
     # Find the start and end of the section
     start_pattern = rf'\.obj\s+{re.escape(section_name)},\s+global'
@@ -82,7 +85,8 @@ def find_sound_properties_section(assembly_text):
     end_match = re.search(end_pattern, assembly_text)
     
     if not start_match:
-        print("Could not find start of section")
+        if verbose:
+            print("Could not find start of section")
         return None, None
     
     start_pos = start_match.end()
@@ -90,12 +94,13 @@ def find_sound_properties_section(assembly_text):
     
     section_content = assembly_text[start_pos:end_pos]
     
-    print(f"Section content length: {len(section_content)}")
-    print(f"First 200 chars: {section_content[:200]}")
+    if verbose:
+        print(f"Section content length: {len(section_content)}")
+        print(f"First 200 chars: {section_content[:200]}")
     
     return section_name, section_content
 
-def parse_sound_properties_section(section_content):
+def parse_sound_properties_section(section_content, verbose=False):
     """Parse the SoundProperties section and extract the data."""
     entries = []
     
@@ -105,7 +110,8 @@ def parse_sound_properties_section(section_content):
     current_entry = []
     line_count = 0
     
-    print(f"Processing {len(lines)} lines in section")
+    if verbose:
+        print(f"Processing {len(lines)} lines in section")
     
     for line in lines:
         line = line.strip()
@@ -132,16 +138,17 @@ def parse_sound_properties_section(section_content):
                     entries.append(current_entry)
                     current_entry = []
                     
-                    if len(entries) <= 3:  # Debug first few entries
+                    if verbose and len(entries) <= 3:  # Debug first few entries
                         print(f"Entry {len(entries)}: {entries[-1]}")
     
-    print(f"Found {len(entries)} complete entries")
-    if entries:
-        print(f"First entry: {entries[0]}")
+    if verbose:
+        print(f"Found {len(entries)} complete entries")
+        if entries:
+            print(f"First entry: {entries[0]}")
     
     return entries
 
-def generate_string_mapping(string_refs, assembly_text):
+def generate_string_mapping(string_refs, assembly_text, verbose=False):
     """Generate a mapping from @string references to actual string values."""
     string_map = {}
     
@@ -161,8 +168,9 @@ def generate_string_mapping(string_refs, assembly_text):
             num = ref[1:]  # Remove @
             string_map[ref] = f"STRING_{num}"
     
-    print(f"Generated string mapping for {len([k for k, v in string_map.items() if not v.startswith('STRING_')])} actual strings")
-    print(f"Using placeholders for {len([k for k, v in string_map.items() if v.startswith('STRING_')])} missing strings")
+    if verbose:
+        print(f"Generated string mapping for {len([k for k, v in string_map.items() if not v.startswith('STRING_')])} actual strings")
+        print(f"Using placeholders for {len([k for k, v in string_map.items() if v.startswith('STRING_')])} missing strings")
     
     return string_map
 
@@ -202,20 +210,23 @@ def generate_cpp_array(section_name, entries, string_map):
     return '\n'.join(cpp_lines)
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python script.py <assembly_file.s> [cpp_file.cpp]")
-        print("  assembly_file.s: The assembly file to parse")
-        print("  cpp_file.cpp: Optional C++ file to extract string mappings from")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Convert assembly sound properties arrays to C++ static array declarations')
+    parser.add_argument('assembly_file', help='The assembly file to parse')
+    parser.add_argument('cpp_file', nargs='?', help='Optional C++ file to extract string mappings from')
+    parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
     
-    assembly_file = sys.argv[1]
-    cpp_file = sys.argv[2] if len(sys.argv) > 2 else None
+    args = parser.parse_args()
+    
+    assembly_file = args.assembly_file
+    cpp_file = args.cpp_file
+    verbose = args.verbose
     
     if not os.path.exists(assembly_file):
         print(f"Error: Assembly file '{assembly_file}' not found")
         sys.exit(1)
     
-    print(f"Parsing assembly file: {assembly_file}")
+    if verbose:
+        print(f"Parsing assembly file: {assembly_file}")
     
     # Read the assembly file
     try:
@@ -227,20 +238,24 @@ def main():
     
     # Extract string references
     string_refs = extract_string_references(assembly_text)
-    print(f"Found {len(string_refs)} string references: {string_refs[:10]}{'...' if len(string_refs) > 10 else ''}")
+    if verbose:
+        print(f"Found {len(string_refs)} string references: {string_refs[:10]}{'...' if len(string_refs) > 10 else ''}")
     
     # Find the SoundProperties section
-    section_name, section_content = find_sound_properties_section(assembly_text)
+    section_name, section_content = find_sound_properties_section(assembly_text, verbose)
     
     if not section_name:
         print("Error: Could not find SoundProperties section in assembly file")
         sys.exit(1)
     
-    print(f"Found SoundProperties section: {section_name}")
+    if verbose:
+        print(f"Found SoundProperties section: {section_name}")
     
     # Parse the section
-    entries = parse_sound_properties_section(section_content)
-    print(f"Found {len(entries)} entries")
+    entries = parse_sound_properties_section(section_content, verbose)
+    
+    if verbose:
+        print(f"Found {len(entries)} entries")
     
     if len(entries) == 0:
         print("Error: No entries found. Check the assembly file format.")
@@ -248,9 +263,10 @@ def main():
         sys.exit(1)
     
     # Generate string mapping from the assembly text
-    string_map = generate_string_mapping(string_refs, assembly_text)
+    string_map = generate_string_mapping(string_refs, assembly_text, verbose)
     
-    print(f"Generated string mapping for {len(string_map)} references")
+    if verbose:
+        print(f"Generated string mapping for {len(string_map)} references")
     
     # Generate C++ array
     cpp_array = generate_cpp_array(section_name, entries, string_map)
@@ -258,18 +274,22 @@ def main():
     # Generate output filename
     output_file = f"{section_name.lower()}_generated.cpp"
     
-    print(f"\nGenerated C++ array:")
-    print("=" * 80)
-    print(cpp_array)
-    print("=" * 80)
+    if verbose:
+        print(f"\nGenerated C++ array:")
+        print("=" * 80)
+        print(cpp_array)
+        print("=" * 80)
     
     # Save to file
     with open(output_file, 'w') as f:
         f.write(cpp_array)
     
-    print(f"\nGenerated array saved to '{output_file}'")
-    print(f"\nNote: You may need to manually update the string values in the generated array.")
-    print(f"      The current mapping uses placeholder values like 'STRING_149'.")
+    # Default output: just a success message
+    print(f"✓ {assembly_file} → {output_file} ({len(entries)} entries)")
+    
+    if verbose:
+        print(f"\nNote: You may need to manually update the string values in the generated array.")
+        print(f"      The current mapping uses placeholder values like 'STRING_149'.")
 
 if __name__ == "__main__":
     main()
