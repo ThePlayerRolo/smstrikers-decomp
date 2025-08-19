@@ -4,6 +4,26 @@
 #include "NL/nlMath.h"
 #include "Net.h"
 
+struct Corner
+{
+    float unk0;
+    float unk1;
+    float unk2;
+    float unk3;
+    float unk4;
+    float unk5;
+    float unk6;
+    float unk7;
+    float unk8;
+    float unk9;
+    float unk10;
+    float unk11;
+    float unk12;
+    float unk13;
+    float unk14;
+    float unk15;
+};
+
 class cField
 {
 public:
@@ -18,6 +38,13 @@ public:
     void IsOnField(const nlVector3&);
     void FixOutOfBoundsPosition(nlVector3&, float);
     void SetFieldDimensions(float, float, float);
+
+    static nlVector3_ mv3FieldPosition;
+    static nlVector3_ mSidelines[4];
+    static Corner mCorners;
+    static float mfPenaltyBoxX;
+    static float mfPenaltyBoxY;
+    static cNet* mpNet;
 
     /* 0x00 */ f32 m_unk_0x00;
     /* 0x04 */ cNet* m_unk_0x04;

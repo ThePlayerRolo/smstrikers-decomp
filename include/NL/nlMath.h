@@ -28,6 +28,11 @@ struct nlVector2
         (v).f.z = (zval);                   \
     } while (0)
 
+struct nlVector3_
+{
+    float f[3];
+};
+
 struct nlVector3
 {
     union

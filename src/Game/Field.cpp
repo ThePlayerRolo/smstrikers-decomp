@@ -1,5 +1,20 @@
 #include "Field.h"
 
+cNet* cField::mpNet = nullptr;
+
+nlVector3_ cField::mv3FieldPosition = { 20.60211f, 12.0825f, 0.0f };
+nlVector3_ cField::mSidelines[4] = { { 1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, -1.0f, 0.0f } };
+// float cField::mCorners[16] = {
+//     0.0f,  0.0f, 0.000000000000000000000000000000000000000022959f, 3.0f, 0.0f, 0.0f, 2.0078125f, 3.0f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f,
+//     0.0f, -2.0f, 3.0f
+// };
+Corner cField::mCorners = {
+    0.0f,  0.0f, 0.000000000000000000000000000000000000000022959f, 3.0f, 0.0f, 0.0f, 2.0078125f, 3.0f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 0.0f,
+    -2.0f, 3.0f
+};
+float cField::mfPenaltyBoxX = 13.5f;
+float cField::mfPenaltyBoxY = 4.5f;
+
 /**
  * Offset/Address/Size: 0x1CC | 0x800192B0 | size: 0x28
  */
@@ -17,8 +32,19 @@ void cField::GetGoalLineX(float)
 /**
  * Offset/Address/Size: 0x180 | 0x80019264 | size: 0x24
  */
-void cField::GetGoalLineX(unsigned int)
+void cField::GetGoalLineX(unsigned int side)
 {
+    // nlVector4 v3(1.0f, 2.0f, 3.0f, 4.0f);
+    // nlVector4 v4 = v3;
+    // if (side == 0)
+    // {
+    //     v4.x -= v4.x;
+    // }
+    // else
+    // {
+    //     v4.x += v4.x;
+    // }
+    // mv3FieldPosition = v4;
 }
 
 /**
@@ -59,15 +85,16 @@ void cField::GetNet(float)
 /**
  * Offset/Address/Size: 0xBC | 0x800191A0 | size: 0x4C
  */
-void cField::IsOnField(const nlVector3&)
+void cField::IsOnField(const nlVector3& location)
 {
 }
 
 /**
  * Offset/Address/Size: 0x2C | 0x80019110 | size: 0x90
  */
-void cField::FixOutOfBoundsPosition(nlVector3&, float)
+void cField::FixOutOfBoundsPosition(nlVector3& location, float arg0)
 {
+    location = *(nlVector3*)&mv3FieldPosition;
 }
 
 /**
