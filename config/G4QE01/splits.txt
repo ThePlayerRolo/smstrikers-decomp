@@ -3457,7 +3457,7 @@ toadwoodsoundproperties.o:
 	.bss        start:0x8032BA98 end:0x8032BAA8
 	.sdata      start:0x80372D50 end:0x80372D58
 
-waluigigensoundproperties.o:
+Game/SoundProps/waluigigensoundproperties.cpp:
 	.text       start:0x801B2388 end:0x801B2488
 	.text       start:0x801B2488 end:0x801B2488
 	.ctors      start:0x8028D48C end:0x8028D490
@@ -3465,7 +3465,7 @@ waluigigensoundproperties.o:
 	.bss        start:0x8032BAA8 end:0x8032BAB8
 	.sdata      start:0x80372D58 end:0x80372D68
 
-waluigigrasssoundproperties.o:
+Game/SoundProps/waluigigrasssoundproperties.cpp:
 	.text       start:0x801B2488 end:0x801B258C
 	.text       start:0x801B258C end:0x801B258C
 	.ctors      start:0x8028D490 end:0x8028D494
@@ -3473,7 +3473,7 @@ waluigigrasssoundproperties.o:
 	.bss        start:0x8032BAB8 end:0x8032BAC8
 	.sdata      start:0x80372D68 end:0x80372D70
 
-waluigimetalsoundproperties.o:
+Game/SoundProps/waluigimetalsoundproperties.cpp:
 	.text       start:0x801B258C end:0x801B2690
 	.text       start:0x801B2690 end:0x801B2690
 	.ctors      start:0x8028D494 end:0x8028D498
@@ -3481,7 +3481,7 @@ waluigimetalsoundproperties.o:
 	.bss        start:0x8032BAC8 end:0x8032BAD8
 	.sdata      start:0x80372D70 end:0x80372D78
 
-waluigiconcretesoundproperties.o:
+Game/SoundProps/waluigiconcretesoundproperties.cpp:
 	.text       start:0x801B2690 end:0x801B2794
 	.text       start:0x801B2794 end:0x801B2794
 	.ctors      start:0x8028D498 end:0x8028D49C
@@ -3489,7 +3489,7 @@ waluigiconcretesoundproperties.o:
 	.bss        start:0x8032BAD8 end:0x8032BAE8
 	.sdata      start:0x80372D78 end:0x80372D80
 
-waluigirubbersoundproperties.o:
+Game/SoundProps/waluigirubbersoundproperties.cpp:
 	.text       start:0x801B2794 end:0x801B2898
 	.text       start:0x801B2898 end:0x801B2898
 	.ctors      start:0x8028D49C end:0x8028D4A0
@@ -3497,7 +3497,7 @@ waluigirubbersoundproperties.o:
 	.bss        start:0x8032BAE8 end:0x8032BAF8
 	.sdata      start:0x80372D80 end:0x80372D88
 
-waluigiwoodsoundproperties.o:
+Game/SoundProps/waluigiwoodsoundproperties.cpp:
 	.text       start:0x801B2898 end:0x801B299C
 	.text       start:0x801B299C end:0x801B299C
 	.ctors      start:0x8028D4A0 end:0x8028D4A4

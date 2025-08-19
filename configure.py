@@ -818,6 +818,15 @@ config.libs = [
             Object(NonMatching, "Game/ObjectBlur.cpp"),
 
             # SoundProps
+
+            # SoundProps
+            Object(Matching, "Game/SoundProps/waluigiconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/waluigigensoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/waluigigrasssoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/waluigimetalsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/waluigirubbersoundproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/SoundProps/waluigiwoodsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
             Object(Matching, "Game/SoundProps/warioconcretesoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/wariogensoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/wariograsssoundproperties.cpp", extra_cflags=["-inline deferred"]),

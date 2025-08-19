@@ -54,9 +54,13 @@ def add_return_type(declaration):
     return f"void {declaration}"
 
 
-def generate_cpp_content(filename, functions):
+def generate_cpp_content(filename, functions, inline_deferred=False):
     content = []
     content.append(f"#include \"{filename}.h\"\n")
+    
+    # Reverse the order if inline_deferred is True
+    if inline_deferred:
+        functions = list(reversed(functions))
     
     for func in functions:
         content.append("/**")
@@ -72,7 +76,7 @@ def generate_cpp_content(filename, functions):
     return '\n'.join(content)
 
 
-def generate_header_content(filename, functions):
+def generate_header_content(filename, functions, inline_deferred=False):
     # Convert filename to uppercase for include guard
     guard_name = filename.upper().replace('.', '_')
     
@@ -102,6 +106,11 @@ def generate_header_content(filename, functions):
         content.append(f"\nclass {class_name}")
         content.append("{")
         content.append("public:")
+        
+        # Reverse the order if inline_deferred is True
+        if inline_deferred:
+            methods = list(reversed(methods))
+        
         for method in methods:
             # Remove the class_name:: prefix for class method declarations
             decl = method['declaration']
@@ -174,7 +183,7 @@ def find_s_file(obj_filename, search_dir):
     return None
 
 
-def process_single_file(obj_file, output_dir, search_dir):
+def process_single_file(obj_file, output_dir, search_dir, inline_deferred=False):
     s_file = find_s_file(obj_file, search_dir)
     if s_file:
         print(f"Processing {s_file}...")
@@ -186,13 +195,13 @@ def process_single_file(obj_file, output_dir, search_dir):
             base_name = os.path.splitext(os.path.basename(s_file))[0]
             
             # Generate .cpp file
-            cpp_content = generate_cpp_content(base_name, functions)
+            cpp_content = generate_cpp_content(base_name, functions, inline_deferred)
             cpp_path = os.path.join(output_dir, f"{base_name}.cpp")
             with open(cpp_path, 'w') as f:
                 f.write(cpp_content)
             
             # Generate .h file
-            h_content = generate_header_content(base_name, functions)
+            h_content = generate_header_content(base_name, functions, inline_deferred)
             h_path = os.path.join(output_dir, f"{base_name}.h")
             with open(h_path, 'w') as f:
                 f.write(h_content)
@@ -204,7 +213,7 @@ def process_single_file(obj_file, output_dir, search_dir):
     return False
 
 
-def process_class_file(class_file, output_dir, search_dir):
+def process_class_file(class_file, output_dir, search_dir, inline_deferred=False):
     try:
         with open(class_file, "r") as f:
             lines = f.readlines()
@@ -218,7 +227,7 @@ def process_class_file(class_file, output_dir, search_dir):
         if not line:
             continue
             
-        if not process_single_file(line, output_dir, search_dir):
+        if not process_single_file(line, output_dir, search_dir, inline_deferred):
             success = False
             
     return success
@@ -230,6 +239,7 @@ def main():
     parser.add_argument('--obj-file', help='Path to a single object file to process')
     parser.add_argument('--output-dir', default='src/_class_gen', help='Output directory for generated files')
     parser.add_argument('--search-dir', default='build/G4QE01/asm', help='Directory to search for .s files')
+    parser.add_argument('--inline-deferred', action='store_true', help='Reverse the order of methods in generated files')
     
     args = parser.parse_args()
     
@@ -237,10 +247,10 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
     
     if args.class_file:
-        if not process_class_file(args.class_file, args.output_dir, args.search_dir):
+        if not process_class_file(args.class_file, args.output_dir, args.search_dir, args.inline_deferred):
             sys.exit(1)
     elif args.obj_file:
-        if not process_single_file(args.obj_file, args.output_dir, args.search_dir):
+        if not process_single_file(args.obj_file, args.output_dir, args.search_dir, args.inline_deferred):
             sys.exit(1)
     else:
         print("Error: Either --class-file or --obj-file must be specified")
