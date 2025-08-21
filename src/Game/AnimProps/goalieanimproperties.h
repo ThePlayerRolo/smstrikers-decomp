@@ -1,8 +1,8 @@
-#ifndef _BIRDOCONCRETESOUNDPROPERTIES_H_
-#define _BIRDOCONCRETESOUNDPROPERTIES_H_
+#ifndef _GOALIEANIMPROPERTIES_H_
+#define _GOALIEANIMPROPERTIES_H_
 
-#include "SoundPropAccessor.h"
+#include "AnimProperties.h"
 
-extern AnimProperties GOALIEAnimProperties;
+extern AnimProperties GOALIEAnimProperties[];
 
-#endif // _BIRDOCONCRETESOUNDPROPERTIES_H_
+#endif // _GOALIEANIMPROPERTIES_H_

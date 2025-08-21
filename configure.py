@@ -818,6 +818,10 @@ config.libs = [
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
 
+            # AnimProps
+            Object(Matching, "Game/AnimProps/globalanimproperties.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/AnimProps/goalieanimproperties.cpp", extra_cflags=["-inline deferred"]),
+
             # SoundProps
             Object(Matching, "Game/SoundProps/birdogensoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/birdograsssoundproperties.cpp", extra_cflags=["-inline deferred"]),

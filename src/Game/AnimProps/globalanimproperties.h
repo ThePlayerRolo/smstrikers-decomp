@@ -1,8 +1,8 @@
-#ifndef _BIRDOCONCRETESOUNDPROPERTIES_H_
-#define _BIRDOCONCRETESOUNDPROPERTIES_H_
+#ifndef _GLOBALANIMPROPERTIES_H_
+#define _GLOBALANIMPROPERTIES_H_
 
-#include "SoundPropAccessor.h"
+#include "AnimProperties.h"
 
-extern AnimProperties GLOBALAnimProperties;
+extern AnimProperties GLOBALAnimProperties[];
 
-#endif // _BIRDOCONCRETESOUNDPROPERTIES_H_
+#endif // _GLOBALANIMPROPERTIES_H_
