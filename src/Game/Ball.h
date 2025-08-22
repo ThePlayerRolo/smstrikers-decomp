@@ -30,7 +30,7 @@ enum eBallShotEffectType
     eBallShotEffectType_0 = 0
 };
 
-class cBall 
+class cBall
 {
 public:
     float PredictLandingSpotAndTime(nlVector3&);
@@ -69,26 +69,26 @@ public:
 
     ~cBall();
     cBall();
-   
-   /* 0x00 */ u32 m_unk_0x00;
-   /* 0x04 */ u32 m_unk_0x04;
 
-    /* 0x08 */ Timer *m_timer_0x08;
-    /* 0x0C */ Timer *m_timer_0x0C;
-    /* 0x10 */ Timer *m_passTargetTimer; // passTargetTimer
-    /* 0x14 */ Timer *m_timer_0x14;    
+    /* 0x00 */ u32 m_unk_0x00;
+    /* 0x04 */ u32 m_unk_0x04;
+
+    /* 0x08 */ Timer* m_timer_0x08;
+    /* 0x0C */ Timer* m_timer_0x0C;
+    /* 0x10 */ Timer* m_passTargetTimer; // passTargetTimer
+    /* 0x14 */ Timer* m_timer_0x14;
     /* 0x18 */ float m_passTimeSeconds; // m_unk_0x18;
 
-    /* 0x1C */ BlurHandler *m_blurHandler;
+    /* 0x1C */ BlurHandler* m_blurHandler;
 
-    /* 0x20 */ DrawableObject *m_drawableObject;
-    /* 0x24 */ cPlayer * m_playerOwner;
-    /* 0x28 */ cPlayer * m_playerPrevOwner;
+    /* 0x20 */ DrawableObject* m_drawableObject;
+    /* 0x24 */ cPlayer* m_playerOwner;
+    /* 0x28 */ cPlayer* m_playerPrevOwner;
     /* 0x2C */ u8 m_unk_0x2C[0x4];
-    /* 0x30 */ cPlayer * m_passTargetPlayer;
+    /* 0x30 */ cPlayer* m_passTargetPlayer;
     /* 0x34 */ u8 m_unk_0x34[0x4];
-    /* 0x38 */ PhysicsAIBall *m_aiBall;
-    /* 0x3C */ RayCollider *m_rayCollider;
+    /* 0x38 */ PhysicsAIBall* m_aiBall;
+    /* 0x3C */ RayCollider* m_rayCollider;
     /* 0x40 */ nlVector3 m_rayPosition;
     /* 0x4C */ nlVector3 m_unk_0x4C;
     /* 0x58 */ nlVector3 m_unk_0x58; // playerVelocity?
@@ -113,13 +113,11 @@ extern cBall* g_pBall;
 //     void TempStringAllocator>::~BasicString();
 // };
 
-
 // class FuzzyVariant
 // {
 // public:
 //     void Reset();
 // };
-
 
 // class Variant
 // {
@@ -132,7 +130,6 @@ extern cBall* g_pBall;
 // public:
 //     void GetID();
 // };
-
 
 // class EventData
 // {

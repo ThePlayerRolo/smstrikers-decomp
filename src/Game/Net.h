@@ -8,7 +8,7 @@ class cNet
 public:
     cNet(int);
     ~cNet();
-    void GetGoalLineX() const;
+    float GetGoalLineX() const;
     void GetPostLocation(nlVector3&, unsigned int, float) const;
     void SetNetDimensions(float, float, float, float);
 

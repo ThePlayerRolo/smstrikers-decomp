@@ -38,7 +38,7 @@ cNet::~cNet()
 /**
  * Offset/Address/Size: 0x84 | 0x800574B8 | size: 0x24
  */
-void cNet::GetGoalLineX() const
+float cNet::GetGoalLineX() const
 {
     return cField::GetGoalLineX((float)m_sideSign);
 }
