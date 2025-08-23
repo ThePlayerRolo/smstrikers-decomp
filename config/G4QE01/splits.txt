@@ -335,7 +335,7 @@ GoalieActions.o:
 	.sbss       start:0x80373720 end:0x80373728
 	.sdata2     start:0x80375500 end:0x803755E0
 
-GoalieFatigue.o:
+Game/GoalieFatigue.cpp:
 	.text       start:0x80052C4C end:0x80052D08
 	.sdata2     start:0x803755E0 end:0x803755F0
 
