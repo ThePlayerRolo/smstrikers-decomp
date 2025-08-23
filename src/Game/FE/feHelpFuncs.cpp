@@ -1,4 +1,4 @@
-#include "feHelpFuncs.h"
+#include "Game/FE/feHelpFuncs.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x800A30BC | size: 0x58
@@ -241,70 +241,78 @@ void GetStadiumStringID(eStadiumID)
 /**
  * Offset/Address/Size: 0x0 | 0x800A4494 | size: 0x38
  */
-void FEFinder<TLImageInstance, 2>::Find<TLSlide>(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher)
+void FEFinder<TLImageInstance, 2>::Find<TLSlide>(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher,
+                                                 InlineHasher)
 {
 }
 
 /**
  * Offset/Address/Size: 0x38 | 0x800A44CC | size: 0x84
  */
-void FEFinder<TLImageInstance, 2>::_Find<TLSlide>(TLSlide*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+void FEFinder<TLImageInstance, 2>::_Find<TLSlide>(TLSlide*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long,
+                                                  unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0xBC | 0x800A4550 | size: 0x15C
  */
-void FEFinder<TLImageInstance, 2>::_Find<TLInstance>(TLInstance*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+void FEFinder<TLImageInstance, 2>::_Find<TLInstance>(TLInstance*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long,
+                                                     unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0x218 | 0x800A46AC | size: 0x38
  */
-void FEFinder<TLComponentInstance, 4>::Find<TLSlide>(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher)
+void FEFinder<TLComponentInstance, 4>::Find<TLSlide>(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher,
+                                                     InlineHasher)
 {
 }
 
 /**
  * Offset/Address/Size: 0x250 | 0x800A46E4 | size: 0x84
  */
-void FEFinder<TLComponentInstance, 4>::_Find<TLSlide>(TLSlide*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+void FEFinder<TLComponentInstance, 4>::_Find<TLSlide>(TLSlide*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long,
+                                                      unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0x2D4 | 0x800A4768 | size: 0x15C
  */
-void FEFinder<TLComponentInstance, 4>::_Find<TLInstance>(TLInstance*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+void FEFinder<TLComponentInstance, 4>::_Find<TLInstance>(TLInstance*, unsigned long, unsigned long, unsigned long, unsigned long,
+                                                         unsigned long, unsigned long)
 {
 }
 
 /**
  * Offset/Address/Size: 0x0 | 0x800A48C4 | size: 0x13C
  */
-void TakeGameMemSnapshot::Format<BasicString<char, Detail::TempStringAllocator>, unsigned long, unsigned int, unsigned int>(const BasicString<char, Detail::TempStringAllocator>&, const unsigned long&, const unsigned int&, const unsigned int&)
+void TakeGameMemSnapshot::Format<BasicString<char, Detail::TempStringAllocator>, unsigned long, unsigned int, unsigned int>(
+    const BasicString<char, Detail::TempStringAllocator>&, const unsigned long&, const unsigned int&, const unsigned int&)
 {
 }
 
 /**
  * Offset/Address/Size: 0x13C | 0x800A4A00 | size: 0x28
  */
-void TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator BasicString<char, Detail::TempStringAllocator>() const
+void TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator BasicString<
+    char, Detail::TempStringAllocator>() const
 {
 }
 
 /**
  * Offset/Address/Size: 0x164 | 0x800A4A28 | size: 0xD74
  */
-void TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator%<unsigned int>(const unsigned int&)
+void TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator% <unsigned int>(const unsigned int&)
 {
 }
 
 /**
  * Offset/Address/Size: 0xED8 | 0x800A579C | size: 0xD74
  */
-void TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator%<unsigned long>(const unsigned long&)
+void TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator% <unsigned long>(const unsigned long&)
 {
 }
 

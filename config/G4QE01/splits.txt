@@ -752,7 +752,7 @@ Game/FE/feHelpFuncs.cpp:
 	.sbss       start:0x80373868 end:0x80373870
 	.sdata2     start:0x80375B18 end:0x80375B30
 
-SHLoading.o:
+Game/SH/SHLoading.cpp:
 	.text       start:0x800A6770 end:0x800A8170
 	.text       start:0x800A8170 end:0x800A8170
 	.text       start:0x800A8170 end:0x800A8344
@@ -769,14 +769,14 @@ SHLoading.o:
 	.sdata      start:0x80371548 end:0x80371568
 	.sdata2     start:0x80375B30 end:0x80375B48
 
-SHBackground.o:
+Game/SH/SHBackground.cpp:
 	.text       start:0x800A98AC end:0x800A9A5C
 	.text       start:0x800A9A5C end:0x800A9A5C
 	.text       start:0x800A9A5C end:0x800A9A5C
 	.data       start:0x802AA140 end:0x802AA170
 	.sdata2     start:0x80375B48 end:0x80375B50
 
-SHMainMenu.o:
+Game/SH/SHMainMenu.cpp:
 	.text       start:0x800A9A5C end:0x800AB5E8
 	.text       start:0x800AB5E8 end:0x800AB5E8
 	.text       start:0x800AB5E8 end:0x800ABE48
@@ -793,7 +793,7 @@ SHMainMenu.o:
 	.sbss       start:0x80373870 end:0x80373878
 	.sdata2     start:0x80375B50 end:0x80375B58
 
-SHTitleScreen.o:
+Game/SH/SHTitleScreen.cpp:
 	.text       start:0x800AC5BC end:0x800AD05C
 	.text       start:0x800AD05C end:0x800AD05C
 	.text       start:0x800AD05C end:0x800AD0C8
@@ -806,7 +806,7 @@ SHTitleScreen.o:
 	.sdata      start:0x803715A8 end:0x803715C8
 	.sdata2     start:0x80375B58 end:0x80375B68
 
-SHPause.o:
+Game/SH/SHPause.cpp:
 	.text       start:0x800AD4F8 end:0x800AF830
 	.text       start:0x800AF830 end:0x800AF830
 	.text       start:0x800AF830 end:0x800AFF34
@@ -824,7 +824,7 @@ SHPause.o:
 	.sbss       start:0x80373878 end:0x80373880
 	.sdata2     start:0x80375B68 end:0x80375B80
 
-SHPauseOptions.o:
+Game/SH/SHPauseOptions.cpp:
 	.text       start:0x800B01F4 end:0x800B0488
 	.text       start:0x800B0488 end:0x800B0488
 	.text       start:0x800B0488 end:0x800B0488
@@ -832,7 +832,7 @@ SHPauseOptions.o:
 	.text       start:0x800B0488 end:0x800B0488
 	.data       start:0x802AA5E0 end:0x802AA618
 
-SHSkillSelect.o:
+Game/SH/SHSkillSelect.cpp:
 	.text       start:0x800B0488 end:0x800B0488
 	.text       start:0x800B0488 end:0x800B0488
 	.text       start:0x800B0488 end:0x800B051C
@@ -841,7 +841,7 @@ SHSkillSelect.o:
 	.text       start:0x800B0578 end:0x800B0588
 	.data       start:0x802AA618 end:0x802AA630
 
-SHSaveLoad.o:
+Game/SH/SHSaveLoad.cpp:
 	.text       start:0x800B0588 end:0x800B2E6C
 	.text       start:0x800B2E6C end:0x800B2E6C
 	.text       start:0x800B2E6C end:0x800B35BC
@@ -856,7 +856,7 @@ SHSaveLoad.o:
 	.sbss       start:0x80373880 end:0x803738A0
 	.sdata2     start:0x80375B80 end:0x80375B98
 
-SHOptions.o:
+Game/SH/SHOptions.cpp:
 	.text       start:0x800B35BC end:0x800B4AA8
 	.text       start:0x800B4AA8 end:0x800B4AA8
 	.text       start:0x800B4AA8 end:0x800B4B5C
@@ -888,7 +888,7 @@ Game/FE/feOptionsSubMenus.cpp:
 	.sdata      start:0x80371640 end:0x80371758
 	.sdata2     start:0x80375BA8 end:0x80375BB8
 
-SHCrossFader.o:
+Game/SH/SHCrossFader.cpp:
 	.text       start:0x800BBF04 end:0x800BC89C
 	.text       start:0x800BC89C end:0x800BC89C
 	.text       start:0x800BC89C end:0x800BCB38
@@ -901,7 +901,7 @@ SHCrossFader.o:
 	.sbss       start:0x803738B8 end:0x803738C0
 	.sdata2     start:0x80375BB8 end:0x80375BE8
 
-SHMoviePlayer.o:
+Game/SH/SHMoviePlayer.cpp:
 	.text       start:0x800BCB58 end:0x800BD3EC
 	.text       start:0x800BD3EC end:0x800BD56C
 	.text       start:0x800BD56C end:0x800BD56C
@@ -952,7 +952,7 @@ Game/FE/feChooseSideComponent.cpp:
 	.data       start:0x802AB230 end:0x802AB2B0
 	.sdata2     start:0x80375C10 end:0x80375C18
 
-SHChooseSides.o:
+Game/SH/SHChooseSides.cpp:
 	.text       start:0x800C4BC0 end:0x800C6F1C
 	.text       start:0x800C6F1C end:0x800C6F1C
 	.text       start:0x800C6F1C end:0x800C7D40
@@ -997,7 +997,7 @@ Game/FE/feScrollText.cpp:
 	.sdata      start:0x80371848 end:0x80371850
 	.sdata2     start:0x80375C30 end:0x80375C48
 
-SHCupTrophy.o:
+Game/SH/SHCupTrophy.cpp:
 	.text       start:0x800C96B4 end:0x800CBF38
 	.text       start:0x800CBF38 end:0x800CBF38
 	.text       start:0x800CBF38 end:0x800CC63C
@@ -1016,7 +1016,7 @@ SHCupTrophy.o:
 	.sdata      start:0x80371850 end:0x803718B0
 	.sdata2     start:0x80375C48 end:0x80375C60
 
-SHMilestoneTrophy.o:
+Game/SH/SHMilestoneTrophy.cpp:
 	.text       start:0x800CDB00 end:0x800CF5C0
 	.text       start:0x800CF5C0 end:0x800CF5C0
 	.text       start:0x800CF5C0 end:0x800CFCC4
@@ -1029,7 +1029,7 @@ SHMilestoneTrophy.o:
 	.sdata      start:0x803718B0 end:0x80371910
 	.sdata2     start:0x80375C60 end:0x80375C68
 
-SHSpoils.o:
+Game/SH/SHSpoils.cpp:
 	.text       start:0x800D0EF0 end:0x800D1A60
 	.text       start:0x800D1A60 end:0x800D1A60
 	.text       start:0x800D1A60 end:0x800D1E90
@@ -1060,7 +1060,7 @@ BraggingRights.o:
 	.sdata2     start:0x80375C70 end:0x80375C80
 	.sbss2      start:0x80377F30 end:0x80377F38
 
-SHChooseCaptains.o:
+Game/SH/SHChooseCaptains.cpp:
 	.text       start:0x800D6A48 end:0x800D7948
 	.text       start:0x800D7948 end:0x800D7948
 	.text       start:0x800D7948 end:0x800D7948
@@ -1075,7 +1075,7 @@ SHChooseCaptains.o:
 	.sdata      start:0x803719C0 end:0x803719F8
 	.sdata2     start:0x80375C80 end:0x80375C90
 
-SHStadiumSelect.o:
+Game/SH/SHStadiumSelect.cpp:
 	.text       start:0x800D8580 end:0x800D9A74
 	.text       start:0x800D9A74 end:0x800D9A74
 	.text       start:0x800D9A74 end:0x800DA0BC
@@ -1087,12 +1087,12 @@ SHStadiumSelect.o:
 	.sdata      start:0x803719F8 end:0x80371A18
 	.sdata2     start:0x80375C90 end:0x80375C98
 
-SHLoadingTransition.o:
+Game/SH/SHLoadingTransition.cpp:
 	.text       start:0x800DA0BC end:0x800DA284
 	.text       start:0x800DA284 end:0x800DA284
 	.data       start:0x802AC258 end:0x802AC288
 
-SHChooseCup.o:
+Game/SH/SHChooseCup.cpp:
 	.text       start:0x800DA284 end:0x800DC448
 	.text       start:0x800DC448 end:0x800DC448
 	.text       start:0x800DC448 end:0x800DCB4C
@@ -1109,7 +1109,7 @@ SHChooseCup.o:
 	.sdata      start:0x80371A18 end:0x80371A48
 	.sdata2     start:0x80375C98 end:0x80375CA8
 
-SHCupChooseCaptain.o:
+Game/SH/SHCupChooseCaptain.cpp:
 	.text       start:0x800DCECC end:0x800DF38C
 	.text       start:0x800DF38C end:0x800DF38C
 	.text       start:0x800DF38C end:0x800DF9D4
@@ -1125,7 +1125,7 @@ SHCupChooseCaptain.o:
 	.sbss       start:0x803738D0 end:0x803738D8
 	.sdata2     start:0x80375CA8 end:0x80375CC0
 
-SHTournSetParams.o:
+Game/SH/SHTournSetParams.cpp:
 	.text       start:0x800DF9D4 end:0x800E1C8C
 	.text       start:0x800E1C8C end:0x800E1C8C
 	.text       start:0x800E1C8C end:0x800E1C8C
@@ -1140,7 +1140,7 @@ SHTournSetParams.o:
 	.sdata      start:0x80371A90 end:0x80371AB8
 	.sdata2     start:0x80375CC0 end:0x80375CD0
 
-SHTournTeamSetup.o:
+Game/SH/SHTournTeamSetup.cpp:
 	.text       start:0x800E1EA4 end:0x800E6D84
 	.text       start:0x800E6D84 end:0x800E6D84
 	.text       start:0x800E6D84 end:0x800E6D84
@@ -1160,7 +1160,7 @@ SHTournTeamSetup.o:
 	.sbss       start:0x803738D8 end:0x803738E0
 	.sdata2     start:0x80375CD0 end:0x80375CD8
 
-SHCupCheater.o:
+Game/SH/SHCupCheater.cpp:
 	.text       start:0x800E7750 end:0x800E939C
 	.text       start:0x800E939C end:0x800E939C
 	.text       start:0x800E939C end:0x800E939C
@@ -1175,14 +1175,14 @@ SHCupCheater.o:
 	.data       start:0x802ACD88 end:0x802ACE68
 	.sdata      start:0x80371BA0 end:0x80371C20
 
-SHCupOptions.o:
+Game/SH/SHCupOptions.cpp:
 	.text       start:0x800E99A8 end:0x800E9D5C
 	.text       start:0x800E9D5C end:0x800E9D5C
 	.text       start:0x800E9D5C end:0x800E9D5C
 	.text       start:0x800E9D5C end:0x800E9D5C
 	.data       start:0x802ACE68 end:0x802ACEB0
 
-SHCupHub.o:
+Game/SH/SHCupHub.cpp:
 	.text       start:0x800E9D5C end:0x800F1708
 	.text       start:0x800F1708 end:0x800F1708
 	.text       start:0x800F1708 end:0x800F1E0C
@@ -1216,7 +1216,7 @@ CupTickerManager.o:
 	.data       start:0x802AD300 end:0x802AD340
 	.sdata2     start:0x80375D30 end:0x80375D38
 
-SHSuperTeam.o:
+Game/SH/SHSuperTeam.cpp:
 	.text       start:0x800F5EF4 end:0x800F6050
 	.text       start:0x800F6050 end:0x800F60C8
 	.text       start:0x800F60C8 end:0x800F60C8
@@ -1342,7 +1342,7 @@ OverlayHandlerSTSX2.o:
 	.data       start:0x802ADD50 end:0x802ADDE8
 	.sdata2     start:0x80375DA8 end:0x80375DB0
 
-SHPausePostGame.o:
+Game/SH/SHPausePostGame.cpp:
 	.text       start:0x80107104 end:0x801090D8
 	.text       start:0x801090D8 end:0x801090D8
 	.text       start:0x801090D8 end:0x801090D8
@@ -1363,7 +1363,7 @@ SHPausePostGame.o:
 	.sbss       start:0x803738E8 end:0x803738F0
 	.sdata2     start:0x80375DB0 end:0x80375DB8
 
-SHLesson.o:
+Game/SH/SHLesson.cpp:
 	.text       start:0x8010A4AC end:0x8010AA20
 	.text       start:0x8010AA20 end:0x8010AA20
 	.text       start:0x8010AA20 end:0x8010AE50
@@ -1371,7 +1371,7 @@ SHLesson.o:
 	.data       start:0x802ADED0 end:0x802ADF80
 	.sdata      start:0x80372008 end:0x80372030
 
-SHLessonSelect.o:
+Game/SH/SHLessonSelect.cpp:
 	.text       start:0x8010AE50 end:0x8010C6A4
 	.text       start:0x8010C6A4 end:0x8010C6A4
 	.text       start:0x8010C6A4 end:0x8010C74C
@@ -1388,14 +1388,14 @@ SHLessonSelect.o:
 	.sbss       start:0x803738F0 end:0x80373908
 	.sdata2     start:0x80375DB8 end:0x80375DC0
 
-SHQuickGameplayOptions.o:
+Game/SH/SHQuickGameplayOptions.cpp:
 	.text       start:0x8010CE44 end:0x8010D130
 	.text       start:0x8010D130 end:0x8010D130
 	.text       start:0x8010D130 end:0x8010D130
 	.text       start:0x8010D130 end:0x8010D130
 	.data       start:0x802AE048 end:0x802AE088
 
-SHHealthWarning.o:
+Game/SH/SHHealthWarning.cpp:
 	.text       start:0x8010D130 end:0x8010D7D4
 	.text       start:0x8010D7D4 end:0x8010D7D4
 	.text       start:0x8010D7D4 end:0x8010DC04
@@ -1419,7 +1419,7 @@ Game/FE/feSoundKeyframeTrigger.cpp:
 	.text       start:0x8010F10C end:0x8010F15C
 	.sdata2     start:0x80375DF8 end:0x80375E00
 
-SHCredits.o:
+Game/SH/SHCredits.cpp:
 	.text       start:0x8010F15C end:0x8010FE04
 	.text       start:0x8010FE04 end:0x8010FE04
 	.text       start:0x8010FE04 end:0x801104D0
@@ -1429,7 +1429,7 @@ SHCredits.o:
 	.sdata      start:0x803720D0 end:0x80372148
 	.sdata2     start:0x80375E00 end:0x80375E40
 
-SHProgressiveScan.o:
+Game/SH/SHProgressiveScan.cpp:
 	.text       start:0x801104D0 end:0x80111760
 	.text       start:0x80111760 end:0x80111760
 	.text       start:0x80111760 end:0x80111760

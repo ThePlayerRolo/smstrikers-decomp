@@ -142,12 +142,19 @@ if not config.non_matching:
     config.asm_dir = None
 
 # Tool versions
+# config.binutils_tag = "2.42-1"
+# config.compilers_tag = "20250520"
+# config.dtk_tag = "v1.6.1"
+# config.objdiff_tag = "v3.0.0"
+# config.sjiswrap_tag = "v1.2.1"
+# config.wibo_tag = "0.6.16"
+
 config.binutils_tag = "2.42-1"
-config.compilers_tag = "20250520"
-config.dtk_tag = "v1.6.1"
-config.objdiff_tag = "v3.0.0-beta.8"
+config.compilers_tag = "20250812"
+config.dtk_tag = "v1.6.2"
+config.objdiff_tag = "v3.0.0-beta.14"
 config.sjiswrap_tag = "v1.2.1"
-config.wibo_tag = "0.6.16"
+config.wibo_tag = "0.7.0"
 
 # Project
 config.config_path = Path("config") / config.version / "config.yml"
@@ -760,11 +767,11 @@ config.libs = [
             # Object(NonMatching, "Game/FE/feOptionsSubMenus.cpp"),
             Object(NonMatching, "Game/FE/feScene.cpp"),
             Object(NonMatching, "Game/FE/feRender.cpp"),
-            Object(NonMatching, "Game/FE/feFontResource.cpp"),
-            Object(NonMatching, "Game/FE/feSceneResource.cpp"),
-            Object(NonMatching, "Game/FE/fePackage.cpp"),
+            Object(Matching, "Game/FE/feFontResource.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/FE/feSceneResource.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/FE/fePackage.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/FE/feSoundKeyframeTrigger.cpp"),
-            Object(NonMatching, "Game/FE/feTextureResource.cpp"),
+            Object(Matching, "Game/FE/feTextureResource.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/FE/feScrollText.cpp"),
             Object(NonMatching, "Game/FE/feAsyncImage.cpp"),
             Object(NonMatching, "Game/FE/feAnimation.cpp"),
@@ -798,6 +805,40 @@ config.libs = [
             Object(Matching, "Game/FE/tlComponentInstance.cpp"),
             Object(Matching, "Game/FE/tlTextInstance.cpp"),
             Object(NonMatching, "Game/FE/tlTextInstance_runtime.cpp"),
+
+            Object(NonMatching, "Game/SH/SHBackground.cpp"),
+            Object(NonMatching, "Game/SH/SHChooseCaptains.cpp"),
+            Object(NonMatching, "Game/SH/SHChooseCup.cpp"),
+            Object(NonMatching, "Game/SH/SHChooseSides.cpp"),
+            Object(NonMatching, "Game/SH/SHCredits.cpp"),
+            Object(NonMatching, "Game/SH/SHCrossFader.cpp"),
+            Object(NonMatching, "Game/SH/SHCupCheater.cpp"),
+            Object(NonMatching, "Game/SH/SHCupChooseCaptain.cpp"),
+            Object(NonMatching, "Game/SH/SHCupHub.cpp"),
+            Object(NonMatching, "Game/SH/SHCupOptions.cpp"),
+            Object(NonMatching, "Game/SH/SHCupTrophy.cpp"),
+            Object(NonMatching, "Game/SH/SHHealthWarning.cpp"),
+            Object(NonMatching, "Game/SH/SHLesson.cpp"),
+            Object(NonMatching, "Game/SH/SHLessonSelect.cpp"),
+            Object(NonMatching, "Game/SH/SHLoading.cpp"),
+            Object(NonMatching, "Game/SH/SHLoadingTransition.cpp"),
+            Object(NonMatching, "Game/SH/SHMainMenu.cpp"),
+            Object(NonMatching, "Game/SH/SHMilestoneTrophy.cpp"),
+            Object(NonMatching, "Game/SH/SHMoviePlayer.cpp"),
+            Object(NonMatching, "Game/SH/SHOptions.cpp"),
+            Object(NonMatching, "Game/SH/SHPause.cpp"),
+            Object(NonMatching, "Game/SH/SHPauseOptions.cpp"),
+            Object(NonMatching, "Game/SH/SHPausePostGame.cpp"),
+            Object(NonMatching, "Game/SH/SHProgressiveScan.cpp"),
+            Object(NonMatching, "Game/SH/SHQuickGameplayOptions.cpp"),
+            Object(NonMatching, "Game/SH/SHSaveLoad.cpp"),
+            Object(NonMatching, "Game/SH/SHSkillSelect.cpp"),
+            Object(NonMatching, "Game/SH/SHSpoils.cpp"),
+            Object(NonMatching, "Game/SH/SHStadiumSelect.cpp"),
+            Object(NonMatching, "Game/SH/SHSuperTeam.cpp"),
+            Object(NonMatching, "Game/SH/SHTitleScreen.cpp"),
+            Object(NonMatching, "Game/SH/SHTournSetParams.cpp"),
+            Object(NonMatching, "Game/SH/SHTournTeamSetup.cpp"),            
 
             # GFX
             Object(NonMatching, "Game/Drawable/DrawableObj.cpp"),

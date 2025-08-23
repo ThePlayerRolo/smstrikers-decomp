@@ -1,4 +1,4 @@
-#include "feSidekickGridComponent.h"
+#include "Game/FE/feSidekickGridComponent.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x800C2810 | size: 0x34
