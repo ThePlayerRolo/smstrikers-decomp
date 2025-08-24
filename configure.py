@@ -762,7 +762,12 @@ config.libs = [
             Object(Matching, "Game/WorldUpdateTask.cpp"),
             Object(NonMatching, "Game/FixedUpdateTask.cpp"),
 
-            # Frontend
+            # Frontend / Scenes
+            Object(NonMatching, "Game/GameSceneManager.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/BaseSceneHandler.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/BaseGameSceneManager.cpp", extra_cflags=["-inline deferred"]),
+
+
             Object(NonMatching, "Game/FE/feTweenFuncs.cpp"),
             # Object(NonMatching, "Game/FE/feOptionsSubMenus.cpp"),
             Object(NonMatching, "Game/FE/feScene.cpp"),
@@ -806,7 +811,7 @@ config.libs = [
             Object(Matching, "Game/FE/tlTextInstance.cpp"),
             Object(NonMatching, "Game/FE/tlTextInstance_runtime.cpp"),
 
-            Object(NonMatching, "Game/SH/SHBackground.cpp"),
+            Object(NonMatching, "Game/SH/SHBackground.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/SH/SHChooseCaptains.cpp"),
             Object(NonMatching, "Game/SH/SHChooseCup.cpp"),
             Object(NonMatching, "Game/SH/SHChooseSides.cpp"),

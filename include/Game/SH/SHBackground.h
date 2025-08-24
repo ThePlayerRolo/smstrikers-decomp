@@ -3,13 +3,18 @@
 
 #include "types.h"
 
-class BackgroundScene
+#include "Game/BaseSceneHandler.h"
+
+class BackgroundScene : public BaseSceneHandler
 {
 public:
     BackgroundScene();
-    ~BackgroundScene();
-    void SceneCreated();
-    void Update(float);
+    virtual ~BackgroundScene();
+    virtual void Update(float);
+    virtual void SceneCreated();
+
+    /* 0x1C */ s32 m_unk_0x1C;
+    /* 0x20 */ s32 m_unk_0x20;
 };
 
 #endif // _SHBACKGROUND_H_
