@@ -1,5 +1,7 @@
 #include "Game/BaseGameSceneManager.h"
 
+#include "Game/SH/SHBackground.h"
+
 #include "Game/FE/FESceneManager.h"
 
 #include "NL/nlConfig.h"
@@ -666,8 +668,6 @@ void BaseGameSceneManager::PushLoadingScene(bool clearStack)
         this->Pop();
     }
 
-    BaseSceneHandler* handler = Push((SceneList)0x2B, ScreenMovement_1, false);
-    handler->m_unk_0x1C = 0;
-    // this->unk0->unkC(this, 0x2B, 1, 0)->unk1C = 0;
-    // handler->SetVisible(false);
+    BackgroundScene* handler = (BackgroundScene*)Push((SceneList)0x2B, ScreenMovement_1, false);
+    handler->m_unk_0x1C = 0; // ??
 }

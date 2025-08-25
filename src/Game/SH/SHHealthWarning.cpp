@@ -60,6 +60,15 @@ HealthWarningSceneV2::HealthWarningSceneV2()
  */
 HealthWarningSceneV2::~HealthWarningSceneV2()
 {
+    if (m_unk_0x1C != NULL)
+    {
+        delete m_unk_0x1C;
+    }
+
+    if (m_unk_0x20 != NULL)
+    {
+        delete m_unk_0x20;
+    }
 }
 
 /**

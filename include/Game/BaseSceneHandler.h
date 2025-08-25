@@ -53,7 +53,7 @@ public:
     /* 0x10 */ SomeClass* m_unk_0x10; // TODO: not sure what this is yet
     /* 0x14 */ FEPresentation* m_presentation;
     /* 0x18 */ FEScene* m_unk_0x18;
-    /* 0x1C */ s32 m_unk_0x1C;
+    // /* 0x1C */ s32 m_unk_0x1C;
 };
 
 #endif // _BASESCENEHANDLER_H_
