@@ -1,6 +1,8 @@
 #ifndef _FESCENEMANAGER_H_
 #define _FESCENEMANAGER_H_
 
+#include "NL/nlSingleton.h"
+
 // void nlDLRingRemoveStart<DLListEntry<PackagePushPopMessage*>>(DLListEntry<PackagePushPopMessage*>**);
 // void nlDLRingIsEnd<DLListEntry<PackagePushPopMessage*>>(DLListEntry<PackagePushPopMessage*>*, DLListEntry<PackagePushPopMessage*>*);
 // void nlDLRingIsEnd<DLListEntry<BaseSceneHandler*>>(DLListEntry<BaseSceneHandler*>*, DLListEntry<BaseSceneHandler*>*);
@@ -27,6 +29,8 @@ public:
     void AreAllScenesValid();
     ~FESceneManager();
     FESceneManager();
+
+    static nlSingleton<FESceneManager>* s_pInstance;
 };
 
 // class DLListContainerBase<BaseSceneHandler*, BasicSlotPool<DLListEntry<BaseSceneHandler*>>>

@@ -52,7 +52,7 @@ void Config::Set(const char*, int)
 /**
  * Offset/Address/Size: 0x1F34 | 0x801D4B98 | size: 0xB8
  */
- SetTagValuePair *Config::FindTvp(const char*)
+SetTagValuePair* Config::FindTvp(const char*)
 {
     return NULL;
 }
@@ -81,8 +81,9 @@ void Config::LoadFromFile(const char*)
 /**
  * Offset/Address/Size: 0x2720 | 0x801D5384 | size: 0xAC
  */
-void Config::Global()
+Config* Config::Global()
 {
+    return NULL;
 }
 
 /**

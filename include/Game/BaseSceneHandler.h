@@ -6,17 +6,25 @@
 #include "Game/FE/FEPresentation.h"
 #include "Game/FE/FEScene.h"
 
-// void nlDLRingAddEnd<BaseScreenHandler>(BaseScreenHandler**, BaseScreenHandler*);
-// void nlDLRingAddStart<BaseScreenHandler>(BaseScreenHandler**, BaseScreenHandler*);
-
 typedef struct BaseScreenHandler
 {
-    /* 0x00 */ char pad0[4];
+    // /* 0x00 */ char pad0[4];
+    /* 0x00 */ FEScene* scene;
     /* 0x04 */ BaseScreenHandler* m_next; /* inferred */
     /* 0x08 */ BaseScreenHandler* m_prev; /* inferred */
     /* 0x0C */ char padC[4];
     /* 0x10 */ FEScene* m_scene; /* inferred */
 } BaseScreenHandler;
+
+class SomeClass // TODO: needs to be removed and references replaced with the thing it should be
+{
+public:
+    SomeClass();
+    virtual ~SomeClass();
+    virtual void fnc1();
+    virtual void fnc2();
+    virtual void fnc3();
+};
 
 class BaseSceneHandler
 {
@@ -42,9 +50,10 @@ public:
     /* 0x04 */ char pad04[0x4];
     /* 0x08 */ bool m_visible;
     /* 0x0C */ BaseScreenHandler* m_screenHandler;
-    /* 0x10 */ void** m_unk_0x10;
+    /* 0x10 */ SomeClass* m_unk_0x10; // TODO: not sure what this is yet
     /* 0x14 */ FEPresentation* m_presentation;
     /* 0x18 */ FEScene* m_unk_0x18;
+    /* 0x1C */ s32 m_unk_0x1C;
 };
 
 #endif // _BASESCENEHANDLER_H_

@@ -13,7 +13,6 @@ public:
     virtual void Update(float);
     virtual void SceneCreated();
 
-    /* 0x1C */ s32 m_unk_0x1C;
     /* 0x20 */ s32 m_unk_0x20;
 };
 

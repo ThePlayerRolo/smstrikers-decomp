@@ -7,7 +7,12 @@
 // void nlDLRingAddEnd<DLListEntry<FEResourceHandle*>>(DLListEntry<FEResourceHandle*>**, DLListEntry<FEResourceHandle*>*);
 // void nlDLRingAddStart<DLListEntry<FEResourceHandle*>>(DLListEntry<FEResourceHandle*>**, DLListEntry<FEResourceHandle*>*);
 
-class FEResourceHandle;
+class FEResourceHandle
+{
+public:
+    FEResourceHandle();
+    ~FEResourceHandle();
+};
 
 class FEResourceManager
 {

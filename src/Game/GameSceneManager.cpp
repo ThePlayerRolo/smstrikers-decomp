@@ -19,4 +19,5 @@ GameSceneManager::~GameSceneManager()
  */
 void GameSceneManager::Pop()
 {
+    BaseGameSceneManager::Pop();
 }

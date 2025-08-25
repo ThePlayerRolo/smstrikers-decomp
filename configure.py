@@ -764,7 +764,7 @@ config.libs = [
 
             # Frontend / Scenes
             Object(NonMatching, "Game/GameSceneManager.cpp", extra_cflags=["-inline deferred"]),
-            Object(NonMatching, "Game/BaseSceneHandler.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/BaseSceneHandler.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/BaseGameSceneManager.cpp", extra_cflags=["-inline deferred"]),
 
 

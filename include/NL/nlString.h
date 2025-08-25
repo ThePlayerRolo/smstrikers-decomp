@@ -7,6 +7,14 @@
 extern void nlPrintf(const char*, ...);
 #endif
 
+struct nlString
+{
+    char* data;
+    u32 length;
+    u32 capacity;
+    u32 refcount;
+};
+
 void nlStrToWcs(const char*, unsigned short*, unsigned long);
 void nlZeroMemory(void*, unsigned long);
 int nlStringLowerHash(const char*);
