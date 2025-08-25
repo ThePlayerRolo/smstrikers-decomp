@@ -695,7 +695,7 @@ config.libs = [
             Object(Matching, "Game/Sys/geventdst.cpp", extra_cflags=["-inline deferred"]),
 
             # Game Objects
-            Object(NonMatching, "Game/GameInfo.cpp"),    
+            Object(NonMatching, "Game/GameInfo.cpp", extra_cflags=["-inline deferred"]),    
 
             Object(NonMatching, "Game/Ball.cpp"),
             Object(Matching, "Game/Net.cpp", extra_cflags=["-inline deferred"]),
