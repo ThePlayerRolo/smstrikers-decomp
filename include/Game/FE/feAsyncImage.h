@@ -26,10 +26,14 @@ public:
     void CopyFrom(void*, int);
     void FreeLoadBuffer();
 
-    static void TextureLoadComplete(void*, unsigned long, unsigned long);
+    static inline void TextureLoadComplete(void* buffer, unsigned long size, unsigned long userData)
+    {
+        AsyncImage* self = (AsyncImage*)userData;
+        self->m_unk_0x18 = 1;
+    }
 
     /* 0x04 */ BundleFile* m_bundleFile;
-    /* 0x08 */ SomeOtherClass* m_unk_0x08;
+    /* 0x08 */ SomeOtherClass* m_unk_0x08; // TODO: !!!! needs to be replaced
     /* 0x0C */ u8* m_loadBuffer;
     /* 0x10 */ u32 m_unk_0x10;
     /* 0x14 */ u32 m_bufferSize;

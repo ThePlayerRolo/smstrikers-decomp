@@ -12,14 +12,6 @@
 extern unsigned int nlDefaultSeed;
 
 /**
- * Offset/Address/Size: 0x0 | 0x80093F10 | size: 0xC
- */
-// void AsyncImage::TextureLoadComplete(void*, unsigned long, unsigned long)
-// {
-//     m_unk_0x18 = 1;
-// }
-
-/**
  * Offset/Address/Size: 0x3E4 | 0x80093E50 | size: 0xC0
  */
 AsyncImage::AsyncImage(const char* arg0, const char* arg1)
@@ -144,21 +136,21 @@ bool AsyncImage::Update(bool arg0)
  */
 bool AsyncImage::CanSwapTextures() const
 {
-    bool var_r31;
+    bool res;
 
-    if (m_unk_0x08 == NULL)
+    if (m_unk_0x18 != 1)
     {
-        var_r31 = false;
+        res = 0;
     }
     else
     {
-        var_r31 = false;
+        res = 0;
         if ((m_unk_0x08 != NULL) && (m_unk_0x08->m_unk_0x80->m_unk_0x10 != 0) && (glTextureLoad(m_unk_0x10) != 0))
         {
-            var_r31 = true;
+            res = 1;
         }
     }
-    return var_r31;
+    return res;
 }
 
 /**
@@ -197,10 +189,4 @@ void AsyncImage::FreeLoadBuffer()
         delete[] m_loadBuffer;
         m_loadBuffer = NULL;
     }
-}
-
-void AsyncImage::TextureLoadComplete(void* buffer, unsigned long size, unsigned long userData)
-{
-    AsyncImage* self = (AsyncImage*)userData;
-    self->m_unk_0x18 = 1;
 }
