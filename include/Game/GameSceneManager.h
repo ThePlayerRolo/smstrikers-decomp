@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+#include "NL/nlSingleton.h"
 #include "Game/BaseGameSceneManager.h"
 
 class GameSceneManager : public BaseGameSceneManager
@@ -12,6 +13,8 @@ public:
     ~GameSceneManager();
 
     void Pop();
+
+    static nlSingleton<GameSceneManager> s_pInstance;
 };
 
 #endif // _GAMESCENEMANAGER_H_

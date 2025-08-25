@@ -1,5 +1,7 @@
 #include "Game/FE/feSceneManager.h"
 
+nlSingleton<FESceneManager> FESceneManager::s_pInstance;
+
 /**
  * Offset/Address/Size: 0x0 | 0x8020D64C | size: 0xC0
  */

@@ -30,7 +30,7 @@ public:
     ~FESceneManager();
     FESceneManager();
 
-    static nlSingleton<FESceneManager>* s_pInstance;
+    static nlSingleton<FESceneManager> s_pInstance;
 };
 
 // class DLListContainerBase<BaseSceneHandler*, BasicSlotPool<DLListEntry<BaseSceneHandler*>>>

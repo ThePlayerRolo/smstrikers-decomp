@@ -507,8 +507,9 @@ BaseSceneHandler* BaseGameSceneManager::GetScene(SceneList scene)
  */
 void BaseGameSceneManager::Pop()
 {
-    FESceneManager* sceneManager = FESceneManager::s_pInstance->s_pInstance;
-    sceneManager->QueueScenePop();
+    // FESceneManager* sceneManager = FESceneManager::s_pInstance->s_pInstance;
+    // sceneManager->QueueScenePop();
+    FESceneManager::s_pInstance.Instance()->QueueScenePop();
 
     m_handlers[m_count] = 0;
     m_count = (m_count - 1);
