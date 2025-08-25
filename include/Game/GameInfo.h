@@ -1,10 +1,61 @@
 #ifndef _GAMEINFO_H_
 #define _GAMEINFO_H_
 
+#include "types.h"
+
+#include "NL/nlSingleton.h"
+
+class Spoil
+{
+public:
+};
+
+enum eTrophyType
+{
+    eTrophyType_None = 0,
+    eTrophyType_Bronze = 1,
+    eTrophyType_Silver = 2,
+    eTrophyType_Gold = 3,
+};
+
+enum eTeamID
+{
+    eTeamID_None = 0,
+    eTeamID_Team1 = 1,
+    eTeamID_Team2 = 2,
+};
+
+enum eSidekickID
+{
+    eSidekickID_None = 0,
+    eSidekickID_Sidekick1 = 1,
+    eSidekickID_Sidekick2 = 2,
+};
+
+enum eStadiumID
+{
+    eStadiumID_None = 0,
+    eStadiumID_Stadium1 = 1,
+    eStadiumID_Stadium2 = 2,
+};
+
+enum eUserGameResult
+{
+    eUserGameResult_None = 0,
+    eUserGameResult_Win = 1,
+    eUserGameResult_Loss = 2,
+};
 
 class GameInfoManager
 {
 public:
+    enum eGameModes
+    {
+        eGameModes_None = 0,
+        eGameModes_Cup = 1,
+        eGameModes_Tournament = 2,
+    };
+
     void GetCustomPowerups() const;
     void GetSkillLevelAsDifficultyID();
     void GetSkillLevel();
@@ -98,142 +149,132 @@ public:
     void GetTeam(short) const;
     ~GameInfoManager();
     GameInfoManager();
+
+    static nlSingleton<GameInfoManager> s_pInstance;
 };
 
+// class Cup<8, 14>
+// {
+// public:
+//     void GetTeamStats(int);
+//     void GetSaveDataSize() const;
+//     void DeserializeData(void*);
+//     void SerializeData(void*) const;
+//     void GetGameInfo(int, int);
+//     void GetNumTeams();
+//     void GetNumRounds();
+//     void GetRoundResults(int);
+// };
 
-class Cup<8, 14>
-{
-public:
-    void GetTeamStats(int);
-    void GetSaveDataSize() const;
-    void DeserializeData(void*);
-    void SerializeData(void*) const;
-    void GetGameInfo(int, int);
-    void GetNumTeams();
-    void GetNumRounds();
-    void GetRoundResults(int);
-};
+// class Cup<8, 7>
+// {
+// public:
+//     void GetTeamStats(int);
+//     void GetSaveDataSize() const;
+//     void DeserializeData(void*);
+//     void SerializeData(void*) const;
+//     void GetGameInfo(int, int);
+//     void GetNumTeams();
+//     void GetNumRounds();
+//     void GetRoundResults(int);
+// };
 
+// class Cup<6, 10>
+// {
+// public:
+//     void GetSaveDataSize() const;
+//     void DeserializeData(void*);
+//     void SerializeData(void*) const;
+//     void GetGameInfo(int, int);
+//     void GetTeamStats(int);
+//     void GetNumTeams();
+//     void GetNumRounds();
+//     void GetRoundResults(int);
+// };
 
-class Cup<8, 7>
-{
-public:
-    void GetTeamStats(int);
-    void GetSaveDataSize() const;
-    void DeserializeData(void*);
-    void SerializeData(void*) const;
-    void GetGameInfo(int, int);
-    void GetNumTeams();
-    void GetNumRounds();
-    void GetRoundResults(int);
-};
+// class Cup<4, 6>
+// {
+// public:
+//     void GetSaveDataSize() const;
+//     void DeserializeData(void*);
+//     void SerializeData(void*) const;
+//     void GetGameInfo(int, int);
+//     void GetTeamStats(int);
+//     void GetNumTeams();
+//     void GetNumRounds();
+//     void GetRoundResults(int);
+// };
 
+// class Knockout<4>
+// {
+// public:
+//     void GetSaveDataSize() const;
+//     void DeserializeData(void*);
+//     void SerializeData(void*) const;
+//     void GetGameInfo(int, int);
+//     void GetTeamStats(int);
+//     void GetNumTeams();
+//     void GetNumRounds();
+//     void GetRoundResults(int);
+// };
 
-class Cup<6, 10>
-{
-public:
-    void GetSaveDataSize() const;
-    void DeserializeData(void*);
-    void SerializeData(void*) const;
-    void GetGameInfo(int, int);
-    void GetTeamStats(int);
-    void GetNumTeams();
-    void GetNumRounds();
-    void GetRoundResults(int);
-};
+// class Cup<6, 5>
+// {
+// public:
+//     void GetSaveDataSize() const;
+//     void DeserializeData(void*);
+//     void SerializeData(void*) const;
+//     void GetGameInfo(int, int);
+//     void GetTeamStats(int);
+//     void GetNumTeams();
+//     void GetNumRounds();
+//     void GetRoundResults(int);
+// };
 
+// class Cup<4, 3>
+// {
+// public:
+//     void GetSaveDataSize() const;
+//     void DeserializeData(void*);
+//     void SerializeData(void*) const;
+//     void GetGameInfo(int, int);
+//     void GetTeamStats(int);
+//     void GetNumTeams();
+//     void GetNumRounds();
+//     void GetRoundResults(int);
+// };
 
-class Cup<4, 6>
-{
-public:
-    void GetSaveDataSize() const;
-    void DeserializeData(void*);
-    void SerializeData(void*) const;
-    void GetGameInfo(int, int);
-    void GetTeamStats(int);
-    void GetNumTeams();
-    void GetNumRounds();
-    void GetRoundResults(int);
-};
+// class Spoil
+// {
+// public:
+//     Spoil();
+// };
 
+// class CupRecord
+// {
+// public:
+//     CupRecord();
+// };
 
-class Knockout<4>
-{
-public:
-    void GetSaveDataSize() const;
-    void DeserializeData(void*);
-    void SerializeData(void*) const;
-    void GetGameInfo(int, int);
-    void GetTeamStats(int);
-    void GetNumTeams();
-    void GetNumRounds();
-    void GetRoundResults(int);
-};
+// class BaseCup
+// {
+// public:
+//     void SerializeData(void*) const;
+//     void DeserializeData(void*);
+//     void GetSaveDataSize() const;
+// };
 
+// class Config
+// {
+// public:
+//     void Get<BasicString<char, Detail::TempStringAllocator>>(const char*, BasicString<char, Detail::TempStringAllocator>);
+//     void TagValuePair::Get<BasicString<char, Detail::TempStringAllocator>>() const;
+// };
 
-class Cup<6, 5>
-{
-public:
-    void GetSaveDataSize() const;
-    void DeserializeData(void*);
-    void SerializeData(void*) const;
-    void GetGameInfo(int, int);
-    void GetTeamStats(int);
-    void GetNumTeams();
-    void GetNumRounds();
-    void GetRoundResults(int);
-};
-
-
-class Cup<4, 3>
-{
-public:
-    void GetSaveDataSize() const;
-    void DeserializeData(void*);
-    void SerializeData(void*) const;
-    void GetGameInfo(int, int);
-    void GetTeamStats(int);
-    void GetNumTeams();
-    void GetNumRounds();
-    void GetRoundResults(int);
-};
-
-
-class Spoil
-{
-public:
-    Spoil();
-};
-
-
-class CupRecord
-{
-public:
-    CupRecord();
-};
-
-
-class BaseCup
-{
-public:
-    void SerializeData(void*) const;
-    void DeserializeData(void*);
-    void GetSaveDataSize() const;
-};
-
-
-class Config
-{
-public:
-    void Get<BasicString<char, Detail::TempStringAllocator>>(const char*, BasicString<char, Detail::TempStringAllocator>);
-    void TagValuePair::Get<BasicString<char, Detail::TempStringAllocator>>() const;
-};
-
-
-class BasicGameInfo
-{
-public:
-    BasicGameInfo();
-};
+// class BasicGameInfo
+// {
+// public:
+//     BasicGameInfo();
+// };
 
 #endif // _GAMEINFO_H_

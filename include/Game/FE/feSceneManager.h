@@ -1,7 +1,13 @@
 #ifndef _FESCENEMANAGER_H_
 #define _FESCENEMANAGER_H_
 
+#include "types.h"
+
 #include "NL/nlSingleton.h"
+#include "NL/nlDLRing.h"
+
+#include "Game/BaseSceneHandler.h"
+#include "Game/FE/feScene.h"
 
 // void nlDLRingRemoveStart<DLListEntry<PackagePushPopMessage*>>(DLListEntry<PackagePushPopMessage*>**);
 // void nlDLRingIsEnd<DLListEntry<PackagePushPopMessage*>>(DLListEntry<PackagePushPopMessage*>*, DLListEntry<PackagePushPopMessage*>*);
@@ -23,12 +29,22 @@ public:
     void RenderActiveScenes();
     void QueueScenePop();
     void QueueScenePush(BaseSceneHandler*, const char*);
-    void ProcessPushPopQueue();
+    static void ProcessPushPopQueue();
     void GetSceneHandler(unsigned long);
     void ForceImmediateStackProcessing();
     void AreAllScenesValid();
+
     ~FESceneManager();
     FESceneManager();
+
+    /* 0x00 */ s32 m_unk_0x00;
+    /* 0x04 */ s32 m_unk_0x04;
+    /* 0x08 */ char pad8[4];
+    /* 0x0C */ DLListEntry<BaseSceneHandler*>* m_unk_0x0C;
+    /* 0x10 */ char pad10[8];
+    /* 0x18 */ DLListEntry<BaseSceneHandler*>* m_unk_0x18;
+    /* 0x1C */ FEScene* m_unk_0x1C;
+    /* 0x20 */ s32 m_unk_0x20;
 
     static nlSingleton<FESceneManager> s_pInstance;
 };

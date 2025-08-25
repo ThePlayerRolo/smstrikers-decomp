@@ -35,6 +35,7 @@ void FESceneManager::QueueScenePush(BaseSceneHandler*, const char*)
  */
 void FESceneManager::ProcessPushPopQueue()
 {
+    FORCE_DONT_INLINE;
 }
 
 /**
@@ -49,6 +50,7 @@ void FESceneManager::GetSceneHandler(unsigned long)
  */
 void FESceneManager::ForceImmediateStackProcessing()
 {
+    ProcessPushPopQueue();
 }
 
 /**

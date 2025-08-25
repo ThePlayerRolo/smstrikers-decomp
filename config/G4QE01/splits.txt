@@ -2478,7 +2478,7 @@ Game/main.cpp:
 	.sbss       start:0x80373DD8 end:0x80373DE8
 	.sdata2     start:0x80376A20 end:0x80376A28
 
-GameInfo.o:
+Game/GameInfo.cpp:
 	.text       start:0x801756A4 end:0x801800B8
 	.text       start:0x801800B8 end:0x801813F0
 	.text       start:0x801813F0 end:0x801813F0
