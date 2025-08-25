@@ -1,6 +1,9 @@
 #ifndef _FERESOURCEMANAGER_H_
 #define _FERESOURCEMANAGER_H_
 
+#include "types.h"
+#include "NL/nlSingleton.h"
+
 // void nlDLRingRemoveStart<DLListEntry<FEResourceHandle*>>(DLListEntry<FEResourceHandle*>**);
 // void nlDLRingGetStart<DLListEntry<FEResourceHandle*>>(DLListEntry<FEResourceHandle*>*);
 // void nlDLRingRemove<DLListEntry<FEResourceHandle*>>(DLListEntry<FEResourceHandle*>**, DLListEntry<FEResourceHandle*>*);
@@ -12,37 +15,43 @@ class FEResourceHandle
 public:
     FEResourceHandle();
     ~FEResourceHandle();
+
+    /* 0x00 */ FEResourceHandle* m_next;
 };
 
 class FEResourceManager
 {
 public:
-    void Update(float);
-    void TextureResourceLoadComplete(void*, unsigned long, unsigned long);
-    void UnloadPermanentResourceBundle();
-    void UnloadResource(FEResourceHandle*);
-    void QueueResourceLoad(FEResourceHandle*);
-    void Initialize();
-    void OpenOnDemandResourceBundle(const char*);
-    void LoadPermanentResourceBundle(const char*);
-    void Cleanup();
-    ~FEResourceManager();
-    FEResourceManager();
     void GetName();
+    FEResourceManager();
+    ~FEResourceManager();
+    void Cleanup();
+    void LoadPermanentResourceBundle(const char*);
+    void OpenOnDemandResourceBundle(const char*);
+    void Initialize();
+    void QueueResourceLoad(FEResourceHandle*);
+    void UnloadResource(FEResourceHandle*);
+    void UnloadPermanentResourceBundle();
+    void TextureResourceLoadComplete(void*, unsigned long, unsigned long);
+    void Update(float);
+
+    static nlSingleton<FEResourceManager> s_pInstance;
 };
 
 // class AVLTreeBase<unsigned long, FEResourceHandle*, BasicSlotPool<AVLTreeEntry<unsigned long, FEResourceHandle*>>,
 // DefaultKeyCompare<unsigned long>>
 // {
 // public:
-//     void DeleteEntry(AVLTreeEntry<unsigned long, FEResourceHandle*>*);
-//     void Clear();
-//     void DestroyTree(void (AVLTreeBase<unsigned long, FEResourceHandle*, BasicSlotPool<AVLTreeEntry<unsigned long, FEResourceHandle*>>,
-//     DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, FEResourceHandle*>*)); void
-//     PostorderTraversal(AVLTreeEntry<unsigned long, FEResourceHandle*>*, void (AVLTreeBase<unsigned long, FEResourceHandle*,
+//     void AllocateEntry(void*, void*);
+//     void CompareKey(void*, AVLTreeNode*);
+//     void CompareNodes(AVLTreeNode*, AVLTreeNode*);
+//     void ~AVLTreeBase();
+//     void CastUp(AVLTreeNode*) const;
+//     void PostorderTraversal(AVLTreeEntry<unsigned long, FEResourceHandle*>*, void (AVLTreeBase<unsigned long, FEResourceHandle*,
 //     BasicSlotPool<AVLTreeEntry<unsigned long, FEResourceHandle*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long,
-//     FEResourceHandle*>*)); void CastUp(AVLTreeNode*) const; void ~AVLTreeBase(); void CompareNodes(AVLTreeNode*, AVLTreeNode*); void
-//     CompareKey(void*, AVLTreeNode*); void AllocateEntry(void*, void*);
+//     FEResourceHandle*>*)); void DestroyTree(void (AVLTreeBase<unsigned long, FEResourceHandle*, BasicSlotPool<AVLTreeEntry<unsigned long,
+//     FEResourceHandle*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, FEResourceHandle*>*)); void Clear(); void
+//     DeleteEntry(AVLTreeEntry<unsigned long, FEResourceHandle*>*);
 // };
 
 // class nlWalkDLRing<DLListEntry<FEResourceHandle*>, DLListContainerBase<FEResourceHandle*,
