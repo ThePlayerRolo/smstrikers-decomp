@@ -869,6 +869,7 @@ config.libs = [
             Object(Matching, "Game/GL/GLMaterial.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/GL/GLTextureAnim.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/GL/GLVertexAnim.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/GL/GLMeshWriter.cpp", extra_cflags=["-inline deferred"]),
 
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
@@ -1056,7 +1057,7 @@ config.libs = [
             Object(NonMatching, "NL/glx/glxTarget.cpp"),
             
             Object(Matching, "NL/gl/gl.cpp"),
-            Object(NonMatching, "NL/gl/glDraw2.cpp"),
+            Object(NonMatching, "NL/gl/glDraw2.cpp", extra_cflags=["-inline off"]),
             Object(NonMatching, "NL/gl/glDraw3.cpp"),
             Object(NonMatching, "NL/gl/glFont.cpp"),
             Object(Matching, "NL/gl/glMatrix.cpp"),

@@ -78,8 +78,9 @@ void* glModelDupArrayNoStreams(const glModel* models, unsigned long count, bool 
 /**
  * Offset/Address/Size: 0x160 | 0x801DEE94 | size: 0x12C
  */
-void glModelDupNoStreams(const glModel*, bool, bool)
+glModel* glModelDupNoStreams(const glModel* src, bool arg2, bool arg3)
 {
+    return NULL;
 }
 
 /**

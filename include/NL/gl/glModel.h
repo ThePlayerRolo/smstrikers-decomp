@@ -3,7 +3,6 @@
 
 #include "NL/gl/glUserData.h"
 
-
 struct glModel // size: 0x10
 {
     /* 0x00 */ u32 m_count;
@@ -13,7 +12,7 @@ struct glModel // size: 0x10
 };
 
 void* glModelDupArrayNoStreams(const glModel*, unsigned long, bool, bool);
-void glModelDupNoStreams(const glModel*, bool, bool);
+glModel* glModelDupNoStreams(const glModel*, bool, bool);
 glModel* glModelDup(const glModel*, bool);
 void glModelPacketDup(const glModelPacket*, bool);
 

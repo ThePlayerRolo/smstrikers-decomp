@@ -3,21 +3,22 @@
 
 #include "Dolphin/mtx.h"
 
+struct nlVector2_
+{
+    float f[2];
+};
+
 struct nlVector2
 {
     float x;
     float y;
 
-    nlVector2()
-        : x(0.0f)
-        , y(0.0f)
-    {
-    }
-    nlVector2(float _x, float _y)
-        : x(_x)
-        , y(_y)
-    {
-    }
+    // nlVector2() { }
+    // nlVector2(float _x, float _y)
+    //     : x(_x)
+    //     , y(_y)
+    // {
+    // }
 };
 
 #define NL_VECTOR3_SET(v, xval, yval, zval) \

@@ -20,7 +20,12 @@ enum eGLState
     eGLState_10,
 };
 
-class glStateBundle;
+class glStateBundle
+{
+public:
+    /* 0x00 */ u8 pad0[0x030];
+    /* 0x30 */ u8 m_nFlags;
+};
 
 void glSetDefaultState(bool);
 void glUnHandleizeTextureState(unsigned long long);
@@ -38,17 +43,17 @@ void glSetRasterState(eGLState, unsigned long);
 void glGetRasterState(unsigned long, eGLState);
 void glGetRasterState(eGLState);
 u32 glGetTexture(const char*);
-void glGetProgram(const char*);
-void glSetCurrentMatrix(unsigned long);
+u32 glGetProgram(const char*);
+u32 glSetCurrentMatrix(unsigned long);
 void glSetCurrentTextureState(unsigned long long state);
 void glGetCurrentTextureState();
 void glSetCurrentRasterState(unsigned long state = 0);
 void glGetCurrentRasterState();
-void glSetCurrentProgram(unsigned long);
+u32 glSetCurrentProgram(unsigned long);
 void glSetCurrentTexture(unsigned long, eGLTextureType);
 void glStateRestore(const glStateBundle&);
 void glStateSave(glStateBundle&);
-void gl_GetCurrentStateBundle();
+glStateBundle* gl_GetCurrentStateBundle();
 void gl_StateStartup();
 
 #endif // _GLSTATE_H_

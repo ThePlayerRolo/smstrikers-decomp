@@ -4138,7 +4138,7 @@ NL/gl/glConstant.cpp:
 	.data       start:0x80302078 end:0x80302100
 	.sbss       start:0x80374330 end:0x80374338
 
-GLMeshWriter.o:
+Game/GL/GLMeshWriter.cpp:
 	.text       start:0x801DFFA0 end:0x801E0508
 	.rodata     start:0x802A0590 end:0x802A05D0
 	.data       start:0x80302100 end:0x80302128

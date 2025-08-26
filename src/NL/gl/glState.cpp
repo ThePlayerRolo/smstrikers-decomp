@@ -130,14 +130,15 @@ u32 glGetTexture(const char* name)
 /**
  * Offset/Address/Size: 0x79C | 0x801DC3E0 | size: 0x30
  */
-void glGetProgram(const char*)
+u32 glGetProgram(const char*)
 {
+    return 0;
 }
 
 /**
  * Offset/Address/Size: 0x7CC | 0x801DC410 | size: 0x18
  */
-void glSetCurrentMatrix(unsigned long)
+u32 glSetCurrentMatrix(unsigned long)
 {
 }
 
@@ -172,8 +173,9 @@ void glGetCurrentRasterState()
 /**
  * Offset/Address/Size: 0x840 | 0x801DC484 | size: 0x18
  */
-void glSetCurrentProgram(unsigned long)
+u32 glSetCurrentProgram(unsigned long)
 {
+    return 0;
 }
 
 /**
