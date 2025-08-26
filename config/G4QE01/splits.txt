@@ -2682,7 +2682,7 @@ AnimTrigger.o:
 	.ctors      start:0x8028D354 end:0x8028D358
 	.bss        start:0x8032B550 end:0x8032B578
 
-CharacterTriggers.o:
+Game/CharacterTriggers.cpp:
 	.text       start:0x8019EDB0 end:0x801A3FD4
 	.text       start:0x801A3FD4 end:0x801A3FD4
 	.text       start:0x801A3FD4 end:0x801A3FD4
@@ -2699,10 +2699,10 @@ CharacterTriggers.o:
 	.sbss       start:0x80373EF0 end:0x80373EF8
 	.sdata2     start:0x80376B48 end:0x80376B80
 
-MarioTriggers.o:
+Game/MarioTriggers.cpp:
 	.text       start:0x801A3FD4 end:0x801A3FF4
 
-WorldTriggers.o:
+Game/WorldTriggers.cpp:
 	.text       start:0x801A3FF4 end:0x801A4078
 	.rodata     start:0x802A0230 end:0x802A0240
 	.data       start:0x802C3A00 end:0x802C3A10

@@ -2,7 +2,7 @@
 #define _EMISSIONMANAGER_H_
 
 #include "NL/gl/gl.h"
-#include "EmissionController.h"
+#include "Game/EmissionController.h"
 
 // void fxSetTerrain(unsigned long);
 // void fxGetTerrain();
@@ -35,7 +35,7 @@ public:
     static bool IsPlaying(unsigned long, const EffectsGroup*);
     static void Kill(unsigned long, const EffectsGroup*);
     void IsStillAlive(EmissionController*);
-    void Create(EffectsGroup*, unsigned short);
+    static EmissionController* Create(EffectsGroup*, unsigned short);
     void GetContainer();
     void Render();
     void AddEffectsLight(const EffectsLight&);
@@ -47,37 +47,32 @@ public:
     void InstanceForReplayOnly();
 };
 
-
 // class nlAVLTree<unsigned long, LingerMessage*, DefaultKeyCompare<unsigned long>>
 // {
 // public:
 //     void ~nlAVLTree();
 // };
 
-
-// class AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>
+// class AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>
 // {
 // public:
 //     void DeleteValue(AVLTreeEntry<unsigned long, LingerMessage*>*);
 //     void DeleteEntry(AVLTreeEntry<unsigned long, LingerMessage*>*);
 //     void DeleteValues();
-//     void DestroyTree(void (AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LingerMessage*>*));
-//     void PostorderTraversal(AVLTreeEntry<unsigned long, LingerMessage*>*, void (AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LingerMessage*>*));
-//     void CastUp(AVLTreeNode*) const;
-//     void ~AVLTreeBase();
-//     void Clear();
-//     void AllocateEntry(void*, void*);
-//     void CompareKey(void*, AVLTreeNode*);
-//     void CompareNodes(AVLTreeNode*, AVLTreeNode*);
+//     void DestroyTree(void (AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>,
+//     DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LingerMessage*>*)); void PostorderTraversal(AVLTreeEntry<unsigned
+//     long, LingerMessage*>*, void (AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>,
+//     DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LingerMessage*>*)); void CastUp(AVLTreeNode*) const; void
+//     ~AVLTreeBase(); void Clear(); void AllocateEntry(void*, void*); void CompareKey(void*, AVLTreeNode*); void CompareNodes(AVLTreeNode*,
+//     AVLTreeNode*);
 // };
-
 
 // class NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>
 // {
 // public:
 //     void Delete(AVLTreeEntry<unsigned long, LingerMessage*>*);
 // };
-
 
 // class LoadFrame
 // {

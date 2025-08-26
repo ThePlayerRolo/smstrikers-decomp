@@ -5,7 +5,6 @@
 #include "NL/nlMath.h"
 #include "NL/gl/gl.h"
 
-
 class cPN_SAnimController;
 class cPoseAccumulator;
 class EffectsGroup;
@@ -29,6 +28,9 @@ public:
     ~EmissionController();
     void InitializeSystemsFromGroup();
     EmissionController(EffectsGroup*, unsigned short, eGLView);
+
+    /* 0x00 */ u8 pad[0x34];
+    /* 0x34 */ float m_unk_0x34;
 };
 
 #endif // _EMISSIONCONTROLLER_H_

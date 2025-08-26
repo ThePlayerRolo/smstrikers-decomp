@@ -1,6 +1,6 @@
 #include "Character.h"
 #include "CharacterTemplate.h"
-#include "EmissionManager.h"
+#include "Game/EmissionManager.h"
 
 #include "NL/nlString.h"
 

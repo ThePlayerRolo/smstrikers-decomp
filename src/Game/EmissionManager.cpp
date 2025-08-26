@@ -1,4 +1,4 @@
-#include "EmissionManager.h"
+#include "Game/EmissionManager.h"
 
 /**
  * Offset/Address/Size: 0x0 | 0x801F8920 | size: 0x10C
@@ -88,8 +88,9 @@ void EmissionManager::IsStillAlive(EmissionController*)
 /**
  * Offset/Address/Size: 0x798 | 0x801F90B8 | size: 0xBC
  */
-void EmissionManager::Create(EffectsGroup*, unsigned short)
+EmissionController* EmissionManager::Create(EffectsGroup*, unsigned short)
 {
+    return nullptr;
 }
 
 /**
@@ -165,77 +166,91 @@ void EmissionManager::InstanceForReplayOnly()
 // /**
 //  * Offset/Address/Size: 0x0 | 0x801F9778 | size: 0x48
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::DeleteValue(AVLTreeEntry<unsigned long, LingerMessage*>*)
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::DeleteValue(AVLTreeEntry<unsigned long, LingerMessage*>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x48 | 0x801F97C0 | size: 0x24
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::DeleteEntry(AVLTreeEntry<unsigned long, LingerMessage*>*)
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::DeleteEntry(AVLTreeEntry<unsigned long, LingerMessage*>*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x6C | 0x801F97E4 | size: 0x58
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::DeleteValues()
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::DeleteValues()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0xC4 | 0x801F983C | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::DestroyTree(void (AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LingerMessage*>*))
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::DestroyTree(void (AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>,
+// DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LingerMessage*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x128 | 0x801F98A0 | size: 0x758
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::PostorderTraversal(AVLTreeEntry<unsigned long, LingerMessage*>*, void (AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long, LingerMessage*>*))
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::PostorderTraversal(AVLTreeEntry<unsigned long, LingerMessage*>*, void (AVLTreeBase<unsigned long, LingerMessage*,
+// NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::*)(AVLTreeEntry<unsigned long,
+// LingerMessage*>*))
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x880 | 0x801F9FF8 | size: 0x8
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::CastUp(AVLTreeNode*) const
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::CastUp(AVLTreeNode*) const
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x888 | 0x801FA000 | size: 0x5C
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::~AVLTreeBase()
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::~AVLTreeBase()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x8E4 | 0x801FA05C | size: 0x58
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::Clear()
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::Clear()
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x93C | 0x801FA0B4 | size: 0x64
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::AllocateEntry(void*, void*)
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::AllocateEntry(void*, void*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x9A0 | 0x801FA118 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::CompareKey(void*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::CompareKey(void*, AVLTreeNode*)
 // {
 // }
 
 // /**
 //  * Offset/Address/Size: 0x9CC | 0x801FA144 | size: 0x2C
 //  */
-// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
+// void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned
+// long>>::CompareNodes(AVLTreeNode*, AVLTreeNode*)
 // {
 // }
 

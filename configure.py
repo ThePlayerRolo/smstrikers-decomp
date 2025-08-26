@@ -765,6 +765,11 @@ config.libs = [
             Object(Matching, "Game/WorldUpdateTask.cpp"),
             Object(NonMatching, "Game/FixedUpdateTask.cpp"),
 
+            # Triggers
+            Object(Matching, "Game/MarioTriggers.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/WorldTriggers.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/CharacterTriggers.cpp", extra_cflags=["-inline deferred"]),
+
             # World Objects
             Object(NonMatching, "Game/BasicStadium.cpp", extra_cflags=["-inline deferred"]),
 
