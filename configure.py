@@ -693,6 +693,7 @@ config.libs = [
             Object(NonMatching, "Game/Sys/simpleparser.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Sys/eventman.cpp", extra_cflags=["-O4 -inline deferred"]),
             Object(Matching, "Game/Sys/geventdst.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/Sys/tweak.cpp", extra_cflags=["-inline deferred"]),
 
             # Game Objects
             Object(NonMatching, "Game/GameInfo.cpp", extra_cflags=["-inline deferred"]),    
@@ -763,6 +764,9 @@ config.libs = [
             Object(Matching, "Game/WorldManager.cpp"),
             Object(Matching, "Game/WorldUpdateTask.cpp"),
             Object(NonMatching, "Game/FixedUpdateTask.cpp"),
+
+            # World Objects
+            Object(NonMatching, "Game/BasicStadium.cpp", extra_cflags=["-inline deferred"]),
 
             # Frontend / Scenes
             Object(Matching, "Game/GameSceneManager.cpp", extra_cflags=["-inline deferred"]),

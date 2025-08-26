@@ -7,10 +7,17 @@
 
 enum eGLState
 {
-    eGLState_0,
+    eGLState_0 = 0,
     eGLState_1,
     eGLState_2,
     eGLState_3,
+    eGLState_4,
+    eGLState_5,
+    eGLState_6,
+    eGLState_7,
+    eGLState_8,
+    eGLState_9,
+    eGLState_10,
 };
 
 class glStateBundle;

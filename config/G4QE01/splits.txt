@@ -2647,7 +2647,7 @@ worldanim.o:
 	.data       start:0x802C2DC8 end:0x802C2E20
 	.sdata2     start:0x80376B10 end:0x80376B20
 
-BasicStadium.o:
+Game/BasicStadium.cpp:
 	.text       start:0x8019BD80 end:0x8019EB34
 	.text       start:0x8019EB34 end:0x8019EB3C
 	.text       start:0x8019EB3C end:0x8019EB3C
@@ -4357,7 +4357,7 @@ Game/Sys/eventman.cpp:
 	.data       start:0x80302B58 end:0x80302C30
 	.sbss       start:0x803743C8 end:0x803743D0
 
-tweak.o:
+Game/Sys/tweak.cpp:
 	.text       start:0x801FB0EC end:0x801FB290
 	.sdata2     start:0x80377368 end:0x80377370
 

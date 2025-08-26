@@ -5,11 +5,15 @@
  */
 void glPoly2::SetColour(const nlColour& col)
 {
-    u32 rgb = *(u32*)&col;
-    *(u32*)&m_colour1 = rgb;
-    *(u32*)&m_colour2 = rgb;
-    *(u32*)&m_colour3 = rgb;
-    *(u32*)&m_colour4 = rgb;
+    // u32 rgb = *(u32*)&col;
+    // *(u32*)&m_colour1 = rgb;
+    // *(u32*)&m_colour2 = rgb;
+    // *(u32*)&m_colour3 = rgb;
+    // *(u32*)&m_colour4 = rgb;
+    c3 = *((unsigned long*)&col);
+    c2 = *((unsigned long*)&col);
+    c1 = *((unsigned long*)&col);
+    c0 = *((unsigned long*)&col);
 }
 
 /**
