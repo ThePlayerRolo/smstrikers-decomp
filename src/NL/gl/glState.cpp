@@ -202,8 +202,9 @@ void glStateSave(glStateBundle&)
 /**
  * Offset/Address/Size: 0x904 | 0x801DC548 | size: 0xC
  */
-void gl_GetCurrentStateBundle()
+glStateBundle* gl_GetCurrentStateBundle()
 {
+    return nullptr;
 }
 
 /**

@@ -35,6 +35,7 @@ bool GLMeshWriterCore::End()
  */
 glModel* GLMeshWriterCore::GetModel()
 {
+    return nullptr;
 }
 
 /**
