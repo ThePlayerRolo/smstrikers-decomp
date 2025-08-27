@@ -1,7 +1,7 @@
 #ifndef _GLINVENTORY_H_
 #define _GLINVENTORY_H_
 
-#include "AVLTreeBase.h"
+#include "Game/AVLTreeBase.h"
 
 class nlChunk;
 class GLMaterialList;
@@ -33,9 +33,13 @@ public:
     ~GLInventory();
 
     // /* 0x00 */ u8 m_unk_0x00[0x08];
-    /* 0x0x */ AVLTreeBase<unsigned long, GLVertexAnim*, NewAdapter<AVLTreeEntry<unsigned long, GLVertexAnim*> >, DefaultKeyCompare<unsigned long> > m_vertexAnimTree;
+    /* 0x0x */ AVLTreeBase<unsigned long, GLVertexAnim*, NewAdapter<AVLTreeEntry<unsigned long, GLVertexAnim*>>,
+                           DefaultKeyCompare<unsigned long>>
+        m_vertexAnimTree;
     /* 0x00 */ u8 m_unk_0x00[0x1C0];
-    /* 0x1C0 */ AVLTreeBase<unsigned long, GLMaterialList*, NewAdapter<AVLTreeEntry<unsigned long, GLMaterialList*> >, DefaultKeyCompare<unsigned long> > m_materialListTree;
+    /* 0x1C0 */ AVLTreeBase<unsigned long, GLMaterialList*, NewAdapter<AVLTreeEntry<unsigned long, GLMaterialList*>>,
+                            DefaultKeyCompare<unsigned long>>
+        m_materialListTree;
 };
 
 #endif // _GLINVENTORY_H_

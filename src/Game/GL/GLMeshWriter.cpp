@@ -1,18 +1,18 @@
 #include "Game/GL/GLMeshWriter.h"
 
-/**
- * Offset/Address/Size: 0x510 | 0x801E04B0 | size: 0x58
- */
-GLMeshWriterCore::GLMeshWriterCore()
-{
-}
+// /**
+//  * Offset/Address/Size: 0x510 | 0x801E04B0 | size: 0x58
+//  */
+// GLMeshWriterCore::GLMeshWriterCore()
+// {
+// }
 
-/**
- * Offset/Address/Size: 0x4C8 | 0x801E0468 | size: 0x48
- */
-GLMeshWriterCore::~GLMeshWriterCore()
-{
-}
+// /**
+//  * Offset/Address/Size: 0x4C8 | 0x801E0468 | size: 0x48
+//  */
+// GLMeshWriterCore::~GLMeshWriterCore()
+// {
+// }
 
 /**
  * Offset/Address/Size: 0x134 | 0x801E00D4 | size: 0x394

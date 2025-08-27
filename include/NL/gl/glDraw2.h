@@ -23,6 +23,7 @@ public:
     /* 0x14 */ float y2;
     /* 0x18 */ float x3;
     /* 0x1C */ float y3;
+    // nlVector2 m_pos[4];
 
     /* 0x20 */ float u0;
     /* 0x24 */ float v0;

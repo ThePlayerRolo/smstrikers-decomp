@@ -11,7 +11,7 @@
 #include "NL/gl/glModel.h"
 #include "NL/gl/glUserData.h"
 
-#include "Game/GL/GLMeshWriter.h"
+#include "Game/GL/gluMeshWriter.h"
 
 static const unsigned long StripMap[4] = { 3, 0, 2, 1 };
 static const unsigned long QuadMap[4] = { 0, 1, 2, 3 };
@@ -177,7 +177,7 @@ bool glAttachPoly2(eGLView view, unsigned long count, glPoly2* polys, unsigned l
     }
 
     // streams = {0,2,3}
-    GLMeshWriterCore writer;
+    GLMeshWriter writer;
 
     // pick map & prim and vertices-per-poly
     const unsigned long* map;
@@ -274,7 +274,7 @@ bool glPoly2::Attach(eGLView view, int layer, unsigned long* pMatrix, unsigned l
     streamsDesc[1] = eGLStream_2;
     streamsDesc[2] = eGLStream_3;
 
-    GLMeshWriterCore writer;
+    GLMeshWriter writer;
 
     // pipeline state flag at +0x30
     const unsigned char stateFlag = gl_GetCurrentStateBundle()->m_nFlags;

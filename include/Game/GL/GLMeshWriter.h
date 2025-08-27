@@ -26,17 +26,18 @@ enum eGLStream
 class GLMeshWriterCore
 {
 public:
-    GLMeshWriterCore();
-    ~GLMeshWriterCore();
-    bool Begin(int, eGLPrimitive, int, const eGLStream*, bool);
-    bool End();
-    glModel* GetModel();
-    void Colour(const nlColour&);
-    void ColourPlat(unsigned long);
-    void Texcoord(const nlVector2&);
-    void Vertex(const nlVector3&);
-    void Vertex(const nlVector4&);
+    GLMeshWriterCore() { };
+    ~GLMeshWriterCore() { };
+    virtual bool Begin(int, eGLPrimitive, int, const eGLStream*, bool);
+    virtual bool End();
+    virtual void Colour(const nlColour&);
+    virtual void ColourPlat(unsigned long);
+    virtual void Normal(const nlVector3&) = 0;
+    virtual void Texcoord(const nlVector2&);
+    virtual void Vertex(const nlVector3&);
+    virtual void Vertex(const nlVector4&);
     void Position(const nlVector3&);
+    glModel* GetModel();
 };
 
 #endif // _GLMESHWRITER_H_
