@@ -1063,8 +1063,8 @@ config.libs = [
             
             Object(Matching, "NL/gl/gl.cpp"),
             Object(NonMatching, "NL/gl/glDraw2.cpp", extra_cflags=["-inline off"]),
-            Object(NonMatching, "NL/gl/glDraw3.cpp"),
-            Object(NonMatching, "NL/gl/glFont.cpp"),
+            Object(NonMatching, "NL/gl/glDraw3.cpp", extra_cflags=["-inline off"]),
+            Object(NonMatching, "NL/gl/glFont.cpp", extra_cflags=["-inline off"]),
             Object(Matching, "NL/gl/glMatrix.cpp"),
             Object(Matching, "NL/gl/glMatrixStack.cpp"),
             Object(Matching, "NL/gl/glMemory.cpp"),
