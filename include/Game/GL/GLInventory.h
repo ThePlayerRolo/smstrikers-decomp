@@ -1,7 +1,7 @@
 #ifndef _GLINVENTORY_H_
 #define _GLINVENTORY_H_
 
-#include "Game/AVLTreeBase.h"
+#include "NL/nlAVLTreeBase.h"
 
 class nlChunk;
 class GLMaterialList;
@@ -13,33 +13,29 @@ class glModel;
 class GLInventory
 {
 public:
-    void Update(float);
-    void MakeSkinMesh(unsigned long);
-    void AddSkinData(unsigned long, nlChunk*);
-    GLMaterialList* GetMaterialList(unsigned long);
-    void AddMaterialList(unsigned long, GLMaterialList*);
-    GLVertexAnim* GetVertexAnim(unsigned long);
-    void AddVertexAnim(unsigned long, GLVertexAnim*);
-    GLTextureAnim* GetTextureAnim(unsigned long);
-    void AddTextureAnim(unsigned long, GLTextureAnim*);
-    void GetShadowVolume(unsigned long);
-    glModel* GetModel(unsigned long);
-    void AddModel(unsigned long, glModel*);
-    void ResourceRelease(int);
-    void ResourceMark();
-    void ReleaseLevel(int);
-    void Delete();
-    void Create();
     ~GLInventory();
+    void Create();
+    void Delete();
+    void ReleaseLevel(int);
+    void ResourceMark();
+    void ResourceRelease(int);
+    void AddModel(unsigned long, glModel*);
+    glModel* GetModel(unsigned long);
+    void GetShadowVolume(unsigned long);
+    void AddTextureAnim(unsigned long, GLTextureAnim*);
+    GLTextureAnim* GetTextureAnim(unsigned long);
+    void AddVertexAnim(unsigned long, GLVertexAnim*);
+    GLVertexAnim* GetVertexAnim(unsigned long);
+    void AddMaterialList(unsigned long, GLMaterialList*);
+    GLMaterialList* GetMaterialList(unsigned long);
+    void AddSkinData(unsigned long, nlChunk*);
+    void MakeSkinMesh(unsigned long);
+    void Update(float);
 
-    // /* 0x00 */ u8 m_unk_0x00[0x08];
-    /* 0x0x */ AVLTreeBase<unsigned long, GLVertexAnim*, NewAdapter<AVLTreeEntry<unsigned long, GLVertexAnim*>>,
-                           DefaultKeyCompare<unsigned long>>
-        m_vertexAnimTree;
-    /* 0x00 */ u8 m_unk_0x00[0x1C0];
-    /* 0x1C0 */ AVLTreeBase<unsigned long, GLMaterialList*, NewAdapter<AVLTreeEntry<unsigned long, GLMaterialList*>>,
-                            DefaultKeyCompare<unsigned long>>
-        m_materialListTree;
+    /* 0x00 */ u8 m_unk_0x00[0x08];
+    /* 0x08 */ AVLTreeBase<unsigned long, GLVertexAnim*, NewAdapter<AVLTreeEntry<unsigned long, GLVertexAnim*> >, DefaultKeyCompare<unsigned long> > m_vertexAnimTree;
+    /* 0x1C */ u8 m_unk_0x1C[0x1C0];
+    /* 0x1DC */ AVLTreeBase<unsigned long, GLMaterialList*, NewAdapter<AVLTreeEntry<unsigned long, GLMaterialList*> >, DefaultKeyCompare<unsigned long> > m_materialListTree;
 };
 
 #endif // _GLINVENTORY_H_

@@ -2862,12 +2862,12 @@ AnimViewerCam.o:
 	.text       start:0x801ACC94 end:0x801ACC94
 	.data       start:0x802C3FC8 end:0x802C3FF0
 
-FloatingPointExceptions.o:
+Game/Sys/FloatingPointExceptions.cpp:
 	.text       start:0x801ACC94 end:0x801ACE64
 	.data       start:0x802C3FF0 end:0x802C40F8
 	.sdata      start:0x80372A70 end:0x80372A80
 
-CallStackDumper.o:
+Game/Sys/CallStackDumper.cpp:
 	.text       start:0x801ACE64 end:0x801AD998
 	.text       start:0x801AD998 end:0x801AD998
 	.data       start:0x802C40F8 end:0x802C4EE8
@@ -4143,7 +4143,7 @@ Game/GL/GLMeshWriter.cpp:
 	.rodata     start:0x802A0590 end:0x802A05D0
 	.data       start:0x80302100 end:0x80302128
 
-GLSkinMesh.o:
+Game/GL/GLSkinMesh.cpp:
 	.text       start:0x801E0508 end:0x801E0644
 	.sdata2     start:0x80377158 end:0x80377160
 
@@ -4156,7 +4156,7 @@ ShaderSkinMesh.o:
 	.bss        start:0x80337048 end:0x80343048
 	.sdata2     start:0x80377160 end:0x80377168
 
-Game/GLInventory.cpp:
+Game/GL/GLInventory.cpp:
 	.text       start:0x801E2298 end:0x801E3340
 	.text       start:0x801E3340 end:0x801E6C90
 	.text       start:0x801E6C90 end:0x801E6CB4
@@ -4177,7 +4177,7 @@ Game/GL/GLVertexAnim.cpp:
 Game/GL/GLMaterial.cpp:
 	.text       start:0x801E7E70 end:0x801E7FB0
 
-GLRenderBuffer.o:
+Game/GL/GLRenderBuffer.cpp:
 	.text       start:0x801E7FB0 end:0x801E80D4
 	.text       start:0x801E80D4 end:0x801E80F8
 	.text       start:0x801E80F8 end:0x801E816C

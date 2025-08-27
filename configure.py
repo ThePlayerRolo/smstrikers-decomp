@@ -694,6 +694,8 @@ config.libs = [
             Object(NonMatching, "Game/Sys/eventman.cpp", extra_cflags=["-O4 -inline deferred"]),
             Object(Matching, "Game/Sys/geventdst.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/Sys/tweak.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/Sys/FloatingPointExceptions.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/Sys/CallStackDumper.cpp", extra_cflags=["-inline deferred"]),    
 
             # Game Objects
             Object(NonMatching, "Game/GameInfo.cpp", extra_cflags=["-inline deferred"]),    
@@ -874,8 +876,10 @@ config.libs = [
             Object(Matching, "Game/GL/GLVertexAnim.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/GL/GLMeshWriter.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/GL/GLInventory.cpp", extra_cflags=["-inline deferred"]),
-            Object(NonMatching, "Game/GL/gluMeshWriter.cpp", extra_cflags=["-inline deferred"]),
-            Object(NonMatching, "Game/GL/gluSkinMesh.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/GL/GLRenderBuffer.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/GL/GLSkinMesh.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/GL/gluMeshWriter.cpp", extra_cflags=["-inline off"]),
+            Object(NonMatching, "Game/GL/gluSkinMesh.cpp", extra_cflags=["-inline off"]),
 
             # FX
             Object(NonMatching, "Game/ObjectBlur.cpp"),
