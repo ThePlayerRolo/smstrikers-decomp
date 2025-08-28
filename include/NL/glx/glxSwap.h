@@ -20,7 +20,7 @@ void glxLoadRestoreState();
 void glxLoadSaveState();
 void glxSwapLoading(bool, bool);
 void glxGetBackBuffer();
-void glxGetDisplayedBuffer();
+void* glxGetDisplayedBuffer();
 void glx_ScreenCapture(bool);
 void glxSwapSetBlack(bool);
 

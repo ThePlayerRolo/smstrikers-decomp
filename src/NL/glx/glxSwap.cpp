@@ -203,8 +203,9 @@ void glxGetBackBuffer()
 /**
  * Offset/Address/Size: 0xB94 | 0x801BF8E4 | size: 0x18
  */
-void glxGetDisplayedBuffer()
+void* glxGetDisplayedBuffer()
 {
+    return nullptr;
 }
 
 /**

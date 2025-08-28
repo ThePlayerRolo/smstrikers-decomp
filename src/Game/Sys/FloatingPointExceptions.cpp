@@ -3,21 +3,6 @@
 #include "Dolphin/os.h"
 #include "Dolphin/os/OSError.h"
 
-static const char sInvalidOpHdr[] = "FPE: Invalid operation: ";
-static const char sSNaN[] = "SNaN\n";
-static const char sInfMinusInf[] = "Infinity - Infinity\n";
-static const char sInfDivInf[] = "Infinity / Infinity\n";
-static const char sZeroDivZero[] = "0 / 0\n";
-static const char sInfTimesZero[] = "Infinity * 0\n";
-static const char sInvalidCompare[] = "Invalid compare\n";
-static const char sSoftwareRequest[] = "Software request\n";
-static const char sInvalidSqrt[] = "Invalid square root\n";
-static const char sInvalidIntCvt[] = "Invalid integer convert\n";
-static const char sOverflow[] = "FPE: Overflow\n";
-static const char sUnderflow[] = "FPE: Underflow\n";
-static const char sZeroDivision[] = "FPE: Zero division\n";
-static const char sInexact[] = "FPE: Inexact result\n";
-
 enum
 {
     BIT_2 = 0x20000000, // Invalid operation summary
@@ -43,108 +28,42 @@ enum
  */
 void FloatingPointErrorHandler(u16 /*error*/, OSContext* ctx, u32 /*dsisr*/, u32 /*dar*/)
 {
-    u32 fpscr = ctx->fpscr;
-
-    u32 r0 = ((fpscr << 22) & 0x3E000000) | 0x01F80000u | 0x00000700u;
-    fpscr &= r0;
+    u32 fpscr = ctx->fpscr & (((ctx->fpscr << 0x16) & 0x3E000000) | 0x01F80000 | 0x700);
 
     if (fpscr & BIT_2)
     {
-        OSReport(sInvalidOpHdr);
+        OSReport("FPE: Invalid operation: ");
         if (fpscr & BIT_7)
-            OSReport(sSNaN);
+            OSReport("SNaN\n");
         if (fpscr & BIT_8)
-            OSReport(sInfMinusInf);
+            OSReport("Infinity - Infinity\n");
         if (fpscr & BIT_9)
-            OSReport(sInfDivInf);
+            OSReport("Infinity / Infinity\n");
         if (fpscr & BIT_10)
-            OSReport(sZeroDivZero);
+            OSReport("0 / 0\n");
         if (fpscr & BIT_11)
-            OSReport(sInfTimesZero);
+            OSReport("Infinity * 0\n");
         if (fpscr & BIT_12)
-            OSReport(sInvalidCompare);
+            OSReport("Invalid compare\n");
         if (fpscr & BIT_21)
-            OSReport(sSoftwareRequest);
+            OSReport("Software request\n");
         if (fpscr & BIT_22)
-            OSReport(sInvalidSqrt);
+            OSReport("Invalid square root\n");
         if (fpscr & BIT_23)
-            OSReport(sInvalidIntCvt);
+            OSReport("Invalid integer convert\n");
     }
 
     // Other FP exceptions
     if (fpscr & BIT_3)
-        OSReport(sOverflow);
+        OSReport("FPE: Overflow\n");
     if (fpscr & BIT_4)
-        OSReport(sUnderflow);
+        OSReport("FPE: Underflow\n");
     if (fpscr & BIT_5)
-        OSReport(sZeroDivision);
+        OSReport("FPE: Zero division\n");
     if (fpscr & BIT_6)
-        OSReport(sInexact);
+        OSReport("FPE: Inexact result\n");
 
     ctx->srr0 += 4;
-
-    // s32 temp_r31;
-    // s32 temp_r31_2;
-
-    // temp_r31 = arg1->unk194;
-    // temp_r31_2 = temp_r31 & (((temp_r31 << 0x16) & 0x3E000000) | 0x01F80000 | 0x700);
-    // if (temp_r31_2 & 0x20000000)
-    // {
-    //     OSReport("FPE: Invalid operation: ");
-    //     if (temp_r31_2 & 0x01000000)
-    //     {
-    //         OSReport("SNaN\n");
-    //     }
-    //     if (temp_r31_2 & 0x800000)
-    //     {
-    //         OSReport("Infinity - Infinity\n");
-    //     }
-    //     if (temp_r31_2 & 0x400000)
-    //     {
-    //         OSReport("Infinity / Infinity\n");
-    //     }
-    //     if (temp_r31_2 & 0x200000)
-    //     {
-    //         OSReport("0 / 0\n");
-    //     }
-    //     if (temp_r31_2 & 0x100000)
-    //     {
-    //         OSReport("Infinity * 0\n");
-    //     }
-    //     if (temp_r31_2 & 0x80000)
-    //     {
-    //         OSReport("Invalid compare\n");
-    //     }
-    //     if (temp_r31_2 & 0x400)
-    //     {
-    //         OSReport("Software request\n");
-    //     }
-    //     if (temp_r31_2 & 0x200)
-    //     {
-    //         OSReport("Invalid square root\n");
-    //     }
-    //     if (temp_r31_2 & 0x100)
-    //     {
-    //         OSReport("Invalid integer convert\n");
-    //     }
-    // }
-    // if (temp_r31_2 & 0x10000000)
-    // {
-    //     OSReport("FPE: Overflow\n");
-    // }
-    // if (temp_r31_2 & 0x08000000)
-    // {
-    //     OSReport("FPE: Underflow\n");
-    // }
-    // if (temp_r31_2 & 0x04000000)
-    // {
-    //     OSReport("FPE: Zero division\n");
-    // }
-    // if (temp_r31_2 & 0x02000000)
-    // {
-    //     OSReport("FPE: Inexact result\n");
-    // }
-    // arg1->unk198 += 4;
 }
 
 /**
