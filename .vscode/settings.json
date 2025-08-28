@@ -19,7 +19,8 @@
   "files.trimFinalNewlines": true,
   "files.associations": {
     "*.inc": "c",
-    ".clangd": "yaml"
+    ".clangd": "yaml",
+    "*.s": "asm",
   },
 
   // Disable C/C++ IntelliSense, use clangd instead
