@@ -6,11 +6,11 @@
 class EventHandler;
 class EventManager;
 
-// Define typedef for the event handler function signature
-
-struct EventData
+class EventData
 {
-    virtual ~EventData() { } // ensures vtable; TU writes __vt__9EventData into Event payload
+public:
+    ~EventData() { }
+    virtual u32 GetID() { return -1; }
 };
 
 typedef struct Event /* size >= 0x14 */
@@ -19,8 +19,7 @@ typedef struct Event /* size >= 0x14 */
     /* 0x04 */ Event* m_prev;
     /* 0x08 */ u32 m_type;
     /* 0x0C */ s32 m_flags;
-    /* 0x10 */ EventData m_data;
-    // /* 0x10 */ EventData* unk10;
+    /* 0x10 */ EventData* m_data;
 } Event;
 
 typedef void (*EventCallback)(Event*, void*);

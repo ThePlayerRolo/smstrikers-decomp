@@ -1696,7 +1696,7 @@ LoadablePhysicsMesh.o:
 	.text       start:0x8012EE20 end:0x8012EE20
 	.text       start:0x8012EE20 end:0x8012EE20
 
-NetMesh.o:
+Game/NetMesh.cpp:
 	.text       start:0x8012EE20 end:0x8013001C
 	.text       start:0x8013001C end:0x80130024
 	.text       start:0x80130024 end:0x80130024
@@ -1710,7 +1710,7 @@ Game/NetMeshEdge.cpp:
 	.text       start:0x80130024 end:0x80130158
 	.sdata2     start:0x80376168 end:0x80376180
 
-NetMeshModelLoader.o:
+Game/NetMeshModelLoader.cpp:
 	.text       start:0x80130158 end:0x801315AC
 	.text       start:0x801315AC end:0x80132B10
 	.text       start:0x80132B10 end:0x80132B10
