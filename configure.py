@@ -729,6 +729,9 @@ config.libs = [
             Object(NonMatching, "Game/AnimInventory.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/Blinker.cpp"),   
 
+            # Net 
+            Object(Matching, "Game/NetMeshEdge.cpp", extra_cflags=["-inline deferred"]),
+
             # Terrain / Environment
             Object(Matching, "Game/TerrainTypes.cpp"),
 

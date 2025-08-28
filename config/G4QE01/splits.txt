@@ -1706,7 +1706,7 @@ NetMesh.o:
 	.sbss       start:0x80373AC8 end:0x80373AF0
 	.sdata2     start:0x80376140 end:0x80376168
 
-NetMeshEdge.o:
+Game/NetMeshEdge.cpp:
 	.text       start:0x80130024 end:0x80130158
 	.sdata2     start:0x80376168 end:0x80376180
 
