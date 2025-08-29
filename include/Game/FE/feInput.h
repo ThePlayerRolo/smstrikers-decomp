@@ -1,6 +1,9 @@
 #ifndef _FEINPUT_H_
 #define _FEINPUT_H_
 
+#include "types.h"
+#include "NL/globalpad.h"
+
 class BaseSceneHandler;
 
 enum eFEINPUT_PAD
@@ -27,20 +30,7 @@ public:
     void Reset();
     FEInput();
     void Initialize();
-    ~FEInput();
-};
-
-class cGlobalPad
-{
-public:
-    void DisableLeftAnalogToDPadMap();
-    void EnableLeftAnalogToDPadMap();
-};
-
-class cPadManager
-{
-public:
-    void GetRemapArray();
+    virtual ~FEInput();
 };
 
 #endif // _FEINPUT_H_

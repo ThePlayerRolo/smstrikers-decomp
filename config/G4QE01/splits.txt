@@ -2586,7 +2586,7 @@ PadActions.o:
 	.sbss       start:0x80373E70 end:0x80373E78
 	.sdata2     start:0x80376A70 end:0x80376A80
 
-RumbleActions.o:
+Game/RumbleActions.cpp:
 	.text       start:0x80194494 end:0x80194798
 	.data       start:0x802C29B8 end:0x802C2A38
 	.bss        start:0x8032B340 end:0x8032B390

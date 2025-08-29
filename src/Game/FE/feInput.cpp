@@ -10,8 +10,10 @@ void FEInput::EnableAnalogToDPadMapping(eFEINPUT_PAD, bool)
 /**
  * Offset/Address/Size: 0x274 | 0x8020EC80 | size: 0x220
  */
-void FEInput::SetAutoRepeatParams(eFEINPUT_PAD, int, float, float)
+void FEInput::SetAutoRepeatParams(eFEINPUT_PAD pad, int, float, float)
 {
+    s32* remapArray = cPadManager::GetRemapArray();
+    remapArray[pad] = 0;
 }
 
 /**
@@ -117,6 +119,7 @@ void FEInput::Initialize()
  */
 void cGlobalPad::DisableLeftAnalogToDPadMap()
 {
+    m_isLeftAnalogToDPadMapEnabled = false;
 }
 
 /**
@@ -124,13 +127,15 @@ void cGlobalPad::DisableLeftAnalogToDPadMap()
  */
 void cGlobalPad::EnableLeftAnalogToDPadMap()
 {
+    m_isLeftAnalogToDPadMapEnabled = true;
 }
 
 /**
  * Offset/Address/Size: 0x18 | 0x8020FB18 | size: 0x8
  */
-void cPadManager::GetRemapArray()
+s32* cPadManager::GetRemapArray()
 {
+    return m_pRemapArray;
 }
 
 /**
@@ -138,4 +143,5 @@ void cPadManager::GetRemapArray()
  */
 FEInput::~FEInput()
 {
+    // TODO: figure out what this is
 }
