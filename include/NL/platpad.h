@@ -4,7 +4,6 @@
 #include "types.h"
 #include "NL/globalpad.h"
 
-
 void VBlankPadUpdate();
 void UpdatePlatPad(float);
 void InitPlatPad();
@@ -17,30 +16,27 @@ class cPlatPad : public cGlobalPad
 public:
     static bool m_bDisableRumble;
 
+    virtual ~cPlatPad();
+
     virtual bool IsConnected();
-    
+
     virtual u32 IsPressed(int, bool);
     virtual f32 GetPressure(int, bool);
     virtual f32 GetPressureDerivative(int, bool);
 
-    virtual u32 PlatJustPressed(int, bool);
-    virtual u32 PlatJustReleased(int, bool);
-    virtual f32 GetButtonStateTime(int button, bool remap);
+    virtual u32 PlatJustPressed(int, bool);                 // 0x0c
+    virtual u32 PlatJustReleased(int, bool);                // 0x10
+    virtual f32 GetButtonStateTime(int button, bool remap); // 0x14
 
-    virtual f32 AnalogLeftX();
-    virtual f32 AnalogLeftY();
-    virtual f32 AnalogRightX();
-    virtual f32 AnalogRightY();
+    virtual f32 AnalogLeftX();  // 0x18
+    virtual f32 AnalogLeftY();  // 0x1C
+    virtual f32 AnalogRightX(); // 0x20
+    virtual f32 AnalogRightY(); // 0x24
 
-    virtual u8 RumbleActive();
-    virtual void StartRumble(float, float, float);
-    virtual void StopRumble();
-
-    virtual ~cPlatPad();
-
-    /* 0x04 */ s32 m_channel;
+    virtual bool RumbleActive();                   // 0x28
+    virtual void StartRumble(float, float, float); // 0x3C
+    virtual void StopRumble();                     // 0x40
 };
-
 
 class PadStatus
 {
@@ -49,8 +45,8 @@ public:
     static PADStatus s_B;
     static PADStatus s_C;
     static PADStatus s_D;
-    static PADStatus *s_Current;
-    static PADStatus *s_Next;
+    static PADStatus* s_Current;
+    static PADStatus* s_Next;
 
     void Update(float);
 
@@ -62,11 +58,10 @@ public:
     /* 0x10 */ f32 m_pressure1;
     /* 0x14 */ f32 m_pressure2;
 
-    /* 0x18 */ f32 m_buttonStateTimes[48]; // 48 buttons, probably to many... 
+    /* 0x18 */ f32 m_buttonStateTimes[48]; // 48 buttons, probably to many...
 
     /** 0xD8 */ f32 m_rumbleIntensity;
-    /** 0xDC */ u8 m_rumbleActive;
+    /** 0xDC */ bool m_rumbleActive;
 };
-
 
 #endif // _PLATPAD_H_

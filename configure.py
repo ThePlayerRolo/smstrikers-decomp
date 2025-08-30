@@ -775,6 +775,8 @@ config.libs = [
             Object(Matching, "Game/WorldTriggers.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/CharacterTriggers.cpp", extra_cflags=["-inline deferred"]),
 
+            Object(NonMatching, "Game/PadMonkey.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/PadActions.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/RumbleActions.cpp", extra_cflags=["-inline deferred"]),
 
             # World Objects
@@ -1048,18 +1050,21 @@ config.libs = [
             Object(NonMatching, "NL/nlTimer.cpp"),     
 
             # Ext/Platform
+            Object(Matching, "NL/plat/globalpad.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "NL/plat/platpad.cpp"),
+            # Ext/Math
+            Object(NonMatching, "NL/plat/platvmath.cpp"),
+            Object(NonMatching, "NL/plat/platqmath.cpp"),
+            # Ext/Audio
             Object(NonMatching, "NL/plat/plataudio.cpp"),
 
-            # Ext/Peripherals
-            Object(NonMatching, "NL/globalpad.cpp"),
-            Object(NonMatching, "NL/platpad.cpp"),
-
-            # Ext/Math
-            Object(NonMatching, "NL/platvmath.cpp"),
-            Object(NonMatching, "NL/platqmath.cpp"),
+            # Ext/GC
+            Object(NonMatching, "NL/gc/gcSwizzler.cpp", extra_cflags=["-inline deferred"]),
 
             # Ext/Game-Specific?
             Object(NonMatching, "NL/StatsGatherer.cpp"),     
+            Object(NonMatching, "NL/math.cpp", extra_cflags=["-inline deferred"]),     
+            Object(NonMatching, "NL/utility.cpp", extra_cflags=["-inline deferred"]),     
 
             # Ext/GL
             Object(NonMatching, "NL/glx/glxSwap.cpp", extra_cflags=["-inline off"]),

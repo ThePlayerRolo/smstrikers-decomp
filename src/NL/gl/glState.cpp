@@ -140,6 +140,7 @@ u32 glGetProgram(const char*)
  */
 u32 glSetCurrentMatrix(unsigned long)
 {
+    return 0;
 }
 
 /**

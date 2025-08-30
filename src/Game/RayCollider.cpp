@@ -55,7 +55,6 @@
 // arg0->unk8 = dGeomGetData(var_r3);
 // return arg0->unk28;
 
-
 /**
  * Offset/Address/Size: 0x0 | 0x80201E90 | size: 0x12C
  */
@@ -70,7 +69,7 @@ u8 RayCollider::DoCollide(CollisionSpace* space)
     // ? sp18;
     // ? sp10;
     // ? spC;
-    dContactGeom *contact; // sp8
+    dContactGeom* contact; // sp8
 
     // dVector3 pos;    sp08 / sp0C / sp10 / sp14
     // dVector3 normal; sp18 / sp1C / sp20 / sp24
@@ -83,7 +82,7 @@ u8 RayCollider::DoCollide(CollisionSpace* space)
     // s32 var_ctr;
     // s32 var_r6;
     // s32 var_r7;
-    dxGeom* var_r3;
+    dxGeom* var_r3 = nullptr;
     // u8 temp_r0;
 
     temp_r3 = dCollide(m_rayID, (dxGeom*)space->m_spaceID, 4, contact, 0x2C); // this is fishy.. why is space converted to geom..
@@ -93,7 +92,7 @@ u8 RayCollider::DoCollide(CollisionSpace* space)
         return m_unk_0x28;
     }
 
-    dxGeom *var_r5 = contact->g2;
+    dxGeom* var_r5 = contact->g2;
     int var_r6 = 0;
     int var_r7 = 1;
     int var_ctr = temp_r3 - 1;
@@ -102,11 +101,11 @@ u8 RayCollider::DoCollide(CollisionSpace* space)
         do
         {
             // dGeomID g = contact[var_r6].g2;
-            if ( (float)*((u8*)var_r5 + 0x20) < contact[var_r6].depth) // 0x20
+            if ((float)*((u8*)var_r5 + 0x20) < contact[var_r6].depth) // 0x20
             {
                 var_r6 = var_r7;
             }
-            var_r5 = (dxGeom *)((u8*)var_r5 + 0x2C);
+            var_r5 = (dxGeom*)((u8*)var_r5 + 0x2C);
             var_r7 += 1;
             var_ctr -= 1;
         } while (var_ctr != 0);
