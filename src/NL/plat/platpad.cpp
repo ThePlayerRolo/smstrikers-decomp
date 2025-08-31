@@ -16,7 +16,7 @@ bool cPlatPad::m_bDisableRumble = false;
 namespace
 {
 PadStatus padCategories[PAD_MAX_CONTROLLERS];
-PadStatus* padStatus = NULL;
+PadStatus* padStatus = &padCategories[0];
 } // namespace
 
 /**
@@ -133,66 +133,60 @@ f32 cPlatPad::GetPressure(int button, bool arg2)
  */
 f32 cPlatPad::GetButtonStateTime(int button, bool remap)
 {
-    s32 var_r4 = button;
-    if (remap != 0)
+    if (remap)
     {
-        var_r4 = cPadManager::m_pRemapArray[var_r4];
-        // var_r4 = *(cPadManager::m_pRemapArray + (var_r4 * 4));
+        button = cPadManager::m_pRemapArray[button];
     }
 
-    // 0x1F - __cntlzw(var_r4) -> is the index of the button state time, looking at the bits of the button-bitfield
-    int offset = 0x1F - __cntlzw(var_r4);
-    offset = offset * 4;
-
-    return *(f32*)((u8*)padStatus + (m_padIndex * 0xE0) + offset + 0x18);
+    return ::padStatus[m_padIndex].m_buttonStateTimes[0x1F - __cntlzw(button)];
 }
 
 /**
  * Offset/Address/Size: 0x774 | 0x801C3724 | size: 0x3C
  */
-u32 cPlatPad::PlatJustReleased(int button, bool remap)
+bool cPlatPad::PlatJustReleased(int button, bool remap)
 {
-    s32 temp_r3;
-    s32 var_r4 = button;
-    if (remap != 0)
+    if (remap)
     {
-        var_r4 = cPadManager::m_pRemapArray[var_r4];
+        button = cPadManager::m_pRemapArray[button];
     }
 
-    temp_r3 = (uint) * (u16*)((u8*)padStatus + (m_padIndex << 1) + 0x388) & var_r4;
-    return (u32)(-temp_r3 | temp_r3) >> 0x1FU;
+    // no clue why 0x388 is used ... it is 0xE0 * 4
+    s32 buttonReleased = (uint) * (u16*)((u8*)padStatus + (m_padIndex << 1) + 0x388) & button;
+    // s32 buttonReleased = padStatus + m_padIndex * 2.m_button & button;
+    return (buttonReleased != 0) ? true : false;
 }
 
 /**
  * Offset/Address/Size: 0x7B0 | 0x801C3760 | size: 0x3C
  */
-u32 cPlatPad::PlatJustPressed(int button, bool remap)
+bool cPlatPad::PlatJustPressed(int button, bool remap)
 {
-    s32 temp_r3;
-    s32 var_r4 = button;
-    if (remap != 0)
+    // s32 temp_r3;
+    // s32 var_r4 = button;
+    if (remap)
     {
-        var_r4 = cPadManager::m_pRemapArray[var_r4];
+        button = cPadManager::m_pRemapArray[button];
     }
 
-    temp_r3 = (u32) * (u16*)((u8*)padStatus + (m_padIndex << 1) + 0x380) & var_r4;
-    return (u32)(-temp_r3 | temp_r3) >> 0x1FU;
+    // no clue why 0x388 is used ... it is 0xE0 * 4
+    s32 buttonPressed = (u32) * (u16*)((u8*)padStatus + (m_padIndex << 1) + 0x380) & button;
+    // s32 buttonPressed = ::padStatus[m_padIndex].m_button & button;
+    return (buttonPressed != 0) ? true : false;
 }
 
 /**
  * Offset/Address/Size: 0x7EC | 0x801C379C | size: 0x38
  */
-u32 cPlatPad::IsPressed(int button, bool remap)
+bool cPlatPad::IsPressed(int button, bool remap)
 {
-    s32 temp_r3;
-    s32 var_r4 = button;
     if (remap != 0)
     {
-        var_r4 = cPadManager::m_pRemapArray[var_r4];
+        button = cPadManager::m_pRemapArray[button];
     }
 
-    temp_r3 = var_r4 & PadStatus::s_Current[m_padIndex].button;
-    return (u32)(-temp_r3 | temp_r3) >> 0x1FU;
+    s32 buttonPressed = PadStatus::s_Current[m_padIndex].button & button;
+    return (buttonPressed != 0) ? true : false;
 }
 
 /**
@@ -200,12 +194,15 @@ u32 cPlatPad::IsPressed(int button, bool remap)
  */
 bool cPlatPad::IsConnected()
 {
+    bool isConnected = false;
+
     s8 err = PadStatus::s_Current[m_padIndex].err;
-    if ((err != 0) && (err != -3))
+    if ((err == 0) || (err == -3))
     {
-        return 0;
+        isConnected = true;
     }
-    return 1;
+
+    return isConnected;
 }
 
 /**
@@ -278,9 +275,9 @@ void PadStatus::Update(float)
 /**
  * Offset/Address/Size: 0xAC8 | 0x801C3A78 | size: 0x24
  */
-void UpdatePlatPad(float arg0)
+void UpdatePlatPad(float dt)
 {
-    ((PadStatus*)padStatus)->Update(arg0);
+    ((PadStatus*)padStatus)->Update(dt);
 }
 
 /**

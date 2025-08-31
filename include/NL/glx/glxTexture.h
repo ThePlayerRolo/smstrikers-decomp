@@ -6,6 +6,14 @@
 enum eGXTextureFormat
 {
     eGXTextureFormat_0,
+    eGXTextureFormat_1,
+    eGXTextureFormat_2,
+    eGXTextureFormat_3,
+    eGXTextureFormat_4,
+    eGXTextureFormat_5,
+    eGXTextureFormat_6,
+    eGXTextureFormat_7,
+    eGXTextureFormat_8
 };
 
 enum eGLTextureType

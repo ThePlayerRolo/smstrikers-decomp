@@ -4,7 +4,7 @@
 #include "types.h"
 #include "NL/glx/glxTexture.h"
 
+u32 GCTextureSize(eGXTextureFormat, int, int, int, unsigned long);
 void GCSwizzle(void*, const void*, unsigned short, unsigned short, eGXTextureFormat, bool);
-void GCTextureSize(eGXTextureFormat, int, int, int, unsigned long);
 
 #endif // _GCSWIZZLER_H_

@@ -775,7 +775,7 @@ config.libs = [
             Object(Matching, "Game/WorldTriggers.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/CharacterTriggers.cpp", extra_cflags=["-inline deferred"]),
 
-            Object(NonMatching, "Game/PadMonkey.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/PadMonkey.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/PadActions.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/RumbleActions.cpp", extra_cflags=["-inline deferred"]),
 
@@ -1051,6 +1051,7 @@ config.libs = [
 
             # Ext/Platform
             Object(Matching, "NL/plat/globalpad.cpp", extra_cflags=["-inline deferred"]),
+            # Object(NonMatching, "NL/plat/platpad.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "NL/plat/platpad.cpp"),
             # Ext/Math
             Object(NonMatching, "NL/plat/platvmath.cpp"),

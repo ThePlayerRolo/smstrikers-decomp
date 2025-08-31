@@ -18,24 +18,20 @@ public:
 
     virtual ~cPlatPad();
 
-    virtual bool IsConnected();
-
-    virtual u32 IsPressed(int, bool);
-    virtual f32 GetPressure(int, bool);
-    virtual f32 GetPressureDerivative(int, bool);
-
-    virtual u32 PlatJustPressed(int, bool);                 // 0x0c
-    virtual u32 PlatJustReleased(int, bool);                // 0x10
-    virtual f32 GetButtonStateTime(int button, bool remap); // 0x14
-
-    virtual f32 AnalogLeftX();  // 0x18
-    virtual f32 AnalogLeftY();  // 0x1C
-    virtual f32 AnalogRightX(); // 0x20
-    virtual f32 AnalogRightY(); // 0x24
-
-    virtual bool RumbleActive();                   // 0x28
-    virtual void StartRumble(float, float, float); // 0x3C
-    virtual void StopRumble();                     // 0x40
+    /* 0x0C */ virtual bool IsConnected();
+    /* 0x10 */ virtual bool IsPressed(int button, bool remap);
+    /* 0x14 */ virtual f32 GetPressure(int button, bool remap);
+    /* 0x18 */ virtual f32 GetPressureDerivative(int button, bool remap);
+    /* 0x1C */ virtual bool PlatJustPressed(int button, bool remap);
+    /* 0x20 */ virtual bool PlatJustReleased(int button, bool remap);
+    /* 0x24 */ virtual f32 GetButtonStateTime(int button, bool remap);
+    /* 0x28 */ virtual f32 AnalogLeftX();
+    /* 0x2C */ virtual f32 AnalogLeftY();
+    /* 0x30 */ virtual f32 AnalogRightX();
+    /* 0x34 */ virtual f32 AnalogRightY();
+    /* 0x38 */ virtual bool RumbleActive();
+    /* 0x3C */ virtual void StartRumble(float, float, float);
+    /* 0x40 */ virtual void StopRumble();
 };
 
 class PadStatus
@@ -54,14 +50,12 @@ public:
     /* 0x04 */ f32 m_leftY;
     /* 0x08 */ f32 m_rightX;
     /* 0x0C */ f32 m_rightY;
-
     /* 0x10 */ f32 m_pressure1;
     /* 0x14 */ f32 m_pressure2;
-
-    /* 0x18 */ f32 m_buttonStateTimes[48]; // 48 buttons, probably to many...
-
-    /** 0xD8 */ f32 m_rumbleIntensity;
-    /** 0xDC */ bool m_rumbleActive;
-};
+    /* 0x18 */ f32 m_buttonStateTimes[48]; // ? 48 buttons
+    /* 0xD8 */ f32 m_rumbleIntensity;
+    /* 0xDC */ bool m_rumbleActive;
+    /* .... */ u16 m_button; // this is not correct, I have not clue where the button data is stored yet..
+}; // size 0xE0 (!!! m_button just work because of 4 byte alignment)
 
 #endif // _PLATPAD_H_
