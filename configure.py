@@ -735,6 +735,7 @@ config.libs = [
             Object(NonMatching, "Game/NetMeshModelLoader.cpp", extra_cflags=["-inline deferred"]),
 
             # Terrain / Environment
+            Object(Matching, "Game/TrophyInfo.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/TerrainTypes.cpp"),
 
             # Audio

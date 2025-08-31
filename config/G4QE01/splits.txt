@@ -2555,7 +2555,7 @@ Simmer.o:
 	.data       start:0x802C24A8 end:0x802C24C8
 	.sdata      start:0x80372888 end:0x803728B8
 
-TrophyInfo.o:
+Game/TrophyInfo.cpp:
 	.text       start:0x801918A0 end:0x80191948
 	.data       start:0x802C24C8 end:0x802C2598
 
