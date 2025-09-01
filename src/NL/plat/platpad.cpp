@@ -1,21 +1,23 @@
 #include "NL/platpad.h"
 
-#include "PowerPC_EABI_Support/Runtime/__mem.h"
+// #include "global.h"
 
-#include "global.h"
+#include "math.h"
+#include "NL/nlMemory.h"
+#include "NL/gl/glPlat.h"
 
-PADStatus PadStatus::s_A;
-PADStatus PadStatus::s_B;
-PADStatus* PadStatus::s_Current = &PadStatus::s_A;
-PADStatus* PadStatus::s_Next = &PadStatus::s_B;
+PADStatus PadStatus::s_A[4];
+PADStatus PadStatus::s_B[4];
+PADStatus* PadStatus::s_Current = PadStatus::s_A;
+PADStatus* PadStatus::s_Next = PadStatus::s_B;
 
-int g_nPadMasks[PAD_MAX_CONTROLLERS] = { 0x80000000, 0x40000000, 0x20000000, 0x10000000 };
+u32 g_nPadMasks[PAD_MAX_CONTROLLERS] = { 0x80000000, 0x40000000, 0x20000000, 0x10000000 };
 
 bool cPlatPad::m_bDisableRumble = false;
 
 namespace
 {
-PadStatus padCategories[PAD_MAX_CONTROLLERS];
+PadStatus padCategories[2];
 PadStatus* padStatus = &padCategories[0];
 } // namespace
 
@@ -31,6 +33,123 @@ cPlatPad::~cPlatPad()
  */
 void VBlankPadUpdate()
 {
+    PADRead(PadStatus::s_Next);
+    PADClampCircle(PadStatus::s_Next);
+
+    int connectedControllerCount = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        if (PadStatus::s_Next[i].err != -3)
+        {
+            connectedControllerCount = i + 1;
+        }
+    }
+
+    if (connectedControllerCount == 4)
+    {
+        return;
+    }
+
+    PADStatus* temp = PadStatus::s_Current;
+    PadStatus::s_Current = PadStatus::s_Next;
+    PadStatus::s_Next = temp;
+
+    float frameTime = 1.0f / (float)glx_GetTargetFPS();
+
+    for (int controllerIndex = 0; controllerIndex < 4; controllerIndex++)
+    {
+        cGlobalPad* pad = cPadManager::GetPad(controllerIndex);
+
+        if (pad->m_isConnected == false)
+        {
+            continue;
+        }
+
+        float normalizedX = (float)PadStatus::s_Current[controllerIndex].stickX / 56.0f;
+        float normalizedY = (float)PadStatus::s_Current[controllerIndex].stickY / 56.0f;
+
+        float absX = fabs(normalizedX);
+        float absY = fabs(normalizedY);
+        bool hasInput = (absX > 0.1f) || (absY > 0.1f);
+
+        if (hasInput)
+        {
+            if (absX < 0.1f)
+                normalizedX = 0.0f;
+            if (absY < 0.1f)
+                normalizedY = 0.0f;
+
+            float angle = nlATan2f(normalizedY, normalizedX);
+
+            float degrees = angle * (180.0f / 3.1415927f);
+            int direction = (int)(degrees / 45.0f + 0.5f) % 8;
+
+            u16 directionFlags = 0;
+            switch (direction)
+            {
+            case 0:
+                directionFlags = 0x02;
+                break;
+            case 1:
+                directionFlags = 0x0A;
+                break;
+            case 2:
+                directionFlags = 0x08;
+                break;
+            case 3:
+                directionFlags = 0x09;
+                break;
+            case 4:
+                directionFlags = 0x01;
+                break;
+            case 5:
+                directionFlags = 0x05;
+                break;
+            case 6:
+                directionFlags = 0x04;
+                break;
+            case 7:
+                directionFlags = 0x06;
+                break;
+            }
+
+            PadStatus::s_Current[controllerIndex].button |= directionFlags;
+        }
+
+        for (int category = 0; category < 2; category++)
+        {
+            PadStatus* padStatus = &padCategories[category];
+            tGameCubePad* gameCubePad = &padStatus->m_GameCubePads[controllerIndex];
+
+            for (int buttonIndex = 0; buttonIndex < 12; buttonIndex++)
+            {
+                u16 buttonMask = 1 << buttonIndex;
+                if (PadStatus::s_Current[controllerIndex].button & buttonMask)
+                {
+                    gameCubePad->fButtonStateTime[buttonIndex] += frameTime;
+                }
+                else
+                {
+                    gameCubePad->fButtonStateTime[buttonIndex] = 0.0f;
+                    gameCubePad->fButtonTimeSinceLastRepeat[buttonIndex] = 0.0f;
+                }
+            }
+
+            for (int buttonIndex = 12; buttonIndex < 16; buttonIndex++)
+            {
+                u16 buttonMask = 1 << buttonIndex;
+                if (PadStatus::s_Current[controllerIndex].button & buttonMask)
+                {
+                    gameCubePad->fButtonInitialDelay[buttonIndex - 12] += frameTime;
+                }
+                else
+                {
+                    gameCubePad->fButtonInitialDelay[buttonIndex - 12] = 0.0f;
+                    gameCubePad->fButtonRepeatRate[buttonIndex - 12] = 0.0f;
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -38,7 +157,7 @@ void VBlankPadUpdate()
  */
 void cPlatPad::StopRumble()
 {
-    padStatus[m_padIndex].m_rumbleActive = 0;
+    padStatus[0].m_GameCubePads[m_padIndex].bRumbleActive = 0;
     PADControlMotor(m_padIndex, 2);
 }
 
@@ -50,8 +169,8 @@ void cPlatPad::StartRumble(float param1, float param2, float param3)
     if (m_bDisableRumble == 0)
     {
         PADControlMotor(m_padIndex, 1);
-        padStatus[m_padIndex].m_rumbleIntensity = param1;
-        padStatus[m_padIndex].m_rumbleActive = 1;
+        padStatus[0].m_GameCubePads[m_padIndex].fRumbleTimer = param1;
+        padStatus[0].m_GameCubePads[m_padIndex].bRumbleActive = 1;
     }
 }
 
@@ -60,7 +179,7 @@ void cPlatPad::StartRumble(float param1, float param2, float param3)
  */
 bool cPlatPad::RumbleActive()
 {
-    return padStatus[m_padIndex].m_rumbleActive;
+    return padStatus[0].m_GameCubePads[m_padIndex].bRumbleActive;
 }
 
 /**
@@ -68,7 +187,7 @@ bool cPlatPad::RumbleActive()
  */
 f32 cPlatPad::AnalogRightY()
 {
-    return padStatus[m_padIndex].m_rightY;
+    return padStatus[0].m_GameCubePads[m_padIndex].fAnalogRightY;
 }
 
 /**
@@ -76,7 +195,7 @@ f32 cPlatPad::AnalogRightY()
  */
 f32 cPlatPad::AnalogRightX()
 {
-    return padStatus[m_padIndex].m_rightX;
+    return padStatus[0].m_GameCubePads[m_padIndex].fAnalogRightX;
 }
 
 /**
@@ -84,7 +203,7 @@ f32 cPlatPad::AnalogRightX()
  */
 f32 cPlatPad::AnalogLeftY()
 {
-    return padStatus[m_padIndex].m_leftY;
+    return padStatus[0].m_GameCubePads[m_padIndex].fAnalogLeftY;
 }
 
 /**
@@ -92,7 +211,7 @@ f32 cPlatPad::AnalogLeftY()
  */
 f32 cPlatPad::AnalogLeftX()
 {
-    return padStatus[m_padIndex].m_leftX;
+    return padStatus[0].m_GameCubePads[m_padIndex].fAnalogLeftX;
 }
 
 /**
@@ -106,21 +225,21 @@ f32 cPlatPad::GetPressureDerivative(int, bool)
 /**
  * Offset/Address/Size: 0x6B4 | 0x801C3664 | size: 0x84
  */
-f32 cPlatPad::GetPressure(int button, bool arg2)
+f32 cPlatPad::GetPressure(int button, bool remap)
 {
-    s32 var_r4 = button;
-    if (arg2 != 0)
+    if (remap != 0)
     {
-        var_r4 = cPadManager::m_pRemapArray[var_r4];
+        button = cPadManager::m_pRemapArray[button];
     }
-    switch (var_r4)
-    { /* irregular */
+
+    switch (button)
+    {
     case 0x40:
-        return padStatus[m_padIndex].m_pressure1;
+        return padStatus[0].m_GameCubePads[m_padIndex].fTriggerLeft;
     case 0x20:
-        return padStatus[m_padIndex].m_pressure2;
+        return padStatus[0].m_GameCubePads[m_padIndex].fTriggerRight;
     default:
-        if ((var_r4 & PadStatus::s_Current[m_padIndex].button) != 0)
+        if ((PadStatus::s_Current[m_padIndex].button & button) != 0)
         {
             return 1.f;
         }
@@ -138,7 +257,7 @@ f32 cPlatPad::GetButtonStateTime(int button, bool remap)
         button = cPadManager::m_pRemapArray[button];
     }
 
-    return ::padStatus[m_padIndex].m_buttonStateTimes[0x1F - __cntlzw(button)];
+    return padStatus[0].m_GameCubePads[m_padIndex].fButtonStateTime[0x1F - __cntlzw(button)];
 }
 
 /**
@@ -151,9 +270,7 @@ bool cPlatPad::PlatJustReleased(int button, bool remap)
         button = cPadManager::m_pRemapArray[button];
     }
 
-    // no clue why 0x388 is used ... it is 0xE0 * 4
-    s32 buttonReleased = (uint) * (u16*)((u8*)padStatus + (m_padIndex << 1) + 0x388) & button;
-    // s32 buttonReleased = padStatus + m_padIndex * 2.m_button & button;
+    s32 buttonReleased = padStatus[0].m_justReleased[m_padIndex] & button;
     return (buttonReleased != 0) ? true : false;
 }
 
@@ -162,16 +279,12 @@ bool cPlatPad::PlatJustReleased(int button, bool remap)
  */
 bool cPlatPad::PlatJustPressed(int button, bool remap)
 {
-    // s32 temp_r3;
-    // s32 var_r4 = button;
     if (remap)
     {
         button = cPadManager::m_pRemapArray[button];
     }
 
-    // no clue why 0x388 is used ... it is 0xE0 * 4
-    s32 buttonPressed = (u32) * (u16*)((u8*)padStatus + (m_padIndex << 1) + 0x380) & button;
-    // s32 buttonPressed = ::padStatus[m_padIndex].m_button & button;
+    s32 buttonPressed = padStatus[0].m_justPressed[m_padIndex] & button;
     return (buttonPressed != 0) ? true : false;
 }
 
@@ -208,67 +321,61 @@ bool cPlatPad::IsConnected()
 /**
  * Offset/Address/Size: 0x858 | 0x801C3808 | size: 0x270
  */
-void PadStatus::Update(float)
+void PadStatus::Update(float dt)
 {
-    s32* var_r28;
-    s32 var_r26;
-    s32 var_r31;
-    u32 var_r27;
-    u8 temp_r4 = 0;
-    void* temp_r3;
-    void* var_r29;
-    void* var_r30;
+    u32 resetMask = 0;
 
-    var_r27 = 0;
-    // var_r28 = &g_nPadMasks;
-    var_r26 = 0;
-    // var_r30 = arg0;
-    // var_r29 = arg0;
-    var_r31 = 0;
-    do
+    for (s32 i = 0; i < 4; ++i)
     {
-        temp_r3 = PadStatus::s_Current + var_r31;
-        // temp_r4 = temp_r3->unkA;
-        if ((s8)temp_r4 == 0)
-        {
-            // var_r30->unk0 = (f32) ((f32) (s8) temp_r3->unk2 / @496);
-            // var_r30->unk4 = (f32) ((f32) (s8) *(s_Current__9PadStatus + (var_r31 + 3)) / @496);
-            // var_r30->unk8 = (f32) ((f32) (s8) *(s_Current__9PadStatus + (var_r31 + 4)) / @589);
-            // var_r30->unkC = (f32) ((f32) (s8) *(s_Current__9PadStatus + (var_r31 + 5)) / @589);
-            // var_r30->unk10 = (f32) ((f32) *(s_Current__9PadStatus + (var_r31 + 6)) / @590);
-            // var_r30->unk14 = (f32) ((f32) *(s_Current__9PadStatus + (var_r31 + 7)) / @590);
-            // var_r29->unk380 = (s16) (*(s_Current__9PadStatus + var_r31) & ~var_r29->unk390);
-            // var_r29->unk388 = (s16) (var_r29->unk390 & ~*(s_Current__9PadStatus + var_r31));
-            // var_r29->unk390 = (u16) *(s_Current__9PadStatus + var_r31);
-            // *(arg0 + (var_r26 + 0x398)) = *(s_Current__9PadStatus + (var_r31 + 0xA));
-        }
-        else if ((s8)temp_r4 == -1)
-        {
-            // if ((s8) *(arg0 + (var_r26 + 0x398)) == 0) {
-            //     memset(var_r30, 0, 0xE0);
-            // }
-            // var_r29->unk380 = 0;
-            // var_r27 |= *var_r28;
-            // var_r29->unk388 = 0;
-            // var_r29->unk390 = 0U;
-        }
-        // if ((u8) var_r30->unkDC != 0) {
-        // var_r30->unkD8 = (f32) (var_r30->unkD8 - arg8);
-        // if (var_r30->unkD8 < @498) {
-        //     var_r30->unkDC = 0U;
-        //     PADControlMotor(var_r26, 0);
-        // }
-        // }
-        // var_r26 += 1;
-        // var_r30 += 0xE0;
-        // var_r29 += 2;
-        // var_r28 += 4;
-        // var_r31 += 0xC;
-    } while (var_r26 < 4);
+        const s8 err = PadStatus::s_Current[i].err;
 
-    if (var_r27 != 0)
+        if (err == 0)
+        {
+            tGameCubePad& pad = m_GameCubePads[i];
+            pad.fAnalogLeftX = (f32)PadStatus::s_Current[i].stickX / 56.0f;
+            pad.fAnalogLeftY = (f32)PadStatus::s_Current[i].stickY / 56.0f;
+            pad.fAnalogRightX = (f32)PadStatus::s_Current[i].substickX / 44.0f;
+            pad.fAnalogRightY = (f32)PadStatus::s_Current[i].substickY / 44.0f;
+            pad.fTriggerLeft = (f32)PadStatus::s_Current[i].triggerLeft / 150.0f;
+            pad.fTriggerRight = (f32)PadStatus::s_Current[i].triggerRight / 150.0f;
+
+            // const u16 prev = m_previousButtons[i];
+            // const u16 now = PadStatus::s_Current[i].button;
+            m_justPressed[i] = (u16)((u16)~m_previousButtons[i] & PadStatus::s_Current[i].button);
+            m_justReleased[i] = (u16)(m_previousButtons[i] & (u16)~PadStatus::s_Current[i].button);
+            m_previousButtons[i] = PadStatus::s_Current[i].button;
+
+            m_previousErr[i] = err;
+        }
+        else if (err == -1)
+        {
+            if ((s8)m_previousErr[i] == 0)
+            {
+                memset(&m_GameCubePads[i], 0, sizeof(tGameCubePad));
+            }
+
+            resetMask |= (0x80000000u >> i);
+
+            m_justPressed[i] = 0;
+            m_justReleased[i] = 0;
+            m_previousButtons[i] = 0;
+        }
+
+        if (m_GameCubePads[i].bRumbleActive)
+        {
+            f32 t = m_GameCubePads[i].fRumbleTimer - dt;
+            m_GameCubePads[i].fRumbleTimer = t;
+            if (t < 0.0f)
+            {
+                m_GameCubePads[i].bRumbleActive = 0;
+                PADControlMotor(i, 0);
+            }
+        }
+    }
+
+    if (resetMask != 0)
     {
-        PADReset(var_r27);
+        PADReset(resetMask);
     }
 }
 
@@ -285,38 +392,23 @@ void UpdatePlatPad(float dt)
  */
 void InitPlatPad()
 {
-    // int iVar1;
-    // int iVar2;
-    // undefined* __s;
-    // undefined* puVar3;
-    // undefined* puVar4;
-    // int iVar5;
-
     PADRead(PadStatus::s_Current);
-    memcpy(::PadStatus::s_Next, ::PadStatus::s_Next, 4);
-    // iVar1 = 0;
-    // iVar2 = 0;
-    // do
-    // {
-    //     iVar5 = 0;
-    //     puVar4 = ::@unnamed @platpad_cpp @ ::padStatus + iVar2;
-    //     __s = puVar4;
-    //     puVar3 = puVar4;
-    //     do
-    //     {
-    //         *(undefined2*)(puVar3 + 0x380) = 0;
-    //         *(undefined2*)(puVar3 + 0x388) = 0;
-    //         *(undefined2*)(puVar3 + 0x390) = 0;
-    //         puVar4[iVar5 + 0x398] = 0;
-    //         runtime.ppceabi.h::memset(__s, 0, 0xe0);
-    //         iVar5 = iVar5 + 1;
-    //         __s = __s + 0xe0;
-    //         puVar3 = puVar3 + 2;
-    //     } while (iVar5 < 4);
-    //     iVar1 = iVar1 + 1;
-    //     iVar2 = iVar2 + 0x39c;
-    // } while (iVar1 < 2);
-    return;
+    memcpy(PadStatus::s_Next, PadStatus::s_Next, 4);
+
+    for (int category = 0; category < 2; ++category)
+    {
+        PadStatus* pad = &padStatus[category];
+
+        for (int controller = 0; controller < 4; ++controller)
+        {
+            pad->m_justPressed[controller] = 0;
+            pad->m_justReleased[controller] = 0;
+            pad->m_previousButtons[controller] = 0;
+            pad->m_previousErr[controller] = 0;
+
+            memset(&pad->m_GameCubePads[controller], 0, sizeof(tGameCubePad));
+        }
+    }
 }
 
 /**

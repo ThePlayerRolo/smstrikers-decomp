@@ -34,28 +34,38 @@ public:
     /* 0x40 */ virtual void StopRumble();
 };
 
+struct tGameCubePad
+{
+    /* 0x0, */ f32 fAnalogLeftX;
+    /* 0x4, */ f32 fAnalogLeftY;
+    /* 0x8, */ f32 fAnalogRightX;
+    /* 0xC, */ f32 fAnalogRightY;
+    /* 0x10 */ f32 fTriggerLeft;
+    /* 0x14 */ f32 fTriggerRight;
+    /* 0x18 */ f32 fButtonStateTime[12];
+    /* 0x48 */ f32 fButtonInitialDelay[12];
+    /* 0x78 */ f32 fButtonRepeatRate[12];
+    /* 0xA8 */ f32 fButtonTimeSinceLastRepeat[12];
+    /* 0xD8 */ f32 fRumbleTimer;
+    /* 0xDC */ bool bRumbleActive;
+    /* 0xDD */ bool bMapAnalogToDPad;
+}; // size 0xE0
+
 class PadStatus
 {
 public:
-    static PADStatus s_A;
-    static PADStatus s_B;
-    static PADStatus s_C;
-    static PADStatus s_D;
+    static PADStatus s_A[4];
+    static PADStatus s_B[4];
     static PADStatus* s_Current;
     static PADStatus* s_Next;
 
     void Update(float);
 
-    /* 0x00 */ f32 m_leftX;
-    /* 0x04 */ f32 m_leftY;
-    /* 0x08 */ f32 m_rightX;
-    /* 0x0C */ f32 m_rightY;
-    /* 0x10 */ f32 m_pressure1;
-    /* 0x14 */ f32 m_pressure2;
-    /* 0x18 */ f32 m_buttonStateTimes[48]; // ? 48 buttons
-    /* 0xD8 */ f32 m_rumbleIntensity;
-    /* 0xDC */ bool m_rumbleActive;
-    /* .... */ u16 m_button; // this is not correct, I have not clue where the button data is stored yet..
-}; // size 0xE0 (!!! m_button just work because of 4 byte alignment)
+    /* 0x000 */ struct tGameCubePad m_GameCubePads[4]; // size 0x380
+    /* 0x380 */ u16 m_justPressed[4];                  // size 0x8
+    /* 0x388 */ u16 m_justReleased[4];                 // size 0x8
+    /* 0x390 */ u16 m_previousButtons[4];              // size 0x8
+    /* 0x398 */ s8 m_previousErr[4];                   // size 0x4
+};
 
 #endif // _PLATPAD_H_
