@@ -1022,6 +1022,9 @@ config.libs = [
             Object(Matching, "Game/SoundProps/crowdsoundproperties.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/SoundProps/powerupsoundproperties.cpp", extra_cflags=["-inline deferred"]),  
             Object(Matching, "Game/SoundProps/worldsoundproperties.cpp", extra_cflags=["-inline deferred"]),
+
+            # Effects
+            Object(Matching, "Game/Effects/efList.cpp", extra_cflags=["-inline deferred"]),
         ],
     ),
     GameLib(

@@ -4345,7 +4345,7 @@ Game/EmissionManager.cpp:
 	.sbss       start:0x803743A8 end:0x803743C8
 	.sdata2     start:0x80377348 end:0x80377368
 
-efList.o:
+Game/Effects/efList.cpp:
 	.text       start:0x801FA854 end:0x801FA980
 
 Game/Sys/eventman.cpp:
