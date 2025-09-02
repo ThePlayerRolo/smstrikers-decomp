@@ -968,7 +968,7 @@ Game/SH/SHChooseSides.cpp:
 	.sdata      start:0x803717E0 end:0x80371840
 	.sdata2     start:0x80375C18 end:0x80375C20
 
-OverlayManager.o:
+Game/OverlayManager.cpp:
 	.text       start:0x800C7E2C end:0x800C89D4
 	.text       start:0x800C89D4 end:0x800C89D4
 	.text       start:0x800C89D4 end:0x800C89D4

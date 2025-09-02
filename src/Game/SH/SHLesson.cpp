@@ -1,5 +1,9 @@
 #include "Game/SH/SHLesson.h"
+#include "types.h"
+#include <string.h>
 
+
+int LessonScene::mLessonIndex = -1;
 // /**
 //  * Offset/Address/Size: 0x2D4 | 0x8010ACF4 | size: 0x15C
 //  */
@@ -53,8 +57,9 @@
 /**
  * Offset/Address/Size: 0x508 | 0x8010A9B4 | size: 0x6C
  */
-LessonScene::LessonScene()
+LessonScene::LessonScene() : mHudScene(nullptr)
 {
+    
 }
 
 /**
@@ -69,18 +74,31 @@ LessonScene::~LessonScene()
  */
 void LessonScene::SceneCreated()
 {
+    char title[64]; // r1+0xC0
+    char body[64]; // r1+0x80
+    class TLTextInstance* titletextinstance; // r28
+    class TLTextInstance* bodytextinstance; // r31
+    class TLComponentInstance* buttonComponent; // r0
+
 }
 
 /**
  * Offset/Address/Size: 0x8 | 0x8010A4B4 | size: 0x1D4
  */
-void LessonScene::Update(float)
+void LessonScene::Update(float fDeltaT)
 {
+    class MoviePlayerScene* scene; // r31
+    char filename[128]; // r1+0x8
+
+    BaseSceneHandler::Update(fDeltaT);
+    this->mButtons.CentreButtons();
+
 }
 
 /**
  * Offset/Address/Size: 0x0 | 0x8010A4AC | size: 0x8
  */
-void LessonScene::SetLesson(int)
+void LessonScene::SetLesson(int index)
 {
+    LessonScene::mLessonIndex = index;
 }
