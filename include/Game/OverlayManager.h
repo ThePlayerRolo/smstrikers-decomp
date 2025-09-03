@@ -18,7 +18,7 @@ enum OverlaySlideName {
     NUM_SLIDE_NAMES = 8,
 };
 
-class OverlayManager : BaseGameSceneManager
+class OverlayManager : public BaseGameSceneManager
 {
 public:
     OverlayManager();

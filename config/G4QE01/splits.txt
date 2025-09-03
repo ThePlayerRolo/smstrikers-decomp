@@ -1245,7 +1245,7 @@ Game/OverlayHandlerHUD.cpp:
 	.sdata      start:0x80371DC0 end:0x80371E58
 	.sdata2     start:0x80375D40 end:0x80375D70
 
-OverlayHandlerInGameText.o:
+Game/OverlayHandlerInGameText.cpp:
 	.text       start:0x800FB0AC end:0x800FC098
 	.text       start:0x800FC098 end:0x800FC098
 	.text       start:0x800FC098 end:0x800FC108

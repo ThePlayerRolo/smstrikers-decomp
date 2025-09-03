@@ -1,9 +1,11 @@
 #include "Game/OverlayManager.h"
 #include "Game/BaseGameSceneManager.h"
 #include "Game/FE/feInGameMessengerManager.h"
+#include "Game/GameInfo.h"
 #include "Game/OverlayHandlerHUD.h"
+#include "NL/nlSingleton.h"
 #include "NL/nlTask.h"
-
+#include "NL/nlBasicString.h"
 nlSingleton<OverlayManager> OverlayManager::s_pInstance;
 
 /**
@@ -51,7 +53,7 @@ void OverlayManager::Pop()
 /**
  * Offset/Address/Size: 0xA50 | 0x800C887C | size: 0x2C
  */
-void OverlayManager::SetCurrentTextOverlaySlide(OverlaySlideName)
+void OverlayManager::SetCurrentTextOverlaySlide(OverlaySlideName slideName)
 {
     if (this->mInGameTextOverlay != NULL) {
         //this->mInGameTextOverlay->
@@ -107,8 +109,16 @@ void OverlayManager::FEEventHandler(Event*, void*)
 /**
  * Offset/Address/Size: 0x1A8 | 0x800C7FD4 | size: 0x188
  */
-void OverlayManager::SetVisible(SceneList, bool, bool)
+void OverlayManager::SetVisible(SceneList scene, bool visibility, bool overrideStateSettings)
 {
+    BasicString fileName; // r1+0xC
+    u32 uHashID; // r4
+    BaseOverlayHandler* sceneHandler; // r3
+    u32 state; // r4
+
+    if (nlSingleton<GameInfoManager>::s_pInstance->m_unk_0x4960->m_unk_0x04 != SK_MYSTERY || scene == OVERLAY_HUD) {
+        
+    }
 }
 
 /**

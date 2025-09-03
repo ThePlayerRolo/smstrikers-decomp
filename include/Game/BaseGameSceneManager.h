@@ -112,7 +112,7 @@ public:
     bool IsOnStack(SceneList);
     void GetFileName(SceneList);
     void PushLoadingScene(bool);
-
+public:
     /* 0x04 */ u32 m_count;
     /* 0x08 */ SceneList m_types[MAX_SCENE_COUNT];
     /* 0x88 */ BaseSceneHandler* m_handlers[MAX_SCENE_COUNT];

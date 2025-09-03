@@ -60,7 +60,7 @@ enum ScreenPosition {
     NUM_POSITIONS = 13,
 };
 
-class BaseOverlayHandler : BaseSceneHandler
+class BaseOverlayHandler : public BaseSceneHandler
 {
 public:
     BaseOverlayHandler() {

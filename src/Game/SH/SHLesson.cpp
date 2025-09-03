@@ -1,4 +1,9 @@
 #include "Game/SH/SHLesson.h"
+#include "Game/FE/tlComponentInstance.h"
+#include "Game/FE/tlTextInstance.h"
+#include "Game/OverlayManager.h"
+#include "NL/nlPrint.h"
+#include "NL/nlSingleton.h"
 #include "types.h"
 #include <string.h>
 
@@ -76,9 +81,11 @@ void LessonScene::SceneCreated()
 {
     char title[64]; // r1+0xC0
     char body[64]; // r1+0x80
-    class TLTextInstance* titletextinstance; // r28
-    class TLTextInstance* bodytextinstance; // r31
-    class TLComponentInstance* buttonComponent; // r0
+    TLTextInstance* titletextinstance; // r28
+    TLTextInstance* bodytextinstance; // r31
+    TLComponentInstance* buttonComponent; // r0
+    nlSNPrintf("LOC_TUTORIAL_INSTRUCTION_BODY_%d", mLessonIndex, body, 0x40);
+    nlSNPrintf("LOC_TUTORIAL_INSTRUCTION_TITLE_%d", mLessonIndex, title, 0x40);
 
 }
 
@@ -92,6 +99,9 @@ void LessonScene::Update(float fDeltaT)
 
     BaseSceneHandler::Update(fDeltaT);
     this->mButtons.CentreButtons();
+    if (nlSingleton<OverlayManager>::s_pInstance->m_count != 0) {
+
+    }
 
 }
 
