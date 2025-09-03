@@ -1226,7 +1226,7 @@ Game/SH/SHSuperTeam.cpp:
 	.sdata      start:0x80371DB0 end:0x80371DC0
 	.sdata2     start:0x80375D38 end:0x80375D40
 
-OverlayHandlerHUD.o:
+Game/OverlayHandlerHUD.cpp:
 	.text       start:0x800F62E0 end:0x800F9A4C
 	.text       start:0x800F9A4C end:0x800F9A4C
 	.text       start:0x800F9A4C end:0x800F9A4C

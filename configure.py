@@ -788,6 +788,7 @@ config.libs = [
             Object(Matching, "Game/BaseSceneHandler.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/BaseGameSceneManager.cpp", extra_cflags=["-inline deferred"]),
             Object(NonMatching, "Game/OverlayManager.cpp", extra_cflags=["-inline deferred"]),
+            Object(NonMatching, "Game/OverlayHandlerHUD.cpp", extra_cflags=["-inline deferred"]),
 
 
             Object(NonMatching, "Game/FE/feTweenFuncs.cpp"),

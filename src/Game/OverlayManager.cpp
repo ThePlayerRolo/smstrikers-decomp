@@ -1,10 +1,10 @@
 #include "Game/OverlayManager.h"
 #include "Game/BaseGameSceneManager.h"
 #include "Game/FE/feInGameMessengerManager.h"
-
+#include "Game/OverlayHandlerHUD.h"
+#include "NL/nlTask.h"
 
 nlSingleton<OverlayManager> OverlayManager::s_pInstance;
-
 
 /**
  * Offset/Address/Size: 0xB48 | 0x800C8974 | size: 0x60
@@ -33,7 +33,8 @@ OverlayManager::~OverlayManager()
 BaseSceneHandler* OverlayManager::Push(SceneList newOverlay, ScreenMovement movement, bool popFirst)
 {
     BaseSceneHandler* newscene = BaseGameSceneManager::Push(newOverlay, movement, popFirst);
-    if (newscene != NULL && newOverlay == OVERLAY_TEXT) {
+    if (newscene != NULL && newOverlay == OVERLAY_TEXT)
+    {
         this->mInGameTextOverlay = (InGameTextOverlay*)newscene;
     }
     return newscene;
@@ -59,11 +60,37 @@ void OverlayManager::Pop()
  */
 void OverlayManager::Update(float fDeltaT)
 {
-    if (this->mIGMessengerManager != nullptr) {
+    if (this->mIGMessengerManager != nullptr)
+    {
         this->mIGMessengerManager->Update(fDeltaT);
     }
-    if (this->mHUDDelay > 0.0) {
-
+    if (this->mHUDDelay > 0.0f && nlTaskManager::m_pInstance->m_unk_0x08 == 2)
+    {
+        this->mHUDDelay -= fDeltaT;
+        if (this->mHUDDelay <= 0.0f)
+        {
+            this->mHUDDelay = 0.0f;
+            if (mDoHUDSlideIn)
+            {
+                this->mHUDDelay = 0.0f;
+                if (!mIsHUDSlideIn)
+                {
+                    HUDOverlay* local_hud = (HUDOverlay*)GetScene(OVERLAY_HUD);
+                    local_hud->SetSlideIn();
+                    mIsHUDSlideIn = true;
+                }
+            }
+            else
+            {
+                this->mHUDDelay = 0.0f;
+                if (mIsHUDSlideIn == 1)
+                { // For some reason doing (mIsHudSlideIn) doesn't match?
+                    HUDOverlay* local_hud = (HUDOverlay*)GetScene(OVERLAY_HUD);
+                    local_hud->SetSlideOut();
+                    mIsHUDSlideIn = false;
+                }
+            }
+        }
     }
 }
 
@@ -84,7 +111,7 @@ void OverlayManager::SetVisible(SceneList, bool, bool)
 /**
  * Offset/Address/Size: 0xCC | 0x800C7EF8 | size: 0xDC
  */
-void OverlayManager::HandleStateTransition(unsigned long, unsigned long)
+void OverlayManager::HandleStateTransition(unsigned long to, unsigned long param_2)
 {
 }
 
@@ -93,6 +120,11 @@ void OverlayManager::HandleStateTransition(unsigned long, unsigned long)
  */
 void OverlayManager::DestroyMessengerManager()
 {
+    if (this->mIGMessengerManager != NULL)
+    {
+        delete this->mIGMessengerManager;
+        this->mIGMessengerManager = 0;
+    }
 }
 
 /**
@@ -100,10 +132,12 @@ void OverlayManager::DestroyMessengerManager()
  */
 void OverlayManager::ShowDemoSlide()
 {
-    class BaseSceneHandler* scene; 
-    if (!this->mIsDemoSlideVisible) {
+    class BaseSceneHandler* scene;
+    if (!this->mIsDemoSlideVisible)
+    {
         scene = BaseGameSceneManager::GetScene(OVERLAY_DEMO);
-        if (scene != nullptr) {
+        if (scene != nullptr)
+        {
             scene->SetVisible(true);
             this->mIsDemoSlideVisible = true;
         }

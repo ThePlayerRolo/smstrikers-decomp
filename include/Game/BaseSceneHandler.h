@@ -6,6 +6,7 @@
 #include "Game/FE/FEPresentation.h"
 #include "Game/FE/FEScene.h"
 
+//Todo Figure this out? IDK Man.
 class BaseScreenHandler {
     // total size: 0x14
 public:
@@ -13,21 +14,12 @@ public:
     virtual void fnc1() = 0; // offset 0x0, size 0x4
     virtual void fnc2() = 0; // offset 0x0, size 0x4
     virtual void fnc3() = 0; // offset 0x0, size 0x4
-    class BaseScreenHandler * m_next; // offset 0x4, size 0x4
-    class BaseScreenHandler * m_prev; // offset 0x8, size 0x4
-    class TLInstance * m_pTLInstance; // offset 0xC, size 0x4
-    class FEScene * m_pFEScene; // offset 0x10, size 0x4
+    class BaseScreenHandler* m_next; // offset 0x4, size 0x4
+    class BaseScreenHandler* m_prev; // offset 0x8, size 0x4
+    class TLInstance* m_pTLInstance; // offset 0xC, size 0x4
+    class FEScene* m_pFEScene; // offset 0x10, size 0x4
 };
 
-class SomeClass // TODO: needs to be removed and references replaced with the thing it should be
-{
-public:
-    SomeClass();
-    virtual ~SomeClass();
-    virtual void fnc1();
-    virtual void fnc2();
-    virtual void fnc3();
-};
 
 class BaseSceneHandler
 {

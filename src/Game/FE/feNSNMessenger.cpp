@@ -145,12 +145,6 @@ NSNMessengerScene::NSNMessengerScene()
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x0 | 0x800A21E0 | size: 0x5C
-//  */
-// BaseOverlayHandler::~BaseOverlayHandler()
-// {
-// }
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x800A223C | size: 0x8
