@@ -5,6 +5,19 @@
 #include "types.h"
 #include "Game/BaseGameSceneManager.h"
 
+enum OverlaySlideName {
+    SLIDE_NAME_INVALID = -1,
+    SLIDE_NAME_TEXT_GOAL = 0,
+    SLIDE_NAME_TEXT_KICKOFF = 1,
+    SLIDE_NAME_TEXT_WINNER = 2,
+    SLIDE_NAME_TEXT_PAUSE = 3,
+    SLIDE_NAME_TEXT_TIE = 4,
+    SLIDE_NAME_TEXT_LOADING = 5,
+    SLIDE_NAME_TEXT_SHOOT = 6,
+    SLIDE_NAME_TEXT_REPLAY = 7,
+    NUM_SLIDE_NAMES = 8,
+};
+
 class OverlayManager : BaseGameSceneManager
 {
 public:
@@ -12,7 +25,7 @@ public:
     ~OverlayManager();
     virtual BaseSceneHandler* Push(SceneList, ScreenMovement, bool);
     virtual void Pop();
-    //void SetCurrentTextOverlaySlide(OverlaySlideName);
+    void SetCurrentTextOverlaySlide(OverlaySlideName);
     void Update(float);
     void FEEventHandler(Event*, void*);
     void SetVisible(SceneList, bool, bool);

@@ -51,9 +51,12 @@ void OverlayManager::Pop()
 /**
  * Offset/Address/Size: 0xA50 | 0x800C887C | size: 0x2C
  */
-/*void OverlayManager::SetCurrentTextOverlaySlide(OverlaySlideName)
+void OverlayManager::SetCurrentTextOverlaySlide(OverlaySlideName)
 {
-}*/
+    if (this->mInGameTextOverlay != NULL) {
+        //this->mInGameTextOverlay->
+    }
+}
 
 /**
  * Offset/Address/Size: 0x968 | 0x800C8794 | size: 0xE8
@@ -75,8 +78,8 @@ void OverlayManager::Update(float fDeltaT)
                 this->mHUDDelay = 0.0f;
                 if (!mIsHUDSlideIn)
                 {
-                    HUDOverlay* local_hud = (HUDOverlay*)GetScene(OVERLAY_HUD);
-                    local_hud->SetSlideIn();
+                    HUDOverlay* hudSlideIn = (HUDOverlay*)GetScene(OVERLAY_HUD);
+                    hudSlideIn->SetSlideIn();
                     mIsHUDSlideIn = true;
                 }
             }
@@ -85,8 +88,8 @@ void OverlayManager::Update(float fDeltaT)
                 this->mHUDDelay = 0.0f;
                 if (mIsHUDSlideIn == 1)
                 { // For some reason doing (mIsHudSlideIn) doesn't match?
-                    HUDOverlay* local_hud = (HUDOverlay*)GetScene(OVERLAY_HUD);
-                    local_hud->SetSlideOut();
+                    HUDOverlay* hudSlideOut = (HUDOverlay*)GetScene(OVERLAY_HUD);
+                    hudSlideOut->SetSlideOut();
                     mIsHUDSlideIn = false;
                 }
             }
