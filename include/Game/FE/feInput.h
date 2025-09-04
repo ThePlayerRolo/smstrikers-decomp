@@ -6,9 +6,16 @@
 
 class BaseSceneHandler;
 
-enum eFEINPUT_PAD
-{
-    FEINPUT_PAD_0 = 0,
+enum eFEINPUT_PAD {
+    FE_PAD1_ID = 0,
+    FE_PAD2_ID = 1,
+    FE_PAD3_ID = 2,
+    FE_PAD4_ID = 3,
+    FE_PAD5_ID = 4,
+    FE_PAD6_ID = 5,
+    FE_PAD7_ID = 6,
+    FE_PAD8_ID = 7,
+    FE_ALL_PADS = 8,
 };
 
 class FEInput
@@ -22,7 +29,7 @@ public:
     void PushExclusiveInputLock(BaseSceneHandler*, int);
     void EnableInputIfSceneHasFocus(BaseSceneHandler*);
     void JustReleased(eFEINPUT_PAD, int, bool, eFEINPUT_PAD*);
-    void JustPressed(eFEINPUT_PAD, int, bool, eFEINPUT_PAD*);
+    bool JustPressed(eFEINPUT_PAD, int, bool, eFEINPUT_PAD*);
     void IsAutoPressed(eFEINPUT_PAD, int, bool, eFEINPUT_PAD*);
     void IsPressed(eFEINPUT_PAD, int, bool, eFEINPUT_PAD*);
     void IsConnected(eFEINPUT_PAD);
@@ -31,6 +38,9 @@ public:
     FEInput();
     void Initialize();
     virtual ~FEInput();
+    
 };
+
+static FEInput* g_pFEInput;
 
 #endif // _FEINPUT_H_

@@ -6,6 +6,7 @@
 #include "NL/nlSingleton.h"
 #include "NL/nlTask.h"
 #include "NL/nlBasicString.h"
+#include "Game/OverlayHandlerInGameText.h"
 nlSingleton<OverlayManager> OverlayManager::s_pInstance;
 
 /**
@@ -56,7 +57,7 @@ void OverlayManager::Pop()
 void OverlayManager::SetCurrentTextOverlaySlide(OverlaySlideName slideName)
 {
     if (this->mInGameTextOverlay != NULL) {
-        //this->mInGameTextOverlay->
+        mInGameTextOverlay->SetSlide(slideName);
     }
 }
 

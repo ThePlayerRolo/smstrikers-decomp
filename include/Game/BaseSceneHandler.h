@@ -43,7 +43,7 @@ public:
     virtual void SetVisible(bool visible) { m_bVisible = visible; };
 
     unsigned long m_uHashID; // offset 0x4, size 0x4
-    unsigned char m_bVisible; // offset 0x8, size 0x1
+    bool m_bVisible; // offset 0x8, size 0x1
     class BaseScreenHandler * m_pScreenHandlerList; // offset 0xC, size 0x4
     class BaseScreenHandler * m_pActiveScreenHandler; // offset 0x10, size 0x4
     class FEPresentation * m_pFEPresentation; // offset 0x14, size 0x4

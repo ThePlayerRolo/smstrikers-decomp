@@ -1,5 +1,11 @@
 #include "Game/OverlayHandlerInGameText.h"
-
+#include "Game/BaseSceneHandler.h"
+#include "Game/FE/FEPresentation.h"
+#include "Game/FE/tlSlide.h"
+#include "Game/OverlayManager.h"
+#include "NL/nlSingleton.h"
+#include "NL/nlTask.h"
+#include "Game/FE/feInput.h"
 
 
 /**
@@ -129,15 +135,54 @@ InGameTextOverlay::~InGameTextOverlay()
 /**
  * Offset/Address/Size: 0xE1C | 0x800FBEC8 | size: 0xBC
  */
-void InGameTextOverlay::SetSlide(OverlaySlideName)
+void InGameTextOverlay::SetSlide(OverlaySlideName slideName)
 {
+    this->mPendingSlideName = slideName;
+    if (this->mCurrentSlideName != this->mPendingSlideName) {
+        this->m_pFEScene->m_package->GetPresentation()->SetActiveSlide(IGTTable[this->mPendingSlideName].mSlideName);
+        TLSlide* CurrentSlide = this->m_pFEScene->m_package->GetPresentation()->m_currentSlide;
+        if (CurrentSlide != NULL) {
+            CurrentSlide->m_time = 0.0f;
+            CurrentSlide->m_start = 0.0f;
+            CurrentSlide->Update(0.0f);
+        }
+        if (mCurrentSlideName != SLIDE_NAME_INVALID) {
+            this->m_pFEScene->m_package->GetPresentation()->SetActiveSlide(IGTTable[mCurrentSlideName].mSlideName);
+        }
+    }
 }
 
 /**
  * Offset/Address/Size: 0xCB0 | 0x800FBD5C | size: 0x16C
  */
-void InGameTextOverlay::Update(float)
+void InGameTextOverlay::Update(float fDeltaT)
 {
+    BaseSceneHandler::Update(fDeltaT);
+    if (this->mCurrentSlideName != this->mPendingSlideName) {
+        this->mCurrentSlideName = this->mPendingSlideName;
+        this->m_pFEScene->m_package->GetPresentation()->SetActiveSlide(IGTTable[this->mCurrentSlideName].mSlideName);
+        this->mVisibilityMask = IGTTable[this->mCurrentSlideName].mTaskVisibility;
+        if (this->mVisibilityMask & nlTaskManager::m_pInstance->m_unk_0x08) {
+            if (mWasLastVisible) {
+                this->SetVisible(true);
+            }
+        }
+        else {
+            mWasLastVisible = m_bVisible;
+            this->SetVisible(false);
+        }
+
+        switch (this->mCurrentSlideName) {
+            case SLIDE_NAME_TEXT_WINNER:
+                DisplayFinalScore();
+                break;
+        } //TODO: Fill in DisplayFinalScore();
+    }
+    if (this->mCurrentSlideName == SLIDE_NAME_TEXT_WINNER && g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL) && m_bVisible) {
+        nlSingleton<OverlayManager>::s_pInstance->SetVisible(OVERLAY_TEXT, false, false);
+        BaseSceneHandler* handler = nlSingleton<OverlayManager>::s_pInstance->Push(OVERLAY_SUMMARY, SCREEN_NOTHING, false);
+        handler->m_bVisible = true;  //TODO: Big Offset      
+    }
 }
 
 /**
@@ -152,4 +197,5 @@ void InGameTextOverlay::SceneCreated()
  */
 void InGameTextOverlay::DisplayFinalScore()
 {
+    
 }
