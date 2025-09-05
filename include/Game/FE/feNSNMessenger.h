@@ -63,9 +63,9 @@ enum ScreenPosition {
 class BaseOverlayHandler : public BaseSceneHandler
 {
 public:
-    BaseOverlayHandler() {
+    BaseOverlayHandler(u32 VisibilityMask) {
         mPosition = POSITION_TOP;
-        mVisibilityMask = 2;
+        mVisibilityMask = VisibilityMask;
         mWasLastVisible = false;
     }
     virtual ~BaseOverlayHandler();

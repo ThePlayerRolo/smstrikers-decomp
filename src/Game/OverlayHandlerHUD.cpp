@@ -124,7 +124,7 @@
 /**
  * Offset/Address/Size: 0x36B8 | 0x800F9998 | size: 0xB4
  */
-HUDOverlay::HUDOverlay()
+HUDOverlay::HUDOverlay() : BaseOverlayHandler(2)
 {
    mSeconds = -1;
    mTenths = 0;

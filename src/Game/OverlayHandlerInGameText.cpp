@@ -118,7 +118,7 @@ void StatsTracker::Track(ePlayerStats, int, int, int, int, int, int)
 /**
  * Offset/Address/Size: 0xF44 | 0x800FBFF0 | size: 0xA8
  */
-InGameTextOverlay::InGameTextOverlay()
+InGameTextOverlay::InGameTextOverlay() : BaseOverlayHandler(2)
 {
     mCurrentSlideName = SLIDE_NAME_INVALID;
     mPendingSlideName = SLIDE_NAME_INVALID;

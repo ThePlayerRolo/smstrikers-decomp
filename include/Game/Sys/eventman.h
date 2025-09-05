@@ -65,4 +65,6 @@ public:
     virtual ~EventManager();
 };
 
+extern EventManager* g_pEventManager;
+
 #endif // _EVENTMAN_H_

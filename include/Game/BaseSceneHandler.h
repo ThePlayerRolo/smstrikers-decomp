@@ -11,7 +11,7 @@ class BaseScreenHandler {
     // total size: 0x14
 public:
     virtual ~BaseScreenHandler() = 0;
-    virtual void fnc1() = 0; // offset 0x0, size 0x4
+    virtual u32 fnc1() = 0; // offset 0x0, size 0x4
     virtual void fnc2() = 0; // offset 0x0, size 0x4
     virtual void fnc3() = 0; // offset 0x0, size 0x4
     class BaseScreenHandler* m_next; // offset 0x4, size 0x4
