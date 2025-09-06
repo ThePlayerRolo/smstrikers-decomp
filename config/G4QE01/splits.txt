@@ -1293,7 +1293,7 @@ Game/FE/feInGameMessengerManager.cpp:
 	.data       start:0x802AD8C0 end:0x802AD8D0
 	.sdata2     start:0x80375D78 end:0x80375D80
 
-OverlayHandlerGoal.o:
+Game/OverlayHandlerGoal.cpp:
 	.text       start:0x80100070 end:0x801032C0
 	.text       start:0x801032C0 end:0x801032C0
 	.text       start:0x801032C0 end:0x80103560
