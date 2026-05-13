@@ -367,60 +367,6 @@ void Replayable<3, LoadFrame, float>(LoadFrame& frame, float& value)
 }
 
 template <>
-void Replayable<3, SaveFrame, unsigned long>(SaveFrame& frame, unsigned long& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(frame.mStream.mStorage, &value, sizeof(unsigned long));
-            frame.mStream.mStorage += sizeof(unsigned long);
-        }
-    }
-}
-
-template <>
-void Replayable<3, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value)
-{
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(&value, frame.mStream.mStorage, sizeof(unsigned long));
-            frame.mStream.mStorage += sizeof(unsigned long);
-        }
-    }
-}
-
-template <>
-void Replayable<3, SaveFrame, nlQuaternion>(SaveFrame& frame, nlQuaternion& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(frame.mStream.mStorage, &value, sizeof(nlQuaternion));
-            frame.mStream.mStorage += sizeof(nlQuaternion);
-        }
-    }
-}
-
-template <>
-void Replayable<3, LoadFrame, nlQuaternion>(LoadFrame& frame, nlQuaternion& value)
-{
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(&value, frame.mStream.mStorage, sizeof(nlQuaternion));
-            frame.mStream.mStorage += sizeof(nlQuaternion);
-        }
-    }
-}
-
-template <>
 void Replayable<1, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value)
 {
     if (frame.mInterval == 1)

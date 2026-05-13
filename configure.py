@@ -1106,9 +1106,7 @@ config.libs = [
             Object(NonMatching, "Game/Drawable/DrawableCharacter.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/Drawable/DrawableBall.cpp", extra_cflags=["-inline auto"]),
             Object(NonMatching, "Game/Drawable/DrawablePowerup.cpp", extra_cflags=["-inline auto"]),
-            Object(NonMatching, "Game/Drawable/DrawableExplosionFragment.cpp", extra_cflags=["-inline auto"]),
-            # Object(Matching, "Game/Drawable/DrawableTmModel.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
-            # Object(NonMatching, "Game/Drawable/DrawableSkinModel.cpp", extra_cflags=["-inline auto"]),
+            Object(Matching, "Game/Drawable/DrawableExplosionFragment.cpp", extra_cflags=["-inline auto"]),
 
             # Interpreter
             Object(NonMatching, "Game/InterpreterCore.cpp", extra_cflags=["-inline auto", "-inline deferred"]),

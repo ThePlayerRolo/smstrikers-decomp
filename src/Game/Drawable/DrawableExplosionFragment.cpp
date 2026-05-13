@@ -129,30 +129,70 @@ void DrawableExplosionFragment::Replay<SaveFrame>(SaveFrame& frame)
     }
 }
 
-#include "Game/ReplaySpecializations.h"
-
 /**
  * Offset/Address/Size: 0x0 | 0x8011FB28 | size: 0x50
  */
-// void Replayable<3, SaveFrame, unsigned long>(SaveFrame&, unsigned long&)
-// {
-// }
+template <>
+inline void Replayable<3, SaveFrame, unsigned long>(SaveFrame& frame, unsigned long& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(unsigned long));
+            frame.mStream.mStorage += sizeof(unsigned long);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0x50 | 0x8011FB78 | size: 0x50
  */
-// Replayable<3, SaveFrame, nlQuaternion> defined in ReplaySpecializations.h
+template <>
+inline void Replayable<3, SaveFrame, nlQuaternion>(SaveFrame& frame, nlQuaternion& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(nlQuaternion));
+            frame.mStream.mStorage += sizeof(nlQuaternion);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0xA0 | 0x8011FBC8 | size: 0x54
  */
-// void Replayable<3, LoadFrame, unsigned long>(LoadFrame&, unsigned long&)
-// {
-// }
+template <>
+inline void Replayable<3, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(&value, frame.mStream.mStorage, sizeof(unsigned long));
+            frame.mStream.mStorage += sizeof(unsigned long);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0xF4 | 0x8011FC1C | size: 0x54
  */
-// void Replayable<3, LoadFrame, nlQuaternion>(LoadFrame&, nlQuaternion&)
-// {
-// }
+template <>
+inline void Replayable<3, LoadFrame, nlQuaternion>(LoadFrame& frame, nlQuaternion& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(&value, frame.mStream.mStorage, sizeof(nlQuaternion));
+            frame.mStream.mStorage += sizeof(nlQuaternion);
+        }
+    }
+}
