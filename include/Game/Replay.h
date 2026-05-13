@@ -231,10 +231,49 @@ inline void FloatCompressor<MIN, MAX, BITS>::Replay(SaveFrame& frame) const
     Apply(frame, value);
 }
 
-// Forward declaration of generic template (needed before specializations)
+// =====================================================================
+// Replayable<N, FrameType, T> — replay-buffer serialization templates.
+//
+// DWARF says this whole family lives in Replay.h. The set of `template <>`
+// explicit specializations below cannot be replaced by a single generic
+// because of two MWCC/C++ constraints:
+//
+//   1. Target binaries call `Replayable<N, FrameType, T>(...)` with all 3
+//      template args explicit. The Itanium mangling for that call is
+//      `Replayable<N,FT,T>__FR...` — to match it, the SOURCE must
+//      use the same 3-template-arg form, which forces overload resolution
+//      to pick a 3-template-arg overload. A POD-only generic with fewer
+//      template parameters would produce a *different* mangling and break
+//      target-bound `bl` instructions.
+//
+//   2. A generic `template <int N, typename T> void Replayable(SaveFrame&,
+//      T&)` would be ambiguous with the FloatCompressor proxy template
+//      below (`template <int N, typename FT, typename T> void
+//      Replayable(FT&, const T& proxy)`) for `T = const FloatCompressor<...>`.
+//
+// Architecture in practice:
+//   - **class generic** (line ~near end) — calls `drawable.Replay(frame)`
+//     for class types that have a `Replay` member (Drawable*, Manager*).
+//   - **FloatCompressor proxy generic** (below) — handles `const T&` for
+//     types with Read/Transfer/Apply methods.
+//   - **explicit `inline template <>` specs** — bool variants (special
+//     `temp = value ? 1 : 0` pattern), char/short/long/vec3/quaternion/
+//     float (formulaic memcpy), and the EmissionController & Manager
+//     specs that need an interval gate around `manager.Replay(frame)`.
+//
+// Each owning TU emits its specs as weak symbols by defining them as
+// `inline template <>` either in its own .cpp / .h or via a header that
+// only that TU includes. See the per-TU comments in the .cpp files for
+// the ownership map.
+// =====================================================================
+
+// Forward declaration of the class-type generic (defined later, after
+// the FloatCompressor proxy template). Needed here so specializations
+// below resolve against it.
 template <int N, typename FrameType, typename T>
 void Replayable(FrameType& frame, T& manager);
 
+// Proxy generic for FloatCompressor-style types (Read/Transfer/Apply).
 template <int N, typename FrameType, typename T>
 void Replayable(FrameType& frame, const T& proxy)
 {

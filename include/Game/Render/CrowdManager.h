@@ -46,6 +46,37 @@ public:
     static CrowdManager instance;
 }; // total size: 0xA0
 
-#include "Game/ReplaySpecializations.h"
+// ---- Replayable specs OWNED by CrowdManager ----
+// Defined here in the header (not the .cpp) so MWCC emits them into a
+// separate `.text` subsection (matching target's `unique=9` layout).
+// See Replay.h for the architecture rationale.
+//   <1, LoadFrame, int>   <1, SaveFrame, int>
+template <>
+inline void Replayable<1, LoadFrame, int>(LoadFrame& frame, int& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            memcpy(&value, frame.mStream.mStorage, sizeof(int));
+            frame.mStream.mStorage += sizeof(int);
+        }
+    }
+}
+
+template <>
+inline void Replayable<1, SaveFrame, int>(SaveFrame& frame, int& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(int));
+            frame.mStream.mStorage += sizeof(int);
+        }
+    }
+}
 
 #endif // _CROWDMANAGER_H_

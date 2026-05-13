@@ -3,6 +3,7 @@
 #include "Game/FE/feFinder.h"
 #include "Game/FE/tlComponentInstance.h"
 
+#include "NL/nlFormat.h"
 #include "NL/nlFunktion.h"
 #include "NL/nlMemory.h"
 
@@ -251,12 +252,6 @@ struct CupTrophySpoilView
     unsigned char mNumRecords;
     unsigned char mTailPad[0x0F];
 };
-
-template <typename To, typename From>
-To LexicalCast(const From&);
-
-template <typename StringType, typename ValueType>
-StringType Format(const StringType& format, const ValueType& value);
 
 template <typename T, typename Key>
 T* nlBSearch(const Key& key, T* base, int count);

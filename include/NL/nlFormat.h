@@ -97,6 +97,12 @@ inline StringType Format(const StringType& format, const T1& value1, const T2& v
 template <typename StringType, typename T1, typename T2, typename T3>
 inline StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3);
 
+template <typename StringType, typename T1, typename T2, typename T3, typename T4, typename T5>
+inline StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3, const T4& value4, const T5& value5);
+
+template <typename StringType, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+inline StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3, const T4& value4, const T5& value5, const T6& value6);
+
 /**
  * Offset/Address/Size: 0xFB4 | 0x800CD994 | size: 0x118
  * TODO: 98.43% match - return copy path still stores null/data via r4 instead of stack reload into r0.
@@ -563,6 +569,63 @@ inline BasicString<char, Detail::TempStringAllocator> Format<BasicString<char, D
     ((FormatImpl<BasicString<char, Detail::TempStringAllocator> >&)implString).mCurrentPos = 0;
     return BasicString<char, Detail::TempStringAllocator>(
         (BasicString<char, Detail::TempStringAllocator>)(((FormatImpl<BasicString<char, Detail::TempStringAllocator> >&)implString) % value));
+}
+
+template <>
+inline BasicString<unsigned short, Detail::TempStringAllocator>
+Format<BasicString<unsigned short, Detail::TempStringAllocator>,
+    unsigned short[16], unsigned short[16], unsigned short[16],
+    const unsigned short*, const unsigned short*>(
+    const BasicString<unsigned short, Detail::TempStringAllocator>& format,
+    const unsigned short (&value1)[16],
+    const unsigned short (&value2)[16],
+    const unsigned short (&value3)[16],
+    const unsigned short* const& value4,
+    const unsigned short* const& value5)
+{
+    BasicStringData<unsigned short>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImplLayoutWideTemp impl(data);
+
+    return BasicString<unsigned short, Detail::TempStringAllocator>(
+        (BasicString<unsigned short, Detail::TempStringAllocator>)((((((((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % (const unsigned short*)value1) % (const unsigned short*)value2) % (const unsigned short*)value3) % value4) % value5)));
+}
+
+template <>
+inline BasicString<unsigned short, Detail::TempStringAllocator>
+Format<BasicString<unsigned short, Detail::TempStringAllocator>,
+    unsigned short[16], unsigned short[16], unsigned short[16],
+    const unsigned short*, const unsigned short*, const unsigned short*>(
+    const BasicString<unsigned short, Detail::TempStringAllocator>& format,
+    const unsigned short (&value1)[16],
+    const unsigned short (&value2)[16],
+    const unsigned short (&value3)[16],
+    const unsigned short* const& value4,
+    const unsigned short* const& value5,
+    const unsigned short* const& value6)
+{
+    BasicStringData<unsigned short>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImplLayoutWideTemp impl(data);
+
+    return BasicString<unsigned short, Detail::TempStringAllocator>(
+        (BasicString<unsigned short, Detail::TempStringAllocator>)(((((((((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % (const unsigned short*)value1) % (const unsigned short*)value2) % (const unsigned short*)value3) % value4) % value5) % value6)));
 }
 
 #endif // _NLFORMAT_H_

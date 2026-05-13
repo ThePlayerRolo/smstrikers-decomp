@@ -4,14 +4,18 @@
 #include "NL/gl/glFont.h"
 #include "Game/NisPlayer.h"
 #include "Game/Sys/debug.h"
-#include "Game/ReplaySpecializations.h"
+#include "Game/Replay.h"
 
-template <>
-void Replayable<0, LoadFrame, unsigned short>(LoadFrame& frame, unsigned short& value);
-
-template <>
-void Replayable<0, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value);
-
+// ---- Replayable specs OWNED by EmissionManager ----
+// Eight `template <>` definitions emit in this TU's .o. Note: bodies for
+// `<0, *, char>` and `<0, *, EmissionController>` use plain `template <>`
+// (not inline) because their bodies are too small — MWCC inlines them away
+// even with FORCE_DONT_INLINE when marked inline. They emit as global
+// instead of weak; the rest use inline-weak. See Replay.h for rationale.
+//   <0, Load, EmissionController> (top)   <0, Save, char>
+//   <0, Load, char>   <0, Save, unsigned long>   <0, Save, unsigned short>
+//   <0, Load, unsigned long>   <0, Load, unsigned short>
+//
 template <>
 void Replayable<0, LoadFrame, EmissionController>(LoadFrame& frame, EmissionController& controller)
 {
@@ -780,50 +784,46 @@ void Replayable<0, LoadFrame, char>(LoadFrame& frame, char& value)
 /**
  * Offset/Address/Size: 0xE8 | 0x801FA27C | size: 0x40
  */
-#pragma dont_inline on
 template <>
-void Replayable<0, SaveFrame, unsigned long>(SaveFrame& frame, unsigned long& value)
+inline void Replayable<0, SaveFrame, unsigned long>(SaveFrame& frame, unsigned long& value)
 {
+    FORCE_DONT_INLINE;
     memcpy(frame.mStream.mStorage, &value, sizeof(unsigned long));
     frame.mStream.mStorage += sizeof(unsigned long);
 }
-#pragma dont_inline reset
 
 /**
  * Offset/Address/Size: 0xA8 | 0x801FA23C | size: 0x40
  */
-#pragma dont_inline on
 template <>
-void Replayable<0, SaveFrame, unsigned short>(SaveFrame& frame, unsigned short& value)
+inline void Replayable<0, SaveFrame, unsigned short>(SaveFrame& frame, unsigned short& value)
 {
+    FORCE_DONT_INLINE;
     memcpy(frame.mStream.mStorage, &value, sizeof(unsigned short));
     frame.mStream.mStorage += sizeof(unsigned short);
 }
-#pragma dont_inline reset
 
 /**
  * Offset/Address/Size: 0x44 | 0x801FA1D8 | size: 0x44
  */
-#pragma dont_inline on
 template <>
-void Replayable<0, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value)
+inline void Replayable<0, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value)
 {
+    FORCE_DONT_INLINE;
     memcpy(&value, frame.mStream.mStorage, sizeof(unsigned long));
     frame.mStream.mStorage += sizeof(unsigned long);
 }
-#pragma dont_inline reset
 
 /**
  * Offset/Address/Size: 0x0 | 0x801FA194 | size: 0x44
  */
-#pragma dont_inline on
 template <>
-void Replayable<0, LoadFrame, unsigned short>(LoadFrame& frame, unsigned short& value)
+inline void Replayable<0, LoadFrame, unsigned short>(LoadFrame& frame, unsigned short& value)
 {
+    FORCE_DONT_INLINE;
     memcpy(&value, frame.mStream.mStorage, sizeof(unsigned short));
     frame.mStream.mStorage += sizeof(unsigned short);
 }
-#pragma dont_inline reset
 
 //  /**
 //   * Offset/Address/Size: 0x0 | 0x801FA170 | size: 0x24

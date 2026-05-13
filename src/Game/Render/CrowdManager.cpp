@@ -11,8 +11,6 @@
 #include "NL/nlPrint.h"
 #include "NL/nlString.h"
 
-#include "Game/ReplaySpecializations.h"
-
 static void CrowdBundleLoad_cb(void*, unsigned long, void*);
 
 CrowdManager CrowdManager::instance;
@@ -93,8 +91,7 @@ u32 CrowdManager::GetTextureHandle(unsigned long) const
 void CrowdManager::Replay(LoadFrame& frame)
 {
     int replayState = 0;
-    void (*replayInt)(LoadFrame&, int&) = Replayable<1, LoadFrame, int>;
-    replayInt(frame, replayState);
+    Replayable<1, LoadFrame, int>(frame, replayState);
 
     if (replayState != (int)m_State)
     {
@@ -166,9 +163,6 @@ static void CrowdBundleLoad_cb(void*, unsigned long, void*)
 }
 /**
  * Offset/Address/Size: 0x5A0 | 0x8016441C | size: 0x16C
- * TODO: 99.9% match - single remaining diff is fmuls operand order
- *       (`fmuls f0,f1,f0` target vs `fmuls f0,f0,f1` current) in the
- *       frameValue multiply after unsigned int-to-float conversion.
  */
 void CrowdManager::SetState(eCrowdState state, bool force)
 {
@@ -291,4 +285,10 @@ void CrowdManager::EventHandler(Event* event)
         break;
     }
     }
+}
+
+void CrowdManager_stub()
+{
+    void (*loadInt)(LoadFrame&, int&) = Replayable<1, LoadFrame, int>;
+    (void)loadInt;
 }

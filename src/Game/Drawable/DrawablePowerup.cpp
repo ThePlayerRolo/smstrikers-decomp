@@ -1,6 +1,5 @@
 #include "Game/Drawable/DrawablePowerup.h"
 #include "Game/Drawable/DrawableModel.h"
-#include "Game/ReplaySpecializations.h"
 #include "Game/WorldManager.h"
 #include "Game/AI/Powerups.h"
 #include "NL/gl/glDraw3.h"
@@ -268,63 +267,149 @@ void DrawablePowerup::Replay<SaveFrame>(SaveFrame& frame)
 //     return NULL;
 // }
 
+// ---- Replayable specs OWNED by DrawablePowerup ----
+// Ten `inline template <>` definitions emit as weak symbols in this TU's .o
+// in target order. See Replay.h for the architecture rationale.
+//   <3, Save/Load, bool>     <3, Save/Load, char>
+//   <3, Save/Load, unsigned short>  <3, Save/Load, nlVector3>
+//   <3, Save/Load, float>
+
 /**
  * Offset/Address/Size: 0x0 | 0x8011F430 | size: 0x64
  */
-// Replayable<3, SaveFrame, bool> defined in ReplaySpecializations.h
+template <>
+inline void Replayable<3, SaveFrame, bool>(SaveFrame& frame, bool& value)
+{
+    if (frame.mInterval == 3)
+    {
+        bool temp = value ? true : false;
+        memcpy(frame.mStream.mStorage, &temp, sizeof(bool));
+        frame.mStream.mStorage += sizeof(bool);
+    }
+}
 
 /**
  * Offset/Address/Size: 0x64 | 0x8011F494 | size: 0x50
  */
-// void Replayable<3, SaveFrame, char>(SaveFrame&, char&)
-// {
-// }
+template <>
+inline void Replayable<3, SaveFrame, char>(SaveFrame& frame, char& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(char));
+            frame.mStream.mStorage += sizeof(char);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0xB4 | 0x8011F4E4 | size: 0x50
  */
-// void Replayable<3, SaveFrame, unsigned short>(SaveFrame&, unsigned short&)
-// {
-// }
+template <>
+inline void Replayable<3, SaveFrame, unsigned short>(SaveFrame& frame, unsigned short& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(unsigned short));
+            frame.mStream.mStorage += sizeof(unsigned short);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0x104 | 0x8011F534 | size: 0x50
  */
-// void Replayable<3, SaveFrame, nlVector3>(SaveFrame&, nlVector3&)
-// {
-// }
+template <>
+inline void Replayable<3, SaveFrame, nlVector3>(SaveFrame& frame, nlVector3& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(nlVector3));
+            frame.mStream.mStorage += sizeof(nlVector3);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0x154 | 0x8011F584 | size: 0x50
  */
-// Replayable<3, SaveFrame, float> defined in ReplaySpecializations.h
+template <>
+inline void Replayable<3, SaveFrame, float>(SaveFrame& frame, float& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(float));
+            frame.mStream.mStorage += sizeof(float);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0x1A4 | 0x8011F5D4 | size: 0x7C
  */
-// void Replayable<3, LoadFrame, bool>(LoadFrame&, bool&)
-// {
-// }
+template <>
+inline void Replayable<3, LoadFrame, bool>(LoadFrame& frame, bool& value)
+{
+    if (frame.mInterval == 3)
+    {
+        char temp = 0;
+        memcpy(&temp, frame.mStream.mStorage, 1);
+        frame.mStream.mStorage += 1;
+        value = (temp != 0);
+    }
+}
 
 /**
  * Offset/Address/Size: 0x220 | 0x8011F650 | size: 0x54
  */
-// void Replayable<3, LoadFrame, char>(LoadFrame&, char&)
-// {
-// }
+template <>
+inline void Replayable<3, LoadFrame, char>(LoadFrame& frame, char& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(&value, frame.mStream.mStorage, sizeof(char));
+            frame.mStream.mStorage += sizeof(char);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0x274 | 0x8011F6A4 | size: 0x54
  */
-// void Replayable<3, LoadFrame, unsigned short>(LoadFrame&, unsigned short&)
-// {
-// }
+template <>
+inline void Replayable<3, LoadFrame, unsigned short>(LoadFrame& frame, unsigned short& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(&value, frame.mStream.mStorage, sizeof(unsigned short));
+            frame.mStream.mStorage += sizeof(unsigned short);
+        }
+    }
+}
 
 /**
  * Offset/Address/Size: 0x2C8 | 0x8011F6F8 | size: 0x54
  */
 template <>
-void Replayable<3, LoadFrame, nlVector3>(LoadFrame& frame, nlVector3& value)
+inline void Replayable<3, LoadFrame, nlVector3>(LoadFrame& frame, nlVector3& value)
 {
     FORCE_DONT_INLINE;
     if (frame.mInterval == 3)
@@ -340,4 +425,16 @@ void Replayable<3, LoadFrame, nlVector3>(LoadFrame& frame, nlVector3& value)
 /**
  * Offset/Address/Size: 0x31C | 0x8011F74C | size: 0x54
  */
-// Replayable<3, LoadFrame, float> defined in ReplaySpecializations.h
+template <>
+inline void Replayable<3, LoadFrame, float>(LoadFrame& frame, float& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            memcpy(&value, frame.mStream.mStorage, sizeof(float));
+            frame.mStream.mStorage += sizeof(float);
+        }
+    }
+}

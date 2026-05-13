@@ -16,10 +16,8 @@
 #include "Game/Render/CrowdManager.h"
 #include "Game/Effects/EmissionManager.h"
 
-#include "Game/ReplaySpecializations.h"
-
 extern bool g_GoalLightEnabled;
-extern float g_AllActorsHidden;
+float g_AllActorsHidden;
 extern f32 g_fFixedUpdateTick;
 
 /**
@@ -401,9 +399,9 @@ void RenderSnapshot::Render(float deltaTime) const
     int stackSize = cCameraManager::m_UpVectorStackSize;
     cCameraManager::m_UpVectorStack[stackSize] = mCameraUp;
 
-    static u32 texAnimHandle = glGetTexture("wario_stadium/goallight.ifl");
+    static u32 texanim = glGetTexture("wario_stadium/goallight.ifl");
 
-    GLTextureAnim* pTexAnim = glInventory.GetTextureAnim(texAnimHandle);
+    GLTextureAnim* pTexAnim = glInventory.GetTextureAnim(texanim);
     if (pTexAnim != nullptr)
     {
         pTexAnim->m_isStopped = !mGoalLight;
@@ -482,4 +480,222 @@ RenderSnapshot& RenderSnapshot::GetMutable()
 {
     mValid = true;
     return *this;
+}
+
+// ---- Replayable specs OWNED by RenderSnapshot (target order) ----
+// Twenty `inline template <>` definitions emit as weak symbols in this
+// TU's .o, in target order. Includes 8 Drawable* type specs (calling
+// `drawable.Replay(frame)`) plus 12 manager/bool/vec3 specs. The Drawable
+// specs use FORCE_DONT_INLINE to survive -inline deferred (otherwise
+// MWCC would inline them away). See Replay.h for the architecture rationale.
+//   <0, Save/Load, DrawableCharacter | DrawablePowerup | DrawableExplosionFragment | DrawableBall | bool>
+//   <1, Save/Load, nlVector3 | bool | CrowdManager | DrawableNetMesh>
+//   <3, Save/Load, EmissionManager>
+
+// Save group
+template <>
+inline void Replayable<0, SaveFrame, DrawableCharacter>(SaveFrame& frame, DrawableCharacter& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<0, SaveFrame, DrawablePowerup>(SaveFrame& frame, DrawablePowerup& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<0, SaveFrame, DrawableExplosionFragment>(SaveFrame& frame, DrawableExplosionFragment& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<0, SaveFrame, bool>(SaveFrame& frame, bool& value)
+{
+    FORCE_DONT_INLINE;
+    bool temp = value ? true : false;
+    memcpy(frame.mStream.mStorage, &temp, sizeof(bool));
+    frame.mStream.mStorage += sizeof(bool);
+}
+
+template <>
+inline void Replayable<0, SaveFrame, DrawableBall>(SaveFrame& frame, DrawableBall& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<1, SaveFrame, nlVector3>(SaveFrame& frame, nlVector3& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            memcpy(frame.mStream.mStorage, &value, sizeof(nlVector3));
+            frame.mStream.mStorage += sizeof(nlVector3);
+        }
+    }
+}
+
+template <>
+inline void Replayable<1, SaveFrame, bool>(SaveFrame& frame, bool& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        char temp = value ? 1 : 0;
+        memcpy(frame.mStream.mStorage, &temp, 1);
+        frame.mStream.mStorage += 1;
+    }
+}
+
+template <>
+inline void Replayable<1, SaveFrame, CrowdManager>(SaveFrame& frame, CrowdManager& manager)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            manager.Replay(frame);
+        }
+    }
+}
+
+template <>
+inline void Replayable<3, SaveFrame, EmissionManager>(SaveFrame& frame, EmissionManager& manager)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            manager.Replay(frame);
+        }
+    }
+}
+
+template <>
+inline void Replayable<1, SaveFrame, DrawableNetMesh>(SaveFrame& frame, DrawableNetMesh& manager)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            manager.Replay(frame);
+        }
+    }
+}
+
+// Load group
+template <>
+inline void Replayable<0, LoadFrame, DrawableCharacter>(LoadFrame& frame, DrawableCharacter& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<0, LoadFrame, DrawablePowerup>(LoadFrame& frame, DrawablePowerup& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<0, LoadFrame, DrawableExplosionFragment>(LoadFrame& frame, DrawableExplosionFragment& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<0, LoadFrame, bool>(LoadFrame& frame, bool& value)
+{
+    FORCE_DONT_INLINE;
+    char temp = 0;
+    memcpy(&temp, frame.mStream.mStorage, 1);
+    frame.mStream.mStorage += 1;
+    value = (temp != 0);
+}
+
+template <>
+inline void Replayable<0, LoadFrame, DrawableBall>(LoadFrame& frame, DrawableBall& drawable)
+{
+    FORCE_DONT_INLINE;
+    drawable.Replay(frame);
+}
+
+template <>
+inline void Replayable<1, LoadFrame, nlVector3>(LoadFrame& frame, nlVector3& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            memcpy(&value, frame.mStream.mStorage, sizeof(nlVector3));
+            frame.mStream.mStorage += sizeof(nlVector3);
+        }
+    }
+}
+
+template <>
+inline void Replayable<1, LoadFrame, bool>(LoadFrame& frame, bool& value)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        char temp = 0;
+        memcpy(&temp, frame.mStream.mStorage, 1);
+        frame.mStream.mStorage += 1;
+        value = (temp != 0);
+    }
+}
+
+template <>
+inline void Replayable<1, LoadFrame, CrowdManager>(LoadFrame& frame, CrowdManager& manager)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            manager.Replay(frame);
+        }
+    }
+}
+
+template <>
+inline void Replayable<3, LoadFrame, EmissionManager>(LoadFrame& frame, EmissionManager& manager)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 3)
+    {
+        if (frame.mInterval == 3)
+        {
+            manager.Replay(frame);
+        }
+    }
+}
+
+template <>
+inline void Replayable<1, LoadFrame, DrawableNetMesh>(LoadFrame& frame, DrawableNetMesh& manager)
+{
+    FORCE_DONT_INLINE;
+    if (frame.mInterval == 1)
+    {
+        if (frame.mInterval == 1)
+        {
+            manager.Replay(frame);
+        }
+    }
 }

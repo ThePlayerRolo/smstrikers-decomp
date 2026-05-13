@@ -129,6 +129,15 @@ void DrawableExplosionFragment::Replay<SaveFrame>(SaveFrame& frame)
     }
 }
 
+// ---- Replayable specs OWNED by DrawableExplosionFragment ----
+// These four `inline template <>` definitions emit as weak symbols in this
+// TU's .o (the canonical home per target.s). Other TUs that reference them
+// resolve via the linker. See Replay.h for the architecture rationale.
+//   <3, SaveFrame, unsigned long>
+//   <3, SaveFrame, nlQuaternion>
+//   <3, LoadFrame, unsigned long>
+//   <3, LoadFrame, nlQuaternion>
+
 /**
  * Offset/Address/Size: 0x0 | 0x8011FB28 | size: 0x50
  */

@@ -966,7 +966,7 @@ config.libs = [
 
             # Render
             Object(NonMatching, "Game/Render/Presentation.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
-            Object(Equivalent, "Game/Render/CrowdManager.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
+            Object(Matching, "Game/Render/CrowdManager.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(Matching, "Game/Render/NPCLoader.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/Render/RenderShadow.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/Render/StaticModelExplodable.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
