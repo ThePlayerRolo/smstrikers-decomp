@@ -4693,7 +4693,9 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
     }
 
     GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
-    s16 roundNumber = gameInfo->GetCurrentRoundNumber();
+    int roundNumber = gameInfo->GetCurrentRoundNumber();
+
+    TLSlide* pCurrentSlide = m_pFEScene->m_pFEPackage->GetPresentation()->m_currentSlide;
 
     TLSlide* pSlide;
     {
@@ -4724,7 +4726,7 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
 
         findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
         TLComponentInstance* progress = findComp.byRef(
-            m_pFEScene->m_pFEPackage->GetPresentation()->m_currentSlide,
+            pCurrentSlide,
             (InlineHasher&)hB,
             (InlineHasher&)h9,
             (InlineHasher&)h7,
@@ -4747,12 +4749,10 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
         h5.m_Hash = 0;
         h6.m_Hash = 0;
         h7.m_Hash = 0;
+        h8.m_Hash = 0;
+        h9.m_Hash = 0;
 
         unsigned long hash = nlStringLowerHash("Text");
-        h8.m_Hash = hash;
-        h9.m_Hash = hash;
-
-        hash = nlStringLowerHash(CUP_HUB_LAYER_NAME);
         hA.m_Hash = hash;
         hB.m_Hash = hash;
 
@@ -4773,8 +4773,13 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
             (InlineHasher&)h1);
     }
 
-    pText->m_OverloadedAttributes.BoxSize.f.x = 1.0f;
-    pText->m_OverloadFlags |= 4;
+    {
+        nlVector2& boxSize = ((pText->m_OverloadFlags & 0x4) != 0) ? pText->m_OverloadedAttributes.BoxSize : pText->m_component->m_BoxSize;
+        nlVector2 bb = boxSize;
+        bb.f.x = 999.9f;
+        pText->m_OverloadedAttributes.BoxSize = bb;
+        pText->m_OverloadFlags |= 0x4;
+    }
 
     if (hideMessage || roundNumber == -5)
     {
@@ -4786,8 +4791,9 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
 
     BasicString<unsigned short, Detail::TempStringAllocator> leftTeam(sSpace);
     BasicString<unsigned short, Detail::TempStringAllocator> rightTeam(sSpace);
-    BasicString<unsigned short, Detail::TempStringAllocator> roundWideString(sSpace);
-    BasicString<unsigned short, Detail::TempStringAllocator> unformatted(sSpace);
+    unsigned short roundWide[32] = { };
+    BasicString<unsigned short, Detail::TempStringAllocator> roundWideString;
+    BasicString<unsigned short, Detail::TempStringAllocator> unformatted;
 
     BasicGameInfo* pGame = gameInfo->mGameInfo[gameInfo->mCurrentMode];
 
@@ -4862,7 +4868,6 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
         {
             int round = roundNumber + 1;
             NarrowString roundString = LexicalCast<NarrowString, int>(round);
-            unsigned short roundWide[32];
 
             nlStrToWcs(roundString.c_str(), roundWide, 32);
             roundWideString = BasicString<unsigned short, Detail::TempStringAllocator>(roundWide);
