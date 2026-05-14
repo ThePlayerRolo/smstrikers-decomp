@@ -1,8 +1,11 @@
 #include "Game/SH/SHCupTrophy.h"
 
+#include "Game/GameInfo.h"
 #include "Game/FE/feFinder.h"
+#include "Game/FE/feHelpFuncs.h"
 #include "Game/FE/tlComponentInstance.h"
 
+#include "NL/nlBSearch.h"
 #include "NL/nlFormat.h"
 #include "NL/nlFunktion.h"
 #include "NL/nlMemory.h"
@@ -243,9 +246,6 @@ struct SpoilNumCupWinsView
     unsigned short mNumCupWins;
 };
 
-extern unsigned long GetLOCTrophyName(eTrophyType);
-extern "C" bool HasTrophy__15GameInfoManagerCF11eTrophyType(const void*, eTrophyType);
-
 struct TLTextLocView
 {
     unsigned char mPad0[0x80];
@@ -254,17 +254,12 @@ struct TLTextLocView
     unsigned long mOverloadFlags;
 };
 
-class GameInfoManager;
-
 struct CupTrophySpoilView
 {
     unsigned char mPad[0x208];
     unsigned char mNumRecords;
     unsigned char mTailPad[0x0F];
 };
-
-template <typename T, typename Key>
-T* nlBSearch(const Key& key, T* base, int count);
 
 struct LOCHeader
 {
@@ -290,19 +285,9 @@ public:
     int m_CurrentLanguage;
 };
 
-class TLTextInstance
-{
-public:
-    void SetString(const unsigned short* utf16);
-};
-
 extern nlLocalization* g_pLocalization;
 extern const unsigned short LocalizationTableNotFound[];
 extern const unsigned short MissingLocString[];
-
-extern "C" unsigned long GetLOCCharacterName__F7eTeamIDbb(int, bool, bool);
-extern "C" unsigned long GetLOCDifficultyName__FQ216GameplaySettings11eSkillLevel(int);
-extern "C" unsigned long GetLOCRank__Fi(int);
 
 /**
  * Offset/Address/Size: 0x1F54 | 0x800CB608 | size: 0x7B8
@@ -505,7 +490,7 @@ void CupTrophyScene::SceneCreated()
         ((unsigned char*)nlSingleton<GameInfoManager>::s_pInstance)[0x4C39] = 0;
     }
 
-    if (HasTrophy__15GameInfoManagerCF11eTrophyType(nlSingleton<GameInfoManager>::s_pInstance, mTrophy))
+    if (nlSingleton<GameInfoManager>::s_pInstance->HasTrophy(mTrophy))
     {
         nlColour trophyColour = ((FELibObject*)pTrophyImage->m_component)->GetColour();
         pTrophyImage->SetAssetColour(trophyColour);
@@ -715,13 +700,6 @@ void CupTrophyScene::SceneCreated()
     }
 }
 
-class GameInfoManager
-{
-public:
-    unsigned char _pad[0x4C58];
-    unsigned int mUnlockedTriggers;
-};
-
 class GameSceneManager
 {
 public:
@@ -830,19 +808,7 @@ void CupTrophyScene::HandleUnlockedTriggers()
 /**
  * Offset/Address/Size: 0x1970 | 0x800CB024 | size: 0x400
  */
-enum eFEINPUT_PAD
-{
-    FE_ALL_PADS = 8,
-};
-
-struct FEInput
-{
-    bool JustPressed(eFEINPUT_PAD, int, bool, eFEINPUT_PAD*);
-    bool IsAutoPressed(eFEINPUT_PAD, int, bool, eFEINPUT_PAD*);
-};
-
 extern FEInput* g_pFEInput;
-extern "C" void HandleUnlockedTriggers__14CupTrophySceneFv(CupTrophyScene*);
 
 void CupTrophyScene::Update(float fDeltaT)
 {
@@ -881,7 +847,7 @@ void CupTrophyScene::Update(float fDeltaT)
         {
             if (nlSingleton<GameInfoManager>::s_pInstance->mUnlockedTriggers != 0)
             {
-                HandleUnlockedTriggers__14CupTrophySceneFv(this);
+                HandleUnlockedTriggers();
             }
             else
             {
@@ -1285,7 +1251,8 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
     typedef TLImageInstance* (*FindImageByValue)(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher);
     typedef TLImageInstance* (*FindImageByRef)(TLSlide*, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&);
 
-    struct CupRecordView {
+    struct CupRecordView
+    {
         OSCalendarTime mDate;
         signed char mPlace;
         unsigned char mPad0[3];
@@ -1293,7 +1260,8 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
         int mDifficulty;
     };
 
-    struct SpoilHistoryView {
+    struct SpoilHistoryView
+    {
         CupRecordView mCupHistory[10];
         unsigned char mNumRecords;
     };
@@ -1308,41 +1276,79 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
 
         TLComponentInstance* pComp;
         {
-            union { FindCompByValue byValue; FindCompByRef byRef; } findComp;
+            union
+            {
+                FindCompByValue byValue;
+                FindCompByRef byRef;
+            } findComp;
             volatile InlineHasher hLayerA, hLayerB;
             volatile InlineHasher hHistoryB, hHistoryA;
             volatile InlineHasher h7, h6;
             volatile InlineHasher h5, h4, h3, h2, h1, h0;
             findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
-            h0.m_Hash = 0; h1.m_Hash = 0; h2.m_Hash = 0; h3.m_Hash = 0;
-            h4.m_Hash = 0; h5.m_Hash = 0; h6.m_Hash = 0; h7.m_Hash = 0;
+            h0.m_Hash = 0;
+            h1.m_Hash = 0;
+            h2.m_Hash = 0;
+            h3.m_Hash = 0;
+            h4.m_Hash = 0;
+            h5.m_Hash = 0;
+            h6.m_Hash = 0;
+            h7.m_Hash = 0;
             unsigned long hash = nlStringLowerHash("HISTORY");
-            hHistoryA.m_Hash = hash; hHistoryB.m_Hash = hash;
+            hHistoryA.m_Hash = hash;
+            hHistoryB.m_Hash = hash;
             hash = nlStringLowerHash("Layer");
-            hLayerA.m_Hash = hash; hLayerB.m_Hash = hash;
+            hLayerA.m_Hash = hash;
+            hLayerB.m_Hash = hash;
             pComp = findComp.byRef(currentSlide,
-                (InlineHasher&)hLayerB, (InlineHasher&)hHistoryB, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
+                (InlineHasher&)hLayerB,
+                (InlineHasher&)hHistoryB,
+                (InlineHasher&)h7,
+                (InlineHasher&)h5,
+                (InlineHasher&)h3,
+                (InlineHasher&)h1);
         }
 
         TLTextInstance* pText;
         {
-            union { FindTextByValue byValue; FindTextByRef byRef; } findText;
+            union
+            {
+                FindTextByValue byValue;
+                FindTextByRef byRef;
+            } findText;
             volatile InlineHasher hNameA, hNameB;
             volatile InlineHasher hLayerB2, hLayerA2;
             volatile InlineHasher h7, h6;
             volatile InlineHasher h5, h4, h3, h2, h1, h0;
             findText.byValue = FEFinder<TLTextInstance, 3>::Find<TLSlide>;
-            h0.m_Hash = 0; h1.m_Hash = 0; h2.m_Hash = 0; h3.m_Hash = 0;
-            h4.m_Hash = 0; h5.m_Hash = 0; h6.m_Hash = 0; h7.m_Hash = 0;
-            hLayerB2.m_Hash = 0; hLayerA2.m_Hash = 0;
+            h0.m_Hash = 0;
+            h1.m_Hash = 0;
+            h2.m_Hash = 0;
+            h3.m_Hash = 0;
+            h4.m_Hash = 0;
+            h5.m_Hash = 0;
+            h6.m_Hash = 0;
+            h7.m_Hash = 0;
+            hLayerB2.m_Hash = 0;
+            hLayerA2.m_Hash = 0;
             unsigned long hash = nlStringLowerHash(TROPHY_RECORD_ROW_NAMES[i]);
-            hNameA.m_Hash = hash; hNameB.m_Hash = hash;
+            hNameA.m_Hash = hash;
+            hNameB.m_Hash = hash;
             pText = findText.byRef(pComp->GetActiveSlide(),
-                (InlineHasher&)hNameB, (InlineHasher&)hLayerB2, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
+                (InlineHasher&)hNameB,
+                (InlineHasher&)hLayerB2,
+                (InlineHasher&)h7,
+                (InlineHasher&)h5,
+                (InlineHasher&)h3,
+                (InlineHasher&)h1);
         }
 
         {
-            union { float f; unsigned long u; } boxX, boxY;
+            union
+            {
+                float f;
+                unsigned long u;
+            } boxX, boxY;
             boxX.f = 999.9f;
             boxY.f = *(float*)((unsigned char*)pText + 0x8c);
             *(unsigned long*)((unsigned char*)pText + 0x88) = boxX.u;
@@ -1359,19 +1365,36 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
         {
             TLTextInstance* pEmptyText;
             {
-                union { FindTextByValue byValue; FindTextByRef byRef; } findText2;
+                union
+                {
+                    FindTextByValue byValue;
+                    FindTextByRef byRef;
+                } findText2;
                 volatile InlineHasher hNameA2, hNameB2;
                 volatile InlineHasher hLayerB3, hLayerA3;
                 volatile InlineHasher h7b, h6b;
                 volatile InlineHasher h5b, h4b, h3b, h2b, h1b, h0b;
                 findText2.byValue = FEFinder<TLTextInstance, 3>::Find<TLSlide>;
-                h0b.m_Hash = 0; h1b.m_Hash = 0; h2b.m_Hash = 0; h3b.m_Hash = 0;
-                h4b.m_Hash = 0; h5b.m_Hash = 0; h6b.m_Hash = 0; h7b.m_Hash = 0;
-                hLayerB3.m_Hash = 0; hLayerA3.m_Hash = 0;
+                h0b.m_Hash = 0;
+                h1b.m_Hash = 0;
+                h2b.m_Hash = 0;
+                h3b.m_Hash = 0;
+                h4b.m_Hash = 0;
+                h5b.m_Hash = 0;
+                h6b.m_Hash = 0;
+                h7b.m_Hash = 0;
+                hLayerB3.m_Hash = 0;
+                hLayerA3.m_Hash = 0;
                 unsigned long hash = nlStringLowerHash(TROPHY_RECORD_ROW_NAMES[i]);
-                hNameA2.m_Hash = hash; hNameB2.m_Hash = hash;
+                hNameA2.m_Hash = hash;
+                hNameB2.m_Hash = hash;
                 pEmptyText = findText2.byRef(pComp->GetActiveSlide(),
-                    (InlineHasher&)hNameB2, (InlineHasher&)hLayerB3, (InlineHasher&)h7b, (InlineHasher&)h5b, (InlineHasher&)h3b, (InlineHasher&)h1b);
+                    (InlineHasher&)hNameB2,
+                    (InlineHasher&)hLayerB3,
+                    (InlineHasher&)h7b,
+                    (InlineHasher&)h5b,
+                    (InlineHasher&)h3b,
+                    (InlineHasher&)h1b);
             }
             ((TLTextLocView*)pEmptyText)->mLocStrId = 0x745863BC;
             ((TLTextLocView*)pEmptyText)->mOverloadFlags |= 0x8;
@@ -1388,15 +1411,27 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
         ((TLInstance*)pText)->m_bVisible = true;
 
         BasicStringData<char>* zeroData = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
-        if (zeroData != 0) {
-            zeroData->mData = 0; zeroData->mSize = 0; zeroData->mCapacity = 0;
+        if (zeroData != 0)
+        {
+            zeroData->mData = 0;
+            zeroData->mSize = 0;
+            zeroData->mCapacity = 0;
             const char* ptr = "0";
-            while ((signed char)*ptr++ != 0) { zeroData->mSize++; }
+            while ((signed char)*ptr++ != 0)
+            {
+                zeroData->mSize++;
+            }
             zeroData->mSize++;
             zeroData->mData = (char*)nlMalloc(zeroData->mSize + 1, 8, true);
             zeroData->mCapacity = zeroData->mSize;
-            int idx = 0; const char* src = "0";
-            while (idx < zeroData->mSize) { zeroData->mData[idx] = *src; idx++; src++; }
+            int idx = 0;
+            const char* src = "0";
+            while (idx < zeroData->mSize)
+            {
+                zeroData->mData[idx] = *src;
+                idx++;
+                src++;
+            }
             zeroData->mRefCount = 1;
         }
         BasicString<char, Detail::TempStringAllocator> zero(zeroData);
@@ -1404,11 +1439,13 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
         CupRecordView* pRecord = &spoilView.mCupHistory[record];
 
         BasicString<char, Detail::TempStringAllocator> dayString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(pRecord->mDate.mday);
-        if (pRecord->mDate.mday < 10) dayString = zero.Append(dayString);
+        if (pRecord->mDate.mday < 10)
+            dayString = zero.Append(dayString);
 
         int monthVal = pRecord->mDate.mon + 1;
         BasicString<char, Detail::TempStringAllocator> monthString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(monthVal);
-        if (pRecord->mDate.mon + 1 < 10) monthString = zero.Append(monthString);
+        if (pRecord->mDate.mon + 1 < 10)
+            monthString = zero.Append(monthString);
 
         BasicString<char, Detail::TempStringAllocator> yearString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(pRecord->mDate.year);
 
@@ -1426,52 +1463,89 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
             unsigned long locHash = 0x4EEF03CB;
             nlLocalization* loc = g_pLocalization;
             const unsigned short* locString;
-            if (loc->m_LookupTable == 0) { locString = LocalizationTableNotFound; }
-            else {
+            if (loc->m_LookupTable == 0)
+            {
+                locString = LocalizationTableNotFound;
+            }
+            else
+            {
                 nlLocalization::StringLookup* entry = nlBSearch(locHash, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
-                if (entry != 0) locString = loc->m_FirstString + entry->StringOffset;
-                else locString = MissingLocString;
+                if (entry != 0)
+                    locString = loc->m_FirstString + entry->StringOffset;
+                else
+                    locString = MissingLocString;
             }
             BasicStringData<unsigned short>* data = (BasicStringData<unsigned short>*)nlMalloc(0x10, 8, true);
-            if (data != 0) {
-                data->mData = 0; data->mSize = 0; data->mCapacity = 0;
+            if (data != 0)
+            {
+                data->mData = 0;
+                data->mSize = 0;
+                data->mCapacity = 0;
                 const unsigned short* p = locString;
-                while (*p++ != 0) { data->mSize++; }
+                while (*p++ != 0)
+                {
+                    data->mSize++;
+                }
                 data->mSize++;
                 data->mData = (unsigned short*)nlMalloc((data->mSize + 1) * 2, 8, true);
                 data->mCapacity = data->mSize;
-                int j = 0; int k = j;
-                while (j < data->mSize) { *(unsigned short*)((char*)data->mData + k) = *locString; j++; locString++; k += 2; }
+                int j = 0;
+                int k = j;
+                while (j < data->mSize)
+                {
+                    *(unsigned short*)((char*)data->mData + k) = *locString;
+                    j++;
+                    locString++;
+                    k += 2;
+                }
                 data->mRefCount = 1;
             }
             BasicString<unsigned short, Detail::TempStringAllocator> unformatted(data);
 
-            unsigned long charNameHash = GetLOCCharacterName__F7eTeamIDbb(pRecord->mTeam, true, false);
+            unsigned long charNameHash = GetLOCCharacterName((eTeamID)pRecord->mTeam, true, false);
             nlLocalization* loc2 = g_pLocalization;
             const unsigned short* charNameStr;
-            if (loc2->m_LookupTable == 0) { charNameStr = LocalizationTableNotFound; }
-            else {
-                nlLocalization::StringLookup* entry = nlBSearch(charNameHash, loc2->m_LookupTable, (int)loc2->m_pFile->StringCount);
-                if (entry != 0) charNameStr = loc2->m_FirstString + entry->StringOffset;
-                else charNameStr = MissingLocString;
+            if (loc2->m_LookupTable == 0)
+            {
+                charNameStr = LocalizationTableNotFound;
             }
-            unsigned long rankHash = GetLOCRank__Fi((signed char)pRecord->mPlace);
+            else
+            {
+                nlLocalization::StringLookup* entry = nlBSearch(charNameHash, loc2->m_LookupTable, (int)loc2->m_pFile->StringCount);
+                if (entry != 0)
+                    charNameStr = loc2->m_FirstString + entry->StringOffset;
+                else
+                    charNameStr = MissingLocString;
+            }
+            unsigned long rankHash = GetLOCRank((signed char)pRecord->mPlace);
             nlLocalization* loc3 = g_pLocalization;
             const unsigned short* rankStr;
-            if (loc3->m_LookupTable == 0) { rankStr = LocalizationTableNotFound; }
-            else {
-                nlLocalization::StringLookup* entry = nlBSearch(rankHash, loc3->m_LookupTable, (int)loc3->m_pFile->StringCount);
-                if (entry != 0) rankStr = loc3->m_FirstString + entry->StringOffset;
-                else rankStr = MissingLocString;
+            if (loc3->m_LookupTable == 0)
+            {
+                rankStr = LocalizationTableNotFound;
             }
-            unsigned long diffHash = GetLOCDifficultyName__FQ216GameplaySettings11eSkillLevel(pRecord->mDifficulty);
+            else
+            {
+                nlLocalization::StringLookup* entry = nlBSearch(rankHash, loc3->m_LookupTable, (int)loc3->m_pFile->StringCount);
+                if (entry != 0)
+                    rankStr = loc3->m_FirstString + entry->StringOffset;
+                else
+                    rankStr = MissingLocString;
+            }
+            unsigned long diffHash = GetLOCDifficultyName((GameplaySettings::eSkillLevel)pRecord->mDifficulty);
             nlLocalization* loc4 = g_pLocalization;
             const unsigned short* diffStr;
-            if (loc4->m_LookupTable == 0) { diffStr = LocalizationTableNotFound; }
-            else {
+            if (loc4->m_LookupTable == 0)
+            {
+                diffStr = LocalizationTableNotFound;
+            }
+            else
+            {
                 nlLocalization::StringLookup* entry = nlBSearch(diffHash, loc4->m_LookupTable, (int)loc4->m_pFile->StringCount);
-                if (entry != 0) diffStr = loc4->m_FirstString + entry->StringOffset;
-                else diffStr = MissingLocString;
+                if (entry != 0)
+                    diffStr = loc4->m_FirstString + entry->StringOffset;
+                else
+                    diffStr = MissingLocString;
             }
             formatted = Format(unformatted, monthWideString, dayWideString, yearWideString, charNameStr, rankStr, diffStr);
         }
@@ -1480,43 +1554,74 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
             unsigned long locHash = 0xB4B37E9E;
             nlLocalization* loc = g_pLocalization;
             const unsigned short* locString;
-            if (loc->m_LookupTable == 0) { locString = LocalizationTableNotFound; }
-            else {
+            if (loc->m_LookupTable == 0)
+            {
+                locString = LocalizationTableNotFound;
+            }
+            else
+            {
                 nlLocalization::StringLookup* entry = nlBSearch(locHash, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
-                if (entry != 0) locString = loc->m_FirstString + entry->StringOffset;
-                else locString = MissingLocString;
+                if (entry != 0)
+                    locString = loc->m_FirstString + entry->StringOffset;
+                else
+                    locString = MissingLocString;
             }
             BasicStringData<unsigned short>* data = (BasicStringData<unsigned short>*)nlMalloc(0x10, 8, true);
-            if (data != 0) {
-                data->mData = 0; data->mSize = 0; data->mCapacity = 0;
+            if (data != 0)
+            {
+                data->mData = 0;
+                data->mSize = 0;
+                data->mCapacity = 0;
                 const unsigned short* p = locString;
-                while (*p++ != 0) { data->mSize++; }
+                while (*p++ != 0)
+                {
+                    data->mSize++;
+                }
                 data->mSize++;
                 data->mData = (unsigned short*)nlMalloc((data->mSize + 1) * 2, 8, true);
                 data->mCapacity = data->mSize;
-                int j = 0; int k = j;
-                while (j < data->mSize) { *(unsigned short*)((char*)data->mData + k) = *locString; j++; locString++; k += 2; }
+                int j = 0;
+                int k = j;
+                while (j < data->mSize)
+                {
+                    *(unsigned short*)((char*)data->mData + k) = *locString;
+                    j++;
+                    locString++;
+                    k += 2;
+                }
                 data->mRefCount = 1;
             }
             BasicString<unsigned short, Detail::TempStringAllocator> unformatted(data);
 
-            unsigned long charNameHash = GetLOCCharacterName__F7eTeamIDbb(pRecord->mTeam, true, false);
+            unsigned long charNameHash = GetLOCCharacterName((eTeamID)pRecord->mTeam, true, false);
             nlLocalization* loc2 = g_pLocalization;
             const unsigned short* charNameStr;
-            if (loc2->m_LookupTable == 0) { charNameStr = LocalizationTableNotFound; }
-            else {
-                nlLocalization::StringLookup* entry = nlBSearch(charNameHash, loc2->m_LookupTable, (int)loc2->m_pFile->StringCount);
-                if (entry != 0) charNameStr = loc2->m_FirstString + entry->StringOffset;
-                else charNameStr = MissingLocString;
+            if (loc2->m_LookupTable == 0)
+            {
+                charNameStr = LocalizationTableNotFound;
             }
-            unsigned long diffHash = GetLOCDifficultyName__FQ216GameplaySettings11eSkillLevel(pRecord->mDifficulty);
+            else
+            {
+                nlLocalization::StringLookup* entry = nlBSearch(charNameHash, loc2->m_LookupTable, (int)loc2->m_pFile->StringCount);
+                if (entry != 0)
+                    charNameStr = loc2->m_FirstString + entry->StringOffset;
+                else
+                    charNameStr = MissingLocString;
+            }
+            unsigned long diffHash = GetLOCDifficultyName((GameplaySettings::eSkillLevel)pRecord->mDifficulty);
             nlLocalization* loc3 = g_pLocalization;
             const unsigned short* diffStr;
-            if (loc3->m_LookupTable == 0) { diffStr = LocalizationTableNotFound; }
-            else {
+            if (loc3->m_LookupTable == 0)
+            {
+                diffStr = LocalizationTableNotFound;
+            }
+            else
+            {
                 nlLocalization::StringLookup* entry = nlBSearch(diffHash, loc3->m_LookupTable, (int)loc3->m_pFile->StringCount);
-                if (entry != 0) diffStr = loc3->m_FirstString + entry->StringOffset;
-                else diffStr = MissingLocString;
+                if (entry != 0)
+                    diffStr = loc3->m_FirstString + entry->StringOffset;
+                else
+                    diffStr = MissingLocString;
             }
             formatted = Format(unformatted, monthWideString, dayWideString, yearWideString, charNameStr, diffStr);
         }
@@ -1527,55 +1632,104 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
 
     TLComponentInstance* arrowsComp;
     {
-        union { FindCompByValue byValue; FindCompByRef byRef; } findComp;
+        union
+        {
+            FindCompByValue byValue;
+            FindCompByRef byRef;
+        } findComp;
         volatile InlineHasher hLayerA, hLayerB;
         volatile InlineHasher hNameB, hNameA;
         volatile InlineHasher h7, h6;
         volatile InlineHasher h5, h4, h3, h2, h1, h0;
         findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
-        h0.m_Hash = 0; h1.m_Hash = 0; h2.m_Hash = 0; h3.m_Hash = 0;
-        h4.m_Hash = 0; h5.m_Hash = 0; h6.m_Hash = 0; h7.m_Hash = 0;
+        h0.m_Hash = 0;
+        h1.m_Hash = 0;
+        h2.m_Hash = 0;
+        h3.m_Hash = 0;
+        h4.m_Hash = 0;
+        h5.m_Hash = 0;
+        h6.m_Hash = 0;
+        h7.m_Hash = 0;
         unsigned long hash = nlStringLowerHash("ARROWS2");
-        hNameA.m_Hash = hash; hNameB.m_Hash = hash;
+        hNameA.m_Hash = hash;
+        hNameB.m_Hash = hash;
         hash = nlStringLowerHash("Layer");
-        hLayerA.m_Hash = hash; hLayerB.m_Hash = hash;
+        hLayerA.m_Hash = hash;
+        hLayerB.m_Hash = hash;
         arrowsComp = findComp.byRef(presentation->m_currentSlide,
-            (InlineHasher&)hLayerB, (InlineHasher&)hNameB, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
+            (InlineHasher&)hLayerB,
+            (InlineHasher&)hNameB,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
     }
 
     int currentRecord = *(int*)&unk_gap[123] + *(int*)&unk_gap[121];
 
     TLImageInstance* pArrowDown;
     {
-        union { FindImageByValue byValue; FindImageByRef byRef; } findImage;
+        union
+        {
+            FindImageByValue byValue;
+            FindImageByRef byRef;
+        } findImage;
         volatile InlineHasher hNameA, hNameB;
         volatile InlineHasher hLayerB, hLayerA;
         volatile InlineHasher h7, h6;
         volatile InlineHasher h5, h4, h3, h2, h1, h0;
         findImage.byValue = FEFinder<TLImageInstance, 2>::Find<TLSlide>;
-        h0.m_Hash = 0; h1.m_Hash = 0; h2.m_Hash = 0; h3.m_Hash = 0;
-        h4.m_Hash = 0; h5.m_Hash = 0; h6.m_Hash = 0; h7.m_Hash = 0;
+        h0.m_Hash = 0;
+        h1.m_Hash = 0;
+        h2.m_Hash = 0;
+        h3.m_Hash = 0;
+        h4.m_Hash = 0;
+        h5.m_Hash = 0;
+        h6.m_Hash = 0;
+        h7.m_Hash = 0;
         unsigned long hash = nlStringLowerHash("arrow");
-        hNameA.m_Hash = hash; hNameB.m_Hash = hash;
+        hNameA.m_Hash = hash;
+        hNameB.m_Hash = hash;
         pArrowDown = findImage.byRef(arrowsComp->GetActiveSlide(),
-            (InlineHasher&)hNameB, (InlineHasher&)hLayerB, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
+            (InlineHasher&)hNameB,
+            (InlineHasher&)hLayerB,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
     }
     pArrowDown->m_bVisible = currentRecord < (int)spoilView.mNumRecords - 1;
 
     TLImageInstance* pArrowUp;
     {
-        union { FindImageByValue byValue; FindImageByRef byRef; } findImage;
+        union
+        {
+            FindImageByValue byValue;
+            FindImageByRef byRef;
+        } findImage;
         volatile InlineHasher hNameA, hNameB;
         volatile InlineHasher hLayerB, hLayerA;
         volatile InlineHasher h7, h6;
         volatile InlineHasher h5, h4, h3, h2, h1, h0;
         findImage.byValue = FEFinder<TLImageInstance, 2>::Find<TLSlide>;
-        h0.m_Hash = 0; h1.m_Hash = 0; h2.m_Hash = 0; h3.m_Hash = 0;
-        h4.m_Hash = 0; h5.m_Hash = 0; h6.m_Hash = 0; h7.m_Hash = 0;
+        h0.m_Hash = 0;
+        h1.m_Hash = 0;
+        h2.m_Hash = 0;
+        h3.m_Hash = 0;
+        h4.m_Hash = 0;
+        h5.m_Hash = 0;
+        h6.m_Hash = 0;
+        h7.m_Hash = 0;
         unsigned long hash = nlStringLowerHash("arrow2");
-        hNameA.m_Hash = hash; hNameB.m_Hash = hash;
+        hNameA.m_Hash = hash;
+        hNameB.m_Hash = hash;
         pArrowUp = findImage.byRef(arrowsComp->GetActiveSlide(),
-            (InlineHasher&)hNameB, (InlineHasher&)hLayerB, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
+            (InlineHasher&)hNameB,
+            (InlineHasher&)hLayerB,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
     }
     pArrowUp->m_bVisible = currentRecord > 0;
 }

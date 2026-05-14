@@ -47,6 +47,7 @@ unsigned long GetLOCModeName(GameInfoManager::eGameModes);
 unsigned long GetLOCTeamName(eTeamID);
 unsigned long GetLOCSidekickName(eSidekickID);
 unsigned long GetLOCCharacterName(eTeamID, bool, bool);
+unsigned long GetLOCDifficultyName(GameplaySettings::eSkillLevel);
 unsigned long GetStadiumStringID(eStadiumID);
 
 namespace TakeGameMemSnapshot
@@ -95,12 +96,6 @@ static void CloseItem(TLComponentInstance*);
 static void OpenItem(TLComponentInstance*);
 static void TempDisableSound();
 } // namespace DoubleHighlite
-
-// class GetLOCDifficultyName(GameplaySettings
-// {
-// public:
-//     void eSkillLevel);
-// };
 
 // class GetLOCStandingsName(GameInfoManager
 // {

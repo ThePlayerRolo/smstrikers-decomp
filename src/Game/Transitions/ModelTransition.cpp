@@ -535,7 +535,56 @@ void ModeledScreenTransition::RenderOutline() const
 
                 nlMultPosVectorMatrix(current, current, m_pPoseAccumulator->GetNodeMatrix(pModelMap[0]));
 
-                outline.insert(outline.mData + outline.mSize, &current, &current + 1);
+                const nlVector3* begin = &current;
+                const nlVector3* end = begin + 1;
+                int size = end - begin;
+                int offset = (outline.mData + outline.mSize) - outline.mData;
+                int requiredSize = outline.mSize + size;
+
+                if (outline.mCapacity < requiredSize)
+                {
+                    Vector<nlVector3, DefaultAllocator> other;
+                    other.mData = (nlVector3*)nlMalloc(requiredSize * sizeof(nlVector3), 8, false);
+                    other.mSize = requiredSize;
+                    other.mCapacity = requiredSize;
+
+                    for (int i = 0; i < other.mSize; i++)
+                    {
+                        other.mData[i] = sZeroInit;
+                    }
+                    for (int i = 0; i < outline.mSize; i++)
+                    {
+                        other.mData[i] = outline.mData[i];
+                    }
+
+                    nlVector3* oldData = outline.mData;
+                    int oldSize = outline.mSize;
+                    int oldCapacity = outline.mCapacity;
+
+                    outline.mData = other.mData;
+                    outline.mSize = other.mSize;
+                    outline.mCapacity = other.mCapacity;
+
+                    other.mData = oldData;
+                    other.mSize = oldSize;
+                    other.mCapacity = oldCapacity;
+                    delete[] other.mData;
+                }
+
+                nlVector3* at = outline.mData + offset;
+                nlVector3* t = outline.mData + outline.mSize - 1;
+                while (t >= at)
+                {
+                    *(t + size) = *t;
+                    t--;
+                }
+                while (begin != end)
+                {
+                    *at = *begin;
+                    begin++;
+                    at++;
+                }
+                outline.mSize += size;
             }
 
             ShuffleIntoOutline(outline);
@@ -593,7 +642,6 @@ void ModeledScreenTransition::RenderOutline() const
 
     delete[] outline.mData;
 }
-
 /**
  * Offset/Address/Size: 0x8DC | 0x802029A0 | size: 0x3C
  */

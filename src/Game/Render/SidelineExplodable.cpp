@@ -50,49 +50,51 @@ ExplosionFragment::ExplosionFragment()
 // {
 // }
 
+static void DeactivateExplosionFragment(ExplosionFragment* self)
+{
+    if (self->mpPhysicsObject != NULL)
+    {
+        delete self->mpPhysicsObject;
+    }
+
+    DrawableObject* drawable = WorldManager::s_World->FindDrawableObject(self->mFragmentModelHash);
+    drawable->m_uObjectFlags &= ~1;
+    self->mpPhysicsObject = NULL;
+    DrawableFragmentHandleNode* node = NULL;
+    u16 handle = self->mDrawableFragmentID;
+    if (DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool.m_FreeList == NULL)
+    {
+        SlotPoolBase::BaseAddNewBlock(&DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool, 8);
+    }
+
+    SlotPoolEntry* entry = DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool.m_FreeList;
+    if (entry != NULL)
+    {
+        node = (DrawableFragmentHandleNode*)entry;
+        DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool.m_FreeList = (SlotPoolEntry*)entry->m_next;
+    }
+
+    if (node != NULL)
+    {
+        node->mID = 0;
+        node->next = NULL;
+    }
+
+    node->mID = handle;
+    nlListAddEnd<DrawableFragmentHandleNode>(&SidelineExplodableManager::sUnusedDrawableFragments.m_pStart, &SidelineExplodableManager::sUnusedDrawableFragments.m_pEnd, node);
+    SidelineExplodableManager::sFragmentLookupTable[handle] = NULL;
+    self->mDrawableFragmentID = 0xFFFF;
+    self->mbIsActive = false;
+}
+
 /**
  * Offset/Address/Size: 0x2188 | 0x801694E8 | size: 0x200
- * TODO: 98.98% match - r5/r0 register swap for m_uObjectFlags clear +
- * mpPhysicsObject NULL store (extra li r0,0 vs reusing r27)
  */
 ExplosionFragment::~ExplosionFragment()
 {
     if (mbIsActive)
     {
-        if (mpPhysicsObject != NULL)
-        {
-            delete mpPhysicsObject;
-        }
-
-        DrawableObject* drawable = WorldManager::s_World->FindDrawableObject(mFragmentModelHash);
-        drawable->m_uObjectFlags &= ~1;
-        mpPhysicsObject = NULL;
-        u16 handle = mDrawableFragmentID;
-        DrawableFragmentHandleNode* node = NULL;
-
-        if (DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool.m_FreeList == NULL)
-        {
-            SlotPoolBase::BaseAddNewBlock(&DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool, 8);
-        }
-
-        SlotPoolEntry* entry = DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool.m_FreeList;
-        if (entry != NULL)
-        {
-            node = (DrawableFragmentHandleNode*)entry;
-            DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool.m_FreeList = (SlotPoolEntry*)entry->m_next;
-        }
-
-        if (node != NULL)
-        {
-            node->mID = 0;
-            node->next = NULL;
-        }
-
-        node->mID = handle;
-        nlListAddEnd<DrawableFragmentHandleNode>(&SidelineExplodableManager::sUnusedDrawableFragments.m_pStart, &SidelineExplodableManager::sUnusedDrawableFragments.m_pEnd, node);
-        SidelineExplodableManager::sFragmentLookupTable[handle] = NULL;
-        mDrawableFragmentID = 0xFFFF;
-        mbIsActive = false;
+        DeactivateExplosionFragment(this);
     }
 
     mFragmentModelHash = 0;

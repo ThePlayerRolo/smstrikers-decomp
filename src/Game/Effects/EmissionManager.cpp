@@ -9,7 +9,7 @@
 // ---- Replayable specs OWNED by EmissionManager ----
 // Eight `template <>` definitions emit in this TU's .o. Note: bodies for
 // `<0, *, char>` and `<0, *, EmissionController>` use plain `template <>`
-// (not inline) because their bodies are too small — MWCC inlines them away
+// (not inline) because their bodies are too small -- MWCC inlines them away
 // even with FORCE_DONT_INLINE when marked inline. They emit as global
 // instead of weak; the rest use inline-weak. See Replay.h for rationale.
 //   <0, Load, EmissionController> (top)   <0, Save, char>

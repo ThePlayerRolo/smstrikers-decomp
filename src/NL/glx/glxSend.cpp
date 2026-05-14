@@ -1778,21 +1778,24 @@ void glx_SendEnd()
     glx_SwitchUserData(nullptr);
 }
 
+static inline void glx_SetVtxAttr()
+{
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR1, GX_CLR_RGBA, GX_RGBA8, 0);
+
+    for (s32 j = 0; j < 6; j++)
+    {
+        GXSetVtxAttrFmt(GX_VTXFMT0, (GXAttr)(GX_VA_TEX0 + j), GX_TEX_ST, GX_S16, 10);
+    }
+}
+
 /**
  * Offset/Address/Size: 0x4C94 | 0x801BE794 | size: 0x200
- * TODO: 99.8% match - 4 register diffs (first loop counter r28 vs r31), 1 label diff (@142 vs @419)
  */
 void glx_SendReset()
 {
     prev_view = GLV_Num;
-
-    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR1, GX_CLR_RGBA, GX_RGBA8, 0);
-
-    for (s32 i = 0; i < 6; i++)
-    {
-        GXSetVtxAttrFmt(GX_VTXFMT0, (GXAttr)(GX_VA_TEX0 + i), GX_TEX_ST, GX_S16, 10);
-    }
+    glx_SetVtxAttr();
 
     glx_texdirty = 0;
 

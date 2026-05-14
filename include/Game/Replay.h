@@ -232,7 +232,7 @@ inline void FloatCompressor<MIN, MAX, BITS>::Replay(SaveFrame& frame) const
 }
 
 // =====================================================================
-// Replayable<N, FrameType, T> — replay-buffer serialization templates.
+// Replayable<N, FrameType, T> -- replay-buffer serialization templates.
 //
 // DWARF says this whole family lives in Replay.h. The set of `template <>`
 // explicit specializations below cannot be replaced by a single generic
@@ -240,7 +240,7 @@ inline void FloatCompressor<MIN, MAX, BITS>::Replay(SaveFrame& frame) const
 //
 //   1. Target binaries call `Replayable<N, FrameType, T>(...)` with all 3
 //      template args explicit. The Itanium mangling for that call is
-//      `Replayable<N,FT,T>__FR...` — to match it, the SOURCE must
+//      `Replayable<N,FT,T>__FR...` -- to match it, the SOURCE must
 //      use the same 3-template-arg form, which forces overload resolution
 //      to pick a 3-template-arg overload. A POD-only generic with fewer
 //      template parameters would produce a *different* mangling and break
@@ -252,11 +252,11 @@ inline void FloatCompressor<MIN, MAX, BITS>::Replay(SaveFrame& frame) const
 //      Replayable(FT&, const T& proxy)`) for `T = const FloatCompressor<...>`.
 //
 // Architecture in practice:
-//   - **class generic** (line ~near end) — calls `drawable.Replay(frame)`
+//   - **class generic** (line ~near end) -- calls `drawable.Replay(frame)`
 //     for class types that have a `Replay` member (Drawable*, Manager*).
-//   - **FloatCompressor proxy generic** (below) — handles `const T&` for
+//   - **FloatCompressor proxy generic** (below) -- handles `const T&` for
 //     types with Read/Transfer/Apply methods.
-//   - **explicit `inline template <>` specs** — bool variants (special
+//   - **explicit `inline template <>` specs** -- bool variants (special
 //     `temp = value ? 1 : 0` pattern), char/short/long/vec3/quaternion/
 //     float (formulaic memcpy), and the EmissionController & Manager
 //     specs that need an interval gate around `manager.Replay(frame)`.
@@ -450,7 +450,7 @@ void Replayable(FrameType& frame, T& drawable)
 }
 
 // ==================================================================
-// Replayable specialization macros — DRY boilerplate for explicit
+// Replayable specialization macros -- DRY boilerplate for explicit
 // `template <>` specs while preserving target's mangling and ordering.
 // Each macro expands to a single `inline template <>` definition.
 // Pair macros (REPLAYABLE_*_PAIR) expand SAVE first, then LOAD; if the
@@ -459,75 +459,75 @@ void Replayable(FrameType& frame, T& drawable)
 // ==================================================================
 
 // Formulaic POD memcpy (char, Us, Ul, vec3, Q, float, etc.).
-#define REPLAYABLE_POD_SAVE(N, T)                                       \
-    template <>                                                         \
-    inline void Replayable<N, SaveFrame, T>(SaveFrame& frame, T& value) \
-    {                                                                   \
-        FORCE_DONT_INLINE;                                              \
-        if (frame.mInterval == N)                                       \
-        {                                                               \
-            if (frame.mInterval == N)                                   \
-            {                                                           \
-                memcpy(frame.mStream.mStorage, &value, sizeof(T));      \
-                frame.mStream.mStorage += sizeof(T);                    \
-            }                                                           \
-        }                                                               \
+#define REPLAYABLE_POD_SAVE(N, T)                                         \
+    template <>                                                           \
+    inline void Replayable<N, SaveFrame, T>(SaveFrame & frame, T & value) \
+    {                                                                     \
+        FORCE_DONT_INLINE;                                                \
+        if (frame.mInterval == N)                                         \
+        {                                                                 \
+            if (frame.mInterval == N)                                     \
+            {                                                             \
+                memcpy(frame.mStream.mStorage, &value, sizeof(T));        \
+                frame.mStream.mStorage += sizeof(T);                      \
+            }                                                             \
+        }                                                                 \
     }
 
-#define REPLAYABLE_POD_LOAD(N, T)                                       \
-    template <>                                                         \
-    inline void Replayable<N, LoadFrame, T>(LoadFrame& frame, T& value) \
-    {                                                                   \
-        FORCE_DONT_INLINE;                                              \
-        if (frame.mInterval == N)                                       \
-        {                                                               \
-            if (frame.mInterval == N)                                   \
-            {                                                           \
-                memcpy(&value, frame.mStream.mStorage, sizeof(T));      \
-                frame.mStream.mStorage += sizeof(T);                    \
-            }                                                           \
-        }                                                               \
+#define REPLAYABLE_POD_LOAD(N, T)                                         \
+    template <>                                                           \
+    inline void Replayable<N, LoadFrame, T>(LoadFrame & frame, T & value) \
+    {                                                                     \
+        FORCE_DONT_INLINE;                                                \
+        if (frame.mInterval == N)                                         \
+        {                                                                 \
+            if (frame.mInterval == N)                                     \
+            {                                                             \
+                memcpy(&value, frame.mStream.mStorage, sizeof(T));        \
+                frame.mStream.mStorage += sizeof(T);                      \
+            }                                                             \
+        }                                                                 \
     }
 
 #define REPLAYABLE_POD_PAIR(N, T) \
     REPLAYABLE_POD_SAVE(N, T)     \
     REPLAYABLE_POD_LOAD(N, T)
 
-// Bool specials — `temp = value ? 1 : 0` pattern (1-byte memcpy, not sizeof(bool)).
+// Bool specials -- `temp = value ? 1 : 0` pattern (1-byte memcpy, not sizeof(bool)).
 // N=0 / N=3 use sizeof(bool); N=1 uses literal 1. Pick the right variant.
-#define REPLAYABLE_BOOL_SAVE_1BYTE(N)                                   \
-    template <>                                                         \
-    inline void Replayable<N, SaveFrame, bool>(SaveFrame& frame, bool& value) \
-    {                                                                   \
-        FORCE_DONT_INLINE;                                              \
-        if (frame.mInterval == N)                                       \
-        {                                                               \
-            char temp = value ? 1 : 0;                                  \
-            memcpy(frame.mStream.mStorage, &temp, 1);                   \
-            frame.mStream.mStorage += 1;                                \
-        }                                                               \
+#define REPLAYABLE_BOOL_SAVE_1BYTE(N)                                          \
+    template <>                                                                \
+    inline void Replayable<N, SaveFrame, bool>(SaveFrame & frame, bool& value) \
+    {                                                                          \
+        FORCE_DONT_INLINE;                                                     \
+        if (frame.mInterval == N)                                              \
+        {                                                                      \
+            char temp = value ? 1 : 0;                                         \
+            memcpy(frame.mStream.mStorage, &temp, 1);                          \
+            frame.mStream.mStorage += 1;                                       \
+        }                                                                      \
     }
 
-#define REPLAYABLE_BOOL_LOAD_1BYTE(N)                                   \
-    template <>                                                         \
-    inline void Replayable<N, LoadFrame, bool>(LoadFrame& frame, bool& value) \
-    {                                                                   \
-        FORCE_DONT_INLINE;                                              \
-        if (frame.mInterval == N)                                       \
-        {                                                               \
-            char temp = 0;                                              \
-            memcpy(&temp, frame.mStream.mStorage, 1);                   \
-            frame.mStream.mStorage += 1;                                \
-            value = (temp != 0);                                        \
-        }                                                               \
+#define REPLAYABLE_BOOL_LOAD_1BYTE(N)                                          \
+    template <>                                                                \
+    inline void Replayable<N, LoadFrame, bool>(LoadFrame & frame, bool& value) \
+    {                                                                          \
+        FORCE_DONT_INLINE;                                                     \
+        if (frame.mInterval == N)                                              \
+        {                                                                      \
+            char temp = 0;                                                     \
+            memcpy(&temp, frame.mStream.mStorage, 1);                          \
+            frame.mStream.mStorage += 1;                                       \
+            value = (temp != 0);                                               \
+        }                                                                      \
     }
 
-// Manager / drawable types — calls `obj.Replay(frame)`.
+// Manager / drawable types -- calls `obj.Replay(frame)`.
 // Use this for explicit `template <>` overrides of the class generic so
 // the body has FORCE_DONT_INLINE (otherwise MWCC inlines them away).
 #define REPLAYABLE_CALL_SAVE(N, T)                                      \
     template <>                                                         \
-    inline void Replayable<N, SaveFrame, T>(SaveFrame& frame, T& obj)   \
+    inline void Replayable<N, SaveFrame, T>(SaveFrame & frame, T & obj) \
     {                                                                   \
         FORCE_DONT_INLINE;                                              \
         if (frame.mInterval == N)                                       \
@@ -541,7 +541,7 @@ void Replayable(FrameType& frame, T& drawable)
 
 #define REPLAYABLE_CALL_LOAD(N, T)                                      \
     template <>                                                         \
-    inline void Replayable<N, LoadFrame, T>(LoadFrame& frame, T& obj)   \
+    inline void Replayable<N, LoadFrame, T>(LoadFrame & frame, T & obj) \
     {                                                                   \
         FORCE_DONT_INLINE;                                              \
         if (frame.mInterval == N)                                       \
@@ -557,23 +557,23 @@ void Replayable(FrameType& frame, T& drawable)
     REPLAYABLE_CALL_SAVE(N, T)     \
     REPLAYABLE_CALL_LOAD(N, T)
 
-// Drawable types — no interval check, just `obj.Replay(frame)`.
+// Drawable types -- no interval check, just `obj.Replay(frame)`.
 // Matches RenderSnapshot's Drawable* specs (target call shapes show no
 // interval gate). FORCE_DONT_INLINE required to survive -inline deferred.
-#define REPLAYABLE_DRAWABLE_SAVE(N, T)                                      \
-    template <>                                                             \
-    inline void Replayable<N, SaveFrame, T>(SaveFrame& frame, T& drawable)  \
-    {                                                                       \
-        FORCE_DONT_INLINE;                                                  \
-        drawable.Replay(frame);                                             \
+#define REPLAYABLE_DRAWABLE_SAVE(N, T)                                       \
+    template <>                                                              \
+    inline void Replayable<N, SaveFrame, T>(SaveFrame & frame, T & drawable) \
+    {                                                                        \
+        FORCE_DONT_INLINE;                                                   \
+        drawable.Replay(frame);                                              \
     }
 
-#define REPLAYABLE_DRAWABLE_LOAD(N, T)                                      \
-    template <>                                                             \
-    inline void Replayable<N, LoadFrame, T>(LoadFrame& frame, T& drawable)  \
-    {                                                                       \
-        FORCE_DONT_INLINE;                                                  \
-        drawable.Replay(frame);                                             \
+#define REPLAYABLE_DRAWABLE_LOAD(N, T)                                       \
+    template <>                                                              \
+    inline void Replayable<N, LoadFrame, T>(LoadFrame & frame, T & drawable) \
+    {                                                                        \
+        FORCE_DONT_INLINE;                                                   \
+        drawable.Replay(frame);                                              \
     }
 
 #define REPLAYABLE_DRAWABLE_PAIR(N, T) \

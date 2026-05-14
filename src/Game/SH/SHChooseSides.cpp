@@ -15,6 +15,7 @@
 #include "NL/nlConfig.h"
 #include "NL/nlPrint.h"
 #include "NL/nlString.h"
+#include "NL/gl/glStruct.h"
 
 extern bool g_e3_Build;
 
@@ -341,14 +342,9 @@ void SHChooseSides2::SceneCreated()
         zH,
         zH);
 
-    extern void* glGetScreenInfo();
-    int screenWidth = *(int*)glGetScreenInfo();
+    const gl_ScreenInfo* screenInfo = glGetScreenInfo();
 
-    FEScrollText* ticker = (FEScrollText*)nlMalloc(0x22C, 8, false);
-    if (ticker != NULL)
-    {
-        ticker = new (ticker) FEScrollText(scrollText, 0, screenWidth + 0x32);
-    }
+    FEScrollText* ticker = new (nlMalloc(0x22C, 8, false)) FEScrollText(scrollText, 0, screenInfo->ScreenWidth + 0x32);
     m_pTicker = ticker;
 
     if (mContext == PAUSE)
@@ -366,19 +362,8 @@ void SHChooseSides2::SceneCreated()
 
         for (int i = 0; i < 3; i++)
         {
-            AsyncImage* image0 = (AsyncImage*)nlMalloc(0x1C, 8, false);
-            if (image0 != NULL)
-            {
-                image0 = new (image0) AsyncImage(filename, NULL);
-            }
-            mAsyncImage[0][i] = image0;
-
-            AsyncImage* image1 = (AsyncImage*)nlMalloc(0x1C, 8, false);
-            if (image1 != NULL)
-            {
-                image1 = new (image1) AsyncImage(filename, NULL);
-            }
-            mAsyncImage[1][i] = image1;
+            mAsyncImage[0][i] = new (nlMalloc(0x1C, 8, false)) AsyncImage(filename, NULL);
+            mAsyncImage[1][i] = new (nlMalloc(0x1C, 8, false)) AsyncImage(filename, NULL);
         }
 
         TLComponentInstance* captaincomponent = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
@@ -459,9 +444,9 @@ void SHChooseSides2::SceneCreated()
             zH,
             zH);
 
-        char mainfilename[128];
-        char outlinefilename[128];
-        char flashfilename[128];
+        char mainfilename[128] = { };
+        char outlinefilename[128] = { };
+        char flashfilename[128] = { };
 
         for (int i = 0; i < 2; i++)
         {
@@ -519,11 +504,7 @@ void SHChooseSides2::SceneCreated()
     {
         const char* filename = "art/fe/CaptainIconsUI.res";
 
-        AsyncImage* image0 = (AsyncImage*)nlMalloc(0x1C, 8, false);
-        if (image0 != NULL)
-        {
-            image0 = new (image0) AsyncImage(filename, NULL);
-        }
+        AsyncImage* image0 = new (nlMalloc(0x1C, 8, false)) AsyncImage(filename, NULL);
         mAsyncImage[0][0] = image0;
 
         mAsyncImage[0][0]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
@@ -535,11 +516,7 @@ void SHChooseSides2::SceneCreated()
             zH,
             zH);
 
-        AsyncImage* image1 = (AsyncImage*)nlMalloc(0x1C, 8, false);
-        if (image1 != NULL)
-        {
-            image1 = new (image1) AsyncImage(filename, NULL);
-        }
+        AsyncImage* image1 = new (nlMalloc(0x1C, 8, false)) AsyncImage(filename, NULL);
         mAsyncImage[1][0] = image1;
 
         mAsyncImage[1][0]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
