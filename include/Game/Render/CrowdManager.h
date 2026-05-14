@@ -49,34 +49,10 @@ public:
 // ---- Replayable specs OWNED by CrowdManager ----
 // Defined here in the header (not the .cpp) so MWCC emits them into a
 // separate `.text` subsection (matching target's `unique=9` layout).
-// See Replay.h for the architecture rationale.
-//   <1, LoadFrame, int>   <1, SaveFrame, int>
-template <>
-inline void Replayable<1, LoadFrame, int>(LoadFrame& frame, int& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            memcpy(&value, frame.mStream.mStorage, sizeof(int));
-            frame.mStream.mStorage += sizeof(int);
-        }
-    }
-}
-
-template <>
-inline void Replayable<1, SaveFrame, int>(SaveFrame& frame, int& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            memcpy(frame.mStream.mStorage, &value, sizeof(int));
-            frame.mStream.mStorage += sizeof(int);
-        }
-    }
-}
+// See Replay.h for macros + architecture rationale.
+// A stub at the END of CrowdManager.cpp references Load-int to force it
+// first in section 9 (target has Load before Save).
+REPLAYABLE_POD_LOAD(1, int)
+REPLAYABLE_POD_SAVE(1, int)
 
 #endif // _CROWDMANAGER_H_

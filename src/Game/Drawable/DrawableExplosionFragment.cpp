@@ -130,78 +130,10 @@ void DrawableExplosionFragment::Replay<SaveFrame>(SaveFrame& frame)
 }
 
 // ---- Replayable specs OWNED by DrawableExplosionFragment ----
-// These four `inline template <>` definitions emit as weak symbols in this
-// TU's .o (the canonical home per target.s). Other TUs that reference them
-// resolve via the linker. See Replay.h for the architecture rationale.
-//   <3, SaveFrame, unsigned long>
-//   <3, SaveFrame, nlQuaternion>
-//   <3, LoadFrame, unsigned long>
-//   <3, LoadFrame, nlQuaternion>
-
-/**
- * Offset/Address/Size: 0x0 | 0x8011FB28 | size: 0x50
- */
-template <>
-inline void Replayable<3, SaveFrame, unsigned long>(SaveFrame& frame, unsigned long& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(frame.mStream.mStorage, &value, sizeof(unsigned long));
-            frame.mStream.mStorage += sizeof(unsigned long);
-        }
-    }
-}
-
-/**
- * Offset/Address/Size: 0x50 | 0x8011FB78 | size: 0x50
- */
-template <>
-inline void Replayable<3, SaveFrame, nlQuaternion>(SaveFrame& frame, nlQuaternion& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(frame.mStream.mStorage, &value, sizeof(nlQuaternion));
-            frame.mStream.mStorage += sizeof(nlQuaternion);
-        }
-    }
-}
-
-/**
- * Offset/Address/Size: 0xA0 | 0x8011FBC8 | size: 0x54
- */
-template <>
-inline void Replayable<3, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(&value, frame.mStream.mStorage, sizeof(unsigned long));
-            frame.mStream.mStorage += sizeof(unsigned long);
-        }
-    }
-}
-
-/**
- * Offset/Address/Size: 0xF4 | 0x8011FC1C | size: 0x54
- */
-template <>
-inline void Replayable<3, LoadFrame, nlQuaternion>(LoadFrame& frame, nlQuaternion& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            memcpy(&value, frame.mStream.mStorage, sizeof(nlQuaternion));
-            frame.mStream.mStorage += sizeof(nlQuaternion);
-        }
-    }
-}
+// Four weak specs emit in this TU's .o in target order. Save-group first,
+// then Load-group (per target.s `unique=2` section layout).
+//   <3, S, Ul>   <3, S, Q>   <3, L, Ul>   <3, L, Q>
+REPLAYABLE_POD_SAVE(3, unsigned long)
+REPLAYABLE_POD_SAVE(3, nlQuaternion)
+REPLAYABLE_POD_LOAD(3, unsigned long)
+REPLAYABLE_POD_LOAD(3, nlQuaternion)

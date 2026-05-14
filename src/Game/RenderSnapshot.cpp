@@ -20,329 +20,83 @@ extern bool g_GoalLightEnabled;
 float g_AllActorsHidden;
 extern f32 g_fFixedUpdateTick;
 
-/**
- * Offset/Address/Size: 0x294 | 0x801138E8 | size: 0x160
- */
-template <>
-void RenderSnapshot::Replay<SaveFrame>(SaveFrame& frame)
+static nlVector3 ballPrevPosition = { 0.0f, 0.0f, 0.0f };
+
+void RenderSnapshot_stub(float& a, float& b)
 {
-    for (int i = 0; i < 10; i++)
-    {
-        Replayable<0, SaveFrame, DrawableCharacter>(frame, mCharacters[i]);
-    }
+    b = 0.0f;
+    a = 1.0f;
+}
 
-    for (int i = 0; i < 150; i++)
-    {
-        Replayable<0, SaveFrame, DrawablePowerup>(frame, mPowerups[i]);
-    }
-
-    for (int i = 0; i < 20; i++)
-    {
-        Replayable<0, SaveFrame, DrawableExplosionFragment>(frame, mExplosionFragments[i]);
-    }
-
-    for (int i = 0; i < mNumExplodables; i++)
-    {
-        Replayable<0, SaveFrame, bool>(frame, reinterpret_cast<bool&>(mpExplodableVisibilityRecords[i]));
-    }
-
-    Replayable<0, SaveFrame, DrawableCharacter>(frame, mChainChomp);
-    Replayable<0, SaveFrame, DrawableCharacter>(frame, mBowser);
-    Replayable<0, SaveFrame, DrawableBall>(frame, mBall);
-    Replayable<1, SaveFrame, nlVector3>(frame, mCameraUp);
-    Replayable<1, SaveFrame, bool>(frame, mGoalLight);
-
-    Replayable<1, SaveFrame, CrowdManager>(frame, CrowdManager::instance);
-    {
-        Replayable<3, SaveFrame, EmissionManager>(frame, EmissionManager::InstanceForReplayOnly());
-    }
-
-    if (NetMesh::s_bAnimatedNetMeshEnabled)
-    {
-        Replayable<1, SaveFrame, DrawableNetMesh>(frame, *mpNetMeshPositiveX);
-        Replayable<1, SaveFrame, DrawableNetMesh>(frame, *mpNetMeshNegativeX);
-    }
-
+/**
+ * Offset/Address/Size: 0x0 | 0x80112CD4 | size: 0xC
+ */
+RenderSnapshot& RenderSnapshot::GetMutable()
+{
     mValid = true;
+    return *this;
 }
 
 /**
- * Offset/Address/Size: 0x0 | 0x80113654 | size: 0x294
+ * Offset/Address/Size: 0xC | 0x80112CE0 | size: 0x20C
  */
-template <>
-void RenderSnapshot::Replay<LoadFrame>(LoadFrame& frame)
+void RenderSnapshot::Blend(const float* blendFactors, const RenderSnapshot& lhs, const RenderSnapshot& rhs)
 {
-    nlVector3* pos;
-    for (int i = 0; i < 10; i++)
-    {
-        Replayable<0, LoadFrame, DrawableCharacter>(frame, mCharacters[i]);
-    }
-
-    for (int i = 0; i < 150; i++)
-    {
-        Replayable<0, LoadFrame, DrawablePowerup>(frame, mPowerups[i]);
-    }
-
-    for (int i = 0; i < 20; i++)
-    {
-        Replayable<0, LoadFrame, DrawableExplosionFragment>(frame, mExplosionFragments[i]);
-    }
-
-    for (int i = 0; i < mNumExplodables; i++)
-    {
-        Replayable<0, LoadFrame, bool>(frame, reinterpret_cast<bool&>(mpExplodableVisibilityRecords[i]));
-    }
-
-    Replayable<0, LoadFrame, DrawableCharacter>(frame, mChainChomp);
-    Replayable<0, LoadFrame, DrawableCharacter>(frame, mBowser);
-    Replayable<0, LoadFrame, DrawableBall>(frame, mBall);
-    Replayable<1, LoadFrame, nlVector3>(frame, mCameraUp);
-    Replayable<1, LoadFrame, bool>(frame, mGoalLight);
-
-    Replayable<1, LoadFrame, CrowdManager>(frame, CrowdManager::instance);
-
-    if (frame.mReplayNonBlendables == REPLAY_NON_BLENDABLES)
-    {
-        Replayable<3, LoadFrame, EmissionManager>(frame, EmissionManager::InstanceForReplayOnly());
-    }
-
-    if (NetMesh::s_bAnimatedNetMeshEnabled)
-    {
-        if (frame.mInterval == 1)
-        {
-            static bool doUpdate = false;
-
-            static nlVector3 ballPrevPosition = { 0.0f, 0.0f, 0.0f };
-
-            if (doUpdate)
-            {
-                doUpdate = false;
-
-                pos = &mBall.mPosition;
-                NetMesh::spPositiveXNetMesh->Update(g_fFixedUpdateTick, *pos, ballPrevPosition, mDoGoalieNetTestPosX, nullptr);
-                NetMesh::spNegativeXNetMesh->Update(g_fFixedUpdateTick, *pos, ballPrevPosition, mDoGoalieNetTestNegX, nullptr);
-                ballPrevPosition = *pos;
-
-                mpNetMeshPositiveX->Grab(*PhysicsNet::spPhysNetPositiveX->mpNetMesh);
-                mpNetMeshNegativeX->Grab(*PhysicsNet::spPhysNetNegativeX->mpNetMesh);
-            }
-
-            static float previousTime = 0.0f;
-
-            if (frame.mNonBlendableAheadOfFrame > 0.0f)
-            {
-                if (frame.mNonBlendableAheadOfFrame < previousTime)
-                {
-                    mpNetMeshPositiveX->Grab(*PhysicsNet::spPhysNetPositiveX->mpNetMesh);
-                    mpNetMeshNegativeX->Grab(*PhysicsNet::spPhysNetNegativeX->mpNetMesh);
-                    doUpdate = true;
-                }
-                previousTime = frame.mNonBlendableAheadOfFrame;
-            }
-        }
-
-        Replayable<1, LoadFrame, DrawableNetMesh>(frame, *mpNetMeshPositiveX);
-        Replayable<1, LoadFrame, DrawableNetMesh>(frame, *mpNetMeshNegativeX);
-    }
-
+    int i;
+    mFrameBlendPercent = blendFactors[0];
     mValid = true;
-}
 
-/**
- * Offset/Address/Size: 0x844 | 0x80113518 | size: 0x13C
- */
-void RenderSnapshot::Initialize()
-{
-    DrawableNetMesh* pNetMesh = new (nlMalloc(0x28, 8, false)) DrawableNetMesh(true);
-    mpNetMeshPositiveX = pNetMesh;
-
-    pNetMesh = new (nlMalloc(0x28, 8, false)) DrawableNetMesh(false);
-    mpNetMeshNegativeX = pNetMesh;
-
-    for (int i = 0; i < 20; i++)
+    for (i = 0; i < 10; i++)
     {
-        mExplosionFragments[i].mID = i;
+        mCharacters[i].Blend(blendFactors, lhs.mCharacters[i], rhs.mCharacters[i]);
     }
 
-    mNumExplodables = SidelineExplodableManager::GetNumExplodables();
-    mpExplodableVisibilityRecords = (unsigned char*)nlMalloc(mNumExplodables, 8, false);
-
-    mValid = false;
-}
-
-/**
- * Offset/Address/Size: 0x7AC | 0x80113480 | size: 0x98
- */
-void RenderSnapshot::Free()
-{
-    for (int i = 0; i < 10; i++)
+    for (i = 0; i < 150; i++)
     {
-        mCharacters[i].Free();
+        mPowerups[i].Blend(blendFactors, lhs.mPowerups[i], rhs.mPowerups[i]);
     }
 
-    mChainChomp.Free();
-    mBowser.Free();
-
-    delete mpNetMeshPositiveX;
-    delete mpNetMeshNegativeX;
-    delete[] mpExplodableVisibilityRecords;
-
-    mpNetMeshPositiveX = nullptr;
-    mpNetMeshNegativeX = nullptr;
-    mpExplodableVisibilityRecords = nullptr;
-}
-
-/**
- * Offset/Address/Size: 0x624 | 0x801132F8 | size: 0x188
- */
-void RenderSnapshot::Grab()
-{
-    for (int i = 0; i < 10; i++)
+    for (i = 0; i < 20; i++)
     {
-        mCharacters[i].Grab(*g_pCharacters[i]);
+        mExplosionFragments[i].Blend(blendFactors, lhs.mExplosionFragments[i], rhs.mExplosionFragments[i]);
     }
 
-    for (int i = 0; i < 150; i++)
+    mChainChomp.Blend(blendFactors, lhs.mChainChomp, rhs.mChainChomp);
+    mBowser.Blend(blendFactors, lhs.mBowser, rhs.mBowser);
+    mBall.Blend(blendFactors, lhs.mBall, rhs.mBall);
+
+    mpNetMeshPositiveX->Blend(blendFactors[0], *lhs.mpNetMeshPositiveX, *rhs.mpNetMeshPositiveX);
+    mpNetMeshNegativeX->Blend(blendFactors[0], *lhs.mpNetMeshNegativeX, *rhs.mpNetMeshNegativeX);
+
+    float blend = blendFactors[0];
+    mCameraUp.f.x = (1.0f - blend) * lhs.mCameraUp.f.x + blend * rhs.mCameraUp.f.x;
+    mCameraUp.f.y = (1.0f - blend) * lhs.mCameraUp.f.y + blend * rhs.mCameraUp.f.y;
+    mCameraUp.f.z = (1.0f - blend) * lhs.mCameraUp.f.z + blend * rhs.mCameraUp.f.z;
+
+    mGoalLight = rhs.mGoalLight;
+    mDoGoalieNetTestPosX = rhs.mDoGoalieNetTestPosX;
+    mDoGoalieNetTestNegX = rhs.mDoGoalieNetTestNegX;
+
+    const unsigned char* pLhsVis = lhs.mpExplodableVisibilityRecords;
+    const unsigned char* pRhsVis = rhs.mpExplodableVisibilityRecords;
+    for (int j = 0; j < mNumExplodables; j++)
     {
-        mPowerups[i].Grab(i);
-    }
-
-    for (int i = 0; i < 20; i++)
-    {
-        mExplosionFragments[i].Grab();
-    }
-
-    if (mpExplodableVisibilityRecords != nullptr)
-    {
-        SidelineExplodableManager::GetVisibilityOfExplodableModels((bool*)mpExplodableVisibilityRecords, mNumExplodables);
-    }
-
-    {
-        const BasicStadium* stadium = BasicStadium::GetCurrentStadium();
-        mChainChomp.Grab(*(stadium->mpNPCManager->mpChainChomp));
-    }
-
-    {
-        const BasicStadium* stadium = BasicStadium::GetCurrentStadium();
-        mBowser.Grab(*(stadium->mpNPCManager->mpBowser));
-    }
-
-    mBall.Grab();
-
-    mGoalLight = g_GoalLightEnabled;
-
-    if (NetMesh::s_bAnimatedNetMeshEnabled)
-    {
-        if (mpNetMeshPositiveX != nullptr)
+        unsigned char visible = 0;
+        if (*pLhsVis || *pRhsVis)
         {
-            PhysicsNet* physNet = PhysicsNet::spPhysNetPositiveX;
-            mpNetMeshPositiveX->Grab(*physNet->mpNetMesh);
+            visible = 1;
         }
-        if (mpNetMeshNegativeX != nullptr)
-        {
-            PhysicsNet* physNet = PhysicsNet::spPhysNetNegativeX;
-            mpNetMeshNegativeX->Grab(*physNet->mpNetMesh);
-        }
-
-        mDoGoalieNetTestPosX = Goalie::mbPosGoalieNetCheck;
-        mDoGoalieNetTestNegX = Goalie::mbNegGoalieNetCheck;
+        mpExplodableVisibilityRecords[j] = visible;
+        pRhsVis++;
+        pLhsVis++;
     }
-
-    int stackSize = cCameraManager::m_UpVectorStackSize;
-    mCameraUp = cCameraManager::m_UpVectorStack[stackSize];
-
-    mValid = true;
 }
 
 /**
- * Offset/Address/Size: 0x51C | 0x801131F0 | size: 0x108
+ * Offset/Address/Size: 0x218 | 0x80112EEC | size: 0x4
  */
-int RenderSnapshot::NumDrawableObjects() const
+void RenderSnapshot::RenderDebugInfo(const RenderSnapshot&, const RenderSnapshot&, float) const
 {
-    int ret = 11;
-
-    if (mChainChomp.mVisible)
-        ret = 12;
-    if (mBowser.mVisible)
-        ret++;
-
-    for (int i = 0; i < 150; i++)
-    {
-        if (mPowerups[i].mVisible)
-            ret++;
-    }
-
-    return ret;
-}
-
-/**
- * Offset/Address/Size: 0x3DC | 0x801130B0 | size: 0x140
- */
-nlVector3 RenderSnapshot::GetPositionForDrawableObject(int i) const
-{
-    int j;
-
-    if (i == 0)
-    {
-        return mBall.mPosition;
-    }
-
-    int charIndex = i - 1;
-    if (charIndex < 10)
-    {
-        const nlVector3* pos = &mCharacters[charIndex].mPosition;
-        return *pos;
-    }
-
-    int remaining = i - 11;
-
-    if (remaining == 0)
-    {
-        if (mChainChomp.mVisible)
-        {
-            return mChainChomp.mPosition;
-        }
-    }
-    else
-    {
-        remaining--;
-    }
-
-    if (remaining == 0)
-    {
-        if (mBowser.mVisible)
-        {
-            return mBowser.mPosition;
-        }
-    }
-    else
-    {
-        remaining--;
-    }
-
-    for (j = 0, i = 0; i < 150; i++, j++)
-    {
-        if (mPowerups[i].mVisible)
-        {
-            if (remaining == 0)
-            {
-                const nlVector3* pos = &mPowerups[j].mPosition;
-                return *pos;
-            }
-            remaining--;
-        }
-    }
-
-    nlVector3 defaultPos = { 0.0f, 0.0f, 0.0f };
-    return defaultPos;
-}
-
-/**
- * Offset/Address/Size: 0x3D0 | 0x801130A4 | size: 0xC
- */
-void RenderSnapshot::Invalidate()
-{
-    mValid = false;
 }
 
 /**
@@ -409,111 +163,338 @@ void RenderSnapshot::Render(float deltaTime) const
 }
 
 /**
- * Offset/Address/Size: 0x218 | 0x80112EEC | size: 0x4
+ * Offset/Address/Size: 0x3D0 | 0x801130A4 | size: 0xC
  */
-void RenderSnapshot::RenderDebugInfo(const RenderSnapshot&, const RenderSnapshot&, float) const
+void RenderSnapshot::Invalidate()
 {
+    mValid = false;
 }
 
 /**
- * Offset/Address/Size: 0xC | 0x80112CE0 | size: 0x20C
- * TODO: 87.29% match - register allocation differs (this=r29 should be r30, lhs=r30 should be r25).
- *       Compiler allocates callee-saved regs differently in scratch vs full TU build.
- *       All instructions match, only register numbering and float scheduling differ.
+ * Offset/Address/Size: 0x3DC | 0x801130B0 | size: 0x140
  */
-void RenderSnapshot::Blend(const float* blendFactors, const RenderSnapshot& lhs, const RenderSnapshot& rhs)
+nlVector3 RenderSnapshot::GetPositionForDrawableObject(int i) const
 {
-    int i;
-    mFrameBlendPercent = blendFactors[0];
-    mValid = true;
+    int j;
 
-    for (i = 0; i < 10; i++)
+    if (i == 0)
     {
-        mCharacters[i].Blend(blendFactors, lhs.mCharacters[i], rhs.mCharacters[i]);
+        return mBall.mPosition;
     }
 
-    for (i = 0; i < 150; i++)
+    int charIndex = i - 1;
+    if (charIndex < 10)
     {
-        mPowerups[i].Blend(blendFactors, lhs.mPowerups[i], rhs.mPowerups[i]);
+        const nlVector3* pos = &mCharacters[charIndex].mPosition;
+        return *pos;
     }
 
-    for (i = 0; i < 20; i++)
+    int remaining = i - 11;
+
+    if (remaining == 0)
     {
-        mExplosionFragments[i].Blend(blendFactors, lhs.mExplosionFragments[i], rhs.mExplosionFragments[i]);
-    }
-
-    mChainChomp.Blend(blendFactors, lhs.mChainChomp, rhs.mChainChomp);
-    mBowser.Blend(blendFactors, lhs.mBowser, rhs.mBowser);
-    mBall.Blend(blendFactors, lhs.mBall, rhs.mBall);
-
-    mpNetMeshPositiveX->Blend(blendFactors[0], *lhs.mpNetMeshPositiveX, *rhs.mpNetMeshPositiveX);
-    mpNetMeshNegativeX->Blend(blendFactors[0], *lhs.mpNetMeshNegativeX, *rhs.mpNetMeshNegativeX);
-
-    float blend = blendFactors[0];
-    mCameraUp.f.x = (1.0f - blend) * lhs.mCameraUp.f.x + blend * rhs.mCameraUp.f.x;
-    mCameraUp.f.y = (1.0f - blend) * lhs.mCameraUp.f.y + blend * rhs.mCameraUp.f.y;
-    mCameraUp.f.z = (1.0f - blend) * lhs.mCameraUp.f.z + blend * rhs.mCameraUp.f.z;
-
-    mGoalLight = rhs.mGoalLight;
-    mDoGoalieNetTestPosX = rhs.mDoGoalieNetTestPosX;
-    mDoGoalieNetTestNegX = rhs.mDoGoalieNetTestNegX;
-
-    const unsigned char* pLhsVis = lhs.mpExplodableVisibilityRecords;
-    const unsigned char* pRhsVis = rhs.mpExplodableVisibilityRecords;
-    for (int j = 0; j < mNumExplodables; j++)
-    {
-        unsigned char visible = 0;
-        if (*pLhsVis || *pRhsVis)
+        if (mChainChomp.mVisible)
         {
-            visible = 1;
+            return mChainChomp.mPosition;
         }
-        mpExplodableVisibilityRecords[j] = visible;
-        pRhsVis++;
-        pLhsVis++;
     }
+    else
+    {
+        remaining--;
+    }
+
+    if (remaining == 0)
+    {
+        if (mBowser.mVisible)
+        {
+            return mBowser.mPosition;
+        }
+    }
+    else
+    {
+        remaining--;
+    }
+
+    for (j = 0, i = 0; i < 150; i++, j++)
+    {
+        if (mPowerups[i].mVisible)
+        {
+            if (remaining == 0)
+            {
+                const nlVector3* pos = &mPowerups[j].mPosition;
+                return *pos;
+            }
+            remaining--;
+        }
+    }
+
+    nlVector3 defaultPos = { 0.0f, 0.0f, 0.0f };
+    return defaultPos;
 }
 
 /**
- * Offset/Address/Size: 0x0 | 0x80112CD4 | size: 0xC
+ * Offset/Address/Size: 0x51C | 0x801131F0 | size: 0x108
  */
-RenderSnapshot& RenderSnapshot::GetMutable()
+int RenderSnapshot::NumDrawableObjects() const
 {
+    int ret = 11;
+
+    if (mChainChomp.mVisible)
+        ret = 12;
+    if (mBowser.mVisible)
+        ret++;
+
+    for (int i = 0; i < 150; i++)
+    {
+        if (mPowerups[i].mVisible)
+            ret++;
+    }
+
+    return ret;
+}
+
+/**
+ * Offset/Address/Size: 0x624 | 0x801132F8 | size: 0x188
+ */
+void RenderSnapshot::Grab()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        mCharacters[i].Grab(*g_pCharacters[i]);
+    }
+
+    for (int i = 0; i < 150; i++)
+    {
+        mPowerups[i].Grab(i);
+    }
+
+    for (int i = 0; i < 20; i++)
+    {
+        mExplosionFragments[i].Grab();
+    }
+
+    if (mpExplodableVisibilityRecords != nullptr)
+    {
+        SidelineExplodableManager::GetVisibilityOfExplodableModels((bool*)mpExplodableVisibilityRecords, mNumExplodables);
+    }
+
+    {
+        const BasicStadium* stadium = BasicStadium::GetCurrentStadium();
+        mChainChomp.Grab(*(stadium->mpNPCManager->mpChainChomp));
+    }
+
+    {
+        const BasicStadium* stadium = BasicStadium::GetCurrentStadium();
+        mBowser.Grab(*(stadium->mpNPCManager->mpBowser));
+    }
+
+    mBall.Grab();
+
+    mGoalLight = g_GoalLightEnabled;
+
+    if (NetMesh::s_bAnimatedNetMeshEnabled)
+    {
+        if (mpNetMeshPositiveX != nullptr)
+        {
+            PhysicsNet* physNet = PhysicsNet::spPhysNetPositiveX;
+            mpNetMeshPositiveX->Grab(*physNet->mpNetMesh);
+        }
+        if (mpNetMeshNegativeX != nullptr)
+        {
+            PhysicsNet* physNet = PhysicsNet::spPhysNetNegativeX;
+            mpNetMeshNegativeX->Grab(*physNet->mpNetMesh);
+        }
+
+        mDoGoalieNetTestPosX = Goalie::mbPosGoalieNetCheck;
+        mDoGoalieNetTestNegX = Goalie::mbNegGoalieNetCheck;
+    }
+
+    int stackSize = cCameraManager::m_UpVectorStackSize;
+    mCameraUp = cCameraManager::m_UpVectorStack[stackSize];
+
     mValid = true;
-    return *this;
+}
+
+/**
+ * Offset/Address/Size: 0x7AC | 0x80113480 | size: 0x98
+ */
+void RenderSnapshot::Free()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        mCharacters[i].Free();
+    }
+
+    mChainChomp.Free();
+    mBowser.Free();
+
+    delete mpNetMeshPositiveX;
+    delete mpNetMeshNegativeX;
+    delete[] mpExplodableVisibilityRecords;
+
+    mpNetMeshPositiveX = nullptr;
+    mpNetMeshNegativeX = nullptr;
+    mpExplodableVisibilityRecords = nullptr;
+}
+
+/**
+ * Offset/Address/Size: 0x844 | 0x80113518 | size: 0x13C
+ */
+void RenderSnapshot::Initialize()
+{
+    DrawableNetMesh* pNetMesh = new (nlMalloc(0x28, 8, false)) DrawableNetMesh(true);
+    mpNetMeshPositiveX = pNetMesh;
+
+    pNetMesh = new (nlMalloc(0x28, 8, false)) DrawableNetMesh(false);
+    mpNetMeshNegativeX = pNetMesh;
+
+    for (int i = 0; i < 20; i++)
+    {
+        mExplosionFragments[i].mID = i;
+    }
+
+    mNumExplodables = SidelineExplodableManager::GetNumExplodables();
+    mpExplodableVisibilityRecords = (unsigned char*)nlMalloc(mNumExplodables, 8, false);
+
+    mValid = false;
+}
+
+/**
+ * Offset/Address/Size: 0x0 | 0x80113654 | size: 0x294
+ */
+template <>
+void RenderSnapshot::Replay<LoadFrame>(LoadFrame& frame)
+{
+    nlVector3* pos;
+    for (int i = 0; i < 10; i++)
+    {
+        Replayable<0, LoadFrame, DrawableCharacter>(frame, mCharacters[i]);
+    }
+
+    for (int i = 0; i < 150; i++)
+    {
+        Replayable<0, LoadFrame, DrawablePowerup>(frame, mPowerups[i]);
+    }
+
+    for (int i = 0; i < 20; i++)
+    {
+        Replayable<0, LoadFrame, DrawableExplosionFragment>(frame, mExplosionFragments[i]);
+    }
+
+    for (int i = 0; i < mNumExplodables; i++)
+    {
+        Replayable<0, LoadFrame, bool>(frame, reinterpret_cast<bool&>(mpExplodableVisibilityRecords[i]));
+    }
+
+    Replayable<0, LoadFrame, DrawableCharacter>(frame, mChainChomp);
+    Replayable<0, LoadFrame, DrawableCharacter>(frame, mBowser);
+    Replayable<0, LoadFrame, DrawableBall>(frame, mBall);
+    Replayable<1, LoadFrame, nlVector3>(frame, mCameraUp);
+    Replayable<1, LoadFrame, bool>(frame, mGoalLight);
+
+    Replayable<1, LoadFrame, CrowdManager>(frame, CrowdManager::instance);
+
+    if (frame.mReplayNonBlendables == REPLAY_NON_BLENDABLES)
+    {
+        Replayable<3, LoadFrame, EmissionManager>(frame, EmissionManager::InstanceForReplayOnly());
+    }
+
+    if (NetMesh::s_bAnimatedNetMeshEnabled)
+    {
+        if (frame.mInterval == 1)
+        {
+            static bool doUpdate = false;
+
+            // static nlVector3 ballPrevPosition = { 0.0f, 0.0f, 0.0f };
+
+            if (doUpdate)
+            {
+                doUpdate = false;
+
+                pos = &mBall.mPosition;
+                NetMesh::spPositiveXNetMesh->Update(g_fFixedUpdateTick, *pos, ballPrevPosition, mDoGoalieNetTestPosX, nullptr);
+                NetMesh::spNegativeXNetMesh->Update(g_fFixedUpdateTick, *pos, ballPrevPosition, mDoGoalieNetTestNegX, nullptr);
+                ballPrevPosition = *pos;
+
+                mpNetMeshPositiveX->Grab(*PhysicsNet::spPhysNetPositiveX->mpNetMesh);
+                mpNetMeshNegativeX->Grab(*PhysicsNet::spPhysNetNegativeX->mpNetMesh);
+            }
+
+            static float previousTime = 0.0f;
+
+            if (frame.mNonBlendableAheadOfFrame > 0.0f)
+            {
+                if (frame.mNonBlendableAheadOfFrame < previousTime)
+                {
+                    mpNetMeshPositiveX->Grab(*PhysicsNet::spPhysNetPositiveX->mpNetMesh);
+                    mpNetMeshNegativeX->Grab(*PhysicsNet::spPhysNetNegativeX->mpNetMesh);
+                    doUpdate = true;
+                }
+                previousTime = frame.mNonBlendableAheadOfFrame;
+            }
+        }
+
+        Replayable<1, LoadFrame, DrawableNetMesh>(frame, *mpNetMeshPositiveX);
+        Replayable<1, LoadFrame, DrawableNetMesh>(frame, *mpNetMeshNegativeX);
+    }
+
+    mValid = true;
+}
+
+/**
+ * Offset/Address/Size: 0x294 | 0x801138E8 | size: 0x160
+ */
+template <>
+void RenderSnapshot::Replay<SaveFrame>(SaveFrame& frame)
+{
+    for (int i = 0; i < 10; i++)
+    {
+        Replayable<0, SaveFrame, DrawableCharacter>(frame, mCharacters[i]);
+    }
+
+    for (int i = 0; i < 150; i++)
+    {
+        Replayable<0, SaveFrame, DrawablePowerup>(frame, mPowerups[i]);
+    }
+
+    for (int i = 0; i < 20; i++)
+    {
+        Replayable<0, SaveFrame, DrawableExplosionFragment>(frame, mExplosionFragments[i]);
+    }
+
+    for (int i = 0; i < mNumExplodables; i++)
+    {
+        Replayable<0, SaveFrame, bool>(frame, reinterpret_cast<bool&>(mpExplodableVisibilityRecords[i]));
+    }
+
+    Replayable<0, SaveFrame, DrawableCharacter>(frame, mChainChomp);
+    Replayable<0, SaveFrame, DrawableCharacter>(frame, mBowser);
+    Replayable<0, SaveFrame, DrawableBall>(frame, mBall);
+    Replayable<1, SaveFrame, nlVector3>(frame, mCameraUp);
+    Replayable<1, SaveFrame, bool>(frame, mGoalLight);
+
+    Replayable<1, SaveFrame, CrowdManager>(frame, CrowdManager::instance);
+    {
+        Replayable<3, SaveFrame, EmissionManager>(frame, EmissionManager::InstanceForReplayOnly());
+    }
+
+    if (NetMesh::s_bAnimatedNetMeshEnabled)
+    {
+        Replayable<1, SaveFrame, DrawableNetMesh>(frame, *mpNetMeshPositiveX);
+        Replayable<1, SaveFrame, DrawableNetMesh>(frame, *mpNetMeshNegativeX);
+    }
+
+    mValid = true;
 }
 
 // ---- Replayable specs OWNED by RenderSnapshot (target order) ----
-// Twenty `inline template <>` definitions emit as weak symbols in this
-// TU's .o, in target order. Includes 8 Drawable* type specs (calling
-// `drawable.Replay(frame)`) plus 12 manager/bool/vec3 specs. The Drawable
-// specs use FORCE_DONT_INLINE to survive -inline deferred (otherwise
-// MWCC would inline them away). See Replay.h for the architecture rationale.
-//   <0, Save/Load, DrawableCharacter | DrawablePowerup | DrawableExplosionFragment | DrawableBall | bool>
-//   <1, Save/Load, nlVector3 | bool | CrowdManager | DrawableNetMesh>
-//   <3, Save/Load, EmissionManager>
 
 // Save group
-template <>
-inline void Replayable<0, SaveFrame, DrawableCharacter>(SaveFrame& frame, DrawableCharacter& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
+REPLAYABLE_DRAWABLE_SAVE(0, DrawableCharacter)
+REPLAYABLE_DRAWABLE_SAVE(0, DrawablePowerup)
+REPLAYABLE_DRAWABLE_SAVE(0, DrawableExplosionFragment)
 
-template <>
-inline void Replayable<0, SaveFrame, DrawablePowerup>(SaveFrame& frame, DrawablePowerup& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
-
-template <>
-inline void Replayable<0, SaveFrame, DrawableExplosionFragment>(SaveFrame& frame, DrawableExplosionFragment& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
-
+// <0, S, bool> uses the sizeof(bool) variant (target's first .data byte).
 template <>
 inline void Replayable<0, SaveFrame, bool>(SaveFrame& frame, bool& value)
 {
@@ -523,100 +504,19 @@ inline void Replayable<0, SaveFrame, bool>(SaveFrame& frame, bool& value)
     frame.mStream.mStorage += sizeof(bool);
 }
 
-template <>
-inline void Replayable<0, SaveFrame, DrawableBall>(SaveFrame& frame, DrawableBall& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
-
-template <>
-inline void Replayable<1, SaveFrame, nlVector3>(SaveFrame& frame, nlVector3& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            memcpy(frame.mStream.mStorage, &value, sizeof(nlVector3));
-            frame.mStream.mStorage += sizeof(nlVector3);
-        }
-    }
-}
-
-template <>
-inline void Replayable<1, SaveFrame, bool>(SaveFrame& frame, bool& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        char temp = value ? 1 : 0;
-        memcpy(frame.mStream.mStorage, &temp, 1);
-        frame.mStream.mStorage += 1;
-    }
-}
-
-template <>
-inline void Replayable<1, SaveFrame, CrowdManager>(SaveFrame& frame, CrowdManager& manager)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            manager.Replay(frame);
-        }
-    }
-}
-
-template <>
-inline void Replayable<3, SaveFrame, EmissionManager>(SaveFrame& frame, EmissionManager& manager)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            manager.Replay(frame);
-        }
-    }
-}
-
-template <>
-inline void Replayable<1, SaveFrame, DrawableNetMesh>(SaveFrame& frame, DrawableNetMesh& manager)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            manager.Replay(frame);
-        }
-    }
-}
+REPLAYABLE_DRAWABLE_SAVE(0, DrawableBall)
+REPLAYABLE_POD_SAVE(1, nlVector3)
+REPLAYABLE_BOOL_SAVE_1BYTE(1)
+REPLAYABLE_CALL_SAVE(1, CrowdManager)
+REPLAYABLE_CALL_SAVE(3, EmissionManager)
+REPLAYABLE_CALL_SAVE(1, DrawableNetMesh)
 
 // Load group
-template <>
-inline void Replayable<0, LoadFrame, DrawableCharacter>(LoadFrame& frame, DrawableCharacter& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
+REPLAYABLE_DRAWABLE_LOAD(0, DrawableCharacter)
+REPLAYABLE_DRAWABLE_LOAD(0, DrawablePowerup)
+REPLAYABLE_DRAWABLE_LOAD(0, DrawableExplosionFragment)
 
-template <>
-inline void Replayable<0, LoadFrame, DrawablePowerup>(LoadFrame& frame, DrawablePowerup& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
-
-template <>
-inline void Replayable<0, LoadFrame, DrawableExplosionFragment>(LoadFrame& frame, DrawableExplosionFragment& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
-
+// <0, L, bool> is UNCONDITIONAL (no interval check).
 template <>
 inline void Replayable<0, LoadFrame, bool>(LoadFrame& frame, bool& value)
 {
@@ -627,75 +527,9 @@ inline void Replayable<0, LoadFrame, bool>(LoadFrame& frame, bool& value)
     value = (temp != 0);
 }
 
-template <>
-inline void Replayable<0, LoadFrame, DrawableBall>(LoadFrame& frame, DrawableBall& drawable)
-{
-    FORCE_DONT_INLINE;
-    drawable.Replay(frame);
-}
-
-template <>
-inline void Replayable<1, LoadFrame, nlVector3>(LoadFrame& frame, nlVector3& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            memcpy(&value, frame.mStream.mStorage, sizeof(nlVector3));
-            frame.mStream.mStorage += sizeof(nlVector3);
-        }
-    }
-}
-
-template <>
-inline void Replayable<1, LoadFrame, bool>(LoadFrame& frame, bool& value)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        char temp = 0;
-        memcpy(&temp, frame.mStream.mStorage, 1);
-        frame.mStream.mStorage += 1;
-        value = (temp != 0);
-    }
-}
-
-template <>
-inline void Replayable<1, LoadFrame, CrowdManager>(LoadFrame& frame, CrowdManager& manager)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            manager.Replay(frame);
-        }
-    }
-}
-
-template <>
-inline void Replayable<3, LoadFrame, EmissionManager>(LoadFrame& frame, EmissionManager& manager)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 3)
-    {
-        if (frame.mInterval == 3)
-        {
-            manager.Replay(frame);
-        }
-    }
-}
-
-template <>
-inline void Replayable<1, LoadFrame, DrawableNetMesh>(LoadFrame& frame, DrawableNetMesh& manager)
-{
-    FORCE_DONT_INLINE;
-    if (frame.mInterval == 1)
-    {
-        if (frame.mInterval == 1)
-        {
-            manager.Replay(frame);
-        }
-    }
-}
+REPLAYABLE_DRAWABLE_LOAD(0, DrawableBall)
+REPLAYABLE_POD_LOAD(1, nlVector3)
+REPLAYABLE_BOOL_LOAD_1BYTE(1)
+REPLAYABLE_CALL_LOAD(1, CrowdManager)
+REPLAYABLE_CALL_LOAD(3, EmissionManager)
+REPLAYABLE_CALL_LOAD(1, DrawableNetMesh)

@@ -449,6 +449,137 @@ void Replayable(FrameType& frame, T& drawable)
     drawable.Replay(frame);
 }
 
+// ==================================================================
+// Replayable specialization macros — DRY boilerplate for explicit
+// `template <>` specs while preserving target's mangling and ordering.
+// Each macro expands to a single `inline template <>` definition.
+// Pair macros (REPLAYABLE_*_PAIR) expand SAVE first, then LOAD; if the
+// target wants a different per-spec ordering, use the *_SAVE / *_LOAD
+// macros separately and arrange them in target order.
+// ==================================================================
+
+// Formulaic POD memcpy (char, Us, Ul, vec3, Q, float, etc.).
+#define REPLAYABLE_POD_SAVE(N, T)                                       \
+    template <>                                                         \
+    inline void Replayable<N, SaveFrame, T>(SaveFrame& frame, T& value) \
+    {                                                                   \
+        FORCE_DONT_INLINE;                                              \
+        if (frame.mInterval == N)                                       \
+        {                                                               \
+            if (frame.mInterval == N)                                   \
+            {                                                           \
+                memcpy(frame.mStream.mStorage, &value, sizeof(T));      \
+                frame.mStream.mStorage += sizeof(T);                    \
+            }                                                           \
+        }                                                               \
+    }
+
+#define REPLAYABLE_POD_LOAD(N, T)                                       \
+    template <>                                                         \
+    inline void Replayable<N, LoadFrame, T>(LoadFrame& frame, T& value) \
+    {                                                                   \
+        FORCE_DONT_INLINE;                                              \
+        if (frame.mInterval == N)                                       \
+        {                                                               \
+            if (frame.mInterval == N)                                   \
+            {                                                           \
+                memcpy(&value, frame.mStream.mStorage, sizeof(T));      \
+                frame.mStream.mStorage += sizeof(T);                    \
+            }                                                           \
+        }                                                               \
+    }
+
+#define REPLAYABLE_POD_PAIR(N, T) \
+    REPLAYABLE_POD_SAVE(N, T)     \
+    REPLAYABLE_POD_LOAD(N, T)
+
+// Bool specials — `temp = value ? 1 : 0` pattern (1-byte memcpy, not sizeof(bool)).
+// N=0 / N=3 use sizeof(bool); N=1 uses literal 1. Pick the right variant.
+#define REPLAYABLE_BOOL_SAVE_1BYTE(N)                                   \
+    template <>                                                         \
+    inline void Replayable<N, SaveFrame, bool>(SaveFrame& frame, bool& value) \
+    {                                                                   \
+        FORCE_DONT_INLINE;                                              \
+        if (frame.mInterval == N)                                       \
+        {                                                               \
+            char temp = value ? 1 : 0;                                  \
+            memcpy(frame.mStream.mStorage, &temp, 1);                   \
+            frame.mStream.mStorage += 1;                                \
+        }                                                               \
+    }
+
+#define REPLAYABLE_BOOL_LOAD_1BYTE(N)                                   \
+    template <>                                                         \
+    inline void Replayable<N, LoadFrame, bool>(LoadFrame& frame, bool& value) \
+    {                                                                   \
+        FORCE_DONT_INLINE;                                              \
+        if (frame.mInterval == N)                                       \
+        {                                                               \
+            char temp = 0;                                              \
+            memcpy(&temp, frame.mStream.mStorage, 1);                   \
+            frame.mStream.mStorage += 1;                                \
+            value = (temp != 0);                                        \
+        }                                                               \
+    }
+
+// Manager / drawable types — calls `obj.Replay(frame)`.
+// Use this for explicit `template <>` overrides of the class generic so
+// the body has FORCE_DONT_INLINE (otherwise MWCC inlines them away).
+#define REPLAYABLE_CALL_SAVE(N, T)                                      \
+    template <>                                                         \
+    inline void Replayable<N, SaveFrame, T>(SaveFrame& frame, T& obj)   \
+    {                                                                   \
+        FORCE_DONT_INLINE;                                              \
+        if (frame.mInterval == N)                                       \
+        {                                                               \
+            if (frame.mInterval == N)                                   \
+            {                                                           \
+                obj.Replay(frame);                                      \
+            }                                                           \
+        }                                                               \
+    }
+
+#define REPLAYABLE_CALL_LOAD(N, T)                                      \
+    template <>                                                         \
+    inline void Replayable<N, LoadFrame, T>(LoadFrame& frame, T& obj)   \
+    {                                                                   \
+        FORCE_DONT_INLINE;                                              \
+        if (frame.mInterval == N)                                       \
+        {                                                               \
+            if (frame.mInterval == N)                                   \
+            {                                                           \
+                obj.Replay(frame);                                      \
+            }                                                           \
+        }                                                               \
+    }
+
+#define REPLAYABLE_CALL_PAIR(N, T) \
+    REPLAYABLE_CALL_SAVE(N, T)     \
+    REPLAYABLE_CALL_LOAD(N, T)
+
+// Drawable types — no interval check, just `obj.Replay(frame)`.
+// Matches RenderSnapshot's Drawable* specs (target call shapes show no
+// interval gate). FORCE_DONT_INLINE required to survive -inline deferred.
+#define REPLAYABLE_DRAWABLE_SAVE(N, T)                                      \
+    template <>                                                             \
+    inline void Replayable<N, SaveFrame, T>(SaveFrame& frame, T& drawable)  \
+    {                                                                       \
+        FORCE_DONT_INLINE;                                                  \
+        drawable.Replay(frame);                                             \
+    }
+
+#define REPLAYABLE_DRAWABLE_LOAD(N, T)                                      \
+    template <>                                                             \
+    inline void Replayable<N, LoadFrame, T>(LoadFrame& frame, T& drawable)  \
+    {                                                                       \
+        FORCE_DONT_INLINE;                                                  \
+        drawable.Replay(frame);                                             \
+    }
+
+#define REPLAYABLE_DRAWABLE_PAIR(N, T) \
+    REPLAYABLE_DRAWABLE_SAVE(N, T)     \
+    REPLAYABLE_DRAWABLE_LOAD(N, T)
+
 enum ReplayType
 {
     REPLAY_TYPE_GOAL = 6,
