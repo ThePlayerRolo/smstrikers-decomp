@@ -228,6 +228,15 @@ static const char* TROPHY_TEXTURE_FILENAMES[13] = {
 
 static const nlColour TROPHY_BLACK_CUP = { 0x00, 0x00, 0x00, 0xFF };
 
+static const char* TROPHY_RECORD_ROW_NAMES[3] = {
+    "THE HISTORY",
+    "THE HISTORY2",
+    "THE HISTORY3",
+};
+
+static const nlColour SPOILS_COLOUR_HIGHLIGHT = { 0xFE, 0xEE, 0x00, 0xFF };
+static const nlColour SPOILS_COLOUR_NORMAL = { 0xFF, 0xFF, 0xFF, 0xFF };
+
 struct SpoilNumCupWinsView
 {
     unsigned char mPad[0x20E];
@@ -1289,19 +1298,12 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
         unsigned char mNumRecords;
     };
 
-    static const char* TROPHY_RECORD_ROW_NAMES_LOCAL[3] = {
-        "THE HISTORY", "THE HISTORY2", "THE HISTORY3",
-    };
-
-    static const nlColour SPOILS_COLOUR_HIGHLIGHT_LOCAL = { 0xFE, 0xEE, 0x00, 0xFF };
-    static const nlColour SPOILS_COLOUR_NORMAL_LOCAL = { 0xFF, 0xFF, 0xFF, 0xFF };
-
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
     SpoilHistoryView& spoilView = (SpoilHistoryView&)spoil;
 
     for (int i = 0; i < 3; i++)
     {
-        int record = i + mScrollOffset;
+        int record = i + *(int*)&unk_gap[121];
         TLSlide* currentSlide = m_pFEScene->m_pFEPackage->GetPresentation()->m_currentSlide;
 
         TLComponentInstance* pComp;
@@ -1333,7 +1335,7 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
             h0.m_Hash = 0; h1.m_Hash = 0; h2.m_Hash = 0; h3.m_Hash = 0;
             h4.m_Hash = 0; h5.m_Hash = 0; h6.m_Hash = 0; h7.m_Hash = 0;
             hLayerB2.m_Hash = 0; hLayerA2.m_Hash = 0;
-            unsigned long hash = nlStringLowerHash(TROPHY_RECORD_ROW_NAMES_LOCAL[i]);
+            unsigned long hash = nlStringLowerHash(TROPHY_RECORD_ROW_NAMES[i]);
             hNameA.m_Hash = hash; hNameB.m_Hash = hash;
             pText = findText.byRef(pComp->GetActiveSlide(),
                 (InlineHasher&)hNameB, (InlineHasher&)hLayerB2, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
@@ -1348,10 +1350,10 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
         }
         *(unsigned long*)((unsigned char*)pText + 0x90) |= 4;
 
-        if (i == mRow && (spoilView.mNumRecords == 0 || spoilView.mNumRecords > 3))
-            ((TLInstance*)pText)->SetAssetColour(SPOILS_COLOUR_HIGHLIGHT_LOCAL);
+        if (i == *(int*)&unk_gap[123] && (spoilView.mNumRecords == 0 || spoilView.mNumRecords > 3))
+            ((TLInstance*)pText)->SetAssetColour(SPOILS_COLOUR_HIGHLIGHT);
         else
-            ((TLInstance*)pText)->SetAssetColour(SPOILS_COLOUR_NORMAL_LOCAL);
+            ((TLInstance*)pText)->SetAssetColour(SPOILS_COLOUR_NORMAL);
 
         if (record == 0 && spoilView.mNumRecords == 0)
         {
@@ -1366,7 +1368,7 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
                 h0b.m_Hash = 0; h1b.m_Hash = 0; h2b.m_Hash = 0; h3b.m_Hash = 0;
                 h4b.m_Hash = 0; h5b.m_Hash = 0; h6b.m_Hash = 0; h7b.m_Hash = 0;
                 hLayerB3.m_Hash = 0; hLayerA3.m_Hash = 0;
-                unsigned long hash = nlStringLowerHash(TROPHY_RECORD_ROW_NAMES_LOCAL[i]);
+                unsigned long hash = nlStringLowerHash(TROPHY_RECORD_ROW_NAMES[i]);
                 hNameA2.m_Hash = hash; hNameB2.m_Hash = hash;
                 pEmptyText = findText2.byRef(pComp->GetActiveSlide(),
                     (InlineHasher&)hNameB2, (InlineHasher&)hLayerB3, (InlineHasher&)h7b, (InlineHasher&)h5b, (InlineHasher&)h3b, (InlineHasher&)h1b);
@@ -1541,7 +1543,7 @@ void CupTrophyScene::SetHistory(Spoil& spoil)
             (InlineHasher&)hLayerB, (InlineHasher&)hNameB, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
     }
 
-    int currentRecord = mRow + mScrollOffset;
+    int currentRecord = *(int*)&unk_gap[123] + *(int*)&unk_gap[121];
 
     TLImageInstance* pArrowDown;
     {
