@@ -552,8 +552,8 @@ static inline unsigned long setRasterLocal(eGLState rasterstate, unsigned long v
 {
     gl_StateBitfield* p = &packed_raster[rasterstate];
     s32 numBits = p->numBits;
-    unsigned long out = extractStateBits(getRasterState(), p, numBits);
     unsigned long state = _state.m_State;
+    unsigned long out = extractStateBits(state, p, numBits);
     for (s32 i = 0; i < numBits; i++)
     {
         if (value & (1u << i))
@@ -582,13 +582,38 @@ static inline unsigned long setMaterialLocal(eGLMaterialState materialstate, uns
     return out;
 }
 
+static inline unsigned long setTextureLocal(eGLTextureState texturestate, unsigned long value)
+{
+    gl_StateBitfield* p = &packed_texture[texturestate];
+    s32 numBits = p->numBits;
+    unsigned long out = glGetTextureState(_textureState.m_State, texturestate);
+    unsigned long hi = (unsigned long)(_textureState.m_State >> 32);
+    unsigned long lo = (unsigned long)_textureState.m_State;
+
+    for (s32 i = 0; i < numBits; i++)
+    {
+        unsigned long bit = 1u << (i + p->startBit);
+        if (value & (1u << i))
+        {
+            lo = lo | bit;
+            hi = hi | (unsigned long)((s32)bit >> 31);
+        }
+        else
+        {
+            unsigned long notBit = ~bit;
+            lo = lo & notBit;
+            hi = hi & (unsigned long)((s32)notBit >> 31);
+        }
+    }
+
+    _textureState.m_State = ((unsigned long long)hi << 32) | (unsigned long long)lo;
+    return out;
+}
+
 /**
  * Offset/Address/Size: 0x910 | 0x801DC554 | size: 0x1E78
- * TODO: 32.22% match - value=0 raster calls use local inline (setRasterLocal)
- * but decomp.me compiler doesn't promote _state.m_State stores out of loops
- * for constant propagation, causing register allocation differences vs target
- * (r0 vs r6 accumulator, stmw r27 vs stw x4 prologue, 29 vs 28 unrolled body
- * instructions, missing store/reload between unrolled and tail sections)
+ * TODO: 60.5% match - raster section lwzu pattern mismatch (stmw r27 vs r26,
+ * missing store/reload between unrolled and tail sections in first setRasterLocal)
  */
 void gl_StateStartup()
 {
@@ -637,18 +662,18 @@ void gl_StateStartup()
 
     defaultRasterState = _state.m_State;
 
-    glSetTextureState(GLTS_DiffuseWrap, 0);
-    glSetTextureState(GLTS_DetailWrap, 0);
-    glSetTextureState(GLTS_ShadowWrap, 0);
-    glSetTextureState(GLTS_SelfIllumWrap, 0);
-    glSetTextureState(GLTS_GlossWrap, 0);
-    glSetTextureState(GLTS_BumpLocalWrap, 0);
-    glSetTextureState(GLTS_DiffuseFilter, 0);
-    glSetTextureState(GLTS_DetailFilter, 0);
-    glSetTextureState(GLTS_ShadowFilter, 0);
-    glSetTextureState(GLTS_SelfIllumFilter, 0);
-    glSetTextureState(GLTS_GlossFilter, 0);
-    glSetTextureState(GLTS_BumpLocalFilter, 0);
+    setTextureLocal(GLTS_DiffuseWrap, 0);
+    setTextureLocal(GLTS_DetailWrap, 0);
+    setTextureLocal(GLTS_ShadowWrap, 0);
+    setTextureLocal(GLTS_SelfIllumWrap, 0);
+    setTextureLocal(GLTS_GlossWrap, 0);
+    setTextureLocal(GLTS_BumpLocalWrap, 0);
+    setTextureLocal(GLTS_DiffuseFilter, 0);
+    setTextureLocal(GLTS_DetailFilter, 0);
+    setTextureLocal(GLTS_ShadowFilter, 0);
+    setTextureLocal(GLTS_SelfIllumFilter, 0);
+    setTextureLocal(GLTS_GlossFilter, 0);
+    setTextureLocal(GLTS_BumpLocalFilter, 0);
     glSetTextureState(GLTS_DiffuseLevel, 63);
     glSetTextureState(GLTS_DetailLevel, 0);
     glSetTextureState(GLTS_ShadowLevel, 63);

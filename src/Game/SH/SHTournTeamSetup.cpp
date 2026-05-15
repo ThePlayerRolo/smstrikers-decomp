@@ -6,6 +6,12 @@
 #include "Game/GameSceneManager.h"
 #include "Game/SH/SHCupHub.h"
 
+namespace DoubleHighlite
+{
+static const char* SLIDE_IN = "in";
+static const char* SLIDE_OUT = "out";
+} // namespace DoubleHighlite
+
 // Temporary dummy object for reference member initialization
 static CustomTournament s_dummyTourn;
 
@@ -255,6 +261,7 @@ void TournTeamSetupSceneV2::SceneCreated()
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
     FEAudio::EnableSounds(false);
 
+    typedef void FnTLComponentInstanceCb(TLComponentInstance*);
     typedef Detail::MemFunImpl<void, void (TournTeamSetupSceneV2::*)(int)> MemFunImpl_Tourn_t;
     typedef BindExp2<void, MemFunImpl_Tourn_t, TournTeamSetupSceneV2*, int> BindExp2_Tourn_t;
     typedef Function1<void, TLComponentInstance*>::FunctorImpl<BindExp2_Tourn_t> FunctorImpl_Tourn_t;
@@ -275,7 +282,7 @@ void TournTeamSetupSceneV2::SceneCreated()
 
         if (i < mTournInfo.m_numTeams)
         {
-            compinstance->SetActiveSlide((i == 0) ? "in" : "out");
+            compinstance->SetActiveSlide((i == 0) ? DoubleHighlite::SLIDE_IN : DoubleHighlite::SLIDE_OUT);
             UpdateRow(i);
 
             if (mCurrentState == STATE_SCROLLING)
@@ -285,14 +292,14 @@ void TournTeamSetupSceneV2::SceneCreated()
                 mMenuItems.mNumItemsAdded++;
 
                 {
-                    Function<TLComponentInstance*> openFunction;
+                    Function<FnTLComponentInstanceCb> openFunction;
                     openFunction.mTag = FREE_FUNCTION;
                     openFunction.mFreeFunction = DoubleHighlite::OpenItem;
                     menuItem->mCallbacks[ON_HIGHLIGHT] = openFunction;
                 }
 
                 {
-                    Function<TLComponentInstance*> closeFunction;
+                    Function<FnTLComponentInstanceCb> closeFunction;
                     closeFunction.mTag = FREE_FUNCTION;
                     closeFunction.mFreeFunction = DoubleHighlite::CloseItem;
                     menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunction;
@@ -304,16 +311,14 @@ void TournTeamSetupSceneV2::SceneCreated()
                         this,
                         i);
 
-                    FunctorImpl_Tourn_t* impl
-                        = new ((FunctorImpl_Tourn_t*)nlMalloc(sizeof(FunctorImpl_Tourn_t), 8, false)) FunctorImpl_Tourn_t(bind);
-
-                    Function<TLComponentInstance*> applyFunction;
-                    applyFunction.mTag = FUNCTOR;
-                    applyFunction.mFunctor = impl;
+                    Function<FnTLComponentInstanceCb> applyFunction(bind);
                     menuItem->mCallbacks[ON_APPLY] = applyFunction;
                 }
 
                 menuItem->ApplyAction((i == 0) ? ON_HIGHLIGHT : ON_UNHIGHLIGHT);
+
+                TLSlide* slide = compinstance->GetActiveSlide();
+                compinstance->Update(slide->m_start + slide->m_duration);
             }
             else
             {
@@ -324,11 +329,11 @@ void TournTeamSetupSceneV2::SceneCreated()
                 else
                 {
                     DoubleHighlite::CloseItem(compinstance);
+
+                    TLSlide* slide = compinstance->GetActiveSlide();
+                    compinstance->Update(slide->m_start + slide->m_duration);
                 }
             }
-
-            TLSlide* slide = compinstance->GetActiveSlide();
-            compinstance->Update(slide->m_start + slide->m_duration);
         }
         else
         {

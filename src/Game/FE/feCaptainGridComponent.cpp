@@ -437,9 +437,8 @@ ICaptainGridComponent::~ICaptainGridComponent()
 
 /**
  * Offset/Address/Size: 0x950 | 0x800C2044 | size: 0x228
- * TODO: 58.48% match - auto-unroll setup uses different formula (cmpwi/addi/srwi vs srwi./andi.),
- * register allocation shifted (numItems r4 vs r6, g_e3_Build r3 vs r7),
- * pipelined load-store in unrolled body instead of sequential single-register pattern
+ * TODO: 88.91% match - constructor setup still uses different register allocation for
+ * g_e3_Build/numItems and the first copy branch still emits mismatched load/store pairing
  */
 ICaptainGridComponent::ICaptainGridComponent(TLComponentInstance* parentcomponent, bool ismirrored)
     : IGridComponent<eTeamID>(parentcomponent, "highlight", ismirrored)
@@ -453,21 +452,24 @@ ICaptainGridComponent::ICaptainGridComponent(TLComponentInstance* parentcomponen
     CellItem* dst = CaptainCellItems;
     CellItem* normalSrc = NormalCaptainCellItems;
 
-    int i;
     if (g_e3_Build)
     {
-        for (i = 0; i < numItems; i++)
+        for (int i = numItems; i > 0; i--)
         {
-            dst[i].mIconName = leipzigSrc[i].mIconName;
-            dst[i].mIconType = leipzigSrc[i].mIconType;
+            dst->mIconName = leipzigSrc->mIconName;
+            dst->mIconType = leipzigSrc->mIconType;
+            dst++;
+            leipzigSrc++;
         }
     }
     else
     {
-        for (i = 0; i < numItems; i++)
+        for (int i = numItems; i > 0; i--)
         {
-            dst[i].mIconName = normalSrc[i].mIconName;
-            dst[i].mIconType = normalSrc[i].mIconType;
+            dst->mIconName = normalSrc->mIconName;
+            dst->mIconType = normalSrc->mIconType;
+            dst++;
+            normalSrc++;
         }
     }
 }

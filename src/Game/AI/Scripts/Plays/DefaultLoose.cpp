@@ -1,4 +1,6 @@
 #include "Game/AI/Scripts/Plays/DefaultLoose.h"
+#include "Game/AI/ScriptAction.h"
+#include "Game/GameTweaks.h"
 
 class cTeam;
 
@@ -93,6 +95,7 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
     extern cFielder* g_pScriptCurrentMark;
     extern cTeam* g_pScriptCurrentTeam;
     extern cTeam* g_pScriptOtherTeam;
+    extern cTeam* g_pCurrentlyUpdatingTeam;
     extern cBall* g_pScriptBall;
     extern FuzzyVariant fvNotSet;
 
@@ -110,6 +113,8 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
     extern float NearToMyNet__FP7cPlayer(cPlayer*);
     extern float NearToBall__FP7cPlayer(cPlayer*);
     extern float Stunned__FP6Goalie(Goalie*);
+    extern float Aggressive__FP8cFielder(cFielder*);
+    extern float CalcSelectChance__Fff(float, float);
 
     extern cFielder* GetFielder__5cTeamFi(cTeam*, int);
     extern cTeam* GetOtherTeam__5cTeamFv(cTeam*);
@@ -140,14 +145,14 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
         fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
         fBranchRatio = fMin / fMax;
 
-        if (fTrueConfidence > 0.0f)
+        if (fFalseConfidence > 0.0f)
         {
             SaveConfidence PushDOM2(&fConfidence);
-            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+            fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
+            if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
                 fConfidence = fConfidence * fBranchRatio;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
             {
                 cFielder* theOpponent = GetFielder__5cTeamFi(g_pScriptOtherTeam, i);
 
@@ -166,50 +171,64 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
             }
 
             if (fBestConfidence > 0.0f && g_pScriptCurrentMark)
-                pDecision->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant((cPlayer*)g_pScriptCurrentMark), fvNotSet);
-
-            FuzzyVariant bestBallInterceptor = GetBestBallInterceptor__5FuzzyFP5cTeam(g_pScriptCurrentTeam);
-
-            cTeam* pOtherTeam = GetOtherTeam__5cTeamFv(g_pScriptCurrentTeam);
-            float fOtherGoaliePickup = GoalieAndGonnaPickupBall__5FuzzyFP7cPlayer((cPlayer*)GetGoalie__5cTeamFv(pOtherTeam)).Confidence;
-            float fGoaliePickup = GoalieAndGonnaPickupBall__5FuzzyFP7cPlayer((cPlayer*)GetGoalie__5cTeamFv(g_pScriptCurrentTeam)).Confidence;
-
-            float fIntercept = bestBallInterceptor.Confidence;
-            float fNotOtherGoaliePickup = 1.0f - fOtherGoaliePickup;
-            float fNotGoaliePickup = 1.0f - fGoaliePickup;
-
-            fIntercept = (fIntercept <= fNotOtherGoaliePickup) ? fIntercept : fNotOtherGoaliePickup;
-            fIntercept = (fIntercept <= fNotGoaliePickup) ? fIntercept : fNotGoaliePickup;
-
-            float fNotIntercept = 1.0f - fIntercept;
-            float fMin2 = (fIntercept <= fNotIntercept) ? fIntercept : fNotIntercept;
-            float fMax2 = (fIntercept >= fNotIntercept) ? fIntercept : fNotIntercept;
-            float fBranchRatio2 = fMin2 / fMax2;
-
-            if (fIntercept > 0.0f)
             {
-                SaveConfidence PushDOM3(&fConfidence);
-                fConfidence = (fConfidence <= fIntercept) ? fConfidence : fIntercept;
-                if (fConfidence < fIntercept && fIntercept < 0.5f)
-                    fConfidence = fConfidence * fBranchRatio2;
-
-                if (fConfidence > fBestConfidence)
-                    fBestConfidence = fConfidence;
-
-                pDecision->QueueActionSetDesire(6, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                pDecision->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant((cPlayer*)g_pScriptCurrentMark), fvNotSet);
+                SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance__Fff(pTweaks->Loose_HeavyAttackChance, Aggressive__FP8cFielder(g_pScriptCurrentFielder));
             }
 
-            if (fNotIntercept > 0.0f)
+            FuzzyVariant bestBallInterceptor = GetBestBallInterceptor__5FuzzyFP5cTeam(g_pScriptCurrentTeam);
+            fTrueConfidence = (bestBallInterceptor.mData.u == (unsigned long)g_pScriptCurrentFielder) ? 1.0f : 0.0f;
+            fFalseConfidence = 1.0f - fTrueConfidence;
+            fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            fBranchRatio = fMin / fMax;
+
+            if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM4(&fConfidence);
-                fConfidence = (fConfidence <= fNotIntercept) ? fConfidence : fNotIntercept;
-                if (fConfidence < fNotIntercept && fNotIntercept < 0.5f)
-                    fConfidence = fConfidence * fBranchRatio2;
+                SaveConfidence PushDOM3(&fConfidence);
+                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    fConfidence = fConfidence * fBranchRatio;
 
-                if (fConfidence > fBestConfidence)
-                    fBestConfidence = fConfidence;
+                cTeam* pOtherTeam = GetOtherTeam__5cTeamFv(g_pScriptCurrentTeam);
+                float fOtherGoaliePickup = GoalieAndGonnaPickupBall__5FuzzyFP7cPlayer((cPlayer*)GetGoalie__5cTeamFv(pOtherTeam)).Confidence;
+                float fGoaliePickup = GoalieAndGonnaPickupBall__5FuzzyFP7cPlayer((cPlayer*)GetGoalie__5cTeamFv(g_pScriptCurrentTeam)).Confidence;
+                float fNotOtherGoaliePickup = 1.0f - fOtherGoaliePickup;
+                fFalseConfidence = 1.0f - fGoaliePickup;
 
-                pDecision->QueueActionSetDesire(10, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                fNotOtherGoaliePickup = (fNotOtherGoaliePickup <= fFalseConfidence) ? fNotOtherGoaliePickup : fFalseConfidence;
+                fTrueConfidence = fNotOtherGoaliePickup;
+                fFalseConfidence = 1.0f - fTrueConfidence;
+                fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fBranchRatio = fMin / fMax;
+
+                if (fTrueConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM4(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
+
+                    if (fConfidence > fBestConfidence)
+                        fBestConfidence = fConfidence;
+
+                    pDecision->QueueActionSetDesire(6, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                }
+
+                if (fFalseConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM5(&fConfidence);
+                    fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
+                    if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
+
+                    if (fConfidence > fBestConfidence)
+                        fBestConfidence = fConfidence;
+
+                    pDecision->QueueActionSetDesire(10, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                }
             }
         }
     }

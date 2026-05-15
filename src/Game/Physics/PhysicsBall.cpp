@@ -151,9 +151,12 @@ void PhysicsBall::AddResistanceForces()
             v3CrossForce.f.y = v3AngVel2.f.z * localRad.f.x - v3AngVel2.f.x * localRad.f.z;
             v3CrossForce.f.z = v3AngVel2.f.x * localRad.f.y - v3AngVel2.f.y * localRad.f.x;
             GetLinearVelocity(&v3LinVel2);
-            v3CrossForce.f.x = 5.f * (v3CrossForce.f.x - v3LinVel2.f.x);
-            v3CrossForce.f.y = 5.f * (v3CrossForce.f.y - v3LinVel2.f.y);
-            v3CrossForce.f.z = 5.f * (v3CrossForce.f.z - v3LinVel2.f.z);
+            v3CrossForce.f.z = v3CrossForce.f.z - v3LinVel2.f.z;
+            v3CrossForce.f.y = v3CrossForce.f.y - v3LinVel2.f.y;
+            v3CrossForce.f.x = v3CrossForce.f.x - v3LinVel2.f.x;
+            v3CrossForce.f.z = 5.f * v3CrossForce.f.z;
+            v3CrossForce.f.y = 5.f * v3CrossForce.f.y;
+            v3CrossForce.f.x = 5.f * v3CrossForce.f.x;
             AddForceAtCentreOfMass(v3CrossForce);
             v3CrossForce.f.z = 0.f;
             if (torqueX * torqueX + torqueZ * torqueZ + torqueY * torqueY < 0.0001f
@@ -165,13 +168,13 @@ void PhysicsBall::AddResistanceForces()
     {
         f32 threshold = 0.02f + GetRadius();
         nlVector3& pos = GetPosition();
-        if (threshold < pos.f.z)
+        if (pos.f.z > threshold)
         {
             GetLinearVelocity(&v3LinVelM);
-            if (v3LinVelM.f.x * v3LinVelM.f.x + v3LinVelM.f.z * v3LinVelM.f.z + v3LinVelM.f.y * v3LinVelM.f.y > 1.f)
+            if (v3LinVelM.f.x * v3LinVelM.f.x + v3LinVelM.f.y * v3LinVelM.f.y + v3LinVelM.f.z * v3LinVelM.f.z > 1.f)
             {
                 GetAngularVelocity(&v3AngVelM);
-                if (v3AngVelM.f.x * v3AngVelM.f.x + v3AngVelM.f.z * v3AngVelM.f.z + v3AngVelM.f.y * v3AngVelM.f.y > 1.f)
+                if (v3AngVelM.f.x * v3AngVelM.f.x + v3AngVelM.f.y * v3AngVelM.f.y + v3AngVelM.f.z * v3AngVelM.f.z > 1.f)
                 {
                     v3MagnusForce.f.x = (v3AngVelM.f.z * v3LinVelM.f.y - v3AngVelM.f.y * v3LinVelM.f.z) * 0.04f;
                     v3MagnusForce.f.z = (v3AngVelM.f.y * v3LinVelM.f.x - v3AngVelM.f.x * v3LinVelM.f.y) * 0.075f;

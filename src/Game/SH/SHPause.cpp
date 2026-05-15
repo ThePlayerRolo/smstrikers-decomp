@@ -444,10 +444,14 @@ void PauseMenuScene::SceneCreated()
 
     typedef Detail::MemFunImpl<void, void (PauseMenuScene::*)(TLComponentInstance*)> PauseMemFun;
     typedef BindExp2<void, PauseMemFun, PauseMenuScene*, Placeholder<0> > PauseBind;
+    typedef void MenuCBSig(TLComponentInstance*);
+    typedef Function<MenuCBSig> MenuCallback;
 
     FEAudio::EnableSounds(false);
 
-    if (mContext == SC_REGULAR_PAUSE)
+    switch (mContext)
+    {
+    case SC_REGULAR_PAUSE:
     {
         FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
 
@@ -509,9 +513,9 @@ void PauseMenuScene::SceneCreated()
             mMenuItems.mNumItemsAdded++;
 
             PauseBind bindOpen = Bind<void>(MemFun<PauseMenuScene, void, TLComponentInstance*>(&PauseMenuScene::OpenItem), this, placeholder0);
-            menuItem->mCallbacks[ON_HIGHLIGHT] = Function<TLComponentInstance*>(bindOpen);
+            menuItem->mCallbacks[ON_HIGHLIGHT] = MenuCallback(bindOpen);
 
-            Function<TLComponentInstance*> closeFunc;
+            MenuCallback closeFunc;
             closeFunc.mTag = FREE_FUNCTION;
             closeFunc.mFreeFunction = DoubleHighlite::CloseItem;
             menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunc;
@@ -519,7 +523,7 @@ void PauseMenuScene::SceneCreated()
             if (PauseMenuCBs[i])
             {
                 PauseBind bindApply = Bind<void>(MemFun<PauseMenuScene, void, TLComponentInstance*>(PauseMenuCBs[i]), this, placeholder0);
-                menuItem->mCallbacks[ON_APPLY] = Function<TLComponentInstance*>(bindApply);
+                menuItem->mCallbacks[ON_APPLY] = MenuCallback(bindApply);
             }
 
             TLComponentInstance* highlite = (TLComponentInstance*)FindComponent(compinstance->GetActiveSlide(), "highlite");
@@ -534,7 +538,7 @@ void PauseMenuScene::SceneCreated()
                 menuItem->mCallbacks[ON_UNHIGHLIGHT](menuItem->mType);
 
                 TLSlide* slide = compinstance->GetActiveSlide();
-                compinstance->Update(1.0f + slide->m_start + slide->m_duration);
+                compinstance->Update(1.0f + (slide->m_start + slide->m_duration));
             }
 
             if (g_e3_Build)
@@ -546,8 +550,9 @@ void PauseMenuScene::SceneCreated()
         mMenuItems.mFlags = 1;
         mMenuItems.mCurrentIndex = mLastSelectedIndex;
         mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT](mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType);
+        break;
     }
-    else if (mContext == SC_101_PAUSE)
+    case SC_101_PAUSE:
     {
         FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
 
@@ -602,12 +607,12 @@ void PauseMenuScene::SceneCreated()
             menuItem->mType = compinstance;
             mMenuItems.mNumItemsAdded++;
 
-            Function<TLComponentInstance*> openFunc;
+            MenuCallback openFunc;
             openFunc.mTag = FREE_FUNCTION;
             openFunc.mFreeFunction = DoubleHighlite::OpenItem;
             menuItem->mCallbacks[ON_HIGHLIGHT] = openFunc;
 
-            Function<TLComponentInstance*> closeFunc;
+            MenuCallback closeFunc;
             closeFunc.mTag = FREE_FUNCTION;
             closeFunc.mFreeFunction = DoubleHighlite::CloseItem;
             menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunc;
@@ -615,7 +620,7 @@ void PauseMenuScene::SceneCreated()
             if (PauseMenuCBs[i])
             {
                 PauseBind bindApply = Bind<void>(MemFun<PauseMenuScene, void, TLComponentInstance*>(PauseMenuCBs[i]), this, placeholder0);
-                menuItem->mCallbacks[ON_APPLY] = Function<TLComponentInstance*>(bindApply);
+                menuItem->mCallbacks[ON_APPLY] = MenuCallback(bindApply);
             }
 
             TLComponentInstance* highlite = (TLComponentInstance*)FindComponent(compinstance->GetActiveSlide(), "highlite");
@@ -630,13 +635,17 @@ void PauseMenuScene::SceneCreated()
                 menuItem->mCallbacks[ON_UNHIGHLIGHT](menuItem->mType);
 
                 TLSlide* slide = compinstance->GetActiveSlide();
-                compinstance->Update(1.0f + slide->m_start + slide->m_duration);
+                compinstance->Update(1.0f + (slide->m_start + slide->m_duration));
             }
         }
 
         mMenuItems.mFlags = 1;
         mMenuItems.mCurrentIndex = mLastSelectedIndex;
         mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT](mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType);
+        break;
+    }
+    default:
+        break;
     }
 
     volatile InlineHasher bB, bA;

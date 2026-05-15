@@ -7,8 +7,8 @@
 class Fuzzy
 {
 public:
-    FuzzyVariant AbortLoosePlay(cDecisionEntity*);
-    FuzzyVariant DefaultLoosePlay(cDecisionEntity*);
+    static FuzzyVariant AbortLoosePlay(cDecisionEntity*);
+    static FuzzyVariant DefaultLoosePlay(cDecisionEntity*);
 };
 
 #endif // _DEFAULTLOOSE_H_

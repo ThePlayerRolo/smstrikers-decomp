@@ -515,15 +515,17 @@ void SHMainMenu::SceneCreated()
         item.mType = compinstance;
         mMenuItems.mNumItemsAdded++;
 
+        typedef MenuItem<TLComponentInstance>::FnCallback FnCallback;
+
         BindExp2<void, Detail::MemFunImpl<void, void (SHMainMenu::*)(TLComponentInstance*)>, SHMainMenu*, Placeholder<0> > bindOpen
             = Bind<void>(MemFun<SHMainMenu, void, TLComponentInstance*>(&SHMainMenu::OpenItem), this, placeholder0);
-        item.mCallbacks[1] = Function<TLComponentInstance*>(bindOpen);
+        item.mCallbacks[1] = Function<FnCallback>(bindOpen);
 
         BindExp2<void, Detail::MemFunImpl<void, void (SHMainMenu::*)(TLComponentInstance*)>, SHMainMenu*, Placeholder<0> > bindClose
             = Bind<void>(MemFun<SHMainMenu, void, TLComponentInstance*>(&SHMainMenu::CloseItem), this, placeholder0);
-        item.mCallbacks[2] = Function<TLComponentInstance*>(bindClose);
+        item.mCallbacks[2] = Function<FnCallback>(bindClose);
 
-        Function<TLComponentInstance*> applyFunc;
+        Function<FnCallback> applyFunc;
         applyFunc.mTag = FREE_FUNCTION;
         applyFunc.mFreeFunction = ApplyFuncTable[i];
         item.mCallbacks[0] = applyFunc;

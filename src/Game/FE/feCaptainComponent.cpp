@@ -407,8 +407,7 @@ void IChooseCaptain::NameComponent::SetSidekickName(unsigned long id)
 
 /**
  * Offset/Address/Size: 0x1AC | 0x800BF950 | size: 0x874
- * TODO: 75.86% match - stack/register layout still differs across phase branches,
- * and a few calls inline differently (notably `SetSidekickName`).
+ * TODO: 80.74% match - register allocation still differs in multiple branches.
  */
 void IChooseCaptain::ComponentState::SetCurrentPhase(Phase phase)
 {
@@ -416,9 +415,9 @@ void IChooseCaptain::ComponentState::SetCurrentPhase(Phase phase)
     int firstcaptain;
     int rowfirstcaptain;
     ISidekickGridComponent* gridcomponent;
-    char filename0[0x80];
-    char filename1[0x80];
     char filename2[0x80];
+    char filename1[0x80];
+    char filename0[0x80];
 
     switch (phase)
     {
@@ -445,19 +444,11 @@ void IChooseCaptain::ComponentState::SetCurrentPhase(Phase phase)
         captaingrid->RebuildInstanceTable();
         captaingrid->SetAllItemsActive();
 
-        {
-            const char* eventName = "sfx_character_group_right_enter";
-            if (mHomeAway == 0)
-            {
-                eventName = "sfx_character_group_left_enter";
-            }
-            FEAudio::PlayAnimAudioEvent(eventName, false);
-        }
+        FEAudio::PlayAnimAudioEvent(mHomeAway == 0 ? "sfx_character_group_left_enter" : "sfx_character_group_right_enter", false);
 
         if (mParent->mComponentState[mHomeAway ^ 1].mCurrentPhase > PHASE_CHOOSING_CAPTAIN)
         {
-            FEMapMenu* menu = captaingrid->mMapMenu;
-            menu->SetItemActive(mParent->mCaptainGridComponents[mHomeAway ^ 1]->mMapMenu->GetSelectedItem(), false);
+            captaingrid->mMapMenu->SetItemActive(mParent->mCaptainGridComponents[mHomeAway ^ 1]->mMapMenu->GetSelectedItem(), false);
         }
 
         firstcaptain = captaingrid->mMapMenu->GetSelectedItem();
@@ -502,14 +493,7 @@ void IChooseCaptain::ComponentState::SetCurrentPhase(Phase phase)
         gridcomponent->SetVisibleInstanceTable(true);
         gridcomponent->mParentComponent->m_bVisible = true;
 
-        {
-            const char* eventName = "sfx_character_group_right_enter";
-            if (mHomeAway == 0)
-            {
-                eventName = "sfx_character_group_left_enter";
-            }
-            FEAudio::PlayAnimAudioEvent(eventName, false);
-        }
+        FEAudio::PlayAnimAudioEvent(mHomeAway == 0 ? "sfx_character_group_left_enter" : "sfx_character_group_right_enter", false);
 
         mParent->mNameComponents[mHomeAway].mComponent->SetActiveSlide("Slide2");
         mParent->mNameComponents[mHomeAway].mComponent->Update(0.0f);
@@ -523,51 +507,44 @@ void IChooseCaptain::ComponentState::SetCurrentPhase(Phase phase)
         break;
 
     case PHASE_READY:
-    {
-        int homeaway = mHomeAway;
-        IChooseCaptain* parent = mParent;
-        int teamID;
-        FEMapMenu* menu;
+        mParent->mCaptainGridComponents[mHomeAway]->mParentComponent->m_bVisible = false;
+        mParent->mSidekickGridComponents[mHomeAway]->mParentComponent->m_bVisible = true;
+        mParent->mSidekickGridComponents[mHomeAway]->mParentComponent->SetActiveSlide("in");
+        mParent->mSidekickGridComponents[mHomeAway]->SetVisibleInstanceTable(false);
+        mParent->mSidekickGridComponents[mHomeAway]->mHighliteComponent->m_bVisible = false;
 
-        parent->mCaptainGridComponents[homeaway]->mParentComponent->m_bVisible = false;
-        parent->mSidekickGridComponents[homeaway]->mParentComponent->m_bVisible = true;
-        parent->mSidekickGridComponents[homeaway]->mParentComponent->SetActiveSlide("in");
-        parent->mSidekickGridComponents[homeaway]->SetVisibleInstanceTable(false);
-        parent->mSidekickGridComponents[homeaway]->mHighliteComponent->m_bVisible = false;
+        CaptainSidekickFilename::Build(CaptainSidekickFilename::TYPE_0, filename0, 0x80, mParent->mHomeAwayTeam[mHomeAway], mHomeAway);
+        CaptainSidekickFilename::Build(CaptainSidekickFilename::TYPE_1, filename1, 0x80, mParent->mHomeAwayTeam[mHomeAway], mHomeAway);
+        CaptainSidekickFilename::Build(CaptainSidekickFilename::TYPE_2, filename2, 0x80, mParent->mHomeAwayTeam[mHomeAway], mHomeAway);
+        mParent->mAsyncImage[mHomeAway][0]->QueueLoad(filename0, true);
+        mParent->mAsyncImage[mHomeAway][1]->QueueLoad(filename1, true);
+        mParent->mAsyncImage[mHomeAway][2]->QueueLoad(filename2, true);
+        mParent->mDidSwapCaptains[mHomeAway] = false;
 
-        teamID = parent->mHomeAwayTeam[homeaway];
-        CaptainSidekickFilename::Build(CaptainSidekickFilename::TYPE_0, filename0, 0x80, teamID, homeaway);
-        CaptainSidekickFilename::Build(CaptainSidekickFilename::TYPE_1, filename1, 0x80, teamID, homeaway);
-        CaptainSidekickFilename::Build(CaptainSidekickFilename::TYPE_2, filename2, 0x80, teamID, homeaway);
-        parent->mAsyncImage[homeaway][0]->QueueLoad(filename0, true);
-        parent->mAsyncImage[homeaway][1]->QueueLoad(filename1, true);
-        parent->mAsyncImage[homeaway][2]->QueueLoad(filename2, true);
-        parent->mDidSwapCaptains[homeaway] = false;
-
-        parent->mCaptainComponents[homeaway]->m_bVisible = true;
-        if (parent->mHomeAwayTeam[homeaway] != TEAM_MYSTERY)
+        mParent->mCaptainComponents[mHomeAway]->m_bVisible = true;
+        if (mParent->mHomeAwayTeam[mHomeAway] != TEAM_MYSTERY)
         {
-            parent->mSidekickComponents[homeaway]->m_bVisible = false;
-            parent->mNameComponents[homeaway].mComponent->SetActiveSlide("Slide2");
-            parent->mNameComponents[homeaway].mComponent->Update(0.0f);
-            parent->mNameComponents[homeaway].SetSidekickName(GetLOCSidekickName((eSidekickID)parent->mHomeAwaySidekicks[homeaway]));
+            mParent->mSidekickComponents[mHomeAway]->m_bVisible = false;
+            mParent->mNameComponents[mHomeAway].mComponent->SetActiveSlide("Slide2");
+            mParent->mNameComponents[mHomeAway].mComponent->Update(0.0f);
+            mParent->mNameComponents[mHomeAway].SetSidekickName(GetLOCSidekickName((eSidekickID)mParent->mHomeAwaySidekicks[mHomeAway]));
         }
 
-        parent->mNameComponents[homeaway].SetCaptainName(GetLOCCharacterName((eTeamID)parent->mHomeAwayTeam[homeaway], false, false));
-        parent->mNameComponents[homeaway].SetCaptainLogo(GetTeamName((eTeamID)parent->mHomeAwayTeam[homeaway]));
+        mParent->mNameComponents[mHomeAway].SetCaptainName(GetLOCCharacterName((eTeamID)mParent->mHomeAwayTeam[mHomeAway], false, false));
+        mParent->mNameComponents[mHomeAway].SetCaptainLogo(GetTeamName((eTeamID)mParent->mHomeAwayTeam[mHomeAway]));
 
-        parent->mCaptainGridComponents[homeaway]->mMapMenu->SetSelectedItem(parent->mHomeAwayTeam[homeaway]);
-        parent->mCaptainGridComponents[homeaway ^ 1]->mMapMenu->SetSelectedItem(parent->mHomeAwayTeam[homeaway ^ 1]);
+        mParent->mCaptainGridComponents[mHomeAway]->mMapMenu->SetSelectedItem(mParent->mHomeAwayTeam[mHomeAway]);
+        mParent->mCaptainGridComponents[mHomeAway ^ 1]->mMapMenu->SetSelectedItem(mParent->mHomeAwayTeam[mHomeAway ^ 1]);
 
-        menu = parent->mCaptainGridComponents[homeaway]->mMapMenu;
-        menu->SetItemActive(menu->GetSelectedItem(), false);
+        mParent->mCaptainGridComponents[mHomeAway]->mMapMenu->SetItemActive(
+            mParent->mCaptainGridComponents[mHomeAway]->mMapMenu->GetSelectedItem(),
+            false);
+        mParent->mCaptainGridComponents[mHomeAway ^ 1]->mMapMenu->SetItemActive(
+            mParent->mCaptainGridComponents[mHomeAway ^ 1]->mMapMenu->GetSelectedItem(),
+            false);
 
-        menu = parent->mCaptainGridComponents[homeaway ^ 1]->mMapMenu;
-        menu->SetItemActive(menu->GetSelectedItem(), false);
-
-        parent->StartSidekickMiniHead(homeaway, (eSidekickID)parent->mHomeAwaySidekicks[homeaway]);
+        mParent->StartSidekickMiniHead(mHomeAway, (eSidekickID)mParent->mHomeAwaySidekicks[mHomeAway]);
         break;
-    }
 
     default:
         break;
@@ -796,11 +773,15 @@ void IChooseCaptain::UpdateSound(float dt)
 
 /**
  * Offset/Address/Size: 0x141C | 0x800BEDB8 | size: 0x694
+ * TODO: 95.10% match - helper dispatch and early control-flow blocks still differ.
  */
+extern void CheckForDisconnectedHumanPlayers__14IChooseCaptainFv(class IChooseCaptain*);
+extern void FindAliveHumanPlayers__14IChooseCaptainFv(class IChooseCaptain*);
+
 UpdateResult IChooseCaptain::Update(float)
 {
-    CheckForDisconnectedHumanPlayers();
-    FindAliveHumanPlayers();
+    CheckForDisconnectedHumanPlayers__14IChooseCaptainFv(this);
+    FindAliveHumanPlayers__14IChooseCaptainFv(this);
 
     int numSide1;
     mIsSinglePlayerInput = numSide1 = 0;

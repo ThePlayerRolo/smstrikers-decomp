@@ -283,6 +283,20 @@ void GetColourComponent(SimpleParser* parser, nlColour* pColour, int cindex)
 /**
  * Offset/Address/Size: 0x2A8 | 0x801F0E6C | size: 0xD2C
  */
+static inline float GetFloat(SimpleParser* parser)
+{
+    char* token = parser->NextToken(true);
+    return atof(token);
+}
+
+static inline fxRange GetRange(SimpleParser* parser)
+{
+    fxRange value;
+    value.base = atof(parser->NextTokenOnLine(true));
+    value.range = atof(parser->NextTokenOnLine(true));
+    return value;
+}
+
 EffectsTemplate* parse_template(SimpleParser* parser, bool bQuick)
 {
     char name[128];
@@ -338,7 +352,7 @@ EffectsTemplate* parse_template(SimpleParser* parser, bool bQuick)
 
         if (nlStrCmp<char>(token, "fountainlife") == 0)
         {
-            t.m_fFountainLife = atof(parser->NextToken(true));
+            t.m_fFountainLife = GetFloat(parser);
             continue;
         }
 
@@ -356,8 +370,7 @@ EffectsTemplate* parse_template(SimpleParser* parser, bool bQuick)
 
         if (nlStrCmp<char>(token, "number") == 0)
         {
-            t.m_rNumber.base = atof(parser->NextTokenOnLine(true));
-            t.m_rNumber.range = atof(parser->NextTokenOnLine(true));
+            t.m_rNumber = GetRange(parser);
             continue;
         }
 
@@ -381,91 +394,79 @@ EffectsTemplate* parse_template(SimpleParser* parser, bool bQuick)
 
         if (nlStrCmp<char>(token, "sizebegin") == 0)
         {
-            t.m_rSizeBegin.base = atof(parser->NextTokenOnLine(true));
-            t.m_rSizeBegin.range = atof(parser->NextTokenOnLine(true));
+            t.m_rSizeBegin = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "sizeend") == 0)
         {
-            t.m_rSizeEnd.base = atof(parser->NextTokenOnLine(true));
-            t.m_rSizeEnd.range = atof(parser->NextTokenOnLine(true));
+            t.m_rSizeEnd = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "mass") == 0)
         {
-            t.m_rMass.base = atof(parser->NextTokenOnLine(true));
-            t.m_rMass.range = atof(parser->NextTokenOnLine(true));
+            t.m_rMass = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "particlelife") == 0)
         {
-            t.m_rParticleLife.base = atof(parser->NextTokenOnLine(true));
-            t.m_rParticleLife.range = atof(parser->NextTokenOnLine(true));
+            t.m_rParticleLife = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "rotation") == 0)
         {
-            t.m_rRotation.base = atof(parser->NextTokenOnLine(true));
-            t.m_rRotation.range = atof(parser->NextTokenOnLine(true));
+            t.m_rRotation = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "radius") == 0)
         {
-            t.m_rRadius.base = atof(parser->NextTokenOnLine(true));
-            t.m_rRadius.range = atof(parser->NextTokenOnLine(true));
+            t.m_rRadius = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "inheritvelocity") == 0)
         {
-            t.m_rInheritVelocity.base = atof(parser->NextTokenOnLine(true));
-            t.m_rInheritVelocity.range = atof(parser->NextTokenOnLine(true));
+            t.m_rInheritVelocity = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "velocity") == 0)
         {
-            t.m_rVelocity.base = atof(parser->NextTokenOnLine(true));
-            t.m_rVelocity.range = atof(parser->NextTokenOnLine(true));
+            t.m_rVelocity = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "acceleration") == 0)
         {
-            t.m_rAcceleration.base = atof(parser->NextTokenOnLine(true));
-            t.m_rAcceleration.range = atof(parser->NextTokenOnLine(true));
+            t.m_rAcceleration = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "particlefps") == 0)
         {
-            t.m_rFPS.base = atof(parser->NextTokenOnLine(true));
-            t.m_rFPS.range = atof(parser->NextTokenOnLine(true));
+            t.m_rFPS = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "angle") == 0)
         {
-            t.m_rAngle.base = atof(parser->NextTokenOnLine(true));
-            t.m_rAngle.range = atof(parser->NextTokenOnLine(true));
+            t.m_rAngle = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "tilt") == 0)
         {
-            t.m_rTilt.base = atof(parser->NextTokenOnLine(true));
-            t.m_rTilt.range = atof(parser->NextTokenOnLine(true));
+            t.m_rTilt = GetRange(parser);
             continue;
         }
 
         if (nlStrCmp<char>(token, "texturenumframes") == 0)
         {
-            t.m_nFrames = (s32)atof(parser->NextToken(true));
+            t.m_nFrames = (s32)GetFloat(parser);
             continue;
         }
 
@@ -640,10 +641,15 @@ EffectsTemplate* parse_template(SimpleParser* parser, bool bQuick)
 
     for (i = 0; i < 25; i++)
     {
-        t.m_cColour[i].c[0] = ((u32)colours[i * 2].c[0] + (u32)colours[(i * 2) + 1].c[0]) / 2;
-        t.m_cColour[i].c[1] = ((u32)colours[i * 2].c[1] + (u32)colours[(i * 2) + 1].c[1]) / 2;
-        t.m_cColour[i].c[2] = ((u32)colours[i * 2].c[2] + (u32)colours[(i * 2) + 1].c[2]) / 2;
-        t.m_cColour[i].c[3] = ((u32)colours[i * 2].c[3] + (u32)colours[(i * 2) + 1].c[3]) / 2;
+        nlColour a = colours[i * 2];
+        nlColour b = colours[(i * 2) + 1];
+        nlColour c;
+
+        c.c[0] = (a.c[0] + b.c[0]) / 2;
+        c.c[1] = (a.c[1] + b.c[1]) / 2;
+        c.c[2] = (a.c[2] + b.c[2]) / 2;
+        c.c[3] = (a.c[3] + b.c[3]) / 2;
+        t.m_cColour[i] = c;
     }
 
     EffectsTemplate* out = (EffectsTemplate*)nlMalloc(sizeof(EffectsTemplate), 8, false);

@@ -38,7 +38,7 @@ public:
         }
     }
 
-    void TriggerFired(unsigned long);
+    virtual void TriggerFired(unsigned long);
     void AnimControllerCB(unsigned int);
     u8 SetupAnimationTriggers(const char*, cInventory<cSAnim>*);
 

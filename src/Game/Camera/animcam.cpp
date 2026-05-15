@@ -1,9 +1,13 @@
 #include "Game/Camera/animcam.h"
 
+#include "Game/AI/AiUtil.h"
 #include "NL/nlFile.h"
+#include "NL/gl/glMatrix.h"
 #include "NL/nlMemory.h"
 #include "Game/Render/depthoffield.h"
 #include "Game/FixedUpdateTask.h"
+
+static float dofBehindTarget = 2.0f;
 
 /**
  * Offset/Address/Size: 0x113C | 0x801A5D30 | size: 0x2C
@@ -268,9 +272,120 @@ cAnimCamera::~cAnimCamera()
 /**
  * Offset/Address/Size: 0x41C | 0x801A5010 | size: 0x5DC
  */
-void cAnimCamera::BuildAnimViewMatrix(nlMatrix4&)
+void cAnimCamera::BuildAnimViewMatrix(nlMatrix4& mView)
 {
-    FORCE_DONT_INLINE;
+    float fRealIndex;
+    int nIndex;
+    float fWeightB;
+    float fWeightA;
+    nlVector3 cameraPos = { 0.0f, 0.0f, 0.0f };
+    nlVector3 targetPos = { 0.0f, 0.0f, 0.0f };
+    nlQuaternion cameraRot = { 0.0f, 0.0f, 0.0f, 1.0f };
+    nlMatrix4 viewMatrix;
+    nlMatrix4 facingAngleMatrix;
+
+    cCameraData* pCameraData = m_pActiveCameraData;
+    fRealIndex = m_fAnimationTime * (float)(pCameraData->m_uKeyCount - 1);
+    nIndex = (int)fRealIndex;
+    fWeightB = fRealIndex - (float)nIndex;
+    fWeightA = 1.0f - fWeightB;
+
+    if (m_fAnimationTime >= 1.0f)
+    {
+        m_Fov = pCameraData->fFOV[nIndex];
+        cameraPos = pCameraData->cameraPos[nIndex];
+        targetPos = pCameraData->targetPos[nIndex];
+        cameraRot = pCameraData->cameraRot[nIndex];
+    }
+    else
+    {
+        int nextIndex = nIndex + 1;
+        nlVector3* pNextCameraPos = &pCameraData->cameraPos[nextIndex];
+        nlVector3* pCurrCameraPos = &pCameraData->cameraPos[nIndex];
+
+        float diffY = pCurrCameraPos->f.y - pNextCameraPos->f.y;
+        float diffX = pCurrCameraPos->f.x - pNextCameraPos->f.x;
+        float diffZ = pCurrCameraPos->f.z - pNextCameraPos->f.z;
+
+        if (diffY * diffY + diffX * diffX + diffZ * diffZ > 16.0f)
+        {
+            if (fWeightB < 0.5f)
+            {
+                cameraPos = pCameraData->cameraPos[nIndex];
+                targetPos = pCameraData->targetPos[nIndex];
+                cameraRot = pCameraData->cameraRot[nIndex];
+                m_Fov = pCameraData->fFOV[nIndex];
+            }
+            else
+            {
+                cameraPos = pCameraData->cameraPos[nextIndex];
+                targetPos = pCameraData->targetPos[nextIndex];
+                cameraRot = pCameraData->cameraRot[nextIndex];
+                m_Fov = pCameraData->fFOV[nIndex + 1];
+            }
+        }
+        else
+        {
+            m_Fov = fWeightA * pCameraData->fFOV[nIndex] + fWeightB * pCameraData->fFOV[nIndex + 1];
+
+            cameraPos.f.x = fWeightA * pCurrCameraPos->f.x + fWeightB * pNextCameraPos->f.x;
+            cameraPos.f.y = fWeightA * pCurrCameraPos->f.y + fWeightB * pNextCameraPos->f.y;
+            cameraPos.f.z = fWeightA * pCurrCameraPos->f.z + fWeightB * pNextCameraPos->f.z;
+
+            nlVector3* pCurrTargetPos = &pCameraData->targetPos[nIndex];
+            nlVector3* pNextTargetPos = &pCameraData->targetPos[nextIndex];
+            targetPos.f.x = fWeightA * pCurrTargetPos->f.x + fWeightB * pNextTargetPos->f.x;
+            targetPos.f.y = fWeightA * pCurrTargetPos->f.y + fWeightB * pNextTargetPos->f.y;
+            targetPos.f.z = fWeightA * pCurrTargetPos->f.z + fWeightB * pNextTargetPos->f.z;
+
+            nlQuatSlerp(cameraRot, pCameraData->cameraRot[nIndex], pCameraData->cameraRot[nextIndex], fWeightB);
+        }
+    }
+
+    float dy = m_vecCamera.f.y - m_vecTarget.f.y;
+    float dx = m_vecCamera.f.x - m_vecTarget.f.x;
+    float dz = m_vecCamera.f.z - m_vecTarget.f.z;
+    DepthOfFieldManager::instance.m_fDistanceFromCamera = dofBehindTarget + nlSqrt(dy * dy + dx * dx + dz * dz, true);
+
+    cameraPos.f.x *= m_Mirror.f.x;
+    cameraPos.f.y *= m_Mirror.f.y;
+    cameraPos.f.z *= m_Mirror.f.z;
+
+    targetPos.f.x *= m_Mirror.f.x;
+    targetPos.f.y *= m_Mirror.f.y;
+    targetPos.f.z *= m_Mirror.f.z;
+
+    if (m_Mirror.f.x != 1.0f || m_Mirror.f.y != 1.0f || m_Mirror.f.z != 1.0f)
+    {
+        cameraRot.f.x *= -m_Mirror.f.x;
+        cameraRot.f.y *= -m_Mirror.f.y;
+        cameraRot.f.z *= -m_Mirror.f.z;
+    }
+
+    nlVec3Add(m_vecCamera, cameraPos, m_OffsetPos);
+    nlVec3Add(m_vecTarget, targetPos, m_OffsetPos);
+
+    GetLocalPoint(m_vecCamera, m_vecCamera, m_OffsetPos, 0);
+    GetWorldPoint(m_vecCamera, m_vecCamera, m_OffsetPos, mFacingAngle);
+
+    if (m_bUnusedPad)
+    {
+        nlVector3 up = { 0.0f, 0.0f, 1.0f };
+        glMatrixLookAt(mView, m_vecCamera, m_vecTarget, up);
+    }
+    else
+    {
+        nlQuatToMatrix(viewMatrix, cameraRot);
+        nlMakeRotationMatrixZ(facingAngleMatrix, 0.0000958738f * (float)mFacingAngle);
+        nlMultMatrices(viewMatrix, viewMatrix, facingAngleMatrix);
+
+        viewMatrix.f.m41 = m_vecCamera.f.x;
+        viewMatrix.f.m42 = m_vecCamera.f.y;
+        viewMatrix.f.m43 = m_vecCamera.f.z;
+        viewMatrix.f.m44 = 1.0f;
+
+        nlInvertMatrix(mView, viewMatrix);
+    }
 }
 
 /**

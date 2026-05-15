@@ -36,6 +36,7 @@ extern cWorldSFX gWorldSFX;
 
 extern "C" eTeamID FindWinningTeam__15GameInfoManagerFv(GameInfoManager*);
 extern "C" BasicGameInfo* GetMatchupInfo__15GameInfoManagerCFsUs(const GameInfoManager*, short, unsigned short);
+extern "C" unsigned char UpdateKnockout4__11CupHubSceneFf(CupHubScene*, float);
 extern "C" unsigned char UpdateKnockout2__11CupHubSceneFf(CupHubScene*, float);
 extern "C" void UpdateRoundMessage__11CupHubSceneFb(CupHubScene*, bool);
 
@@ -477,6 +478,7 @@ void CupHubScene::Update(float fDeltaT)
     typedef TLTextInstance* (*FindTextByValue)(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher);
     typedef TLTextInstance* (*FindTextByRef)(TLSlide*, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&);
 
+    GameInfoManager* gameInfo;
     SaveLoadScene* scene;
     eFEINPUT_PAD userPad;
     unsigned char inputAllowed;
@@ -489,8 +491,6 @@ void CupHubScene::Update(float fDeltaT)
     SceneList sideScene;
     FEPopupMenu* pPopup;
 
-    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
-
     BaseSceneHandler::Update(fDeltaT);
 
     if (mCaptainImage->Update(true) && mDoAutoSave && SaveLoadScene::IsIOEnabled())
@@ -500,6 +500,8 @@ void CupHubScene::Update(float fDeltaT)
         mDoAutoSave = false;
         return;
     }
+
+    gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
 
     if (!mHasHumanTeamPlayed && mHubState != HUB_LEAGUE)
     {
@@ -514,24 +516,23 @@ void CupHubScene::Update(float fDeltaT)
         CreateKnockout();
     }
 
-    inputAllowed = 0;
     if (mDoAnimations)
     {
-        if (mHubState == HUB_LEAGUE)
+        switch (mHubState)
         {
+        case HUB_LEAGUE:
+        case HUB_BOWSER_TRANSITION:
             inputAllowed = UpdateLeague(fDeltaT);
-        }
-        else if (mHubState == HUB_KNOCKOUT8)
-        {
+            break;
+        case HUB_KNOCKOUT8:
             inputAllowed = UpdateKnockout8(fDeltaT);
-        }
-        else if (mHubState == HUB_KNOCKOUT4)
-        {
-            inputAllowed = UpdateKnockout4(fDeltaT);
-        }
-        else if (mHubState == HUB_KNOCKOUT2)
-        {
+            break;
+        case HUB_KNOCKOUT4:
+            inputAllowed = UpdateKnockout4__11CupHubSceneFf(this, fDeltaT);
+            break;
+        case HUB_KNOCKOUT2:
             inputAllowed = UpdateKnockout2__11CupHubSceneFf(this, fDeltaT);
+            break;
         }
     }
     else
@@ -548,13 +549,17 @@ void CupHubScene::Update(float fDeltaT)
     {
         presentation = m_pFEScene->m_pFEPackage->GetPresentation();
 
-        if (presentation->m_currentSlide->m_time < (presentation->m_currentSlide->m_start + presentation->m_currentSlide->m_duration))
+        if (presentation->m_currentSlide->m_time >= (presentation->m_currentSlide->m_start + presentation->m_currentSlide->m_duration))
+        {
+        }
+        else
         {
             return;
         }
 
         UpdateProgressIndicator();
         mHubState = HUB_KNOCKOUT4;
+        presentation = m_pFEScene->m_pFEPackage->GetPresentation();
 
         volatile InlineHasher hB, hA, h9, h8, h7, h6, h5, h4, h3, h2, h1, h0;
 
@@ -678,30 +683,28 @@ void CupHubScene::Update(float fDeltaT)
             return;
         }
 
-        if (mCurrentKnockoutAnimationRound == -2)
+        if (mCurrentKnockoutAnimationRound != -2)
+            return;
+
+        mDoAnimations = true;
+        mHubState = HUB_KNOCKOUT2;
+
+        game = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -2, 0);
+
+        if (!mSuperTeamAnimation
+            && game->mTeamIndex[0] == TEAM_MYSTERY
+            && gameInfo->GetUserSelectedCupTeam() != TEAM_MYSTERY
+            && gameInfo->IsInRegularCupMode())
         {
-            mDoAnimations = true;
-            mHubState = HUB_KNOCKOUT2;
-
-            game = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -2, 0);
-
-            if (!mSuperTeamAnimation
-                && game->mTeamIndex[0] == TEAM_MYSTERY
-                && gameInfo->GetUserSelectedCupTeam() != TEAM_MYSTERY
-                && gameInfo->IsInRegularCupMode())
-            {
-                mSuperTeamAnimation = true;
-                CreateKnockout();
-                return;
-            }
-
-            mCurrentKnockoutAnimationRound = -5;
-            mAllKnockoutAnimations = false;
-            mSuperTeamAnimation = false;
+            mSuperTeamAnimation = true;
             CreateKnockout();
             return;
         }
 
+        mCurrentKnockoutAnimationRound = -5;
+        mAllKnockoutAnimations = false;
+        mSuperTeamAnimation = false;
+        CreateKnockout();
         return;
     }
 
@@ -745,19 +748,21 @@ void CupHubScene::Update(float fDeltaT)
         }
 
         curSceneType = (SceneList)nlSingleton<GameSceneManager>::s_pInstance->GetSceneType(this);
-        sideScene = SCENE_CHOOSE_SIDES_CUP;
 
-        if (curSceneType >= SCENE_CUP_STANDINGS && curSceneType < SCENE_CUP_STANDINGS_FINAL_ANIM)
+        switch (curSceneType)
         {
+        case SCENE_CUP_STANDINGS:
+        case SCENE_CUP_STANDINGS_ANIM:
             sideScene = SCENE_CHOOSE_SIDES_CUP;
-        }
-        else if (curSceneType > SCENE_CUP_STANDINGS_FINAL_ANIM && curSceneType < SCENE_SUPER_CUP_STANDINGS_FINAL_ANIM)
-        {
+            break;
+        case SCENE_SUPER_CUP_STANDINGS:
+        case SCENE_SUPER_CUP_STANDINGS_ANIM:
             sideScene = SCENE_CHOOSE_SIDES_SUPER_CUP;
-        }
-        else if (curSceneType > SCENE_SUPER_CUP_STANDINGS_FINAL_ANIM && curSceneType < SCENE_TOURNAMENT_STANDINGS_FINAL_ANIM)
-        {
+            break;
+        case SCENE_TOURNAMENT_STANDINGS:
+        case SCENE_TOURNAMENT_STANDINGS_ANIM:
             sideScene = SCENE_CHOOSE_SIDES_TOURNAMENT;
+            break;
         }
 
         nlSingleton<GameSceneManager>::s_pInstance->Push(sideScene, SCREEN_FORWARD, true);
@@ -769,10 +774,12 @@ void CupHubScene::Update(float fDeltaT)
         if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL))
         {
             EndCup();
+            return;
         }
-
-        return;
     }
+
+    if (gameInfo->GetCurrentRoundNumber() == -5)
+        return;
 
     if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x200, false, NULL))
     {
@@ -799,6 +806,7 @@ void CupHubScene::Update(float fDeltaT)
     }
 }
 
+#pragma dont_inline on
 /**
  * Offset/Address/Size: 0x670C | 0x800F0468 | size: 0x298
  * TODO: 99.97% match - remaining i diff on the MemFun literal-label load pair (@1204/@562).
@@ -851,6 +859,7 @@ void CupHubScene::EndCup()
         nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_CUP_BRAG, SCREEN_FORWARD, false);
     }
 }
+#pragma dont_inline off
 
 /**
  * Offset/Address/Size: 0x66C8 | 0x800F0424 | size: 0x44
@@ -1712,9 +1721,10 @@ void CupHubScene::CreateBowserLeague()
     typedef TLTextInstance* (*FindTextByRef)(TLSlide*, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&);
 
     GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+    GameInfoManager::eGameModes mode = gameInfo->mCurrentMode;
     u16 numTeams = gameInfo->GetNumPlayingTeams();
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
-    eTeamID userTeam = gameInfo->GetUserSelectedCupTeam();
+    gameInfo->GetUserSelectedCupTeam();
     TLTextInstance* pTextInstance;
     TLComponentInstance* pComp;
     TLSlide* pSlide;
@@ -1843,7 +1853,7 @@ void CupHubScene::CreateBowserLeague()
             (InlineHasher&)h1);
     }
 
-    title->m_LocStrId = GetLOCStandingsName(gameInfo->mCurrentMode);
+    title->m_LocStrId = GetLOCStandingsName(mode);
     title->m_OverloadFlags |= 8;
 
     nlSingleton<StatsTracker>::s_pInstance->GetSortedTeamStats(mAllTeamStats, numTeams, standingsIndices, numTeams);
@@ -1859,14 +1869,15 @@ void CupHubScene::CreateBowserLeague()
             h3.m_Hash = 0;
             h4.m_Hash = 0;
             h5.m_Hash = 0;
-            h6.m_Hash = 0;
-            h7.m_Hash = 0;
-
             unsigned long hash = nlStringLowerHash("ranks");
+            h6.m_Hash = hash;
+            h7.m_Hash = hash;
+
+            hash = nlStringLowerHash(CUP_HUB_LAYER_NAME);
             h8.m_Hash = hash;
             h9.m_Hash = hash;
 
-            hash = nlStringLowerHash(CUP_HUB_LAYER_NAME);
+            hash = nlStringLowerHash(HUB_LEAGUE_SLIDE_NAME);
             hA.m_Hash = hash;
             hB.m_Hash = hash;
 
@@ -1921,11 +1932,12 @@ void CupHubScene::CreateBowserLeague()
         }
 
         eTeamID currentTeam = mAllTeamStats[standingsIndices[row]].mTeamIndex;
+        eTeamID rowUserTeam = gameInfo->GetUserSelectedCupTeam();
         bool useHighlightColour = false;
 
         if (gameInfo->mCurrentCup->mHumanTeams & (1 << currentTeam))
         {
-            if (gameInfo->GetNumHumanTeams() == 1 && currentTeam == userTeam)
+            if (gameInfo->GetNumHumanTeams() == 1 && currentTeam == rowUserTeam)
             {
                 useHighlightColour = true;
             }
@@ -1986,8 +1998,30 @@ void CupHubScene::CreateBowserLeague()
             pTextInstance->SetAssetColour(mTextColour);
         }
 
-        pTextInstance->m_LocStrId = GetLOCTeamName(currentTeam);
-        pTextInstance->m_OverloadFlags |= 8;
+        unsigned long locString = GetLOCTeamName(currentTeam);
+        nlLocalization* loc = g_pLocalization;
+        const unsigned short* teamNameLookup;
+
+        if (loc->m_LookupTable == NULL)
+        {
+            teamNameLookup = LocalizationTableNotFound;
+        }
+        else
+        {
+            nlLocalization::StringLookup* lookup = nlBSearch<nlLocalization::StringLookup, unsigned long>(locString, loc->m_LookupTable, loc->m_pFile->StringCount);
+            if (lookup != NULL)
+            {
+                teamNameLookup = loc->m_FirstString + lookup->StringOffset;
+            }
+            else
+            {
+                teamNameLookup = MissingLocString;
+            }
+        }
+
+        BasicString<unsigned short, Detail::TempStringAllocator> teamNameWideString(teamNameLookup);
+        memcpy(mColumnsByRowsBuffers[0][row], teamNameWideString.c_str(), 0x40);
+        pTextInstance->SetString(mColumnsByRowsBuffers[0][row]);
 
         {
             volatile InlineHasher hB, hA, h9, h8, h7, h6, h5, h4, h3, h2, h1, h0;
@@ -2064,6 +2098,11 @@ void CupHubScene::CreateBowserLeague()
                 (InlineHasher&)h0);
         }
 
+        mOldStats[row][0] = mAllTeamStats[standingsIndices[row]].mNumWins;
+        BasicString<char, Detail::TempStringAllocator> winsString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>((int)mOldStats[row][0]);
+        nlStrToWcs(winsString.c_str(), mColumnsByRowsBuffers[1][row], 0x20);
+        pTextInstance->SetString(mColumnsByRowsBuffers[1][row]);
+
         if (useHighlightColour)
         {
             pTextInstance->SetAssetColour(HUB_COLOUR_HIGHLIGHT);
@@ -2072,11 +2111,6 @@ void CupHubScene::CreateBowserLeague()
         {
             pTextInstance->SetAssetColour(mTextColour);
         }
-
-        mOldStats[row][0] = mAllTeamStats[standingsIndices[row]].mNumWins;
-        BasicString<char, Detail::TempStringAllocator> winsString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>((int)mOldStats[row][0]);
-        nlStrToWcs(winsString.c_str(), mColumnsByRowsBuffers[1][row], 0x20);
-        pTextInstance->SetString(mColumnsByRowsBuffers[1][row]);
 
         {
             volatile InlineHasher h9, h8, h7, h6, h5, h4, h3, h2, h1, h0;
@@ -2331,7 +2365,6 @@ void CupHubScene::CreateBowserLeague()
 
     HandleButtonComponent();
 }
-
 /**
  * Offset/Address/Size: 0x32FC | 0x800ED058 | size: 0xD1C
  */

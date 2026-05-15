@@ -13,7 +13,7 @@ static unsigned long LitProgram;
 
 /**
  * Offset/Address/Size: 0x149C | 0x801FC72C | size: 0x418
- * TODO: 80.73% match - FPR allocation and instruction scheduling still differ in inner-loop trig/normal code.
+ * TODO: 97.12% match - callee-saved FPR register allocation and constant-load ordering still differ.
  */
 void ShapeRender::CreateHemisphereGeometry(PrimitiveShape& prim)
 {
@@ -33,6 +33,11 @@ void ShapeRender::CreateHemisphereGeometry(PrimitiveShape& prim)
     float ring1;
     float z0Sq;
     float z1Sq;
+    float x0Sq;
+    float y0Sq;
+    float x1Sq;
+    float y1Sq;
+    float invLen;
 
     prim.vertCount = 0xA0;
     prim.position = (nlVector3*)glResourceAlloc(0x780, GLM_VertexData);
@@ -64,11 +69,6 @@ void ShapeRender::CreateHemisphereGeometry(PrimitiveShape& prim)
         {
             int angle;
             int angle90;
-            float x0Sq;
-            float y0Sq;
-            float x1Sq;
-            float y1Sq;
-            float invLen;
 
             angle = (int)(10430.378f * ((float)nSegment * 0.41887903f));
 
@@ -82,39 +82,51 @@ void ShapeRender::CreateHemisphereGeometry(PrimitiveShape& prim)
 
             x0Sq = x0 * x0;
             y0Sq = y0 * y0;
+
+            vNormal.f.x = x0;
+            vNormal.f.y = y0;
+            vNormal.f.z = z0;
+
             invLen = nlRecipSqrt(z0Sq + (x0Sq + y0Sq), true);
 
             pdst->f.x = x0;
+            vNormal.f.x = invLen * vNormal.f.x;
             pdst->f.y = y0;
+            vNormal.f.y = invLen * vNormal.f.y;
             pdst->f.z = z0;
-
-            vNormal.f.x = invLen * x0;
-            vNormal.f.y = invLen * y0;
-            vNormal.f.z = invLen * z0;
+            vNormal.f.z = invLen * vNormal.f.z;
             *ndst = vNormal;
 
             tdst->f.x = (float)nSegment / 15.0f;
             tdst->f.y = (float)nRing / 5.0f;
 
+            pdst++;
+            ndst++;
+            tdst++;
+
             x1Sq = x1 * x1;
             y1Sq = y1 * y1;
+
+            vNormal.f.x = x1;
+            vNormal.f.y = y1;
+            vNormal.f.z = z1;
+
             invLen = nlRecipSqrt(z1Sq + (x1Sq + y1Sq), true);
 
-            pdst[1].f.x = x1;
-            pdst[1].f.y = y1;
-            pdst[1].f.z = z1;
+            pdst->f.x = x1;
+            vNormal.f.x = invLen * vNormal.f.x;
+            pdst->f.y = y1;
+            vNormal.f.y = invLen * vNormal.f.y;
+            pdst->f.z = z1;
+            vNormal.f.z = invLen * vNormal.f.z;
+            *ndst = vNormal;
 
-            vNormal.f.x = invLen * x1;
-            vNormal.f.y = invLen * y1;
-            vNormal.f.z = invLen * z1;
-            ndst[1] = vNormal;
+            tdst->f.x = (float)nSegment / 15.0f;
+            tdst->f.y = (float)(nRing + 1) / 5.0f;
 
-            tdst[1].f.x = (float)nSegment / 15.0f;
-            tdst[1].f.y = (float)(nRing + 1) / 5.0f;
-
-            pdst += 2;
-            ndst += 2;
-            tdst += 2;
+            pdst++;
+            ndst++;
+            tdst++;
         }
     }
 }
@@ -191,8 +203,8 @@ void ShapeRender::CreateFlatCylinderEndGeometry(PrimitiveShape& prim)
 
 /**
  * Offset/Address/Size: 0xE14 | 0x801FC0A4 | size: 0x3AC
- * TODO: 64.9% match - compiler CSEs texcoord Y floats to callee-saved FPRs
- * instead of recomputing from GPR xoris values each inner iteration.
+ * TODO: 77.65% match - texcoord Y calculations are still CSEd into callee-saved FPRs
+ * instead of being recomputed from xoris integer conversions each inner iteration.
  */
 void ShapeRender::CreateCylinderGeometry(PrimitiveShape& prim)
 {
@@ -208,6 +220,8 @@ void ShapeRender::CreateCylinderGeometry(PrimitiveShape& prim)
     float y0;
     float x1;
     float y1;
+    float z0Sq;
+    float z1Sq;
 
     prim.vertCount = 0x40;
     prim.position = (nlVector3*)glResourceAlloc(0x300, GLM_VertexData);
@@ -226,9 +240,12 @@ void ShapeRender::CreateCylinderGeometry(PrimitiveShape& prim)
         nlSin((u16)((u16)(int)(10430.378f * ((float)nRing * 0.5f)) + 0x4000));
         nlSin((u16)((u16)(int)(10430.378f * ((float)(nRing + 1) * 0.5f)) + 0x4000));
 
+        z0Sq = z0 * z0;
+        z1Sq = z1 * z1;
+
         for (nSegment = 0; nSegment < 0x10; nSegment++)
         {
-            int angle = (int)(10430.378f * ((float)nSegment * 0.3926991f));
+            int angle = (int)(10430.378f * ((float)nSegment * 0.41887903f));
 
             x0 = 0.5f * nlSin((u16)angle);
             y0 = 0.5f * nlSin((u16)((u16)angle + 0x4000));
@@ -240,14 +257,14 @@ void ShapeRender::CreateCylinderGeometry(PrimitiveShape& prim)
             pdst->f.z = z0;
 
             {
-                float invLen = nlRecipSqrt(z0 * z0 + (x0 * x0 + y0 * y0), true);
+                float invLen = nlRecipSqrt(z0Sq + (x0 * x0 + y0 * y0), true);
                 vNormal.f.x = invLen * x0;
                 vNormal.f.y = invLen * y0;
                 vNormal.f.z = invLen * z0;
             }
             *ndst = vNormal;
 
-            tdst->f.x = (float)nSegment / 16.0f;
+            tdst->f.x = (float)nSegment / 15.0f;
             tdst->f.y = (float)nRing * 0.5f;
 
             pdst[1].f.x = x1;
@@ -255,14 +272,14 @@ void ShapeRender::CreateCylinderGeometry(PrimitiveShape& prim)
             pdst[1].f.z = z1;
 
             {
-                float invLen = nlRecipSqrt(z1 * z1 + (x1 * x1 + y1 * y1), true);
+                float invLen = nlRecipSqrt(z1Sq + (x1 * x1 + y1 * y1), true);
                 vNormal.f.x = invLen * x1;
                 vNormal.f.y = invLen * y1;
                 vNormal.f.z = invLen * z1;
             }
             ndst[1] = vNormal;
 
-            tdst[1].f.x = (float)nSegment / 16.0f;
+            tdst[1].f.x = (float)nSegment / 15.0f;
             tdst[1].f.y = (float)(nRing + 1) * 0.5f;
 
             pdst += 2;
@@ -618,16 +635,13 @@ void ShapeRender::Initialize()
 
             for (int j = 0; j < 3; j++)
             {
-                int index0 = tri_map[j * 2 + 0];
-                int index1 = tri_map[j * 2 + 1];
+                *pos = *faceVerts[tri_map[j * 2 + 0]];
+                *norm = *faceNorms[tri_map[j * 2 + 0]];
+                *uv = *faceUVs[tri_map[j * 2 + 0]];
 
-                *pos = *faceVerts[index0];
-                *norm = *faceNorms[index0];
-                *uv = *faceUVs[index0];
-
-                pos[1] = *faceVerts[index1];
-                norm[1] = *faceNorms[index1];
-                uv[1] = *faceUVs[index1];
+                pos[1] = *faceVerts[tri_map[j * 2 + 1]];
+                norm[1] = *faceNorms[tri_map[j * 2 + 1]];
+                uv[1] = *faceUVs[tri_map[j * 2 + 1]];
 
                 pos += 2;
                 norm += 2;
@@ -641,14 +655,14 @@ void ShapeRender::Initialize()
 
         {
             extern unsigned long UnlitProgram;
-            GLMeshWriter mesh;
             eGLStream stream_decl[4] = { GLStream_Position, GLStream_Colour, GLStream_Normal, GLStream_Diffuse };
+            GLMeshWriter mesh;
             nlColour colour;
+            m_Box.model = NULL;
             colour.c[0] = 0xFF;
             colour.c[1] = 0xFF;
             colour.c[2] = 0xFF;
             colour.c[3] = 0xFF;
-            m_Box.model = NULL;
 
             nlVector3* pPosition = m_Box.position;
             nlVector3* pNormal = m_Box.normal;
@@ -684,14 +698,14 @@ void ShapeRender::Initialize()
 
         {
             extern unsigned long UnlitProgram;
-            GLMeshWriter mesh;
             eGLStream stream_decl[4] = { GLStream_Position, GLStream_Colour, GLStream_Normal, GLStream_Diffuse };
+            GLMeshWriter mesh;
             nlColour colour;
+            m_Cylinder.model = NULL;
             colour.c[0] = 0xFF;
             colour.c[1] = 0xFF;
             colour.c[2] = 0xFF;
             colour.c[3] = 0xFF;
-            m_Cylinder.model = NULL;
 
             nlVector3* pPosition = m_Cylinder.position;
             nlVector3* pNormal = m_Cylinder.normal;
@@ -727,14 +741,14 @@ void ShapeRender::Initialize()
 
         {
             extern unsigned long UnlitProgram;
-            GLMeshWriter mesh;
             eGLStream stream_decl[4] = { GLStream_Position, GLStream_Colour, GLStream_Normal, GLStream_Diffuse };
+            GLMeshWriter mesh;
             nlColour colour;
+            m_Hemisphere.model = NULL;
             colour.c[0] = 0xFF;
             colour.c[1] = 0xFF;
             colour.c[2] = 0xFF;
             colour.c[3] = 0xFF;
-            m_Hemisphere.model = NULL;
 
             nlVector3* pPosition = m_Hemisphere.position;
             nlVector3* pNormal = m_Hemisphere.normal;
@@ -770,14 +784,14 @@ void ShapeRender::Initialize()
 
         {
             extern unsigned long UnlitProgram;
-            GLMeshWriter mesh;
             eGLStream stream_decl[4] = { GLStream_Position, GLStream_Colour, GLStream_Normal, GLStream_Diffuse };
+            GLMeshWriter mesh;
             nlColour colour;
+            m_FlatCylinderEnd.model = NULL;
             colour.c[0] = 0xFF;
             colour.c[1] = 0xFF;
             colour.c[2] = 0xFF;
             colour.c[3] = 0xFF;
-            m_FlatCylinderEnd.model = NULL;
 
             nlVector3* pPosition = m_FlatCylinderEnd.position;
             nlVector3* pNormal = m_FlatCylinderEnd.normal;

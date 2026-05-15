@@ -26,51 +26,83 @@ static char lbl_CRFormat[] = "CR=%08x";
 static char lbl_SRR1Format[] = "SRR1=%08x";
 static char lbl_DSISRFormat[] = "DSISR=%08x";
 
+static inline void ProcessBackground()
+{
+    int i;
+    int j;
+
+    for (i = 0; i < 0x1C0; i++)
+    {
+        for (j = 0; j < 0x280; j++)
+        {
+            unsigned long color;
+            unsigned long r;
+            unsigned long g;
+            unsigned long b;
+
+            GXPeekARGB((unsigned short)j, (unsigned short)i, &color);
+            r = (color >> 16) & 0xFF;
+            g = (color >> 8) & 0xFF;
+            b = color & 0xFF;
+            color = (color & 0xFF000000) | ((r / 3) << 16) | ((g / 3) << 8) | (b / 3);
+            GXPokeARGB((unsigned short)j, (unsigned short)i, color);
+        }
+    }
+}
+
+static inline void PutChar(int x, int y, char c, unsigned long color)
+{
+    char* charBitMap = (char*)CallstackDumpFont + ((((signed char)c) - 0x20) * 0x24);
+    int endx = x + 0x0B;
+    int endy = y + 0x12;
+    int i;
+
+    for (i = y; i < endy; i++)
+    {
+        char* rowData = charBitMap + (((i - y)) * 2);
+        int j;
+
+        for (j = x; j < endx; j++)
+        {
+            int column = (j - x);
+            int bit;
+
+            if (column < 8)
+            {
+                bit = (((signed char)rowData[0]) << column) & 0x80;
+            }
+            else
+            {
+                bit = (((signed char)rowData[1]) << (column - 8)) & 0x80;
+            }
+
+            if (bit != 0)
+            {
+                GXPokeARGB((unsigned short)j, (unsigned short)i, color);
+            }
+        }
+    }
+}
+
+static inline int PutString(int x, int y, const char* str, unsigned long color)
+{
+    int i = 0;
+
+    while (str[i] != '\0')
+    {
+        PutChar(x, y, str[i], color);
+        x += 0x0B;
+        i++;
+    }
+
+    return x;
+}
+
 /**
  * Offset/Address/Size: 0x2C | 0x801ACE90 | size: 0xB08
  */
 void ErrorHandler(unsigned short err, OSContext* ctx, unsigned long dsisr, unsigned long dar)
 {
-#define GLYPH_PTR(c) ((char*)CallstackDumpFont + ((((signed char)(c)) - 0x20) * 0x24))
-#define DRAW_TEXT(_x, _y, _str, _color)                                                   \
-    do                                                                                    \
-    {                                                                                     \
-        const char* _s = (_str);                                                          \
-        int _drawX = (_x);                                                                \
-        while (*_s != '\0')                                                               \
-        {                                                                                 \
-            int _endX = _drawX + 0x0B;                                                    \
-            int _row = (_y);                                                              \
-            char* _charBitMap = GLYPH_PTR(*_s);                                           \
-            while (_row < ((_y) + 0x12))                                                  \
-            {                                                                             \
-                int _col = _drawX;                                                        \
-                char* _rowData = _charBitMap + ((_row - (_y)) * 2);                       \
-                while (_col < _endX)                                                      \
-                {                                                                         \
-                    int _column = _col - _drawX;                                          \
-                    int _bit;                                                             \
-                    if (_column < 8)                                                      \
-                    {                                                                     \
-                        _bit = (((signed char)_rowData[0]) << _column) & 0x80;            \
-                    }                                                                     \
-                    else                                                                  \
-                    {                                                                     \
-                        _bit = (((signed char)_rowData[1]) << (_column - 8)) & 0x80;      \
-                    }                                                                     \
-                    if (_bit != 0)                                                        \
-                    {                                                                     \
-                        GXPokeARGB((unsigned short)_col, (unsigned short)_row, (_color)); \
-                    }                                                                     \
-                    _col++;                                                               \
-                }                                                                         \
-                _row++;                                                                   \
-            }                                                                             \
-            _drawX += 0x0B;                                                               \
-            _s++;                                                                         \
-        }                                                                                 \
-    } while (0)
-
     unsigned long i;
     unsigned long* p;
     unsigned short* frameBuffer;
@@ -83,29 +115,7 @@ void ErrorHandler(unsigned short err, OSContext* ctx, unsigned long dsisr, unsig
     bufferLoop = 0;
     while (bufferLoop < 2)
     {
-        int bgY = 0;
-        while (bgY < 0x1C0)
-        {
-            int bgX = 0;
-            while (bgX < 0x280)
-            {
-                unsigned long color;
-                unsigned char a;
-                unsigned char r;
-                unsigned char g;
-                unsigned char b;
-
-                GXPeekARGB((unsigned short)bgX, (unsigned short)bgY, &color);
-                a = (unsigned char)(color >> 24);
-                r = (unsigned char)(color >> 16);
-                g = (unsigned char)(color >> 8);
-                b = (unsigned char)color;
-                color = ((unsigned long)a << 24) | ((unsigned long)(r / 3) << 16) | ((unsigned long)(g / 3) << 8) | (unsigned long)(b / 3);
-                GXPokeARGB((unsigned short)bgX, (unsigned short)bgY, color);
-                bgX++;
-            }
-            bgY++;
-        }
+        ProcessBackground();
 
         frameBuffer = (unsigned short*)glxGetDisplayedBuffer();
         GXPokeColorUpdate(1);
@@ -114,18 +124,18 @@ void ErrorHandler(unsigned short err, OSContext* ctx, unsigned long dsisr, unsig
         y = 0x0F;
         if ((unsigned short)err == 2)
         {
-            nlSNPrintf(buf, 0x3C, lbl_InstructionSRR0, ctx->srr0);
-            DRAW_TEXT(0x0F, 0x0F, buf, (unsigned long)-1);
+            nlSNPrintf(buf, 0x3C, "Instruction at 0x%x (read from SRR0) attempted to", ctx->srr0);
+            PutString(0x0F, 0x0F, buf, (unsigned long)-1);
 
-            nlSNPrintf(buf, 0x3C, lbl_InvalidDAR, dar);
-            DRAW_TEXT(0x0F, 0x22, buf, (unsigned long)-1);
+            nlSNPrintf(buf, 0x3C, "access invalid address 0x%x (read from DAR)", dar);
+            PutString(0x0F, 0x22, buf, (unsigned long)-1);
             y = 0x35;
         }
 
-        DRAW_TEXT(0x0F, y, lbl_Empty, (unsigned long)-1);
+        PutString(0x0F, y, "", (unsigned long)-1);
 
         callStackY = y + 0x13;
-        DRAW_TEXT(0x0F, callStackY, lbl_CallStack, (unsigned long)0xFFFF8888);
+        PutString(0x0F, callStackY, "Call Stack", (unsigned long)0xFFFF8888);
 
         p = (unsigned long*)ctx->gpr[1];
         y = callStackY + 0x13;
@@ -133,22 +143,22 @@ void ErrorHandler(unsigned short err, OSContext* ctx, unsigned long dsisr, unsig
         while ((p != 0) && (p != (unsigned long*)0xFFFFFFFF) && (i < 0x10))
         {
             nlSNPrintf(buf, 0x3C, "%08x", p[1]);
-            DRAW_TEXT(0x0F, y, buf, (unsigned long)0xFFFF8888);
+            PutString(0x0F, y, buf, (unsigned long)0xFFFF8888);
             p = (unsigned long*)p[0];
             y += 0x13;
             i++;
         }
 
         x = (((int)nlStrLen(buf) + 4) * 0x0B) + 0x0F;
-        DRAW_TEXT(x, callStackY, lbl_GPRs, 0xFF8888FF);
+        PutString(x, callStackY, "General Purpose Registers", 0xFF8888FF);
 
         p = &ctx->gpr[0];
         y = callStackY + 0x13;
         i = 0;
         while (i < 0x10)
         {
-            nlSNPrintf(buf, 0x3C, lbl_GPRFormat, i, p[0], i + 0x10, p[0x10]);
-            DRAW_TEXT(x, y, buf, 0xFF8888FF);
+            nlSNPrintf(buf, 0x3C, "r%-2d=%08x r%-2d=%08x", i, p[0], i + 0x10, p[0x10]);
+            PutString(x, y, buf, 0xFF8888FF);
             i++;
             p++;
             y += 0x13;
@@ -156,20 +166,20 @@ void ErrorHandler(unsigned short err, OSContext* ctx, unsigned long dsisr, unsig
 
         x += ((int)nlStrLen(buf) + 2) * 0x0B;
 
-        nlSNPrintf(buf, 0x3C, lbl_LRFormat, ctx->lr);
-        DRAW_TEXT(x, callStackY, buf, 0xFFFFFF88);
+        nlSNPrintf(buf, 0x3C, "LR=%08x", ctx->lr);
+        PutString(x, callStackY, buf, 0xFFFFFF88);
 
         callStackY += 0x13;
-        nlSNPrintf(buf, 0x3C, lbl_CRFormat, ctx->cr);
-        DRAW_TEXT(x, callStackY, buf, 0xFFFFFF88);
+        nlSNPrintf(buf, 0x3C, "CR=%08x", ctx->cr);
+        PutString(x, callStackY, buf, 0xFFFFFF88);
 
         callStackY += 0x13;
-        nlSNPrintf(buf, 0x3C, lbl_SRR1Format, ctx->srr1);
-        DRAW_TEXT(x, callStackY, buf, 0xFFFFFF88);
+        nlSNPrintf(buf, 0x3C, "SRR1=%08x", ctx->srr1);
+        PutString(x, callStackY, buf, 0xFFFFFF88);
 
         callStackY += 0x13;
-        nlSNPrintf(buf, 0x3C, lbl_DSISRFormat, dsisr);
-        DRAW_TEXT(x, callStackY, buf, 0xFFFFFF88);
+        nlSNPrintf(buf, 0x3C, "DSISR=%08x", dsisr);
+        PutString(x, callStackY, buf, 0xFFFFFF88);
 
         GXCopyDisp(frameBuffer, 0);
         GXDrawDone();
@@ -186,9 +196,6 @@ void ErrorHandler(unsigned short err, OSContext* ctx, unsigned long dsisr, unsig
     while (1)
     {
     }
-
-#undef DRAW_TEXT
-#undef GLYPH_PTR
 }
 
 /**

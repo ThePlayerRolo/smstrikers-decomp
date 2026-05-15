@@ -100,7 +100,7 @@ extern int nlSNPrintf(char*, unsigned long, const char*, ...);
 static const char* HUD_SLIDE_IN_NAME = "IN";
 static const char* HUD_SLIDE_OUT_NAME = "OUT";
 static const char* LAYER_NAME = "Layer";
-static const char* CLOCK_NAME = "clock";
+static const char CLOCK_NAME[] = "clock";
 static char* LEFT_POWER_UP_IMAGE_NAMES[2] = {
     "left_powerup1",
     "left_powerup2",
@@ -308,6 +308,38 @@ HUDOverlay::~HUDOverlay()
  */
 void HUDOverlay::Update(float fDeltaT)
 {
+    typedef BasicString<unsigned short, Detail::TempStringAllocator> WideString;
+    WideString Format(const WideString&, const unsigned short (&)[8], const unsigned short (&)[8]);
+
+    struct LOCHeader
+    {
+        char Thumbprint[4];
+        unsigned long Version;
+        unsigned long Language;
+        unsigned long StringCount;
+        unsigned long Flags;
+    };
+
+    class nlLocalization
+    {
+    public:
+        struct StringLookup
+        {
+            unsigned long hash;
+            unsigned long StringOffset;
+        };
+
+        LOCHeader* m_pFile;
+        StringLookup* m_LookupTable;
+        unsigned short* m_FirstString;
+        int m_CurrentLanguage;
+    };
+
+    extern nlLocalization* g_pLocalization;
+    extern const unsigned short LocalizationTableNotFound[];
+    extern const unsigned short MissingLocString[];
+    nlLocalization::StringLookup* nlBSearch(const unsigned long&, nlLocalization::StringLookup*, int);
+
     struct HUDPresentationTime
     {
         char _padding[0x18];
@@ -489,13 +521,43 @@ void HUDOverlay::Update(float fDeltaT)
 
         char minutesString[8];
         char secondsString[8];
-        char timeString[32];
+        unsigned short minutesWideString[8];
+        unsigned short secondsWideString[8];
+        WideString unformatted;
+        WideString formatted;
+        const unsigned short* formatLocString;
+        unsigned long key;
+        nlLocalization* loc;
 
         if (mMinutes == 0 && fRemainingTime < 30.0f && !isOvertime)
         {
             nlSNPrintf(minutesString, 8, "%d", mSeconds);
             nlSNPrintf(secondsString, 8, "%d", mTenths);
-            nlSNPrintf(timeString, 32, "%s.%s", minutesString, secondsString);
+
+            nlStrToWcs(minutesString, minutesWideString, 8);
+            nlStrToWcs(secondsString, secondsWideString, 8);
+
+            key = 0xA1D5611D;
+            loc = g_pLocalization;
+            if (loc->m_LookupTable == 0)
+            {
+                formatLocString = LocalizationTableNotFound;
+            }
+            else
+            {
+                nlLocalization::StringLookup* entry = nlBSearch(key, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
+                if (entry)
+                {
+                    formatLocString = loc->m_FirstString + entry->StringOffset;
+                }
+                else
+                {
+                    formatLocString = MissingLocString;
+                }
+            }
+
+            unformatted = WideString(formatLocString);
+            formatted = Format(unformatted, minutesWideString, secondsWideString);
         }
         else
         {
@@ -509,17 +571,40 @@ void HUDOverlay::Update(float fDeltaT)
             }
 
             nlSNPrintf(minutesString, 8, "%d", mMinutes);
-            nlSNPrintf(timeString, 32, "%s:%s", minutesString, secondsString);
+
+            nlStrToWcs(minutesString, minutesWideString, 8);
+            nlStrToWcs(secondsString, secondsWideString, 8);
+
+            key = 0x04E76F8B;
+            loc = g_pLocalization;
+            if (loc->m_LookupTable == 0)
+            {
+                formatLocString = LocalizationTableNotFound;
+            }
+            else
+            {
+                nlLocalization::StringLookup* entry = nlBSearch(key, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
+                if (entry)
+                {
+                    formatLocString = loc->m_FirstString + entry->StringOffset;
+                }
+                else
+                {
+                    formatLocString = MissingLocString;
+                }
+            }
+
+            unformatted = WideString(formatLocString);
+            formatted = Format(unformatted, minutesWideString, secondsWideString);
         }
 
-        nlStrToWcs(timeString, mClockBuffer, 0x20);
+        memcpy(mClockBuffer, formatted.c_str(), 0x40);
         m_pTextInstanceClock[0]->SetString(mClockBuffer);
         m_pTextInstanceClock[1]->SetString(mClockBuffer);
     }
 
     DisplayPowerUps();
 }
-
 /**
  * Offset/Address/Size: 0x2120 | 0x800F8400 | size: 0x8FC
  */
@@ -630,7 +715,7 @@ void HUDOverlay::SceneCreated()
     mSuddenDeath[0] = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
         InlineHasher(nlStringLowerHash("SUDDEN DEATH")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_IN_NAME)),
         InlineHasher(0),
         InlineHasher(0),
@@ -639,7 +724,7 @@ void HUDOverlay::SceneCreated()
     mSuddenDeath[1] = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
         InlineHasher(nlStringLowerHash("SUDDEN DEATH")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_OUT_NAME)),
         InlineHasher(0),
         InlineHasher(0),
@@ -705,7 +790,7 @@ void HUDOverlay::SceneCreated()
         m_pTextInstanceClock[1]->m_bVisible = false;
     }
 
-    presentation->SetActiveSlide(HUD_SLIDE_OUT_NAME);
+    presentation->SetActiveSlide("OUT");
     mIsHUDSlideIn = false;
 
     for (int i = 0; i < 2; i++)

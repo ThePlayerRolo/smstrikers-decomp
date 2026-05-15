@@ -11,6 +11,12 @@ extern char* fgets(char*, int, FILE*);
 
 static const char* SIM_FILE = "";
 
+struct StatsPair
+{
+    float mMean;
+    float mStandardDeviation;
+};
+
 /**
  * Offset/Address/Size: 0x3D0 | 0x80191868 | size: 0x38
  */
@@ -88,22 +94,23 @@ void Simulator::InitializeStats()
     bool isMeanFound = false;
     bool isSDFound = false;
     bool doMean = true;
-    int diff;
+    eDifficultyID diff;
 
     if (skillLevel == GameplaySettings::ROOKIE)
     {
-        diff = 1;
+        diff = (eDifficultyID)1;
     }
     else if (skillLevel == GameplaySettings::PROFESSIONAL)
     {
-        diff = 2;
+        diff = (eDifficultyID)2;
     }
     else
     {
-        diff = 3;
+        diff = (eDifficultyID)3;
     }
 
-    BasicString<char, Detail::TempStringAllocator> searchString = LexicalCast<BasicString<char, Detail::TempStringAllocator> >(diff);
+    int pad = diff;
+    BasicString<char, Detail::TempStringAllocator> searchString = LexicalCast<BasicString<char, Detail::TempStringAllocator> >(pad);
 
     if (length <= 120)
     {
@@ -133,7 +140,7 @@ void Simulator::InitializeStats()
     {
         bool isLineFound = false;
         unsigned long meanLen = meanString.m_data ? (unsigned long)(meanString.m_data->mSize - 1) : 0;
-        const char* meanCstr = meanString.m_data ? meanString.m_data->mData : "";
+        const char* meanCstr = meanString.c_str();
 
         if (nlStrNCmp<char>(meanCstr, line, meanLen) == 0)
         {
@@ -145,7 +152,7 @@ void Simulator::InitializeStats()
         else
         {
             unsigned long sdLen = SDString.m_data ? (unsigned long)(SDString.m_data->mSize - 1) : 0;
-            const char* sdCstr = SDString.m_data ? SDString.m_data->mData : "";
+            const char* sdCstr = SDString.c_str();
 
             if (nlStrNCmp<char>(sdCstr, line, sdLen) == 0)
             {
@@ -164,17 +171,20 @@ void Simulator::InitializeStats()
 
             for (Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator it = tokenizer.begin(); it != tokenizer.end(); ++it)
             {
-                if (idx != 2 && idx != 6 && idx != 7 && idx != 8 && idx != 9 && idx != 16 && idx != 18)
+                if (idx == 2 || (idx >= 6 && idx <= 9) || idx == 16 || idx == 18)
                 {
-                    float val = (float)atof(it.m_token.c_str());
-                    if (doMean)
-                    {
-                        ((float*)this)[idx * 2] = val;
-                    }
-                    else
-                    {
-                        ((float*)this)[idx * 2 + 1] = val;
-                    }
+                    idx++;
+                    continue;
+                }
+
+                float val = (float)atof(it.m_token.c_str());
+                if (doMean)
+                {
+                    ((StatsPair*)this)[idx].mMean = val;
+                }
+                else
+                {
+                    ((StatsPair*)this)[idx].mStandardDeviation = val;
                 }
                 idx++;
             }

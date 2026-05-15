@@ -832,41 +832,71 @@ float FakeBallWorld::GetPredictedPlaneIntersectTime(const nlVector4& v4Plane, nl
 
 typedef DLListContainerBase<BallCacheInfo*, BasicSlotPool<DLListEntry<BallCacheInfo*> > > BallCacheListBase;
 
+static inline BallCacheInfo* AddCacheEntry(PhysicsBall* pPhysicsBall)
+{
+    BallCacheInfo* pNewInfo = NULL;
+    if (BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList == NULL)
+    {
+        SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)&BallCacheInfo::mBallCacheInfoSlotPool, sizeof(BallCacheInfo));
+    }
+    if (BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList != NULL)
+    {
+        pNewInfo = (BallCacheInfo*)BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList;
+        BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList = BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList->m_next;
+    }
+    pNewInfo->mfTime = FakeBallWorld::mfLastCacheTime;
+    pNewInfo->mv3Position = ((PhysicsObject*)pPhysicsBall)->GetPosition();
+    pNewInfo->mv3LinearVelocity = ((PhysicsObject*)pPhysicsBall)->GetLinearVelocity();
+    DLListEntry<BallCacheInfo*>* pNewEntry = NULL;
+    if (FakeBallWorld::mBallCacheList.m_Allocator.m_FreeList == NULL)
+    {
+        SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)&FakeBallWorld::mBallCacheList.m_Allocator, sizeof(DLListEntry<BallCacheInfo*>));
+    }
+    if (FakeBallWorld::mBallCacheList.m_Allocator.m_FreeList != NULL)
+    {
+        pNewEntry = (DLListEntry<BallCacheInfo*>*)FakeBallWorld::mBallCacheList.m_Allocator.m_FreeList;
+        FakeBallWorld::mBallCacheList.m_Allocator.m_FreeList = FakeBallWorld::mBallCacheList.m_Allocator.m_FreeList->m_next;
+    }
+    if (pNewEntry != NULL)
+    {
+        pNewEntry->m_next = NULL;
+        pNewEntry->m_prev = NULL;
+        pNewEntry->m_data = pNewInfo;
+    }
+    nlDLRingAddEnd(&FakeBallWorld::mBallCacheList.m_Head, pNewEntry);
+    return pNewInfo;
+}
+
 /**
  * Offset/Address/Size: 0x1768 | 0x80138B54 | size: 0x6C0
- * TODO: 81.05% match - r31/r30 register swap for v3Position/v3Velocity params cascades to all other register assignments
+ * TODO: 94.34% match - r23 register pressure and cache-iteration branch ordering still diverge
  */
+
 bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Position, nlVector3& v3Velocity)
 {
     cBall* pBall = mpPredictWorld->mpBall;
-
     if (pBall->m_pOwner != NULL)
     {
         v3Position = pBall->m_v3Position;
         v3Velocity = mpPredictWorld->mpBall->m_pOwner->m_v3Velocity;
         return false;
     }
-
     float fPhysicsTick = FixedUpdateTask::GetPhysicsUpdateTick();
     float fSimTime = FixedUpdateTask::mSimulationTime;
-
     if (mfLastCacheTime < fSimTime)
     {
         nlDLListSlotPool<BallCacheInfo*>* pCacheRef = &mBallCacheList;
-
         if (pCacheRef->m_Head != NULL)
         {
             DLListEntry<BallCacheInfo*>* start = nlDLRingGetStart(pCacheRef->m_Head);
             DLListEntry<BallCacheInfo*>* end = pCacheRef->m_Head;
             DLListEntry<BallCacheInfo*>* current = start;
             SlotPool<BallCacheInfo>* pBCIPool = &BallCacheInfo::mBallCacheInfoSlotPool;
-
             while (current != NULL)
             {
                 BallCacheInfo* data = current->m_data;
                 ((SlotPoolEntry*)data)->m_next = pBCIPool->m_FreeList;
                 pBCIPool->m_FreeList = (SlotPoolEntry*)data;
-
                 if (nlDLRingIsEnd(end, current) || current == NULL)
                 {
                     current = NULL;
@@ -876,14 +906,10 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
                     current = current->m_next;
                 }
             }
-
             nlWalkDLRing<DLListEntry<BallCacheInfo*>, BallCacheListBase>(
-                pCacheRef->m_Head,
-                (BallCacheListBase*)&mBallCacheList,
-                (void (BallCacheListBase::*)(DLListEntry<BallCacheInfo*>*))&BallCacheListBase::DeleteEntry);
+                pCacheRef->m_Head, (BallCacheListBase*)&mBallCacheList, (void (BallCacheListBase::*)(DLListEntry<BallCacheInfo*>*))&BallCacheListBase::DeleteEntry);
             pCacheRef->m_Head = NULL;
         }
-
         mfLastCacheTime = -1.0f;
     }
     else if (mBallCacheList.m_Head != NULL)
@@ -894,11 +920,9 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
         DLListEntry<BallCacheInfo*>* pHead = mBallCacheList.m_Head;
         nlDLListSlotPool<BallCacheInfo*>* pCacheList = &mBallCacheList;
         SlotPool<BallCacheInfo>* pBCIPool = &BallCacheInfo::mBallCacheInfoSlotPool;
-
         while (pEntry != NULL)
         {
             BallCacheInfo* pCur = pEntry->m_data;
-
             if (fSimTime >= pCur->mfTime)
             {
                 if (pLast != NULL)
@@ -909,15 +933,12 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
                     {
                         *ppLast = removed->m_data;
                     }
-
                     ((SlotPoolEntry*)removed)->m_next = pCacheList->m_Allocator.m_FreeList;
                     pCacheList->m_Allocator.m_FreeList = (SlotPoolEntry*)removed;
-
                     ((SlotPoolEntry*)pLast)->m_next = pBCIPool->m_FreeList;
                     pBCIPool->m_FreeList = (SlotPoolEntry*)pLast;
                 }
                 pLast = pCur;
-
                 if (nlDLRingIsEnd(pHead, pEntry) || pEntry == NULL)
                 {
                     pEntry = NULL;
@@ -936,30 +957,25 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
                         pCur = pLast;
                     }
                 }
-
                 cBall* pBallRef = mpPredictWorld->mpBall;
                 float dy = pCur->mv3Position.f.y - pBallRef->m_v3Position.f.y;
                 float dx = pCur->mv3Position.f.x - pBallRef->m_v3Position.f.x;
                 float dz = pCur->mv3Position.f.z - pBallRef->m_v3Position.f.z;
                 float distSq = dy * dy + dx * dx + dz * dz;
-
                 if (distSq <= 0.0025f)
                 {
                     break;
                 }
-
                 if (*pHeadRef != NULL)
                 {
                     DLListEntry<BallCacheInfo*>* walkStart = nlDLRingGetStart(*pHeadRef);
                     DLListEntry<BallCacheInfo*>* walkHead = *pHeadRef;
                     DLListEntry<BallCacheInfo*>* walkEntry = walkStart;
-
                     while (walkEntry != NULL)
                     {
                         BallCacheInfo* data = walkEntry->m_data;
                         ((SlotPoolEntry*)data)->m_next = pBCIPool->m_FreeList;
                         pBCIPool->m_FreeList = (SlotPoolEntry*)data;
-
                         if (nlDLRingIsEnd(walkHead, walkEntry) || walkEntry == NULL)
                         {
                             walkEntry = NULL;
@@ -969,14 +985,10 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
                             walkEntry = walkEntry->m_next;
                         }
                     }
-
                     nlWalkDLRing<DLListEntry<BallCacheInfo*>, BallCacheListBase>(
-                        *pHeadRef,
-                        (BallCacheListBase*)&mBallCacheList,
-                        (void (BallCacheListBase::*)(DLListEntry<BallCacheInfo*>*))&BallCacheListBase::DeleteEntry);
+                        *pHeadRef, (BallCacheListBase*)&mBallCacheList, (void (BallCacheListBase::*)(DLListEntry<BallCacheInfo*>*))&BallCacheListBase::DeleteEntry);
                     *pHeadRef = NULL;
                 }
-
                 mfLastCacheTime = -1.0f;
                 break;
             }
@@ -984,9 +996,6 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
     }
 
     float fTargetTime = fSimTime + fDeltaTime;
-    nlDLListSlotPool<BallCacheInfo*>* pCacheList = &mBallCacheList;
-    DLListEntry<BallCacheInfo*>** pHeadRef = &pCacheList->m_Head;
-    SlotPool<BallCacheInfo>* pBCIPool = &BallCacheInfo::mBallCacheInfoSlotPool;
 
     while (mfLastCacheTime < fTargetTime)
     {
@@ -1001,50 +1010,13 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
             PhysicsUpdate(mpPredictWorld->mpPhysicsWorld, fPhysicsTick);
             mfLastCacheTime += fPhysicsTick;
         }
-
-        BallCacheInfo* pNewInfo = NULL;
-        PhysicsObject* pPhysObj = mpPredictWorld->mpPhysicsBall;
-
-        if (pBCIPool->m_FreeList == NULL)
-        {
-            SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)pBCIPool, sizeof(BallCacheInfo));
-        }
-        if (pBCIPool->m_FreeList != NULL)
-        {
-            pNewInfo = (BallCacheInfo*)pBCIPool->m_FreeList;
-            pBCIPool->m_FreeList = pBCIPool->m_FreeList->m_next;
-        }
-
-        pNewInfo->mfTime = mfLastCacheTime;
-        pNewInfo->mv3Position = pPhysObj->GetPosition();
-        pNewInfo->mv3LinearVelocity = pPhysObj->GetLinearVelocity();
-
-        DLListEntry<BallCacheInfo*>* pNewEntry = NULL;
-
-        if (pCacheList->m_Allocator.m_FreeList == NULL)
-        {
-            SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)&pCacheList->m_Allocator, sizeof(DLListEntry<BallCacheInfo*>));
-        }
-        if (pCacheList->m_Allocator.m_FreeList != NULL)
-        {
-            pNewEntry = (DLListEntry<BallCacheInfo*>*)pCacheList->m_Allocator.m_FreeList;
-            pCacheList->m_Allocator.m_FreeList = pCacheList->m_Allocator.m_FreeList->m_next;
-        }
-
-        if (pNewEntry != NULL)
-        {
-            pNewEntry->m_next = NULL;
-            pNewEntry->m_prev = NULL;
-            pNewEntry->m_data = pNewInfo;
-        }
-
-        nlDLRingAddEnd(pHeadRef, pNewEntry);
+        AddCacheEntry((PhysicsBall*)mpPredictWorld->mpPhysicsBall);
     }
 
+    DLListEntry<BallCacheInfo*>** pHeadRef = &mBallCacheList.m_Head;
     float overshoot = mfLastCacheTime - fTargetTime;
     BallCacheInfo* pPrev;
     BallCacheInfo* pNext;
-
     if (fDeltaTime < overshoot)
     {
         DLListEntry<BallCacheInfo*>* pStartEntry = nlDLRingGetStart(*pHeadRef);
@@ -1052,16 +1024,13 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
         DLListEntry<BallCacheInfo*>* pListEntry = pStartEntry;
         DLListEntry<BallCacheInfo*>* pHead = *pHeadRef;
         pPrev = pNext;
-
         while (!nlDLRingIsEnd(pHead, pListEntry))
         {
             if (pNext->mfTime >= fTargetTime)
             {
                 break;
             }
-
             pPrev = pNext;
-
             if (nlDLRingIsEnd(pHead, pListEntry) || pListEntry == NULL)
             {
                 pListEntry = NULL;
@@ -1080,16 +1049,13 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
         DLListEntry<BallCacheInfo*>* pListEntry = pEndEntry;
         DLListEntry<BallCacheInfo*>* pHead = *pHeadRef;
         pPrev = pNext;
-
         while (!nlDLRingIsStart(pHead, pListEntry))
         {
             if (pPrev->mfTime < fTargetTime)
             {
                 break;
             }
-
             pNext = pPrev;
-
             if (nlDLRingIsStart(pHead, pListEntry))
             {
                 pListEntry = NULL;
@@ -1102,34 +1068,31 @@ bool FakeBallWorld::GetPredictedBallPosition(float fDeltaTime, nlVector3& v3Posi
         }
     }
 
-    if (pNext == pPrev || fTargetTime <= pPrev->mfTime)
-    {
-        v3Position = pPrev->mv3Position;
-        v3Velocity = pPrev->mv3LinearVelocity;
-    }
-    else
+    if (pPrev != pNext && fTargetTime > pPrev->mfTime)
     {
         float fPercent = (fTargetTime - pPrev->mfTime) / (pNext->mfTime - pPrev->mfTime);
 
-        if (fPercent >= 1.0f)
-        {
-            v3Position = pNext->mv3Position;
-            v3Velocity = pNext->mv3LinearVelocity;
-        }
-        else
+        if (fPercent < 1.0f)
         {
             float fInvPercent = 1.0f - fPercent;
-
             v3Position.f.x = fPercent * pNext->mv3Position.f.x + fInvPercent * pPrev->mv3Position.f.x;
             v3Position.f.y = fPercent * pNext->mv3Position.f.y + fInvPercent * pPrev->mv3Position.f.y;
             v3Position.f.z = fPercent * pNext->mv3Position.f.z + fInvPercent * pPrev->mv3Position.f.z;
-
             v3Velocity.f.x = fPercent * pNext->mv3LinearVelocity.f.x + fInvPercent * pPrev->mv3LinearVelocity.f.x;
             v3Velocity.f.y = fPercent * pNext->mv3LinearVelocity.f.y + fInvPercent * pPrev->mv3LinearVelocity.f.y;
             v3Velocity.f.z = fPercent * pNext->mv3LinearVelocity.f.z + fInvPercent * pPrev->mv3LinearVelocity.f.z;
         }
+        else
+        {
+            v3Position = pNext->mv3Position;
+            v3Velocity = pNext->mv3LinearVelocity;
+        }
     }
-
+    else
+    {
+        v3Position = pPrev->mv3Position;
+        v3Velocity = pPrev->mv3LinearVelocity;
+    }
     return true;
 }
 

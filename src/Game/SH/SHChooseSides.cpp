@@ -331,16 +331,15 @@ void SHChooseSides2::SceneCreated()
     BindChooseSideInstances();
 
     TLSlide* currentSlide = m_pFEPresentation->m_currentSlide;
-    InlineHasher zH(0);
 
     TLTextInstance* scrollText = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
         currentSlide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("TickerText")),
-        zH,
-        zH,
-        zH,
-        zH);
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
     const gl_ScreenInfo* screenInfo = glGetScreenInfo();
 
@@ -370,39 +369,39 @@ void SHChooseSides2::SceneCreated()
             currentSlide,
             InlineHasher(nlStringLowerHash("Layer")),
             InlineHasher(nlStringLowerHash("LEFT_CAPT")),
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         TLSlide* captainactiveslide = captaincomponent->GetActiveSlide();
 
         mAsyncImage[0][0]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             captainactiveslide,
             InlineHasher(nlStringLowerHash("CAPT_L")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         mAsyncImage[0][2]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             captainactiveslide,
             InlineHasher(nlStringLowerHash("CAPT_L_WHITE")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         mAsyncImage[0][1]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             captainactiveslide,
             InlineHasher(nlStringLowerHash("CAPT_L_OUT")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         mSoundDelay = (captainactiveslide->m_start + captainactiveslide->m_duration) * 0.5f;
 
@@ -410,39 +409,39 @@ void SHChooseSides2::SceneCreated()
             currentSlide,
             InlineHasher(nlStringLowerHash("Layer")),
             InlineHasher(nlStringLowerHash("RIGHT_CAPT")),
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         captainactiveslide = captaincomponent->GetActiveSlide();
 
         mAsyncImage[1][0]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             captainactiveslide,
             InlineHasher(nlStringLowerHash("CAPT_R")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         mAsyncImage[1][2]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             captainactiveslide,
             InlineHasher(nlStringLowerHash("CAPT_R_WHITE")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         mAsyncImage[1][1]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             captainactiveslide,
             InlineHasher(nlStringLowerHash("CAPT_R_OUT")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         char mainfilename[128] = { };
         char outlinefilename[128] = { };
@@ -464,19 +463,19 @@ void SHChooseSides2::SceneCreated()
             currentSlide,
             InlineHasher(nlStringLowerHash("Layer")),
             InlineHasher(nlStringLowerHash("CAPTAIN_NAME_LEFT")),
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         pNameComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
             pNameComp->GetActiveSlide(),
             InlineHasher(nlStringLowerHash("COMPONENT")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         pNameComp->SetActiveSlide(GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)0)));
 
@@ -484,19 +483,19 @@ void SHChooseSides2::SceneCreated()
             currentSlide,
             InlineHasher(nlStringLowerHash("Layer")),
             InlineHasher(nlStringLowerHash("CAPTAIN_NAME_RIGHT")),
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         pNameComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
             pNameComp->GetActiveSlide(),
             InlineHasher(nlStringLowerHash("COMPONENT")),
-            zH,
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         pNameComp->SetActiveSlide(GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)1)));
     }
@@ -509,25 +508,26 @@ void SHChooseSides2::SceneCreated()
 
         mAsyncImage[0][0]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             currentSlide,
-            InlineHasher(nlStringLowerHash("HOME_AWAY")),
             InlineHasher(nlStringLowerHash("Layer")),
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(nlStringLowerHash("HOME_AWAY")),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         AsyncImage* image1 = new (nlMalloc(0x1C, 8, false)) AsyncImage(filename, NULL);
         mAsyncImage[1][0] = image1;
 
         mAsyncImage[1][0]->mImageInstance = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             currentSlide,
-            InlineHasher(nlStringLowerHash("HOME_AWAY2")),
             InlineHasher(nlStringLowerHash("Layer")),
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(nlStringLowerHash("HOME_AWAY2")),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
+#pragma inline_depth(1)
         BasicString<char, Detail::TempStringAllocator> iconfilename[2];
 
         for (int i = 0; i < 2; i++)
@@ -575,25 +575,26 @@ void SHChooseSides2::SceneCreated()
 
             mAsyncImage[i][0]->QueueLoad(iconfilename[i].c_str(), true);
         }
+#pragma inline_depth()
     }
 
     TLComponentInstance* captainnamecomponent = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("CAPTAIN_NAME_LEFT")),
-        zH,
-        zH,
-        zH,
-        zH);
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
     TLTextInstance* captaintext = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
         captainnamecomponent->GetActiveSlide(),
         InlineHasher(nlStringLowerHash("CAPTAIN_NAME")),
-        zH,
-        zH,
-        zH,
-        zH,
-        zH);
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
     captaintext->m_LocStrId = GetLOCTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)0));
     captaintext->m_OverloadFlags |= 8;
@@ -602,31 +603,31 @@ void SHChooseSides2::SceneCreated()
         currentSlide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("CAPTAIN_NAME_RIGHT")),
-        zH,
-        zH,
-        zH,
-        zH);
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
     captaintext = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
         captainnamecomponent->GetActiveSlide(),
         InlineHasher(nlStringLowerHash("CAPTAIN_NAME")),
-        zH,
-        zH,
-        zH,
-        zH,
-        zH);
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
     captaintext->m_LocStrId = GetLOCTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)1));
     captaintext->m_OverloadFlags |= 8;
 
     TLComponentInstance* buttons = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,
-        InlineHasher(nlStringLowerHash("buttons")),
         InlineHasher(nlStringLowerHash("Layer")),
-        zH,
-        zH,
-        zH,
-        zH);
+        InlineHasher(nlStringLowerHash("buttons")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
     if (buttons != NULL)
     {
@@ -648,12 +649,12 @@ void SHChooseSides2::SceneCreated()
     {
         TLComponentInstance* sidesComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
             currentSlide,
-            InlineHasher(nlStringLowerHash("choose_side")),
             InlineHasher(nlStringLowerHash("Layer")),
-            zH,
-            zH,
-            zH,
-            zH);
+            InlineHasher(nlStringLowerHash("choose_side")),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
 
         int lockedSide = (!(gim->GetUserSelectedCupTeam() - gim->GetTeam(0))) ? 1 : 0;
 
@@ -666,28 +667,28 @@ void SHChooseSides2::SceneCreated()
                 sidesComp->GetActiveSlide(),
                 InlineHasher(nlStringLowerHash("Group")),
                 InlineHasher(nlStringLowerHash(arrowName)),
-                zH,
-                zH,
-                zH,
-                zH);
+                InlineHasher(0),
+                InlineHasher(0),
+                InlineHasher(0),
+                InlineHasher(0));
 
             TLImageInstance* arrow1 = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
                 arrowComp->GetActiveSlide(),
                 InlineHasher(nlStringLowerHash("p1arrows1")),
                 InlineHasher(nlStringLowerHash("arrow")),
-                zH,
-                zH,
-                zH,
-                zH);
+                InlineHasher(0),
+                InlineHasher(0),
+                InlineHasher(0),
+                InlineHasher(0));
 
             TLImageInstance* arrow2 = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
                 arrowComp->GetActiveSlide(),
                 InlineHasher(nlStringLowerHash("p1arrows1")),
                 InlineHasher(nlStringLowerHash("arrow2")),
-                zH,
-                zH,
-                zH,
-                zH);
+                InlineHasher(0),
+                InlineHasher(0),
+                InlineHasher(0),
+                InlineHasher(0));
 
             if (lockedSide == 0)
             {

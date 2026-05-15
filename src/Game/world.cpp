@@ -389,10 +389,44 @@ void World::Render()
             {
                 const nlMatrix4& mat = pObject->GetWorldMatrix();
                 if (mat.m[3][0] < 0.0f && sbShowPositiveXNetDuringHyperStrike__5World)
-                    goto skipClip;
+                {
+                    iter->count--;
+                    {
+                        Entry* right = (Entry*)iter->data[iter->count]->node.right;
+                        if (right != NULL)
+                        {
+                            while (right->node.left != NULL)
+                            {
+                                iter->data[iter->count] = right;
+                                iter->count++;
+                                right = (Entry*)right->node.left;
+                            }
+                            iter->data[iter->count] = right;
+                            iter->count++;
+                        }
+                    }
+                    continue;
+                }
                 const nlMatrix4& mat2 = pObject->GetWorldMatrix();
                 if (mat2.m[3][0] > 0.0f && !sbShowPositiveXNetDuringHyperStrike__5World)
-                    goto skipClip;
+                {
+                    iter->count--;
+                    {
+                        Entry* right = (Entry*)iter->data[iter->count]->node.right;
+                        if (right != NULL)
+                        {
+                            while (right->node.left != NULL)
+                            {
+                                iter->data[iter->count] = right;
+                                iter->count++;
+                                right = (Entry*)right->node.left;
+                            }
+                            iter->data[iter->count] = right;
+                            iter->count++;
+                        }
+                    }
+                    continue;
+                }
             }
             {
                 u8 bHammer = 0;
@@ -405,23 +439,97 @@ void World::Render()
                 {
                     DrawableObject* ballDrawable = ((DrawableObject**)g_pBall)[8];
                     if ((DrawableObject*)pObject->AsDrawableModel() == ballDrawable)
-                        goto skipClip;
+                    {
+                        iter->count--;
+                        {
+                            Entry* right = (Entry*)iter->data[iter->count]->node.right;
+                            if (right != NULL)
+                            {
+                                while (right->node.left != NULL)
+                                {
+                                    iter->data[iter->count] = right;
+                                    iter->count++;
+                                    right = (Entry*)right->node.left;
+                                }
+                                iter->data[iter->count] = right;
+                                iter->count++;
+                            }
+                        }
+                        continue;
+                    }
                 }
                 {
                     u32 objectFlags = pObject->m_uObjectFlags;
                     if (objectFlags & 0x80)
-                        goto skipClip;
+                    {
+                        iter->count--;
+                        {
+                            Entry* right = (Entry*)iter->data[iter->count]->node.right;
+                            if (right != NULL)
+                            {
+                                while (right->node.left != NULL)
+                                {
+                                    iter->data[iter->count] = right;
+                                    iter->count++;
+                                    right = (Entry*)right->node.left;
+                                }
+                                iter->data[iter->count] = right;
+                                iter->count++;
+                            }
+                        }
+                        continue;
+                    }
                     u8 bSkybox = 0;
                     if (!sbSkyboxRenderingDisabled__5World && (pObject->m_uObjectCreationFlags & 0x100))
                         bSkybox = 1;
                     if (sbStadiumRenderingDisabled__5World && !bBall && !bHammer && !bSkybox)
-                        goto skipClip;
+                    {
+                        iter->count--;
+                        {
+                            Entry* right = (Entry*)iter->data[iter->count]->node.right;
+                            if (right != NULL)
+                            {
+                                while (right->node.left != NULL)
+                                {
+                                    iter->data[iter->count] = right;
+                                    iter->count++;
+                                    right = (Entry*)right->node.left;
+                                }
+                                iter->data[iter->count] = right;
+                                iter->count++;
+                            }
+                        }
+                        continue;
+                    }
                     if (!(objectFlags & 0x1))
                         goto culledClip;
                     if (!(objectFlags & 0x10))
                     {
-                        if (!IsSphereInFrustum(pObject->GetWorldMatrix(), pObject->m_fBoundingRadius))
-                            goto culledClip;
+                        volatile u32 tz;
+                        volatile u32 ty;
+                        volatile u32 tx;
+                        const nlMatrix4& mat = pObject->GetWorldMatrix();
+                        tx = *(u32*)&mat.m[3][0];
+                        f32 posX = *(f32*)&tx;
+                        s32 numSets = 2;
+                        ty = *(u32*)&mat.m[3][1];
+                        f32* plane = (f32*)((u8*)this + 0x80);
+                        tz = *(u32*)&mat.m[3][2];
+                        s32 count = 0;
+                        f32 posY = *(f32*)&ty;
+                        f32 posZ = *(f32*)&tz;
+                        f32 negRadius = -pObject->m_fBoundingRadius;
+                        do
+                        {
+                            if ((posZ * plane[2] + (posX * plane[0] + posY * plane[1]) + *(f32*)((u8*)this + 0x8C + count * 0x18)) < negRadius)
+                                goto culledClip;
+                            if ((posZ * plane[6] + (posX * plane[4] + posY * plane[5]) + *(f32*)((u8*)this + 0x9C + count * 0x18)) < negRadius)
+                                goto culledClip;
+                            if ((posZ * plane[10] + (posX * plane[8] + posY * plane[9]) + *(f32*)((u8*)this + 0xAC + count * 0x18)) < negRadius)
+                                goto culledClip;
+                            plane += 12;
+                            count += 2;
+                        } while (--numSets != 0);
                     }
                     if (pObject->m_uObjectCreationFlags & 0xF0000)
                         DoTranslucency(pObject);
@@ -455,7 +563,6 @@ void World::Render()
                         glViewAttachModel((eGLView)7, pSphere);
                     }
                     nDrawn++;
-                    goto advanceClip;
                 culledClip:
                     pObject->m_translucency = 1.0f;
                     if (pObject->m_translucency < 0.0f)
@@ -464,13 +571,10 @@ void World::Render()
                         pObject->m_translucency = 1.0f;
                 }
             }
-        advanceClip:
             nSubmitted++;
-        skipClip:
             iter->count--;
             {
-                Entry* top = iter->data[iter->count];
-                Entry* right = (Entry*)top->node.right;
+                Entry* right = (Entry*)iter->data[iter->count]->node.right;
                 if (right != NULL)
                 {
                     while (right->node.left != NULL)
@@ -536,8 +640,7 @@ void World::Render()
             nSubmitted++;
             iter->count--;
             {
-                Entry* top = iter->data[iter->count];
-                Entry* right = (Entry*)top->node.right;
+                Entry* right = (Entry*)iter->data[iter->count]->node.right;
                 if (right != NULL)
                 {
                     while (right->node.left != NULL)
@@ -562,12 +665,11 @@ void World::Render()
     if (g_bDrawCullingInfo)
     {
         char buf[256];
-        static int x = 10;
-        static int y = 0;
         f32 drawnPct = 100.0f * ((f32)nDrawn / (f32)nSubmitted);
         nlSNPrintf(buf, 255, "%d submitted, %d culled, %d ( %0.2f%% )drawn", nSubmitted, nSubmitted - nDrawn, nDrawn, drawnPct);
-        nlColour color;
-        *(u32*)&color.c[0] = 0xFFFFFFFF;
+        static int x = 10;
+        static int y = 0;
+        nlColour color = { 0xFF, 0xFF, 0xFF, 0xFF };
         glStateBundle state;
         glStateSave(state);
         glFontBegin(false);

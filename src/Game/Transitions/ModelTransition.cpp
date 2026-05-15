@@ -466,41 +466,57 @@ void ModeledScreenTransition::RenderOutline() const
     static nlVector3 sZeroClear;
 
     Vector<nlVector3, DefaultAllocator> outline;
+    nlVector3 current;
     outline.mData = NULL;
     outline.mSize = 0;
     outline.mCapacity = 0;
 
     if (outline.mCapacity < 8)
     {
-        nlVector3* newData = (nlVector3*)nlMalloc(8 * sizeof(nlVector3), 8, false);
-        newData[0] = sZeroInit;
-        newData[1] = sZeroInit;
-        newData[2] = sZeroInit;
-        newData[3] = sZeroInit;
-        newData[4] = sZeroInit;
-        newData[5] = sZeroInit;
-        newData[6] = sZeroInit;
-        newData[7] = sZeroInit;
+        Vector<nlVector3, DefaultAllocator> other;
+        other.mData = (nlVector3*)nlMalloc(8 * sizeof(nlVector3), 8, false);
+        other.mSize = 8;
+        other.mCapacity = 8;
+
+        other.mData[0] = sZeroInit;
+        other.mData[1] = sZeroInit;
+        other.mData[2] = sZeroInit;
+        other.mData[3] = sZeroInit;
+        other.mData[4] = sZeroInit;
+        other.mData[5] = sZeroInit;
+        other.mData[6] = sZeroInit;
+        other.mData[7] = sZeroInit;
 
         for (int i = 0; i < outline.mSize; i++)
         {
-            newData[i] = outline.mData[i];
+            other.mData[i] = outline.mData[i];
         }
 
-        delete[] outline.mData;
-        outline.mData = newData;
-        outline.mCapacity = 8;
+        other.mSize = outline.mSize;
+
+        nlVector3* oldData = outline.mData;
+        int oldSize = outline.mSize;
+        int oldCapacity = outline.mCapacity;
+
+        outline.mData = other.mData;
+        outline.mSize = other.mSize;
+        outline.mCapacity = other.mCapacity;
+
+        other.mData = oldData;
+        other.mSize = oldSize;
+        other.mCapacity = oldCapacity;
     }
 
-    glModel* pModel = m_pModels;
-    int* pModelMap = m_pModelMap;
+    const nlVector3* begin = &current;
+    const nlVector3* end = begin + 1;
+    int size = end - begin;
 
-    for (int i = 0; i < (int)m_nModels; i++)
+    for (int i = 0; (u32)i < m_nModels; i++)
     {
         int packetOffset = 0;
-        for (int iPacket = 0; iPacket < (int)pModel->numPackets; iPacket++)
+        for (int iPacket = 0; (u32)iPacket < ((glModel*)((u8*)m_pModels + i * sizeof(glModel)))->numPackets; iPacket++)
         {
-            const glModelPacket& packet = *(const glModelPacket*)((u8*)pModel->packets + packetOffset);
+            const glModelPacket& packet = *(const glModelPacket*)((u8*)((glModel*)((u8*)m_pModels + i * sizeof(glModel)))->packets + packetOffset);
             DisplayList* pList = dlGetStruct(packet.indexBuffer);
 
             for (int iVertex = 0; iVertex < (int)packet.numVertices; iVertex++)
@@ -520,7 +536,6 @@ void ModeledScreenTransition::RenderOutline() const
                 int index = *p;
                 const glModelStream& stream = packet.streams[0];
 
-                nlVector3 current;
                 if (stream.stride == 12)
                 {
                     memcpy(&current, (const void*)((u8*)stream.address + index * stream.stride), 12);
@@ -533,11 +548,8 @@ void ModeledScreenTransition::RenderOutline() const
                     current.f.z = s[2] * 0.0078125f;
                 }
 
-                nlMultPosVectorMatrix(current, current, m_pPoseAccumulator->GetNodeMatrix(pModelMap[0]));
+                nlMultPosVectorMatrix(current, current, m_pPoseAccumulator->GetNodeMatrix(m_pModelMap[i]));
 
-                const nlVector3* begin = &current;
-                const nlVector3* end = begin + 1;
-                int size = end - begin;
                 int offset = (outline.mData + outline.mSize) - outline.mData;
                 int requiredSize = outline.mSize + size;
 
@@ -557,6 +569,8 @@ void ModeledScreenTransition::RenderOutline() const
                         other.mData[i] = outline.mData[i];
                     }
 
+                    other.mSize = outline.mSize;
+
                     nlVector3* oldData = outline.mData;
                     int oldSize = outline.mSize;
                     int oldCapacity = outline.mCapacity;
@@ -568,7 +582,6 @@ void ModeledScreenTransition::RenderOutline() const
                     other.mData = oldData;
                     other.mSize = oldSize;
                     other.mCapacity = oldCapacity;
-                    delete[] other.mData;
                 }
 
                 nlVector3* at = outline.mData + offset;
@@ -635,12 +648,7 @@ void ModeledScreenTransition::RenderOutline() const
 
             packetOffset += sizeof(glModelPacket);
         }
-
-        pModelMap++;
-        pModel = (glModel*)((u8*)pModel + sizeof(glModel));
     }
-
-    delete[] outline.mData;
 }
 /**
  * Offset/Address/Size: 0x8DC | 0x802029A0 | size: 0x3C

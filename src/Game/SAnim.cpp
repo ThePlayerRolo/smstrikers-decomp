@@ -25,14 +25,12 @@ void nlListAddStart<cSAnimCallback>(cSAnimCallback** head, cSAnimCallback* entry
 static inline void* nlGetChunkData(nlChunk* chunk)
 {
     u32 alignField = chunk->m_ID & 0x7F000000;
-    u32 isAligned = ((-alignField) | alignField) >> 31;
-    if (isAligned != 0)
+    if (((-alignField) | alignField) >> 31)
     {
-        u32 alignment = 1u << (alignField >> 24);
-        u32 ptr = (u32)chunk + alignment;
-        ptr += 7;
-        ptr &= ~(alignment - 1);
-        return (void*)ptr;
+        alignField = 1u << (alignField >> 24);
+        u32 result = (u32)chunk + alignField;
+        result = (result + 7) & ~(alignField - 1);
+        return (void*)result;
     }
     return (void*)((u8*)chunk + 8);
 }
@@ -44,39 +42,39 @@ static inline nlChunk* nlGetNextChunk(nlChunk* chunk)
 
 /**
  * Offset/Address/Size: 0xD40 | 0x801E9F54 | size: 0x68C
- * TODO: 83.58% match - 40 register allocation diffs in inlined nlGetChunkData expansions
- * (r3/r5 swap for alignment, r5/r7 swap for chunk pointer). Known -inline deferred
- * scratch limitation - register allocator sees different context vs full TU.
+ * TODO: 84.10% match - 18 register allocation diffs remain in inlined chunk/data setup
+ * (r5/r7 chunk pointer selection, r5/r6 alignment temp in two nlGetChunkData expansions).
  */
-// #pragma inline_depth(smart)
+#pragma inline_depth(smart)
 cSAnim* cSAnim::Initialize(nlChunk* pChunk)
 {
-    nlChunk* chunk = (nlChunk*)((u8*)pChunk + 8);
+    nlChunk* chunkA = (nlChunk*)((u8*)pChunk + 8);
     nlChunk* end = nlGetNextChunk(pChunk);
+    nlChunk* chunkB;
 
-    cSAnim* pRetval = (cSAnim*)nlGetChunkData(chunk);
+    cSAnim* pRetval = (cSAnim*)nlGetChunkData(chunkA);
     pRetval->m_pCallbackList = NULL;
 
-    chunk = nlGetNextChunk(chunk);
-    pRetval->m_szName = (const char*)nlGetChunkData(chunk);
+    chunkB = nlGetNextChunk(chunkA);
+    pRetval->m_szName = (const char*)nlGetChunkData(chunkB);
 
-    chunk = nlGetNextChunk(chunk);
-    pRetval->m_pRotKeys = nlGetChunkData(chunk);
+    chunkA = nlGetNextChunk(chunkB);
+    pRetval->m_pRotKeys = nlGetChunkData(chunkA);
 
-    chunk = nlGetNextChunk(chunk);
-    pRetval->m_pTransKeys = (PackedTrans**)nlGetChunkData(chunk);
+    chunkB = nlGetNextChunk(chunkA);
+    pRetval->m_pTransKeys = (PackedTrans**)nlGetChunkData(chunkB);
 
-    chunk = nlGetNextChunk(chunk);
-    pRetval->m_pScaleKeys = (PackedScale**)nlGetChunkData(chunk);
+    chunkA = nlGetNextChunk(chunkB);
+    pRetval->m_pScaleKeys = (PackedScale**)nlGetChunkData(chunkA);
 
-    chunk = nlGetNextChunk(chunk);
-    pRetval->m_pRootRot = (unsigned short*)nlGetChunkData(chunk);
+    chunkB = nlGetNextChunk(chunkA);
+    pRetval->m_pRootRot = (unsigned short*)nlGetChunkData(chunkB);
 
-    chunk = nlGetNextChunk(chunk);
-    pRetval->m_pRootTrans = (nlVector3*)nlGetChunkData(chunk);
+    chunkA = nlGetNextChunk(chunkB);
+    pRetval->m_pRootTrans = (nlVector3*)nlGetChunkData(chunkA);
 
     u32 nodeIndex = 0;
-    nlChunk* nodeChunk = nlGetNextChunk(chunk);
+    nlChunk* nodeChunk = nlGetNextChunk(chunkA);
 
     while (nodeChunk != end)
     {
@@ -177,7 +175,7 @@ cSAnim* cSAnim::Initialize(nlChunk* pChunk)
 
     return pRetval;
 }
-// #pragma inline_depth()
+#pragma inline_depth()
 
 /**
  * Offset/Address/Size: 0x91C | 0x801E9B30 | size: 0x424

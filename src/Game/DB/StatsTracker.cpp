@@ -957,12 +957,18 @@ void StatsTracker::TrackStat(ePlayerStats stat, int homeaway, int playerindex, i
 
 /**
  * Offset/Address/Size: 0x3708 | 0x80184C68 | size: 0x7E8
- * TODO: 56.94% match - compiler version issue: target uses GC/2.0 which generates
- * xor/srawi/and/subf/srwi for unsigned comparison, but decomp.me only has
- * mwcc_247_92 (GC/1.3.2) which generates subf/srwi. This 3-instruction difference
- * per comparison (x32 branches) accounts for ~19% of the function.
- * Also: register allocation differs (r29 not used as callee-saved for shouldSwap).
+ * TODO: 80.09% match - loop/index register allocation differs in init/sort loops,
+ * and compare blocks still load i/i+1 through different temporaries.
  */
+static inline unsigned char CompareInt(eSortOrder sortOrder, int a, int b)
+{
+    if (sortOrder == SORT_DESCENDING)
+    {
+        return a < b;
+    }
+    return b < a;
+}
+
 void StatsTracker::GetSortedStats(PlayerStats* source, int numsource, int* dest, int numelements, ePlayerStats statType, eSortOrder sortOrder)
 {
     int tempsorted[66];
@@ -991,60 +997,35 @@ void StatsTracker::GetSortedStats(PlayerStats* source, int numsource, int* dest,
             {
                 unsigned short a = source[tempsorted[i]].mNumShotsOnGoal;
                 unsigned short b = source[tempsorted[i + 1]].mNumShotsOnGoal;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_GOALS_FOR:
             {
                 unsigned short a = source[tempsorted[i]].mNumGoalsFor;
                 unsigned short b = source[tempsorted[i + 1]].mNumGoalsFor;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_GOALS_AGAINST:
             {
                 unsigned short a = source[tempsorted[i]].mNumGoalsAgainst;
                 unsigned short b = source[tempsorted[i + 1]].mNumGoalsAgainst;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
-                break;
-            }
-            case STATS_GOALS_FOR_STS:
-            {
-                unsigned short a = source[tempsorted[i]].mNumShootToScoreGoals;
-                unsigned short b = source[tempsorted[i + 1]].mNumShootToScoreGoals;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_ASSISTS:
             {
                 unsigned short a = source[tempsorted[i]].mNumAssists;
                 unsigned short b = source[tempsorted[i + 1]].mNumAssists;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_FOULS:
             {
                 unsigned short a = source[tempsorted[i]].mNumFouls;
                 unsigned short b = source[tempsorted[i + 1]].mNumFouls;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_WIN:
@@ -1056,100 +1037,77 @@ void StatsTracker::GetSortedStats(PlayerStats* source, int numsource, int* dest,
             {
                 unsigned short a = source[tempsorted[i]].mNumPowerupsUsed;
                 unsigned short b = source[tempsorted[i + 1]].mNumPowerupsUsed;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_POWERUPS_HIT:
             {
                 unsigned short a = source[tempsorted[i]].mNumPowerupsHit;
                 unsigned short b = source[tempsorted[i + 1]].mNumPowerupsHit;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
+                break;
+            }
+            case STATS_GOALS_FOR_STS:
+            {
+                unsigned short a = source[tempsorted[i]].mNumShootToScoreGoals;
+                unsigned short b = source[tempsorted[i + 1]].mNumShootToScoreGoals;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_PASSES_MADE:
             {
                 unsigned short a = source[tempsorted[i]].mNumPassesMade;
                 unsigned short b = source[tempsorted[i + 1]].mNumPassesMade;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_PASSES_RECEIVED:
             {
                 unsigned short a = source[tempsorted[i]].mNumPassesMade;
                 unsigned short b = source[tempsorted[i + 1]].mNumPassesMade;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_PASSES_INTERCEPTED:
             {
                 unsigned short a = source[tempsorted[i]].mNumPassesIntercepted;
                 unsigned short b = source[tempsorted[i + 1]].mNumPassesIntercepted;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_POSSESION_TIME:
             {
                 unsigned long a = source[tempsorted[i]].mBallPossessionTime;
                 unsigned long b = source[tempsorted[i + 1]].mBallPossessionTime;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_GAMES_PLAYED:
             {
                 unsigned short a = source[tempsorted[i]].mNumGamesPlayed;
                 unsigned short b = source[tempsorted[i + 1]].mNumGamesPlayed;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_STEALS:
             {
                 unsigned short a = source[tempsorted[i]].mNumSteals;
                 unsigned short b = source[tempsorted[i + 1]].mNumSteals;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_BUTTON_PRESSES:
             {
                 unsigned long a = source[tempsorted[i]].mNumButtonPresses;
                 unsigned long b = source[tempsorted[i + 1]].mNumButtonPresses;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             case STATS_HITS_MADE:
             {
                 unsigned short a = source[tempsorted[i]].mNumHitsMade;
                 unsigned short b = source[tempsorted[i + 1]].mNumHitsMade;
-                if (sortOrder == SORT_DESCENDING)
-                    shouldSwap = a < b;
-                else
-                    shouldSwap = b < a;
+                shouldSwap = CompareInt(sortOrder, a, b);
                 break;
             }
             }

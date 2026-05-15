@@ -17,6 +17,14 @@
 extern int sRowOffset;
 extern int sCurrentRow;
 
+typedef void FnTLComponentInstanceCb(TLComponentInstance*);
+
+namespace DoubleHighlite
+{
+static const char* SLIDE_IN = "in";
+static const char* SLIDE_OUT = "out";
+} // namespace DoubleHighlite
+
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8010CE0C | size: 0x38
 //  */
@@ -165,20 +173,19 @@ LessonSelectScene::~LessonSelectScene()
  */
 void LessonSelectScene::SceneCreated()
 {
-    FEAudio::EnableSounds(false);
-
+    TLComponentInstance* compinstance;
     FEPresentation* presentation = m_pFEPresentation;
+    FEAudio::EnableSounds(false);
 
     typedef Detail::MemFunImpl<void, void (LessonSelectScene::*)()> MemFunImpl_LessonSelect_t;
     typedef BindExp1<void, MemFunImpl_LessonSelect_t, LessonSelectScene*> BindExp1_LessonSelect_t;
-    typedef Function1<void, TLComponentInstance*>::FunctorImpl<BindExp1_LessonSelect_t> FunctorImpl_LessonSelect_t;
 
     for (int i = 0; i < 4; i++)
     {
         char menuname[64];
         nlSNPrintf(menuname, 64, "MENU ITEM%d", i + 1);
 
-        TLComponentInstance* compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+        compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
             presentation->m_currentSlide,
             InlineHasher(nlStringLowerHash("Layer")),
             InlineHasher(nlStringLowerHash(menuname)),
@@ -187,7 +194,7 @@ void LessonSelectScene::SceneCreated()
             InlineHasher(0),
             InlineHasher(0));
 
-        compinstance->SetActiveSlide(i == 0 ? "in" : "out");
+        compinstance->SetActiveSlide(i == 0 ? DoubleHighlite::SLIDE_IN : DoubleHighlite::SLIDE_OUT);
 
         if (mDoSlideIn)
         {
@@ -196,30 +203,24 @@ void LessonSelectScene::SceneCreated()
             mMenuItems.mNumItemsAdded++;
 
             {
-                Function<TLComponentInstance*> openFunction;
-                openFunction.mTag = FREE_FUNCTION;
-                openFunction.mFreeFunction = DoubleHighlite::OpenItem;
-                menuItem->mCallbacks[ON_HIGHLIGHT] = openFunction;
+                Function<FnTLComponentInstanceCb> openFunc;
+                openFunc.mTag = FREE_FUNCTION;
+                openFunc.mFreeFunction = DoubleHighlite::OpenItem;
+                menuItem->mCallbacks[ON_HIGHLIGHT] = openFunc;
             }
 
             {
-                Function<TLComponentInstance*> closeFunction;
-                closeFunction.mTag = FREE_FUNCTION;
-                closeFunction.mFreeFunction = DoubleHighlite::CloseItem;
-                menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunction;
+                Function<FnTLComponentInstanceCb> closeFunc;
+                closeFunc.mTag = FREE_FUNCTION;
+                closeFunc.mFreeFunction = DoubleHighlite::CloseItem;
+                menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunc;
             }
 
             {
                 BindExp1_LessonSelect_t bind = Bind<void, MemFunImpl_LessonSelect_t, LessonSelectScene*>(
                     MemFun<LessonSelectScene, void>(&LessonSelectScene::StartLesson), this);
-
-                FunctorImpl_LessonSelect_t* impl = new ((FunctorImpl_LessonSelect_t*)nlMalloc(sizeof(FunctorImpl_LessonSelect_t), 8, false))
-                    FunctorImpl_LessonSelect_t(bind);
-
-                Function<TLComponentInstance*> applyFunction;
-                applyFunction.mTag = FUNCTOR;
-                applyFunction.mFunctor = impl;
-                menuItem->mCallbacks[ON_APPLY] = applyFunction;
+                Function<FnTLComponentInstanceCb> applyFunc(bind);
+                menuItem->mCallbacks[ON_APPLY] = applyFunc;
             }
 
             if (i == 0)
@@ -255,7 +256,7 @@ void LessonSelectScene::SceneCreated()
         UpdateRow(i, false);
     }
 
-    TLComponentInstance* arrows = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+    TLComponentInstance* tempComponent = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         presentation->m_currentSlide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("ARROWS")),
@@ -265,7 +266,7 @@ void LessonSelectScene::SceneCreated()
         InlineHasher(0));
 
     mUpArrow = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
-        arrows->GetActiveSlide(),
+        tempComponent->GetActiveSlide(),
         InlineHasher(nlStringLowerHash("arrow")),
         InlineHasher(0),
         InlineHasher(0),
@@ -274,7 +275,7 @@ void LessonSelectScene::SceneCreated()
         InlineHasher(0));
 
     mDownArrow = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
-        arrows->GetActiveSlide(),
+        tempComponent->GetActiveSlide(),
         InlineHasher(nlStringLowerHash("arrow2")),
         InlineHasher(0),
         InlineHasher(0),
@@ -298,7 +299,7 @@ void LessonSelectScene::SceneCreated()
         mDownArrow->m_bVisible = true;
     }
 
-    mButtons.mButtonInstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+    TLComponentInstance* buttonComponent = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         presentation->m_currentSlide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("buttons")),
@@ -307,6 +308,7 @@ void LessonSelectScene::SceneCreated()
         InlineHasher(0),
         InlineHasher(0));
 
+    mButtons.mButtonInstance = buttonComponent;
     mButtons.SetState(ButtonComponent::BS_A_AND_B);
 
     FEAudio::EnableSounds(true);

@@ -622,9 +622,8 @@ void cTeam::UpdateControllers()
 
 /**
  * Offset/Address/Size: 0x3DC | 0x80065044 | size: 0x468
- * TODO: 65.32% match - all 19 remaining diffs cascade from this=r31 vs target r23.
- * Swap section uses for-loop (MWCC unrolls correctly with addi+lwzx).
- * Blocker: -inline deferred puts this in r31 (highest callee-saved) instead of r23.
+ * TODO: 95.56% match - register allocation still differs in controller assignment
+ * and kickoff setup blocks.
  */
 void cTeam::ResetCharacters()
 {
@@ -767,7 +766,7 @@ void cTeam::ResetCharacters()
         }
     }
 
-    StopGameplayEffectsAndSounds();
+    (this->*&cTeam::StopGameplayEffectsAndSounds)();
     mfPowerupTimer = 0.0f;
 }
 

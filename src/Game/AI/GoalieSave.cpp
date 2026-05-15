@@ -897,25 +897,9 @@ void GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3&
     blendInfo.mfSaveBlendSecondary = 0.0f;
     blendInfo.mfSaveBlendComposite = 0.0f;
 
-    if (pSaveData->mv3GroupMaxCoords.f.y <= v3TargetPos.f.y)
+    if (pSaveData->mv3GroupMaxCoords.f.y <= v3TargetPos.f.y || pSaveData->mv3GroupMinCoords.f.y >= v3TargetPos.f.y)
     {
-        SaveData* pLast = pSaveData;
-        while (pSaveData != NULL)
-        {
-            pLast = pSaveData;
-            pSaveData = pSaveData->mpConnectedSaveData[2];
-        }
-        pEdge = pLast;
-    }
-    else if (pSaveData->mv3GroupMinCoords.f.y >= v3TargetPos.f.y)
-    {
-        SaveData* pLast = pSaveData;
-        while (pSaveData != NULL)
-        {
-            pLast = pSaveData;
-            pSaveData = pSaveData->mpConnectedSaveData[3];
-        }
-        pEdge = pLast;
+        pEdge = pSaveData;
     }
     else
     {
@@ -1191,6 +1175,30 @@ void GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3&
         }
     }
 
+    if (pEdge == pSaveData)
+    {
+        SaveData* pLast = pSaveData;
+
+        if (pSaveData->mv3GroupMaxCoords.f.y <= v3TargetPos.f.y)
+        {
+            while (pSaveData != NULL)
+            {
+                pLast = pSaveData;
+                pSaveData = pSaveData->mpConnectedSaveData[2];
+            }
+        }
+        else
+        {
+            while (pSaveData != NULL)
+            {
+                pLast = pSaveData;
+                pSaveData = pSaveData->mpConnectedSaveData[3];
+            }
+        }
+
+        pEdge = pLast;
+    }
+
     if (pEdge != NULL)
     {
         SaveData* pPrev = pEdge;
@@ -1286,7 +1294,7 @@ void GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3&
                 float fCurrentY = pDown->mv3SavePos.f.y;
                 const float fNudge = 0.1f;
 
-                if (fabs(fCurrentY - fTargetY) < fNudge)
+                if (fabsf(fCurrentY - fTargetY) < fNudge)
                 {
                     blendInfo.mv3BlendedSavePos.f.y = fTargetY;
                 }
@@ -1302,7 +1310,7 @@ void GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3&
                 float fTargetZ = v3TargetPos.f.z;
                 float fCurrentZ = pDown->mv3SavePos.f.z;
 
-                if (fabs(fCurrentZ - fTargetZ) < fNudge)
+                if (fabsf(fCurrentZ - fTargetZ) < fNudge)
                 {
                     blendInfo.mv3BlendedSavePos.f.z = fTargetZ;
                 }
@@ -1325,7 +1333,6 @@ void GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3&
 
     blendInfo.mv3BlendedSavePos.f.x = pClosest->mv3SavePos.f.x;
 }
-
 /**
  * Offset/Address/Size: 0xF4C | 0x8005436C | size: 0x44
  */

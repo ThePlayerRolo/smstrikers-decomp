@@ -633,7 +633,7 @@ void RenderProjectedShadow(const ProjectedShadowParams& params)
         float halfH = 0.5f * height;
         vTemp.f.z += halfH;
 
-        float invLen = nlRecipSqrt(dy * dy + dx * dx + dz * dz, false);
+        float invLen = nlRecipSqrt(dx * dx + dy * dy + dz * dz, false);
 
         float vx = invLen * dx;
         float vy = invLen * dy;
@@ -644,11 +644,12 @@ void RenderProjectedShadow(const ProjectedShadowParams& params)
         float crossZ = vx * vUp.f.y - vy * vUp.f.x;
 
         float halfW = 0.5f * width;
-        float negHalfW = -0.5f * width;
-        float negHalfH = -0.5f * height;
+        float negHalfW = -halfW;
+        float negHalfH = -halfH;
 
-        vTemp = params.vPosition;
-        vTemp.f.z += halfH;
+        vTemp.f.x = params.vPosition.f.x;
+        vTemp.f.y = params.vPosition.f.y;
+        vTemp.f.z = params.vPosition.f.z + halfH;
 
         p[0].f.x = vTemp.f.x + halfW * crossX + negHalfH * vUp.f.x;
         p[0].f.y = vTemp.f.y + halfW * crossY + negHalfH * vUp.f.y;
@@ -747,15 +748,15 @@ void RenderProjectedShadow(const ProjectedShadowParams& params)
     dir.f.z = 0.0f;
 
     {
-        float invLen = nlRecipSqrt(dir.f.x * dir.f.x + dir.f.y * dir.f.y + dir.f.z * dir.f.z, false);
+        float invLen = nlRecipSqrt(dir.f.y * dir.f.y + dir.f.x * dir.f.x + dir.f.z * dir.f.z, false);
         dir.f.x = dir.f.x * invLen;
         dir.f.y = dir.f.y * invLen;
         dir.f.z = dir.f.z * invLen;
     }
 
     {
-        float xAdjust = g_fProjectionAdjust * dir.f.x;
         float yAdjust = g_fProjectionAdjust * dir.f.y;
+        float xAdjust = g_fProjectionAdjust * dir.f.x;
 
         p[0].f.x += xAdjust;
         p[0].f.y += yAdjust;

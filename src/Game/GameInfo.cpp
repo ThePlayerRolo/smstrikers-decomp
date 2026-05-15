@@ -798,9 +798,268 @@ void GameInfoManager::ResetPlayingSides()
 
 /**
  * Offset/Address/Size: 0x8638 | 0x8017DCDC | size: 0x4D8
+ * TODO: 90.85% match - remaining differences are in mode-check branch shape and
+ * register allocation for numplayingteams/numGamesPerRound/home-away temporaries.
  */
-void GameInfoManager::SetupRoundRobinSchedule(eTeamID*, eSidekickID*)
+static const int THREE_TEAM_MATCHUPS[3][2] = {
+    { 0, 1 },
+    { 1, 2 },
+    { 2, 0 },
+};
+static const int FOUR_TEAM_MATCHUPS[6][2] = {
+    { 0, 1 },
+    { 2, 3 },
+    { 3, 1 },
+    { 2, 0 },
+    { 0, 3 },
+    { 1, 2 },
+};
+static const int FIVE_TEAM_MATCHUPS[10][2] = {
+    { 0, 1 },
+    { 2, 3 },
+    { 4, 0 },
+    { 1, 2 },
+    { 3, 4 },
+    { 0, 2 },
+    { 1, 3 },
+    { 4, 2 },
+    { 3, 0 },
+    { 1, 4 },
+};
+static const int SIX_TEAM_MATCHUPS[15][2] = {
+    { 0, 1 },
+    { 5, 4 },
+    { 3, 2 },
+    { 3, 5 },
+    { 1, 4 },
+    { 2, 0 },
+    { 4, 2 },
+    { 0, 3 },
+    { 5, 1 },
+    { 1, 3 },
+    { 5, 2 },
+    { 4, 0 },
+    { 0, 5 },
+    { 2, 1 },
+    { 3, 4 },
+};
+static const int SEVEN_TEAM_MATCHUPS[21][2] = {
+    { 0, 1 },
+    { 5, 4 },
+    { 3, 2 },
+    { 3, 5 },
+    { 6, 4 },
+    { 2, 1 },
+    { 3, 6 },
+    { 4, 0 },
+    { 5, 1 },
+    { 3, 4 },
+    { 2, 0 },
+    { 1, 6 },
+    { 0, 5 },
+    { 6, 2 },
+    { 1, 3 },
+    { 1, 4 },
+    { 5, 2 },
+    { 6, 0 },
+    { 4, 2 },
+    { 0, 3 },
+    { 5, 6 },
+};
+static const int EIGHT_TEAM_MATCHUPS[28][2] = {
+    { 4, 0 },
+    { 1, 5 },
+    { 7, 3 },
+    { 2, 6 },
+    { 6, 1 },
+    { 0, 5 },
+    { 3, 4 },
+    { 7, 2 },
+    { 5, 3 },
+    { 2, 4 },
+    { 1, 7 },
+    { 6, 0 },
+    { 0, 7 },
+    { 3, 6 },
+    { 5, 2 },
+    { 4, 1 },
+    { 3, 2 },
+    { 7, 6 },
+    { 0, 1 },
+    { 4, 5 },
+    { 5, 7 },
+    { 2, 0 },
+    { 6, 4 },
+    { 1, 3 },
+    { 2, 1 },
+    { 4, 7 },
+    { 6, 5 },
+    { 0, 3 },
+};
+
+void GameInfoManager::SetupRoundRobinSchedule(eTeamID* lineup, eSidekickID* sklineup)
 {
+    eGameModes gamemode = mCurrentMode;
+    int numplayingteams = GetNumPlayingTeams();
+    int numRounds = mCurrentCup->GetNumRounds();
+    int numGamesPerRound;
+    int home;
+    int away;
+    unsigned char superRounds;
+    int superOffset;
+    eStadiumID lastHumanStadium;
+    eStadiumID currentStadium;
+    int i;
+    int j;
+    BasicGameInfo* g;
+
+    if (mDoingKnockout)
+    {
+        numGamesPerRound = mPreviousCup->GetNumTeams() / 2;
+    }
+    else
+    {
+        numGamesPerRound = GetNumPlayingTeams() / 2;
+    }
+
+    mLastHumanStadium = STAD_INVALID;
+    superRounds = 0;
+    superOffset = 0;
+    lastHumanStadium = STAD_INVALID;
+
+    {
+        bool isRegularCup = (mCurrentMode < GM_SUPER_MUSHROOM_CUP && mCurrentMode >= GM_MUSHROOM_CUP);
+        if (!isRegularCup)
+        {
+            bool isSuperCup = (mCurrentMode < GM_TOURNAMENT && mCurrentMode >= GM_SUPER_MUSHROOM_CUP);
+            if (!isSuperCup)
+            {
+                if (gamemode != GM_TOURNAMENT)
+                {
+                    return;
+                }
+            }
+        }
+    }
+
+    if (gamemode == GM_BOWSER_CUP)
+    {
+        mCurrentCup = &mBowserCupSeries;
+    }
+    else if (gamemode == GM_SUPER_BOWSER_CUP)
+    {
+        mCurrentCup = &mSuperBowserCupSeries;
+    }
+
+    mCurrentCup->mRoundNumber = -6;
+    mDoingKnockout = false;
+
+    for (i = 0; i < numRounds; i++)
+    {
+        if (i == numplayingteams - (numplayingteams % 2))
+        {
+            superRounds = 1;
+            superOffset = i;
+        }
+
+        for (j = 0; j < numGamesPerRound; j++)
+        {
+            int matchupIdx = numGamesPerRound * (i - superOffset) + j;
+
+            switch (GetNumPlayingTeams())
+            {
+            case 3:
+                home = THREE_TEAM_MATCHUPS[matchupIdx][0];
+                away = THREE_TEAM_MATCHUPS[matchupIdx][1];
+                break;
+            case 4:
+                home = FOUR_TEAM_MATCHUPS[matchupIdx][0];
+                away = FOUR_TEAM_MATCHUPS[matchupIdx][1];
+                break;
+            case 5:
+                home = FIVE_TEAM_MATCHUPS[matchupIdx][0];
+                away = FIVE_TEAM_MATCHUPS[matchupIdx][1];
+                break;
+            case 6:
+                home = SIX_TEAM_MATCHUPS[matchupIdx][0];
+                away = SIX_TEAM_MATCHUPS[matchupIdx][1];
+                break;
+            case 7:
+                home = SEVEN_TEAM_MATCHUPS[matchupIdx][0];
+                away = SEVEN_TEAM_MATCHUPS[matchupIdx][1];
+                break;
+            case 8:
+                home = EIGHT_TEAM_MATCHUPS[matchupIdx][0];
+                away = EIGHT_TEAM_MATCHUPS[matchupIdx][1];
+                break;
+            }
+
+            g = mCurrentCup->GetGameInfo(i, j);
+            g->mTeamIndex[0] = TEAM_MARIO;
+            g->mTeamIndex[1] = TEAM_LUIGI;
+            g->mSidekickIndex[0] = SK_TOAD;
+            g->mSidekickIndex[1] = SK_KOOPA;
+            g->mFinalScore[1] = 0;
+            g->mFinalScore[0] = 0;
+            g->mPadSides[0] = -1;
+            g->mPadSides[1] = -1;
+            g->mPadSides[2] = -1;
+            g->mPadSides[3] = -1;
+            g->mStadiumIndex = STAD_MARIO_STADIUM;
+
+            if (!superRounds)
+            {
+                g->mTeamIndex[0] = lineup[home];
+                g->mTeamIndex[1] = lineup[away];
+                g->mSidekickIndex[0] = sklineup[home];
+                g->mSidekickIndex[1] = sklineup[away];
+            }
+            else
+            {
+                g->mTeamIndex[0] = lineup[away];
+                g->mTeamIndex[1] = lineup[home];
+                g->mSidekickIndex[0] = sklineup[away];
+                g->mSidekickIndex[1] = sklineup[home];
+            }
+
+            if (i == numRounds - 1 && gamemode != GM_BOWSER_CUP && gamemode != GM_SUPER_BOWSER_CUP)
+            {
+                currentStadium = PickStadium(true, lastHumanStadium);
+                g->mStadiumIndex = currentStadium;
+            }
+            else
+            {
+                currentStadium = PickStadium(false, lastHumanStadium);
+                g->mStadiumIndex = currentStadium;
+            }
+
+            if ((mCurrentCup->mHumanTeams & (1 << g->mTeamIndex[0])) || (mCurrentCup->mHumanTeams & (1 << g->mTeamIndex[1])))
+            {
+                lastHumanStadium = currentStadium;
+            }
+        }
+
+        *mCurrentCup->GetRoundResults(i) = 1;
+    }
+
+    {
+        TeamStats* teamstats = mCurrentCup->GetTeamStats(0);
+        for (int k = 0; k < numplayingteams; k++)
+        {
+            eTeamID teamID = lineup[k];
+            memset(&teamstats->mPlayerTotalStats, 0, sizeof(PlayerStats));
+            teamstats->mPlayerTotalStats.mRecordType.mTeamID = teamID;
+            teamstats->mPlayerTotalStats.mType = TYPE_TEAM;
+            teamstats->mTeamIndex = teamID;
+            teamstats->mNumWins = 0;
+            teamstats->mNumLosses = 0;
+            teamstats->mNumOTLosses = 0;
+            teamstats->mNumPoints = 0;
+            teamstats++;
+        }
+    }
+
+    mCurrentCup->mCupStarted = true;
 }
 
 /**
@@ -2411,13 +2670,19 @@ static eTrophyType MILESTONES[5] = {
  */
 void GameInfoManager::OnPreCupGameState()
 {
+    extern bool IsSuperCupModeUnlocked__15GameInfoManagerCFv(const GameInfoManager*);
+
     eTrophyType tourneyCup = INVALID_TROPHY;
     int i;
-    TeamStats userTeam;
-    TeamStats opponentTeam;
-    TeamStats highestTeam;
+    int userTeamBuf[16];
+    int opponentTeamBuf[16];
+    int highestTeamBuf[16];
+    TeamStats* userTeam = (TeamStats*)userTeamBuf;
+    TeamStats* opponentTeam = (TeamStats*)opponentTeamBuf;
+    TeamStats* highestTeam = (TeamStats*)highestTeamBuf;
     int highPoints;
-    TeamStats team;
+    int teamBuf[16];
+    TeamStats* team = (TeamStats*)teamBuf;
 
     switch (mCurrentMode)
     {
@@ -2453,21 +2718,41 @@ void GameInfoManager::OnPreCupGameState()
     {
         mPreGameUnlockedState |= 0x1;
     }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
+    }
     if (CheckUnlockStatus(isYoshiUnlocked, mUserInfo.mTrophies[0], 1))
     {
         mPreGameUnlockedState |= 0x2;
+    }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
     }
     if (CheckUnlockStatus(isForbiddenUnlocked, mUserInfo.mTrophies[0], 2))
     {
         mPreGameUnlockedState |= 0x4;
     }
-    if (IsSuperCupModeUnlocked())
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
+    }
+    if (IsSuperCupModeUnlocked__15GameInfoManagerCFv(this))
     {
         mPreGameUnlockedState |= 0x8;
+    }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
     }
     if (CheckUnlockStatus(isSuperTeamUnlocked, mUserInfo.mTrophies[0], 3))
     {
         mPreGameUnlockedState |= 0x10;
+    }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
     }
 
     mPreGameUnlockedState |= 0x20;
@@ -2476,30 +2761,58 @@ void GameInfoManager::OnPreCupGameState()
     {
         mPreGameUnlockedState |= 0x40;
     }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
+    }
     if (CheckUnlockStatus(isAllSTSUnlocked, mUserInfo.mTrophies[0], 4))
     {
         mPreGameUnlockedState |= 0x80;
+    }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
     }
     if (CheckUnlockStatus(isTiltUnlocked, mUserInfo.mTrophies[0], 5))
     {
         mPreGameUnlockedState |= 0x100;
     }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
+    }
     if (CheckUnlockStatus(isGoalieUnlocked, mUserInfo.mTrophies[0], 6))
     {
         mPreGameUnlockedState |= 0x2000;
     }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
+    }
     if (CheckUnlockStatus(isUnlimitedUnlocked, mUserInfo.mTrophies[0], 7))
     {
         mPreGameUnlockedState |= 0x200;
+    }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
     }
 
     if (mUserInfo.mIsFlowerCupUnlocked)
     {
         mPreGameUnlockedState |= 0x400;
     }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
+    }
     if (mUserInfo.mIsStarCupUnlocked)
     {
         mPreGameUnlockedState |= 0x800;
+    }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
     }
 
     if (CheckUnlockStatus(isKongaUnlocked, mUserInfo.mTrophies[0], 0)
@@ -2507,10 +2820,18 @@ void GameInfoManager::OnPreCupGameState()
     {
         mPreGameUnlockedState |= 0x1000;
     }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
+    }
 
     if (CheckUnlockStatus(false, mUserInfo.mTrophies[0], 3))
     {
         mPreGameUnlockedState |= 0x4000;
+    }
+    else
+    {
+        *(volatile u32*)&mPreGameUnlockedState = mPreGameUnlockedState;
     }
 
     if (CheckUnlockStatus(false, mUserInfo.mTrophies[tourneyCup / 8], (unsigned int)tourneyCup % 8))
@@ -2564,17 +2885,17 @@ void GameInfoManager::OnPreCupGameState()
 
     for (i = 0; i < mCurrentCup->GetNumTeams(); i++)
     {
-        team = *mCurrentCup->GetTeamStats((unsigned short)i);
+        *team = *mCurrentCup->GetTeamStats((unsigned short)i);
 
-        if (team.mNumPoints > highPoints)
+        if (team->mNumPoints > highPoints)
         {
-            highestTeam = team;
-            highPoints = team.mNumPoints;
+            *highestTeam = *team;
+            highPoints = team->mNumPoints;
         }
 
-        if (team.mTeamIndex == mCurrentCup->mUserSelectedTeam)
+        if (team->mTeamIndex == mCurrentCup->mUserSelectedTeam)
         {
-            userTeam = team;
+            *userTeam = *team;
         }
         else
         {
@@ -2588,26 +2909,26 @@ void GameInfoManager::OnPreCupGameState()
                 team1 = gameInfo->mTeamIndex[1];
             }
 
-            if (team.mTeamIndex == team0 || team.mTeamIndex == team1)
+            if (team->mTeamIndex == team0 || team->mTeamIndex == team1)
             {
-                opponentTeam = team;
+                *opponentTeam = *team;
             }
         }
     }
 
-    if (userTeam.mNumPoints >= opponentTeam.mNumPoints && userTeam.mNumPoints >= highestTeam.mNumPoints + 3)
+    if (userTeam->mNumPoints >= opponentTeam->mNumPoints && userTeam->mNumPoints >= highestTeam->mNumPoints + 3)
     {
         mCupMatchRequirement = RESULT_CUP_WIN;
     }
-    else if (userTeam.mNumPoints + 1 >= opponentTeam.mNumPoints && userTeam.mNumPoints + 1 >= highestTeam.mNumPoints + 3)
+    else if (userTeam->mNumPoints + 1 >= opponentTeam->mNumPoints && userTeam->mNumPoints + 1 >= highestTeam->mNumPoints + 3)
     {
         mCupMatchRequirement = RESULT_USER_OT_LOSES;
     }
-    else if (userTeam.mNumPoints + 3 >= opponentTeam.mNumPoints && userTeam.mNumPoints + 3 >= highestTeam.mNumPoints + 1)
+    else if (userTeam->mNumPoints + 3 >= opponentTeam->mNumPoints && userTeam->mNumPoints + 3 >= highestTeam->mNumPoints + 1)
     {
         mCupMatchRequirement = RESULT_USER_OT_WINS;
     }
-    else if (userTeam.mNumPoints + 3 >= opponentTeam.mNumPoints && userTeam.mNumPoints + 3 >= highestTeam.mNumPoints)
+    else if (userTeam->mNumPoints + 3 >= opponentTeam->mNumPoints && userTeam->mNumPoints + 3 >= highestTeam->mNumPoints)
     {
         mCupMatchRequirement = RESULT_USER_WINS;
     }
@@ -3034,12 +3355,19 @@ signed char GameInfoManager::DetermineUserPlacement(Spoil* pSpoil)
 
 /**
  * Offset/Address/Size: 0x196C | 0x80177010 | size: 0x43C
- * TODO: 84.71% match - stmw r26 vs r27, stack frame 0x80 vs 0x90.
- * Compiler puts userTeam in callee-saved r26 instead of spilling to stack.
- * Likely register allocation heuristic difference in decomp.me context.
+ * TODO: 84.75% match - stack frame and register allocation around local record setup
+ * and CupHistory shift loop still differ from target.
  */
 void GameInfoManager::TimeStampCupEnd()
 {
+    struct CupRecordRaw
+    {
+        OSCalendarTime mDate;
+        signed char mPlace;
+        eTeamID mTeam;
+        GameplaySettings::eSkillLevel mDifficulty;
+    };
+
     eTrophyType trophy = INVALID_TROPHY;
 
     switch (mCurrentMode)
@@ -3077,7 +3405,7 @@ void GameInfoManager::TimeStampCupEnd()
     signed char userPlace = 0;
     eTeamID userTeam = TEAM_INVALID;
     GameplaySettings::eSkillLevel skill = GameplaySettings::ROOKIE;
-    CupRecord record;
+    CupRecordRaw record;
 
     memset(&calendar, 0, sizeof(calendar));
     OSTicksToCalendarTime(OSGetTime(), &calendar);
@@ -3103,7 +3431,7 @@ void GameInfoManager::TimeStampCupEnd()
         pSpoil->mCupHistory[i] = pSpoil->mCupHistory[i - 1];
     }
 
-    pSpoil->mCupHistory[0] = record;
+    pSpoil->mCupHistory[0] = *(CupRecord*)&record;
 
     if (pSpoil->mNumWins > 999)
     {
@@ -3122,9 +3450,9 @@ void GameInfoManager::TimeStampCupEnd()
 
     pSpoil->mCurrentChamp = FindWinningTeam();
 
-    pSpoil->mIsCPUChamp = (mCurrentCup->mUserSelectedTeam != pSpoil->mCurrentChamp);
+    pSpoil->mIsCPUChamp = (pSpoil->mCurrentChamp != mCurrentCup->mUserSelectedTeam);
 
-    if (mCurrentCup->mUserSelectedTeam == pSpoil->mCurrentChamp)
+    if (pSpoil->mCurrentChamp == mCurrentCup->mUserSelectedTeam)
     {
         pSpoil->mNumCupWins++;
 

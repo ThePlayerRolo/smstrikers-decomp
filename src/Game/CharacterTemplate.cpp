@@ -517,8 +517,8 @@ void CreateCharacters()
 
 /**
  * Offset/Address/Size: 0xE70 | 0x80013158 | size: 0x634
- * TODO: 66.69% match - scan loops unroll by 5 instead of target's 10 (MWCC build difference),
- * lbzu vs lbz pattern, bne+b vs beq branch in hierarchy search, register allocation diffs
+ * TODO: 85.70% match - early goalie texture load still differs in lbzu/lbz addressing,
+ * and hierarchy/retarget blocks still have branch-shape and register-allocation mismatches.
  */
 cPlayer* CreateGoalie(eCharacterClass gcc, bool bForViewer)
 {
@@ -607,16 +607,93 @@ hierFound:
 
     szPath = g_GoalieTemplateInfo.szTextureFilename;
     pStart = NULL;
-    for (i = 0; i < 100; i++)
+    i = 0;
+    for (int j = 0; j < 10; j++)
     {
-        char c = szPath[i];
+        char c = szPath[0];
         if (c == '\\' || c == '/')
         {
-            pStart = &szPath[i + 1];
-            break;
+            pStart = szPath + i + 1;
+            goto foundSlash1;
         }
+
+        c = szPath[1];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[2];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[3];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[4];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[5];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[6];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[7];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[8];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        c = szPath[9];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash1;
+        }
+
+        i++;
+        szPath += 10;
     }
 
+foundSlash1:
     pDst = buf1;
     for (i = 0; i < 100; i++)
     {
@@ -634,16 +711,93 @@ copyDone1:
 
     szPath = g_GoalieTextureInfo[goalieIdx].szTextureFilename;
     pStart = NULL;
-    for (i = 0; i < 100; i++)
+    i = 0;
+    for (int j = 0; j < 10; j++)
     {
-        char c = szPath[i];
+        char c = szPath[0];
         if (c == '\\' || c == '/')
         {
-            pStart = &szPath[i + 1];
-            break;
+            pStart = szPath + i + 1;
+            goto foundSlash2;
         }
+
+        c = szPath[1];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[2];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[3];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[4];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[5];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[6];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[7];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[8];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        c = szPath[9];
+        i++;
+        if (c == '\\' || c == '/')
+        {
+            pStart = szPath + i + 1;
+            goto foundSlash2;
+        }
+
+        i++;
+        szPath += 10;
     }
 
+foundSlash2:
     pDst = buf2;
     for (i = 0; i < 100; i++)
     {

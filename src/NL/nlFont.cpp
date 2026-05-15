@@ -350,7 +350,7 @@ void nlFont::DrawString(eGLView View, const FontCharString& Text, const nlVector
 /**
  * Offset/Address/Size: 0x830 | 0x8021116C | size: 0x9C0
  */
-void nlFont::Load(const char* szFontName, char* pFontDescData, unsigned long HashId)
+unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned long HashId)
 {
     char* pCurrentLine;
     ListContainerBase<nlFont::KernPair, BasicSlotPoolHigh<ListEntry<nlFont::KernPair> > > KernList;
@@ -701,6 +701,7 @@ void nlFont::Load(const char* szFontName, char* pFontDescData, unsigned long Has
     KernList.m_Head = NULL;
     KernList.m_Tail = NULL;
     SlotPoolBase::BaseFreeBlocks(&KernList.m_Allocator, sizeof(ListEntry<nlFont::KernPair>));
+    return 1;
 }
 
 /**

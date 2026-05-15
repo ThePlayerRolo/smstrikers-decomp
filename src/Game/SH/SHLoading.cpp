@@ -157,9 +157,8 @@ SuperLoadingScene::~SuperLoadingScene()
 
 /**
  * Offset/Address/Size: 0x1428 | 0x800A7B98 | size: 0x520
- * TODO: 47.58% match - r28/r29 register swap (team1 vs bundleFile),
- * InlineHasher argument copy pattern differs from target.
- * File uses -inline deferred. Compiler-internal allocation.
+ * TODO: 66.91% match - remaining diffs in InlineHasher argument copy sequence
+ * and register usage around hash/FEFinder setup blocks.
  */
 void SuperLoadingScene::SceneCreated()
 {
@@ -174,9 +173,10 @@ void SuperLoadingScene::SceneCreated()
     }
 
     eTeamID team1 = nlSingleton<GameInfoManager>::s_pInstance->GetTeam(1);
+    BundleFile* bundleFile;
     eTeamID team0 = nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0);
 
-    BundleFile* bundleFile = new (nlMalloc(sizeof(BundleFile), 0x20, true)) BundleFile();
+    bundleFile = new (nlMalloc(sizeof(BundleFile), 0x20, true)) BundleFile();
     bundleFile->Open("art/fe/LoadingScreensUI.Res");
 
     {
@@ -210,19 +210,33 @@ void SuperLoadingScene::SceneCreated()
     delete bundleFile;
 
     TLSlide* slide = pres->m_currentSlide;
-    InlineHasher h1, h2, h3(0), h4(0), h5(0), h6(0);
 
-    h2.m_Hash = nlStringLowerHash("leftimage");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    mImageInstances[0][0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    mImageInstances[0][0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
+        slide,
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("leftimage")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
-    h2.m_Hash = nlStringLowerHash("rightimage");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    mImageInstances[1][0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    mImageInstances[1][0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
+        slide,
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("rightimage")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
-    h2.m_Hash = nlStringLowerHash("stadiumname");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    TLTextInstance* stadiumText = FEFinder<TLTextInstance, 3>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    TLTextInstance* stadiumText = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+        slide,
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("stadiumname")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
     if (stadiumText != NULL)
     {
         stadiumText->m_LocStrId = GetStadiumStringID(nlSingleton<GameInfoManager>::s_pInstance->GetStadium());
@@ -231,9 +245,14 @@ void SuperLoadingScene::SceneCreated()
 
     DisplayCupInfo();
 
-    h2.m_Hash = nlStringLowerHash("period");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    TLComponentInstance* periodComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    TLComponentInstance* periodComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+        slide,
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("period")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
     if (periodComp != NULL)
     {
         if (g_Language == 2)
@@ -242,17 +261,27 @@ void SuperLoadingScene::SceneCreated()
             periodComp->m_bVisible = false;
     }
 
-    h2.m_Hash = nlStringLowerHash("playersleft");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    TLTextInstance* playersLeft = FEFinder<TLTextInstance, 3>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    TLTextInstance* playersLeft = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+        slide,
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("playersleft")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
     if (playersLeft != NULL)
     {
         BuildPlayerStrings(playersLeft, 0, false);
     }
 
-    h2.m_Hash = nlStringLowerHash("playersright");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    TLTextInstance* playersRight = FEFinder<TLTextInstance, 3>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    TLTextInstance* playersRight = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+        slide,
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("playersright")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
     if (playersRight != NULL)
     {
         BuildPlayerStrings(playersRight, 1, false);
@@ -310,39 +339,55 @@ void SuperLoadingScene::Update(float fDeltaT)
 
 /**
  * Offset/Address/Size: 0x3C4 | 0x800A6B34 | size: 0xF60
- * TODO: 64.10% match - stack/local layout and FEFinder hasher temporary
- * ordering differ from target, and early slide/presentation access path is
- * still different.
+ * TODO: 79.24% match - stack frame/local register allocation still diverges;
+ * FE hash setup temporaries and TeamStats ctor inlining order remain
+ * mismatched.
  */
+inline TeamStats::TeamStats()
+{
+    memset(&mPlayerTotalStats, 0, sizeof(mPlayerTotalStats));
+    mPlayerTotalStats.mRecordType.mTeamID = TEAM_MARIO;
+    mPlayerTotalStats.mType = TYPE_TEAM;
+    mTeamIndex = TEAM_MARIO;
+    mNumWins = 0;
+    mNumLosses = 0;
+    mNumOTLosses = 0;
+    mNumPoints = 0;
+}
+
 void SuperLoadingScene::DisplayCupInfo()
 {
-    TLSlide* slide = m_pFEScene->m_pFEPackage->GetPresentation()->m_currentSlide;
-    InlineHasher h1;
-    InlineHasher h2;
-    InlineHasher h3(0);
-    InlineHasher h4(0);
-    InlineHasher h5(0);
-    InlineHasher h6(0);
-
+    TLSlide* slide = m_pFEPresentation->m_currentSlide;
+    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
     TLTextInstance* statsText[4];
 
-    h2.m_Hash = nlStringLowerHash("stats_left1");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    statsText[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    {
+        InlineHasher h2(nlStringLowerHash("stats_left1"));
+        InlineHasher h1(nlStringLowerHash("Layer"));
+        statsText[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+            slide, h1, h2, InlineHasher(0), InlineHasher(0), InlineHasher(0), InlineHasher(0));
+    }
 
-    h2.m_Hash = nlStringLowerHash("stats_left2");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    statsText[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    {
+        InlineHasher h2(nlStringLowerHash("stats_left2"));
+        InlineHasher h1(nlStringLowerHash("Layer"));
+        statsText[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+            slide, h1, h2, InlineHasher(0), InlineHasher(0), InlineHasher(0), InlineHasher(0));
+    }
 
-    h2.m_Hash = nlStringLowerHash("stats_right1");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    statsText[2] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
+    {
+        InlineHasher h2(nlStringLowerHash("stats_right1"));
+        InlineHasher h1(nlStringLowerHash("Layer"));
+        statsText[2] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+            slide, h1, h2, InlineHasher(0), InlineHasher(0), InlineHasher(0), InlineHasher(0));
+    }
 
-    h2.m_Hash = nlStringLowerHash("stats_right2");
-    h1.m_Hash = nlStringLowerHash("Layer");
-    statsText[3] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(slide, h1, h2, h3, h4, h5, h6);
-
-    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+    {
+        InlineHasher h2(nlStringLowerHash("stats_right2"));
+        InlineHasher h1(nlStringLowerHash("Layer"));
+        statsText[3] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+            slide, h1, h2, InlineHasher(0), InlineHasher(0), InlineHasher(0), InlineHasher(0));
+    }
 
     if (!gameInfo->IsInCupOrTournamentMode() || (gameInfo->IsInCupMode() && gameInfo->mDoingKnockout)
         || (gameInfo->IsInTournamentMode() && gameInfo->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT))
@@ -392,7 +437,7 @@ void SuperLoadingScene::DisplayCupInfo()
     }
 
     {
-        unsigned long key = 0x18CDD978;
+        unsigned long key = 0x18CDE978;
         nlLocalization* loc = g_pLocalization;
         const unsigned short* locString;
 
@@ -442,7 +487,7 @@ void SuperLoadingScene::DisplayCupInfo()
     }
 
     {
-        unsigned long key = 0x18CDD978;
+        unsigned long key = 0x18CDE978;
         nlLocalization* loc = g_pLocalization;
         const unsigned short* locString;
 
@@ -468,13 +513,14 @@ void SuperLoadingScene::DisplayCupInfo()
 
     for (int i = 0; i < numTeams; i++)
     {
-        allTeamStats[i] = gameInfo->mPreviousTeamStats[i];
+        TeamStats teamStats = gameInfo->mPreviousTeamStats[i];
+        allTeamStats[i] = teamStats;
 
-        if (allTeamStats[i].mTeamIndex == gameInfo->GetTeam(0))
+        if (teamStats.mTeamIndex == gameInfo->GetTeam(0))
         {
             homeAwayIndex[0] = i;
         }
-        else if (allTeamStats[i].mTeamIndex == gameInfo->GetTeam(1))
+        else if (teamStats.mTeamIndex == gameInfo->GetTeam(1))
         {
             homeAwayIndex[1] = i;
         }

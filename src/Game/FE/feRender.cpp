@@ -183,7 +183,6 @@ unsigned char FERender::RenderImageInstance(const TLImageInstance* pTLImageInsta
 
 /**
  * Offset/Address/Size: 0x3BC | 0x8020A644 | size: 0xD0
- * TODO: 98.85% match - 1 instruction scheduling diff: lfs f1,8(r4) scheduled before fmuls f3 instead of after. Compiler pipeline heuristic, not controllable from source.
  */
 void FERender::RenderTextInstance(TLTextInstance* textInstance)
 {
@@ -196,7 +195,10 @@ void FERender::RenderTextInstance(TLTextInstance* textInstance)
     textInstance->m_DrawInfo.pMatrix = &combinedMatrix;
 
     nlColour colour;
-    ConvertColour(colour, s_currentAssetColour);
+    colour.c[0] = (s32)(s_currentAssetColour.c[0] * 255.0f);
+    colour.c[1] = (s32)(s_currentAssetColour.c[1] * 255.0f);
+    colour.c[2] = (s32)(s_currentAssetColour.c[2] * 255.0f);
+    colour.c[3] = (s32)(s_currentAssetColour.c[3] * 255.0f);
 
     textInstance->Render((eGLView)(m_pRenderScene->m_uRenderView), colour);
 }
@@ -245,13 +247,17 @@ void FERender::RenderPresentation(const FEPresentation* presentation)
 
 /**
  * Offset/Address/Size: 0x528 | 0x8020A7B0 | size: 0x42C
- * TODO: 94% match - MWCC inline budget causes grandchild operator= to be inlined
- * (5 extra instructions) instead of calling bl __as__13nlFloatColourFRC13nlFloatColour.
- * Register allocation cascade and stack offset diffs all trace to this root cause.
- * Also need IsVisible and GetLibRefObject body stripping in scratch context.
+ * TODO: 92.2% match - same MWCC register-allocator coloring as RenderSlide:
+ * outer-loop instance/nextInstance and inner-loop child/nextChild swap pairs
+ * vs target, plus v3Pos/oldChildColour stack-slot swap. No opcode diffs.
+ * ConvertColour kept as a real call via #pragma inline_depth(0)/() around the
+ * TLAT_TEXT call site; grandchild operator= is forced via the extern __as__
+ * declaration above. The combination of pragma here + pragma in RenderSlide is
+ * the local optimum; removing either regresses the other by more than it gains.
  */
 void FERender::RenderComponentInstance(TLComponentInstance* componentInstance)
 {
+    extern nlFloatColour& __as__13nlFloatColourFRC13nlFloatColour(nlFloatColour*, const nlFloatColour&);
     TLComponent* component = ((TLInstance*)componentInstance)->m_component;
     if (component == 0)
     {
@@ -333,7 +339,9 @@ void FERender::RenderComponentInstance(TLComponentInstance* componentInstance)
                 ((TLTextInstance*)instance)->SetMatrix(&textMatrix);
 
                 nlColour colour;
+#pragma inline_depth(0)
                 ConvertColour(colour, s_currentAssetColour);
+#pragma inline_depth()
 
                 ((TLTextInstance*)instance)->Render((eGLView)m_pRenderScene->GetRenderView(), colour);
                 break;
@@ -394,7 +402,7 @@ void FERender::RenderComponentInstance(TLComponentInstance* componentInstance)
 
                                 RenderTimeLineAsset(grandchild, time);
 
-                                s_currentAssetColour = oldGrandchildColour;
+                                __as__13nlFloatColourFRC13nlFloatColour(&s_currentAssetColour, oldGrandchildColour);
 
                                 if (grandchild == child->pChildren)
                                 {
@@ -435,11 +443,13 @@ void FERender::RenderComponentInstance(TLComponentInstance* componentInstance)
 
 /**
  * Offset/Address/Size: 0x978 | 0x8020AC00 | size: 0x418
- * TODO: 98.47% match - MWCC register allocation: instance r30 vs target r28,
- * child r28 vs target r29, grandchild r23/r22 swapped. Stack layout also differs
- * (v3Pos at 0x2c vs target 0x1c, oldChildColour at 0x1c vs target 0x28).
- * Root cause: MWCC inline budget causes mixed operator= inlining (grandchild bl,
- * child/outer inline) which can't be reproduced without manual 4-word copies.
+ * TODO: 98.84% match - MWCC register allocation: instance r30 vs target r28,
+ * nextInstance r29 vs target r27, child r28 vs target r29, nextChild r27 vs
+ * target r30, grandchild r23/r22 swapped. Stack: v3Pos at 0x2c vs target 0x1c,
+ * oldChildColour at 0x1c vs target 0x28 (v3Pos and oldChildColour swapped in
+ * frame). No opcode or control-flow diffs — purely allocator choices.
+ * ConvertColour kept as a real call via #pragma inline_depth(0)/() around the
+ * TLAT_TEXT call site (call-site-local rather than body-level FDI).
  */
 void FERender::RenderSlide(const TLSlide* slide)
 {
@@ -512,7 +522,9 @@ void FERender::RenderSlide(const TLSlide* slide)
                 ((TLTextInstance*)instance)->SetMatrix(&textMatrix);
 
                 nlColour colour;
+#pragma inline_depth(0)
                 ConvertColour(colour, s_currentAssetColour);
+#pragma inline_depth()
 
                 ((TLTextInstance*)instance)->Render((eGLView)m_pRenderScene->GetRenderView(), colour);
                 break;

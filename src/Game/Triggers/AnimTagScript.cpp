@@ -45,13 +45,13 @@ extern "C" void AnimControllerCB__24AnimTagScriptInterpreterFUi(unsigned int);
  */
 void AnimTagScriptInterpreter::AnimControllerCB(unsigned int)
 {
-    InterpreterCore* pVtbl = *(InterpreterCore**)this;
+    AnimTagScriptInterpreter* pVtbl = *(AnimTagScriptInterpreter**)this;
     unsigned long address = (unsigned long)m_Header;
     if ((address + 0x10000) != 0xFFFF)
     {
         pVtbl->CallFunctionAt(address);
     }
-    pVtbl->DoFunctionCall(m_Return);
+    pVtbl->TriggerFired(m_Return);
 }
 
 /**

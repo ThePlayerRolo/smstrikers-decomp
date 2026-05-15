@@ -418,53 +418,340 @@ void cPlayer::ClearPowerupAnimState(bool bIsEndGame)
 /**
  * Offset/Address/Size: 0xA10 | 0x80057F60 | size: 0xBCC
  */
-void cPlayer::DoRegularPassing(cPlayer* pTeammate, bool bVolleyPass, bool bAllowLeadPass, bool unk1, bool unk2)
+static const nlVector3 v3Zero = { 0.0f, 0.0f, 0.0f };
+
+void cPlayer::DoRegularPassing(cPlayer* pTeammate, bool bVolleyPass, bool bAllowLeadPass, bool bParam3, bool bParam4)
 {
-    class cFielder * pPassTarget; // r30
-    unsigned char bLeadPass; // r29
-    class nlVector3 teammateLeadPassVelocity; // r1+0x50
-    class nlVector3 v3PassIntercept; // r1+0x44
-    float fPassGroundSpeed; // f30
-    class nlVector3 suggestedPassDirection; // r1+0x38
-    class nlVector3 suggestedPassTarget; // r1+0x2C
-    float fLeadPassSpeed; // f28
-    unsigned char calcPassIntercept; // r28
-    float speedToSuggestedPassTarget; // f28
-    float fNewPassGroundSpeed; // f1
-    int nNumSolutions; // r1+0x8
-    float pSolutions[2]; // r1+0xC
-    float t; // f3
-    class nlVector3 v3PassVelocity; // r1+0x20
-    float fPassTime; // f30
-    unsigned short aContactFacingDirection; // r28
-    const struct LooseBallContactAnimInfo * pBestContactAnimInfo; // r27
-    class nlVector3 v3ContactOffset; // r1+0x14
-    enum eSpinType Spin; // r25
-    unsigned char bBadVolleyPass; // r24
-    struct PassBallData * pEventData; // r0
-    class cFielder * pPasser; // r0
-
-    g_pBall->m_tNoPickupTimer.SetSeconds(0.1f); // g_pBall + 0x0c
-                                                //
-    if (bAllowLeadPass && ((cFielder*)pTeammate)->ShouldILeadPass()) {
-        Fuzzy::GetPassDirection(this, pTeammate);
-        // r3 = 0x78
-        // r4 = 0x08
-        // r5 = 0x00
-
-        SSearchBestPass* bestPass = (SSearchBestPass*) nlMalloc(0x78, 0x8, 0);
-        // r24 = r3 = return di nlMalloc
-        // r4 = r30 = this
-        // r5 = r29 = pTeammate
-        // r6 = 
-        if (bestPass != nullptr) {
-            bestPass = new (bestPass) SSearchBestPass(this, pTeammate, bVolleyPass, unk1);
+    g_pBall->m_tNoPickupTimer.SetSeconds(0.1f);
+    float fPassGroundSpeed = 0.0f;
+    g_pBall->mbIsPerfectShot = bVolleyPass;
+    nlVector3 v3PassIntercept = { 0.0f, 0.0f, 0.0f };
+    bool calcPassIntercept = false;
+    nlVector3 teammateLeadPassVelocity;
+    bool bLeadPass = false;
+    if (bAllowLeadPass)
+    {
+        if (((cFielder*)pTeammate)->ShouldILeadPass())
+        {
+            int direction = Fuzzy::GetPassDirection(this, pTeammate).mData.i;
+            SSearchBestPass* pNewSearch = new (nlMalloc(sizeof(SSearchBestPass), 8, false)) SSearchBestPass(this, pTeammate, bVolleyPass, bParam3);
+            if (pTeammate->m_pSpaceSearch != NULL)
+            {
+                delete pTeammate->m_pSpaceSearch;
+            }
+            pTeammate->m_pSpaceSearch = pNewSearch;
+            pTeammate->m_pSpaceSearch->m_bDebugOn = false;
+            nlVector3 suggestedPassTarget;
+            float fSearchScore = pTeammate->m_pSpaceSearch->FindBestPosition(suggestedPassTarget, pTeammate->m_v3Position, (eFieldDirection)direction, &m_v3Position, 6.0f, 0xAAAA);
+            nlVector3 suggestedPassDirection;
+            suggestedPassDirection.f.y = suggestedPassTarget.f.y - pTeammate->m_v3Position.f.y;
+            suggestedPassDirection.f.x = suggestedPassTarget.f.x - pTeammate->m_v3Position.f.x;
+            suggestedPassDirection.f.z = suggestedPassTarget.f.z - pTeammate->m_v3Position.f.z;
+            float distSq2D = suggestedPassDirection.f.x * suggestedPassDirection.f.x + suggestedPassDirection.f.y * suggestedPassDirection.f.y;
+            if (distSq2D > 1.0f)
+            {
+                float distSq3D = suggestedPassDirection.f.z * suggestedPassDirection.f.z + distSq2D;
+                float fRecipDist = nlRecipSqrt(distSq3D, true);
+                bLeadPass = false;
+                suggestedPassDirection.f.x = fRecipDist * suggestedPassDirection.f.x;
+                suggestedPassDirection.f.y = fRecipDist * suggestedPassDirection.f.y;
+                float fRunningSpeed = pTeammate->m_pTweaks->fRunningSpeed;
+                suggestedPassDirection.f.x = fRecipDist * suggestedPassDirection.f.x;
+                suggestedPassDirection.f.y = fRecipDist * suggestedPassDirection.f.y;
+                suggestedPassDirection.f.z = fRecipDist * suggestedPassDirection.f.z;
+                if (fSearchScore < 0.3f)
+                {
+                    nlPolarToCartesian(teammateLeadPassVelocity.f.x, teammateLeadPassVelocity.f.y, pTeammate->m_aActualFacingDirection, fRunningSpeed);
+                    bLeadPass = true;
+                    teammateLeadPassVelocity.f.z = 0.0f;
+                }
+                else
+                {
+                    float fLength = nlSqrt(suggestedPassDirection.f.x * suggestedPassDirection.f.x + suggestedPassDirection.f.y * suggestedPassDirection.f.y + suggestedPassDirection.f.z * suggestedPassDirection.f.z, true);
+                    float fScale = fRunningSpeed / fLength;
+                    teammateLeadPassVelocity.f.x = fScale * suggestedPassDirection.f.x;
+                    teammateLeadPassVelocity.f.y = fScale * suggestedPassDirection.f.y;
+                    teammateLeadPassVelocity.f.z = fScale * suggestedPassDirection.f.z;
+                }
+                if (bVolleyPass || bParam4)
+                {
+                    float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
+                    fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassVolleySpeedMin, m_pTweaks->fPassVolleySpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
+                    float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, teammateLeadPassVelocity, g_pBall->m_v3Position, v3Zero);
+                    float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
+                    if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+                    {
+                        fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
+                    }
+                    if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
+                    {
+                        fPassGroundSpeed = fAdjustedSpeed;
+                    }
+                    else
+                    {
+                        fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+                    }
+                }
+                else
+                {
+                    float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
+                    fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassGroundSpeedMin, m_pTweaks->fPassGroundSpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
+                    float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, teammateLeadPassVelocity, g_pBall->m_v3Position, v3Zero);
+                    float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
+                    if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+                    {
+                        fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
+                    }
+                    if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
+                    {
+                        fPassGroundSpeed = fAdjustedSpeed;
+                    }
+                    else
+                    {
+                        fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+                    }
+                }
+                if (!bLeadPass)
+                {
+                    float distBallToTarget = nlSqrt((g_pBall->m_v3Position.f.y - suggestedPassTarget.f.y) * (g_pBall->m_v3Position.f.y - suggestedPassTarget.f.y) + (g_pBall->m_v3Position.f.x - suggestedPassTarget.f.x) * (g_pBall->m_v3Position.f.x - suggestedPassTarget.f.x), true);
+                    float fDistToBallSave = distBallToTarget;
+                    float distTeammateToTarget = nlSqrt((pTeammate->m_v3Position.f.y - suggestedPassTarget.f.y) * (pTeammate->m_v3Position.f.y - suggestedPassTarget.f.y) + (pTeammate->m_v3Position.f.x - suggestedPassTarget.f.x) * (pTeammate->m_v3Position.f.x - suggestedPassTarget.f.x), true);
+                    float fTimeBall = distBallToTarget / fPassGroundSpeed;
+                    float fRequiredSpeed = distTeammateToTarget / fTimeBall;
+                    float fJoggingSpeed = pTeammate->m_pTweaks->fJoggingSpeed;
+                    if (fRequiredSpeed < fJoggingSpeed)
+                    {
+                        float fMargin = fJoggingSpeed - fRequiredSpeed;
+                        if (fMargin < 1.4f)
+                        {
+                            float fTimeAtJog = distTeammateToTarget / fJoggingSpeed;
+                            float fAdjustedSpeed2 = fDistToBallSave / fTimeAtJog;
+                            fRequiredSpeed = fJoggingSpeed;
+                            if (fAdjustedSpeed2 > 30.0f)
+                            {
+                                fRequiredSpeed = 0.0f;
+                            }
+                            else
+                            {
+                                fPassGroundSpeed = fAdjustedSpeed2;
+                            }
+                        }
+                    }
+                    if (fRequiredSpeed >= fJoggingSpeed)
+                    {
+                        if (fRequiredSpeed <= pTeammate->m_pTweaks->fRunningSpeed)
+                        {
+                            v3PassIntercept = suggestedPassTarget;
+                            float fVelLength = nlSqrt(teammateLeadPassVelocity.f.x * teammateLeadPassVelocity.f.x + teammateLeadPassVelocity.f.y * teammateLeadPassVelocity.f.y + teammateLeadPassVelocity.f.z * teammateLeadPassVelocity.f.z, true);
+                            float fVelScale = fRequiredSpeed / fVelLength;
+                            teammateLeadPassVelocity.f.z = fVelScale * teammateLeadPassVelocity.f.z;
+                            teammateLeadPassVelocity.f.x = fVelScale * teammateLeadPassVelocity.f.x;
+                            teammateLeadPassVelocity.f.y = fVelScale * teammateLeadPassVelocity.f.y;
+                            calcPassIntercept = true;
+                        }
+                        else
+                        {
+                            bLeadPass = true;
+                        }
+                    }
+                }
+                if (bLeadPass)
+                {
+                    int interceptResult;
+                    float interceptTimes[2];
+                    CalcInterceptXY(g_pBall->m_v3Position, fPassGroundSpeed, 0.0f, pTeammate->m_v3Position, teammateLeadPassVelocity, interceptResult, interceptTimes);
+                    if (interceptResult != 0)
+                    {
+                        float fTime;
+                        if (interceptResult == 2)
+                        {
+                            if (interceptTimes[0] < interceptTimes[1])
+                            {
+                                fTime = interceptTimes[0];
+                            }
+                            else
+                            {
+                                fTime = interceptTimes[1];
+                            }
+                        }
+                        else
+                        {
+                            fTime = interceptTimes[0];
+                        }
+                        v3PassIntercept.f.x = teammateLeadPassVelocity.f.x * fTime + pTeammate->m_v3Position.f.x;
+                        v3PassIntercept.f.z = 0.0f;
+                        v3PassIntercept.f.y = teammateLeadPassVelocity.f.y * fTime + pTeammate->m_v3Position.f.y;
+                        if (!ClipPositionToSidelines(v3PassIntercept, m_pTweaks->fPhysCapsuleRadius))
+                        {
+                            calcPassIntercept = true;
+                        }
+                    }
+                }
+            }
         }
-
-        eFieldDirection temp_r25;
-        float temp_r8 = 6.0f;
-        unsigned short temp_r9 = 0xAAAA;
-        auto ciao = pTeammate->m_pSpaceSearch->FindBestPosition(suggestedPassTarget, pTeammate->m_v3Position, temp_r25, &(this->m_v3Position), temp_r8, temp_r9);
+    }
+    if (!calcPassIntercept)
+    {
+        v3PassIntercept = pTeammate->m_v3Position;
+        if (bVolleyPass)
+        {
+            float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
+            fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassVolleySpeedMin, m_pTweaks->fPassVolleySpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
+            float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, pTeammate->m_v3Velocity, g_pBall->m_v3Position, v3Zero);
+            float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
+            if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+            {
+                fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
+            }
+            if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
+            {
+                fPassGroundSpeed = fAdjustedSpeed;
+            }
+            else
+            {
+                fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+            }
+        }
+        else
+        {
+            float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
+            fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassGroundSpeedMin, m_pTweaks->fPassGroundSpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
+            float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, pTeammate->m_v3Velocity, g_pBall->m_v3Position, v3Zero);
+            float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
+            if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+            {
+                fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
+            }
+            if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
+            {
+                fPassGroundSpeed = fAdjustedSpeed;
+            }
+            else
+            {
+                fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+            }
+        }
+    }
+    if (m_pBall != NULL)
+    {
+        m_pPhysicsCharacter->ReleaseObject();
+        m_pBall->ClearOwner();
+        m_pBall = NULL;
+        float fPossessionTime = m_tBallPossessionTimer.GetSeconds();
+        StatsTracker::Track(STATS_POSSESION_TIME, m_pTeam->m_nSide, m_ID, (s32)(100.0f * fPossessionTime), 0, 0, 0);
+        if (IsPlayingEffect(fxGetGroup("ball_sts_windup")))
+        {
+            StopSFX(Audio::CHARSFX_SHOT_WINDUP);
+            StopSFX(Audio::CHARSFX_EFFORTS_HEAD_SHAKE);
+        }
+        KillWindups(this);
+        StopSFX(Audio::CHARSFX_KICK_ATTEMPT);
+        m_pCharacterSFX->StopMovementLoop();
+    }
+    float fDistToBall = nlSqrt((v3PassIntercept.f.y - g_pBall->m_v3Position.f.y) * (v3PassIntercept.f.y - g_pBall->m_v3Position.f.y) + (v3PassIntercept.f.x - g_pBall->m_v3Position.f.x) * (v3PassIntercept.f.x - g_pBall->m_v3Position.f.x), true);
+    float fTimeToBall = fDistToBall / fPassGroundSpeed;
+    unsigned short facingDirection;
+    if (calcPassIntercept)
+    {
+        facingDirection = (unsigned short)(nlATan2f(teammateLeadPassVelocity.f.y, teammateLeadPassVelocity.f.x) * 10430.378f);
+    }
+    else
+    {
+        facingDirection = (unsigned short)(nlATan2f(g_pBall->m_v3Position.f.y - pTeammate->m_v3Position.f.y, g_pBall->m_v3Position.f.x - pTeammate->m_v3Position.f.x) * 10430.378f);
+    }
+    const LooseBallContactAnimInfo* pAnimInfo = ((cFielder*)pTeammate)->GetReceivePassBallContactAnimInfo(g_pBall, v3PassIntercept, facingDirection, calcPassIntercept, bVolleyPass);
+    nlVector3 ballContactOffset;
+    ((cFielder*)pTeammate)->GetReceivePassBallContactOffset(ballContactOffset, facingDirection, pAnimInfo);
+    eSpinType spinType = SPINTYPE_ROLLING;
+    bool bHighArc = false;
+    v3PassIntercept.f.z += ballContactOffset.f.z;
+    v3PassIntercept.f.y += ballContactOffset.f.y;
+    v3PassIntercept.f.x += ballContactOffset.f.x;
+    nlVector3 velocity;
+    if (bVolleyPass)
+    {
+        g_pBall->ShootAtFast(velocity, v3PassIntercept, fPassGroundSpeed);
+        spinType = SPINTYPE_BACK;
+        if (velocity.f.z > 14.0f)
+        {
+            velocity.f.z = 14.0f;
+            bHighArc = true;
+        }
+    }
+    else
+    {
+        float fInvSpeed = 1.0f / fPassGroundSpeed;
+        float fBallZ = g_pBall->m_v3Position.f.z;
+        float fBallY = g_pBall->m_v3Position.f.y;
+        float fBallX = g_pBall->m_v3Position.f.x;
+        float vz = fInvSpeed * (v3PassIntercept.f.z - fBallZ);
+        float vy = fInvSpeed * (v3PassIntercept.f.y - fBallY);
+        float vx = fInvSpeed * (v3PassIntercept.f.x - fBallX);
+        velocity.f.z = vz;
+        velocity.f.x = vx;
+        velocity.f.y = vy;
+        if (fBallZ < 0.36f)
+        {
+            velocity.f.z = InterpolateRangeClamped(0.5f, 2.0f, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToBall);
+        }
+        else
+        {
+            velocity.f.z = 0.0f;
+        }
+    }
+    g_pBall->ShootRelease(velocity, spinType);
+    m_pPhysicsCharacter->m_CanCollideWithBall = 0;
+    m_tNoPickupTimer.SetSeconds(0.5f);
+    if (((cFielder*)pTeammate)->CanReceivePass())
+    {
+        if (!bHighArc)
+        {
+            Event* pEvent = g_pEventManager->CreateValidEvent(14, 0x24);
+            PassBallData* pData = new (&pEvent->m_data) PassBallData();
+            pData->pPasser = this;
+            pData->pTarget = pTeammate;
+            cGlobalPad* pPad = GetGlobalPad();
+            if (pPad != NULL)
+            {
+                pData->mPasserControllerID = GetGlobalPad()->m_padIndex;
+            }
+            else
+            {
+                pData->mPasserControllerID = -1;
+            }
+            if (calcPassIntercept)
+            {
+                ((cFielder*)pTeammate)->InitDesireReceivePassFromRun(pAnimInfo, teammateLeadPassVelocity, bVolleyPass, v3PassIntercept);
+            }
+            else
+            {
+                ((cFielder*)pTeammate)->InitDesireReceivePassFromIdle(pAnimInfo, facingDirection, bVolleyPass);
+            }
+            if (m_eClassType == FIELDER)
+            {
+                if (((cFielder*)this)->m_eActionState != ACTION_ONETOUCH_PASS_FROM_VOLLEY && ((cFielder*)this)->DoCalcCanDoPerfectPass((cFielder*)pTeammate, v3PassIntercept))
+                {
+                    g_pBall->SetPerfectPass(true, false);
+                    EmitBallShot(this, BALL_EFFECT_PERFECT_PASS, pTeammate, false);
+                }
+                else if (bVolleyPass)
+                {
+                    EmitBallShot(this, BALL_EFFECT_REGULAR_SHOT, NULL, false);
+                }
+            }
+        }
+        if (m_eClassType != GOALIE)
+        {
+            EmitBallPass(this);
+        }
+    }
+    if (m_pController != NULL)
+    {
+        if (pTeammate->m_pController == NULL)
+        {
+            pTeammate->SetAIPad(m_pController);
+            SetAIPad(NULL);
+        }
     }
 }
 
@@ -1272,25 +1559,28 @@ void cPlayer::SetSpaceSearch(SpaceSearch* pSpaceSearch)
  */
 cPlayer::~cPlayer()
 {
-    PlayerTweaks *piVar1;
-    EffectsGroup *pEVar2;
+    PlayerTweaks* piVar1;
+    EffectsGroup* pEVar2;
     char cVar3;
     double dVar4;
 
     this->EndBlur();
     piVar1 = this->m_pTweaks;
-    if (piVar1 != nullptr) {
+    if (piVar1 != nullptr)
+    {
         delete piVar1;
     }
-    if (this->m_pBall != nullptr) {
+    if (this->m_pBall != nullptr)
+    {
         this->m_pPhysicsCharacter->ReleaseObject();
         this->m_pBall->ClearOwner();
         this->m_pBall = nullptr;
         dVar4 = this->m_tBallPossessionTimer.GetSeconds();
-        StatsTracker::s_pInstance->TrackStat((ePlayerStats)0xf, m_pTeam->m_nSide,this->m_ID , 100.f*dVar4, 0, 0, 0);
+        StatsTracker::s_pInstance->TrackStat((ePlayerStats)0xf, m_pTeam->m_nSide, this->m_ID, 100.f * dVar4, 0, 0, 0);
         pEVar2 = fxGetGroup("ball_sts_windup");
         cVar3 = this->IsPlayingEffect(pEVar2);
-        if (cVar3 != 0) {
+        if (cVar3 != 0)
+        {
             this->StopSFX((Audio::eCharSFX)0x14);
             this->StopSFX((Audio::eCharSFX)0x39);
         }
@@ -1298,7 +1588,7 @@ cPlayer::~cPlayer()
         this->StopSFX((Audio::eCharSFX)0x12);
         this->m_pCharacterSFX->StopMovementLoop();
     }
-    SpaceSearch *temp_piVar1 = this->m_pSpaceSearch;
+    SpaceSearch* temp_piVar1 = this->m_pSpaceSearch;
     if (temp_piVar1 != nullptr)
         delete temp_piVar1;
 }

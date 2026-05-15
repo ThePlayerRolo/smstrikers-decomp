@@ -92,7 +92,7 @@ public:
     void DisableScissorBox() const;
     void SetScissorBox(const ScissorBox& other) const;
     void DrawString(eGLView, const FontCharString&, const nlVector2&, const nlColour&, const nlColour&, int, nlFont::TextPass, bool, unsigned long*, nlColour*) const;
-    void Load(const char*, char*, unsigned long);
+    unsigned char Load(const char*, char*, unsigned long);
     // void GlyphInfo::SortProc(const nlFont::GlyphInfo*, const nlFont::GlyphInfo*);
     // void KernPair::SortProc(const nlFont::KernPair*, const nlFont::KernPair*);
 

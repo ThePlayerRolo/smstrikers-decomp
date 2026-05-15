@@ -89,11 +89,33 @@ static u32 prog_3d_pointlit_dirt;
 static u32 prog_3d_crowd;
 static u32 prog_3d_crowd_lit;
 static u32 glv_MatrixChanged;
+static u32 glv_TexConfigChanged;
 static u8 glx_normals;
 static nlMatrix4 mproj;
 static Mtx44 gx_proj;
 static Mtx gx_modelview;
 static nlMatrix4 modelview;
+static bool glx_AlwaysReloadLights;
+
+struct GLViewportUserData
+{
+    u16 x;
+    u16 y;
+    u16 w;
+    u16 h;
+    u32 view;
+    u32 projection;
+};
+
+struct GLScissorUserData
+{
+    u16 xOrig;
+    u16 yOrig;
+    u16 wd;
+    u16 ht;
+};
+
+static GLViewportUserData g_viewport;
 
 static unsigned long glx_SwitchTexConfig(const glModelPacket*);
 
@@ -369,7 +391,6 @@ void glx_SwitchUserData(const glModelPacket* p)
 
     static bool bDeferredEnvDiffuse;
     static signed char init;
-    static bool glx_AlwaysReloadLights = true;
 
     if (!init)
     {

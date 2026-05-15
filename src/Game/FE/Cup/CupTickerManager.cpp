@@ -251,21 +251,90 @@ void CupTickerManager::SetTickerTextInstance(TLTextInstance* tickerText)
     }
 }
 
+struct LOCHeader
+{
+    char Thumbprint[4];
+    unsigned long Version;
+    unsigned long Language;
+    unsigned long StringCount;
+    unsigned long Flags;
+};
+
+class nlLocalization
+{
+public:
+    struct StringLookup
+    {
+        unsigned long hash;
+        unsigned long StringOffset;
+        operator unsigned long() const { return hash; }
+    };
+    LOCHeader* m_pFile;
+    StringLookup* m_LookupTable;
+    unsigned short* m_FirstString;
+};
+
+extern nlLocalization* g_pLocalization;
+extern unsigned short LocalizationTableNotFound[];
+extern unsigned short MissingLocString[];
+
+template <typename T, typename K>
+T* nlBSearch(const K& key, T* table, int count);
+
+extern "C" unsigned long GetLOCModeName__FQ215GameInfoManager10eGameModes(int);
+extern "C" unsigned long GetLOCCharacterName__F7eTeamIDbb(int, bool, bool);
+extern "C" int FindWinningTeam__15GameInfoManagerFv(void*);
+extern "C" unsigned long nlStringLowerHash__FPCc(const char*);
+extern "C" void nlStrToWcs__FPCcPUsUl(const char*, unsigned short*, unsigned long);
+
+extern "C" void BuildGoalTotalTickerMessage__16CupTickerManagerFR46BasicString_Us_Q26Detail19TempStringAllocator_b(
+    CupTickerManager*, WideBasicString&, bool);
+
+template <typename StringType, typename T1, typename T2, typename T3, typename T4>
+StringType Format(const StringType& fmt, const T1& v1, const T2& v2, const T3& v3, const T4& v4);
+
+#define GI_TOURNAMENT_MODE(gi) (*(int*)((char*)(gi) + 0x4948))
+#define GI_CURRENT_MODE(gi)    (*(int*)((char*)(gi) + 0x4954))
+#define GI_DOING_KNOCKOUT(gi)  (*(unsigned char*)((char*)(gi) + 0x6C))
+#define GI_CURRENT_CUP(gi)     (*(void**)((char*)(gi) + 0x4960))
+
+#define LOC_LOOKUP(_hashExpr, _locVar)                                                                                     \
+    {                                                                                                                      \
+        unsigned long _hash = (_hashExpr);                                                                                 \
+        nlLocalization* _loc = g_pLocalization;                                                                            \
+        if (_loc->m_LookupTable == 0)                                                                                      \
+        {                                                                                                                  \
+            (_locVar) = LocalizationTableNotFound;                                                                         \
+        }                                                                                                                  \
+        else                                                                                                               \
+        {                                                                                                                  \
+            nlLocalization::StringLookup* _entry = nlBSearch(_hash, _loc->m_LookupTable, (int)_loc->m_pFile->StringCount); \
+            if (_entry != 0)                                                                                               \
+            {                                                                                                              \
+                (_locVar) = _loc->m_FirstString + _entry->StringOffset;                                                    \
+            }                                                                                                              \
+            else                                                                                                           \
+            {                                                                                                              \
+                (_locVar) = MissingLocString;                                                                              \
+            }                                                                                                              \
+        }                                                                                                                  \
+    }
+
 /**
  * Offset/Address/Size: 0x680 | 0x800F2648 | size: 0x12E8
- * TODO: 15.49% match - large localization/formatting branches for each ticker state
- * are still placeholder control flow and do not construct the final message text yet.
+ * TODO: 78.75% match - register allocation (r25/r28 vs r30/r31 for this/gameInfo),
+ * extra mr r4,r0 in LOC_LOOKUP fallback paths, stack frame size 0x150 vs 0x140.
  */
 void CupTickerManager::CreateNewMessage()
 {
+    bool tournamentLeague = false;
     GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
     GameInfoAccessor_CupTicker* gameInfoMem = (GameInfoAccessor_CupTicker*)gameInfo;
-    BasicString<unsigned short, Detail::TempStringAllocator> tickerMessage;
+    WideBasicString tickerMessage;
     bool messageDisplayed = false;
-    bool tournamentLeague = false;
+    unsigned short* locString = 0;
 
-    if (IsInTournamentMode__15GameInfoManagerCFv(gameInfo)
-        && gameInfoMem->mTournamentMode == 0)
+    if (IsInTournamentMode__15GameInfoManagerCFv(gameInfo) && gameInfoMem->mTournamentMode == 0)
     {
         tournamentLeague = true;
     }
@@ -277,68 +346,154 @@ void CupTickerManager::CreateNewMessage()
 
     do
     {
-        switch ((int)mState)
+        if (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) == -5)
         {
-        case 0:
+            if (mState != 5)
+            {
+                mState = (eCupTickerState)5;
+
+                unsigned long modeHash = GetLOCModeName__FQ215GameInfoManager10eGameModes(GI_CURRENT_MODE(gameInfo));
+                LOC_LOOKUP(modeHash, locString);
+                WideBasicString modeWBS(locString);
+
+                unsigned long charHash = GetLOCCharacterName__F7eTeamIDbb(
+                    FindWinningTeam__15GameInfoManagerFv(gameInfo), false, false);
+                LOC_LOOKUP(charHash, locString);
+                WideBasicString charWBS(locString);
+
+                LOC_LOOKUP(0x273CF730UL, locString);
+                WideBasicString fmtWBS(locString);
+
+                tickerMessage = Format<WideBasicString, WideBasicString, WideBasicString>(
+                    fmtWBS, modeWBS, charWBS);
+                break;
+            }
+            else
+            {
+                mState = (eCupTickerState)2;
+                if (gameInfoMem->mTournamentMode != 0)
+                {
+                    continue;
+                }
+                BuildGoalTotalTickerMessage__16CupTickerManagerFR46BasicString_Us_Q26Detail19TempStringAllocator_b(
+                    this, tickerMessage, false);
+                break;
+            }
+        }
+
+        if (mState == 0)
+        {
+            if (gameInfoMem->mDoingKnockout)
+            {
+                LOC_LOOKUP(0x474DA1D4UL, locString);
+                WideBasicString msg(locString);
+                tickerMessage = msg;
+            }
+            else
+            {
+                LOC_LOOKUP(0x67493499UL, locString);
+                WideBasicString msg(locString);
+                tickerMessage = msg;
+            }
             messageDisplayed = true;
-            break;
-        case 1:
+        }
+
+        if (mState == 1)
+        {
             if (!tournamentLeague)
             {
                 mState = (eCupTickerState)3;
             }
             else
             {
+                LOC_LOOKUP(0xA81870D8UL, locString);
+                WideBasicString msg(locString);
+                tickerMessage = msg;
                 messageDisplayed = true;
             }
-            break;
-        case 2:
+        }
+
+        if (mState == 2)
         {
-            BaseCupAccessor_CupTicker* cup = (BaseCupAccessor_CupTicker*)gameInfoMem->mCurrentCup;
             if (tournamentLeague
-                && GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) == 0
-                && cup->mGameNumber == 0)
+                && (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) != 0
+                    || (*(short*)((char*)GI_CURRENT_CUP(gameInfo) + 0xA) != 0)))
             {
-                mState = (eCupTickerState)3;
+                BuildGoalTotalTickerMessage__16CupTickerManagerFR46BasicString_Us_Q26Detail19TempStringAllocator_b(
+                    this, tickerMessage, false);
+                messageDisplayed = true;
             }
             else
             {
-                messageDisplayed = true;
+                mState = (eCupTickerState)3;
             }
-            break;
         }
-        case 3:
+
+        if (mState == 3)
+        {
             if (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) == -5)
             {
                 mState = (eCupTickerState)4;
             }
             else
             {
-                (void)GetLOCTeamName__F7eTeamID(GetTeam__15GameInfoManagerCFs(gameInfo, 0));
-                (void)GetLOCTeamName__F7eTeamID(GetTeam__15GameInfoManagerCFs(gameInfo, 1));
+                unsigned long team0LOC = GetLOCTeamName__F7eTeamID(
+                    GetTeam__15GameInfoManagerCFs(gameInfo, 0));
+                unsigned long team1LOC = GetLOCTeamName__F7eTeamID(
+                    GetTeam__15GameInfoManagerCFs(gameInfo, 1));
+
+                unsigned long fmtHash = nlStringLowerHash__FPCc("CUPHUB_TICKER_NEXT_MATCH");
+                unsigned short* locString;
+                LOC_LOOKUP(fmtHash, locString);
+                WideBasicString fmtWBS(locString);
+                unsigned short* team0LocString;
+                unsigned short* team1LocString;
+                LOC_LOOKUP(team0LOC, team0LocString);
+                LOC_LOOKUP(team1LOC, team1LocString);
+
+                tickerMessage = Format<WideBasicString, unsigned short*, unsigned short*>(
+                    fmtWBS, team0LocString, team1LocString);
                 messageDisplayed = true;
             }
-            break;
-        case 4:
+        }
+
+        if (mState == 4)
         {
-            int mode = gameInfoMem->mCurrentMode;
-            if ((mode == 1 && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 2))
-                || (mode == 2 && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 3))
-                || (IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 2)
-                    && IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 3)
-                    && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 4)
-                    && IsInCupMode__15GameInfoManagerCFv(gameInfo))
-                || ((mode == 4 || mode == 8) && !gameInfoMem->mDoingKnockout))
+            int mode = GI_CURRENT_MODE(gameInfo);
+            if ((mode == 1
+                    && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 2))
+                || (mode == 2
+                    && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 3)))
             {
+                LOC_LOOKUP(0x751FA62FUL, locString);
+                WideBasicString msg(locString);
+                tickerMessage = msg;
+                messageDisplayed = true;
+            }
+            else if (IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 2)
+                     && IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 3)
+                     && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 4)
+                     && IsInCupMode__15GameInfoManagerCFv(gameInfo))
+            {
+                LOC_LOOKUP(0xEEC22902UL, locString);
+                WideBasicString msg(locString);
+                tickerMessage = msg;
+                messageDisplayed = true;
+            }
+            else if ((mode == 4 || mode == 8) && !gameInfoMem->mDoingKnockout)
+            {
+                LOC_LOOKUP(0x4B50DF6AUL, locString);
+                WideBasicString msg(locString);
+                tickerMessage = msg;
                 messageDisplayed = true;
             }
             else
             {
                 mState = (eCupTickerState)5;
             }
-            break;
         }
-        case 5:
+
+        if (mState == 5)
         {
             short firstRound = GetFirstRoundNumber__15GameInfoManagerCFv(gameInfo);
             short currentRound = GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo);
@@ -353,38 +508,77 @@ void CupTickerManager::CreateNewMessage()
                 int i = 0;
                 while (i < (int)numGames)
                 {
-                    int* game = 0;
-                    if (currentRound == -1)
+                    int* game;
+                    if (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) == -1)
                     {
                         game = (int*)((char*)gameInfo + 0x3FF0);
                     }
                     else
                     {
-                        game = (int*)GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, round, (unsigned short)i);
+                        game = (int*)GetMatchupInfo__15GameInfoManagerCFsUs(
+                            gameInfo, round, (unsigned short)i);
                     }
 
-                    (void)GetLOCTeamName__F7eTeamID(game[0]);
-                    (void)GetLOCTeamName__F7eTeamID(game[1]);
+                    unsigned long team0Name = GetLOCTeamName__F7eTeamID(game[0]);
+                    unsigned long team1Name = GetLOCTeamName__F7eTeamID(game[1]);
+
+                    unsigned long formatHash;
+                    if (i == 0)
+                    {
+                        formatHash = 0x97372F0FUL;
+                    }
+                    else
+                    {
+                        formatHash = 0x3E3B44CAUL;
+                    }
+
+                    NLString score0Str = LexicalCast<NLString, int>((int)*(short*)((char*)game + 0x1C));
+                    NLString score1Str = LexicalCast<NLString, int>((int)*(short*)((char*)game + 0x1E));
+
+                    unsigned short wideScore0[16];
+                    nlStrToWcs__FPCcPUsUl(score0Str.c_str(), wideScore0, 16);
+
+                    unsigned short wideScore1[16];
+                    nlStrToWcs__FPCcPUsUl(score1Str.c_str(), wideScore1, 16);
+
+                    if (*(short*)((char*)game + 0x1C) > *(short*)((char*)game + 0x1E))
+                    {
+                        unsigned short* fmtLocString;
+                        unsigned short* t0Str;
+                        unsigned short* t1Str;
+                        LOC_LOOKUP(formatHash, fmtLocString);
+                        LOC_LOOKUP(team0Name, t0Str);
+                        LOC_LOOKUP(team1Name, t1Str);
+                        WideBasicString fmtWBS(fmtLocString);
+                        tickerMessage = tickerMessage.Append(
+                            Format<WideBasicString, unsigned short*, unsigned short*, unsigned short[16], unsigned short[16]>(
+                                fmtWBS, t0Str, t1Str, wideScore0, wideScore1));
+                    }
+                    else
+                    {
+                        unsigned short* fmtLocString;
+                        unsigned short* t1Str;
+                        unsigned short* t0Str;
+                        LOC_LOOKUP(formatHash, fmtLocString);
+                        LOC_LOOKUP(team1Name, t1Str);
+                        LOC_LOOKUP(team0Name, t0Str);
+                        WideBasicString fmtWBS(fmtLocString);
+                        tickerMessage = tickerMessage.Append(
+                            Format<WideBasicString, unsigned short*, unsigned short*, unsigned short[16], unsigned short[16]>(
+                                fmtWBS, t1Str, t0Str, wideScore1, wideScore0));
+                    }
+
                     i++;
                 }
                 messageDisplayed = true;
             }
-            break;
-        }
-        default:
-            messageDisplayed = true;
-            break;
         }
 
-        if (!messageDisplayed)
-        {
-            int nextState = (int)mState + 1;
-            mState = (eCupTickerState)(nextState % 6);
-        }
+        mState = (eCupTickerState)(((int)mState + 1) % 6);
     } while (!messageDisplayed);
 
     memcpy(mMessageBuffer, tickerMessage.c_str(), 0x400);
-    BasicString<unsigned short, Detail::TempStringAllocator> displayMessage(mMessageBuffer);
+    WideBasicString displayMessage(mMessageBuffer);
     mTicker->SetDisplayMessage(displayMessage);
 }
 

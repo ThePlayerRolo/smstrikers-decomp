@@ -260,12 +260,155 @@ void AudioStreamTrack::TrackManagerBase::Update(float)
     }
 }
 
-// /**
-//  * Offset/Address/Size: 0x1970 | 0x801566C8 | size: 0x3F0
-//  */
-// void AudioStreamTrack::TrackManagerBase::FadeManager::UpdateFade(AudioStreamTrack::TrackManagerBase::FadeManager::STREAM_FADE_CTRL*)
-// {
-// }
+extern float GetVolume__Q25Audio12MasterVolumeFQ35Audio12MasterVolume12VOLUME_GROUP(Audio::MasterVolume::VOLUME_GROUP);
+extern "C" void sndStreamMixParameterEx(unsigned long stid, unsigned char vol, unsigned char pan,
+    unsigned char span, unsigned char auxa, unsigned char auxb);
+
+/**
+ * Offset/Address/Size: 0x1970 | 0x801566C8 | size: 0x3F0
+ * TODO: 98.39% match - clamp compare branch and two buffer-count gate branches differ, plus r28/r29 assignment in the second buffer-volume loop
+ */
+void AudioStreamTrack::TrackManagerBase::FadeManager::UpdateFade(STREAM_FADE_CTRL* pFade)
+{
+    unsigned long fadeLength = pFade->FadeLength;
+    float totalTime;
+    if (fadeLength != 0)
+    {
+        totalTime = (float)fadeLength;
+    }
+    else
+    {
+        totalTime = m_dT;
+    }
+
+    float interp = pFade->Interp;
+    interp = interp + (m_dT / totalTime);
+    pFade->Interp = interp;
+
+    float newVal = pFade->Interp;
+    if (newVal <= 1.0f)
+    {
+    }
+    else
+    {
+        newVal = 1.0f;
+    }
+    pFade->Interp = newVal;
+
+    float absDiff = (float)__fabs(pFade->Interp - 1.0f);
+    if (absDiff <= 0.0001f)
+    {
+        float masterVol = GetVolume__Q25Audio12MasterVolumeFQ35Audio12MasterVolume12VOLUME_GROUP(
+            (Audio::MasterVolume::VOLUME_GROUP)pFade->VolumeGroup);
+
+        int clampedVol = 0x7F;
+        unsigned long endVol = pFade->EndVol;
+        GCAudioStreaming::StereoAudioStream* pStream = pFade->pStream;
+
+        int vol = (int)((float)endVol * masterVol);
+        if ((u32)(u8)vol <= 0x7Fu)
+        {
+            clampedVol = vol;
+        }
+
+        if (pStream->m_State >= 2)
+        {
+            volatile unsigned long i = 0;
+            GCAudioStreaming::AudioStreamBuffer* buf = NULL;
+            if (pStream->m_BufferCount > 0)
+            {
+                buf = pStream->m_Buffers[0];
+            }
+            while (buf != NULL)
+            {
+                buf->m_Volume = (u8)clampedVol;
+                sndStreamMixParameterEx(buf->m_StreamId, buf->m_Volume, buf->m_Pan, buf->m_SurroundPan, 0, 0);
+                unsigned long idx = i + 1;
+                i = idx;
+                if (idx < pStream->m_BufferCount)
+                {
+                    buf = pStream->m_Buffers[idx];
+                }
+                else
+                {
+                    buf = NULL;
+                }
+            }
+        }
+
+        pStream->m_Volume = (u8)clampedVol;
+
+        Function<FnVoidVoid> Callback(pFade->Callback);
+
+        DLListEntry<STREAM_FADE_CTRL>* entry = (DLListEntry<STREAM_FADE_CTRL>*)((char*)pFade - 8);
+        nlDLRingIsEnd(m_Fades.m_Head, entry);
+        nlDLRingRemove(&m_Fades.m_Head, entry);
+
+        entry->~DLListEntry();
+
+        entry->m_next = (DLListEntry<STREAM_FADE_CTRL>*)m_Fades.m_Allocator.m_FreeList;
+        m_Fades.m_Allocator.m_FreeList = (SlotPoolEntry*)entry;
+
+        if ((bool)Callback.mTag)
+        {
+            if (Callback.mTag == FREE_FUNCTION)
+            {
+                Callback.mFreeFunction();
+            }
+            else
+            {
+                (*Callback.mFunctor)();
+            }
+        }
+    }
+    else
+    {
+        unsigned long startVol = pFade->StartVol;
+        unsigned long endVol = pFade->EndVol;
+        int diff = (int)endVol - (int)startVol;
+        Audio::MasterVolume::VOLUME_GROUP vg = (Audio::MasterVolume::VOLUME_GROUP)pFade->VolumeGroup;
+
+        float interpVol = pFade->Interp * (float)diff + (float)startVol;
+        int interpVolInt = (int)interpVol;
+
+        float masterVol = GetVolume__Q25Audio12MasterVolumeFQ35Audio12MasterVolume12VOLUME_GROUP(vg);
+
+        int clampedVol = 0x7F;
+        GCAudioStreaming::StereoAudioStream* pStream = pFade->pStream;
+        int vol = (int)((float)(u8)interpVolInt * masterVol);
+        if ((u32)(u8)vol <= 0x7Fu)
+        {
+            clampedVol = vol;
+        }
+
+        if (pStream->m_State >= 2)
+        {
+            volatile unsigned long i = 0;
+            GCAudioStreaming::AudioStreamBuffer* buf = NULL;
+            if (pStream->m_BufferCount > 0)
+            {
+                buf = pStream->m_Buffers[0];
+            }
+            while (buf != NULL)
+            {
+                buf->m_Volume = (u8)clampedVol;
+                sndStreamMixParameterEx(buf->m_StreamId, buf->m_Volume, buf->m_Pan, buf->m_SurroundPan, 0, 0);
+                unsigned long idx = i + 1;
+                i = idx;
+                if (idx < pStream->m_BufferCount)
+                {
+                    buf = pStream->m_Buffers[idx];
+                }
+                else
+                {
+                    buf = NULL;
+                }
+            }
+        }
+
+        pStream->m_Volume = (u8)clampedVol;
+    }
+}
 
 /**
  * Offset/Address/Size: 0x18FC | 0x80156654 | size: 0x74
@@ -521,8 +664,6 @@ void AudioStreamTrack::StreamTrack::QueueStream(
     }
 }
 
-extern "C" void sndStreamMixParameterEx(unsigned long stid, unsigned char vol, unsigned char pan,
-    unsigned char span, unsigned char auxa, unsigned char auxb);
 extern "C" void sndStreamActivate(unsigned long stid);
 extern "C" void sndStreamDeactivate(unsigned long stid);
 

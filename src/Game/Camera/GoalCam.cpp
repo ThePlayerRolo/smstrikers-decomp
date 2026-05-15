@@ -60,12 +60,14 @@ void GoalCamera::Update(float /*dt*/)
 
     if (gnCamType == 0)
     {
-        if (g_pBall->m_tShotTimer.m_uPackedTime == 0)
+        if (g_pBall->m_tShotTimer.m_uPackedTime != 0)
         {
-            if (g_pBall->GetOwnerGoalie() != 0)
-            {
-                return;
-            }
+            return;
+        }
+
+        if (g_pBall->GetOwnerGoalie() != 0)
+        {
+            return;
         }
     }
 
@@ -107,9 +109,7 @@ void GoalCamera::Update(float /*dt*/)
 
         {
             f32 invLen = nlRecipSqrt((m_vecCamera.f.x * m_vecCamera.f.x) + (m_vecCamera.f.y * m_vecCamera.f.y) + (m_vecCamera.f.z * m_vecCamera.f.z), 1);
-            m_vecCamera.f.x = invLen * m_vecCamera.f.x;
-            m_vecCamera.f.y = invLen * m_vecCamera.f.y;
-            m_vecCamera.f.z = invLen * m_vecCamera.f.z;
+            _nlVec3Scale(m_vecCamera, invLen);
         }
 
         bx = ballpos.f.x;
@@ -142,13 +142,9 @@ void GoalCamera::Update(float /*dt*/)
 
         {
             f32 invLen = nlRecipSqrt((dirvec.f.y * dirvec.f.y) + (dirvec.f.x * dirvec.f.x) + (dirvec.f.z * dirvec.f.z), 1);
-            float nz = invLen * dirvec.f.z;
-            float ny = invLen * dirvec.f.y;
-            float nx = invLen * dirvec.f.x;
-
-            dirvec.f.x = -nx;
-            dirvec.f.y = -ny;
-            dirvec.f.z = nz;
+            _nlVec3Scale(dirvec, invLen);
+            dirvec.f.x = -dirvec.f.x;
+            dirvec.f.y = -dirvec.f.y;
         }
 
         m_vecCamera.f.x = m_vecTarget.f.x + gfDistance * dirvec.f.x;
@@ -222,7 +218,7 @@ void GoalCamera::Update(float /*dt*/)
 
             glMatrixLookAt(m_matView, dirvec, midvec, vecUp);
         }
-        else
+        if (gnCamType == 1)
         {
             float y = dirvec.f.y;
             float x = dirvec.f.x;

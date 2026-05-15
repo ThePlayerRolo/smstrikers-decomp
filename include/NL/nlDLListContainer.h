@@ -10,6 +10,7 @@ class DLListContainerBase
 {
 public:
     DLListContainerBase()
+        : m_Head(NULL)
     {
     }
 

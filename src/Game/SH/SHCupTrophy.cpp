@@ -807,6 +807,7 @@ void CupTrophyScene::HandleUnlockedTriggers()
 
 /**
  * Offset/Address/Size: 0x1970 | 0x800CB024 | size: 0x400
+ * TODO: 98.76% match - HandleUnlockedTriggers path still differs by an indirect __ptmf_scall call sequence.
  */
 extern FEInput* g_pFEInput;
 
@@ -847,7 +848,7 @@ void CupTrophyScene::Update(float fDeltaT)
         {
             if (nlSingleton<GameInfoManager>::s_pInstance->mUnlockedTriggers != 0)
             {
-                HandleUnlockedTriggers();
+                (this->*&CupTrophyScene::HandleUnlockedTriggers)();
             }
             else
             {

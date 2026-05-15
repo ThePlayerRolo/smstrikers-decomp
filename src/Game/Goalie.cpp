@@ -3187,8 +3187,8 @@ void Goalie::InitActionLooseBallCatch()
 
 /**
  * Offset/Address/Size: 0x3BD0 | 0x800466CC | size: 0x1B04
- * TODO: 3.89% match - unresolved loose-ball intercept/desperation setup path and
- * large prologue/register-allocation diffs beyond the early move fallback block.
+ * TODO: 91.65% match - unresolved register allocation in loose-ball intercept
+ * and desperation decision branches.
  */
 void Goalie::InitActionLooseBallSetup()
 {
@@ -3201,29 +3201,23 @@ void Goalie::InitActionLooseBallSetup()
     if (!IsLooseBallClose(pSkillTweaks->fLooseBallChaseDistance))
     {
         CleanGoalieAction();
-
         mPrevGoalieActionState = mGoalieActionState;
         mGoalieActionState = GOALIEACTION_MOVE;
         mnSubstate = 0;
-
         SetAnimState(8, true, 0.2f, false, false);
         InitMovementFromAnim(0, v3Zero, 1.0f, false);
-
         mnSubstate = 1;
         mMoveDirection = GOALIEDIR_IDLE;
-
         m_pPhysicsCharacter->m_CanCollideWithBall = true;
         mbShouldMiss = false;
         mbDoNavigate = false;
         m_pPhysicsCharacter->m_CanCollidedWithGoalLine = true;
         m_pPhysicsCharacter->m_CanCollideWithWall = true;
-
         if (mbStunEffectActive)
         {
             KillDaze(this);
             mbStunEffectActive = false;
         }
-
         mpShooter = NULL;
         mUrgency = URGENCY_LOW;
         mfSpeedScale = 1.0f;
@@ -3233,12 +3227,947 @@ void Goalie::InitActionLooseBallSetup()
         mbBallImpacted = false;
         mbNoUserControl = false;
         mbPickedUp = false;
-
         ActionMove(0.0f);
         return;
     }
 
-    FORCE_DONT_INLINE;
+    if (g_pBall->m_uGoalType != 6)
+    {
+        g_pBall->m_uGoalType = 4;
+    }
+
+    m_pPhysicsCharacter->m_CanCollideWithBall = true;
+    mbDoHeadTrack = true;
+    mbPickedUp = false;
+
+    nlVector3 v3BallPosition;
+    bool bInCone = false;
+    const nlVector3* pBallVelocity = &g_pBall->m_v3Velocity;
+
+    v3BallPosition = g_pBall->m_v3Position;
+    cNet* pNet = m_pTeam->m_pNet;
+    muBallChangeCount = g_pBall->m_bBallPathChangeCount;
+    muBallDeflectCount = g_pBall->m_bBallDeflectCount;
+
+    if (g_pBall->m_pOwner == NULL)
+    {
+        nlVector3 v3Velocity;
+        v3Velocity.f.x = g_pBall->m_v3Velocity.f.x;
+        v3Velocity.f.y = g_pBall->m_v3Velocity.f.y;
+        v3Velocity.f.z = g_pBall->m_v3Velocity.f.z;
+        f32 fVelMagSq = v3Velocity.f.x * v3Velocity.f.x + v3Velocity.f.y * v3Velocity.f.y + v3Velocity.f.z * v3Velocity.f.z;
+        if (fVelMagSq >= 0.01f)
+        {
+            nlVector3 v3Post0;
+            nlVector3 v3Post1;
+            pNet->GetPostLocation(v3Post0, 0, 0.0f);
+            pNet->GetPostLocation(v3Post1, 1, 0.0f);
+
+            nlVector3 v3GuessBallPos;
+            v3GuessBallPos.f.z = v3Velocity.f.z + g_pBall->m_v3Position.f.z;
+            v3GuessBallPos.f.y = v3Velocity.f.y + g_pBall->m_v3Position.f.y;
+            v3GuessBallPos.f.x = v3Velocity.f.x + g_pBall->m_v3Position.f.x;
+
+            bInCone = IsPointInCone(v3GuessBallPos, g_pBall->m_v3Position, v3Post0, v3Post1);
+        }
+    }
+
+    f32 fVelX = pBallVelocity->f.x;
+    f32 fVelY = pBallVelocity->f.y;
+    f32 fVelXSq = fVelX * fVelX;
+    f32 fVelZ = pBallVelocity->f.z;
+    f32 fVelYSq = fVelY * fVelY;
+    f32 fVelZSq = fVelZ * fVelZ;
+    f32 fBallSpeed = fVelXSq + fVelYSq;
+    fBallSpeed = fVelZSq + fBallSpeed;
+
+    if (fBallSpeed > 100.0f && bInCone)
+    {
+        f32 fAbsGoalieX = (f32)fabs(m_v3Position.f.x);
+        f32 fAbsBallX = (f32)fabs(v3BallPosition.f.x);
+        if (fAbsBallX < fAbsGoalieX - 1.5f)
+        {
+            SetDesiredSaveFacing(g_pBall->m_v3Position);
+
+            u16 aDesiredAngle = m_aDesiredFacingDirection;
+            const nlVector3* pSelfPos = &m_v3Position;
+            nlVector4 v3Plane;
+            MakePerpendicularPlane(*pSelfPos, aDesiredAngle, v3Plane, 0.2f);
+
+            nlVector3 v3ContactVel;
+            f32 fTimeTilSave = FakeBallWorld::GetPredictedPlaneIntersectTime(v3Plane, mv3TargetPosition, v3ContactVel);
+
+            f32 fAbsTargetX = (f32)fabs(mv3TargetPosition.f.x);
+            f32 fGoalLineX = cField::GetGoalLineX(1U);
+            if (fAbsTargetX > fGoalLineX)
+            {
+                fTimeTilSave = -1.0f;
+            }
+            else if (fTimeTilSave > 0.0f)
+            {
+                GetLocalPoint(mv3LocalContactPosition, mv3TargetPosition, *pSelfPos, aDesiredAngle);
+                GetLocalPoint(mv3LocalContactVelocity, v3ContactVel, v3Zero, aDesiredAngle);
+            }
+
+            if (fTimeTilSave > 0.0f && fTimeTilSave < 2.0f)
+            {
+                f32 fAbsTargetY = (f32)fabs(mv3TargetPosition.f.y);
+                f32 fPenaltyBoxY = cField::GetPenaltyBoxY();
+                if (fAbsTargetY > fPenaltyBoxY - 1.0f)
+                {
+                    muSaveType = 0x0000FFFC;
+                }
+                else
+                {
+                    muSaveType = 0x0000FFFF;
+                }
+
+                mbShouldMiss = false;
+                u32 uSaveType = muSaveType;
+
+                if (mbShouldMiss)
+                {
+                    fTimeTilSave = fTimeTilSave + ((GoalieTweaks*)m_pTweaks)->fSaveMissDelay;
+                    mpSaveData = NULL;
+                }
+                else
+                {
+                    mpSaveData = GoalieSave::FindBestSave(mBlendInfo, mv3LocalContactPosition, fTimeTilSave, false, uSaveType, false);
+                }
+
+                if (mpSaveData != NULL)
+                {
+                    mbPlayMiss = false;
+                }
+                else
+                {
+                    if (!mbShouldMiss)
+                    {
+                        fTimeTilSave = -1.0f;
+                    }
+                    else
+                    {
+                        mpSaveData = GoalieSave::FindBestSave(mBlendInfo, mv3LocalContactPosition, 5.0f, true, uSaveType & 0x3FFF, false);
+                        mbPlayMiss = true;
+                    }
+                }
+
+                if (mpSaveData != NULL)
+                {
+                    f32 fSavePosX = mpSaveData->mv3SavePos.f.x;
+                    f32 fLocalX = mv3LocalContactPosition.f.x;
+                    f32 fLocalVelZ = mv3LocalContactVelocity.f.z;
+                    f32 fLocalY = mv3LocalContactPosition.f.y;
+                    f32 fLocalVelY = mv3LocalContactVelocity.f.y;
+                    f32 fRatio = (fSavePosX - fLocalX) / fLocalVelZ;
+                    f32 fLocalVelX = mv3LocalContactVelocity.f.x;
+                    mv3LocalContactPosition.f.x = fRatio * fLocalVelZ + fLocalX;
+                    mv3LocalContactPosition.f.y = fRatio * fLocalVelY + fLocalY;
+                    fTimeTilSave = fTimeTilSave + fRatio;
+                    mv3LocalContactPosition.f.z = fRatio * fLocalVelX + mv3LocalContactPosition.f.z;
+                }
+
+                mfTimeTilSave = fTimeTilSave;
+
+                if (mfTimeTilSave > 0.0f)
+                {
+                    mfWaitTime = mfTimeTilSave - mBlendInfo.mfMilestoneTime[2];
+                    if (mfWaitTime <= 0.01f)
+                    {
+                        InitActionSave();
+                        return;
+                    }
+
+                    if (ShouldReposition())
+                    {
+                        mv3NavTarget = mv3TargetPosition;
+                        mMoveDirection = GOALIEDIR_IDLE;
+                        CleanGoalieAction();
+                        mPrevGoalieActionState = mGoalieActionState;
+                        mGoalieActionState = GOALIEACTION_SAVE_REPOSITION;
+                        mnSubstate = 0;
+                        f32 fDy = m_v3Position.f.y - mv3NavTarget.f.y;
+                        f32 fDx = m_v3Position.f.x - mv3NavTarget.f.x;
+                        mfTargetDist = fDy * fDy + fDx * fDx;
+                        mUrgency = URGENCY_HIGH;
+                        f32 fBallDy = g_pBall->m_v3Position.f.y - m_v3Position.f.y;
+                        f32 fBallDx = g_pBall->m_v3Position.f.x - m_v3Position.f.x;
+                        m_aDesiredFacingDirection = (s16)(nlATan2f(fBallDy, fBallDx) * 10430.378f);
+                        DoNavigation(0.0f, gfRepositionThreshold, NAVI_FACE_DESIRED);
+                        if (mfWaitTime > 0.4f)
+                        {
+                            mUrgency = URGENCY_MED;
+                        }
+                        else
+                        {
+                            mUrgency = URGENCY_HIGH;
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        CleanGoalieAction();
+                        mPrevGoalieActionState = mGoalieActionState;
+                        mGoalieActionState = GOALIEACTION_SAVE_SETUP;
+                        mnSubstate = 0;
+                        SetAnimState(10, true, 0.2f, false, false);
+                        InitMovementFromAnimSeek(((GoalieTweaks*)m_pTweaks)->fSaveDirectionSeekSpeed, ((GoalieTweaks*)m_pTweaks)->fSaveDirectionSeekFalloff);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    if (pBallVelocity->f.z < 3.0f && v3BallPosition.f.z < 1.5f)
+    {
+        if (bInCone && fBallSpeed > 0.25f)
+        {
+            f32 fAbsBallX2 = (f32)fabs(v3BallPosition.f.x);
+            f32 fPenaltyBoxX = cField::GetPenaltyBoxX(1U);
+            bool bInPenaltyArea = false;
+            if (fAbsBallX2 > fPenaltyBoxX + 2.0f)
+            {
+                if (v3BallPosition.f.x * m_v3Position.f.x > 0.0f)
+                {
+                    f32 fAbsBallY = (f32)fabs(v3BallPosition.f.y);
+                    f32 fPenaltyBoxY = cField::GetPenaltyBoxY();
+                    bInPenaltyArea = fAbsBallY < fPenaltyBoxY - 1.0f;
+                }
+            }
+
+            if (bInPenaltyArea)
+            {
+                mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(0);
+                f32 fGoalLineX = cField::GetGoalLineX(1U);
+                f32 fPanicLineX = fGoalLineX - 2.0f;
+
+                f32 fPickupTime = mpLooseBallInfo->mfPickupTime;
+                f32 fAnimDuration = mpLooseBallInfo->mfAnimDuration;
+                f32 fAnimTime = fPickupTime * fAnimDuration;
+
+                f32 fGVelX = pBallVelocity->f.x;
+                f32 fGBallX = v3BallPosition.f.x;
+                f32 fGVelY = pBallVelocity->f.y;
+                f32 fGBallY = v3BallPosition.f.y;
+                f32 fGVelZ = pBallVelocity->f.z;
+                f32 fGBallZ = v3BallPosition.f.z;
+
+                f32 fGuessBallX = 0.8f * fAnimTime * fGVelX + fGBallX;
+                f32 fGuessBallY = 0.8f * fAnimTime * fGVelY + fGBallY;
+                f32 fGuessBallZ = 0.8f * fAnimTime * fGVelZ + fGBallZ;
+
+                nlVector3 v3GuessBallPos;
+                v3GuessBallPos.f.x = fGuessBallX;
+                v3GuessBallPos.f.y = fGuessBallY;
+
+                f32 fAbsGuessX = (f32)fabs(fGuessBallX);
+                v3GuessBallPos.f.z = fGuessBallZ;
+
+                if (fAbsGuessX > fPanicLineX)
+                {
+                    CleanGoalieAction();
+                    mPrevGoalieActionState = mGoalieActionState;
+                    mGoalieActionState = GOALIEACTION_LOOSEBALL_DESPERATE;
+                    mnSubstate = 0;
+
+                    if ((f32)fabs(v3BallPosition.f.x) >= fPanicLineX)
+                    {
+                        mv3TargetPosition = v3BallPosition;
+                    }
+                    else
+                    {
+                        f32 fGoalLineX2 = cField::GetGoalLineX(1U);
+                        if (fAbsGuessX < fGoalLineX2)
+                        {
+                            mv3TargetPosition = v3GuessBallPos;
+                        }
+                        else
+                        {
+                            if (pNet->m_baseLocation.f.x > 0.0f)
+                            {
+                                mv3TargetPosition.f.x = fPanicLineX;
+                            }
+                            else
+                            {
+                                mv3TargetPosition.f.x = -fPanicLineX;
+                            }
+                            f32 fGuessY = v3GuessBallPos.f.y;
+                            f32 fBallPosY = v3BallPosition.f.y;
+                            f32 fBallPosX = v3BallPosition.f.x;
+                            f32 fTargetX = mv3TargetPosition.f.x;
+                            f32 fDiffY = fBallPosY - fGuessY;
+                            f32 fGuessX = v3GuessBallPos.f.x;
+                            f32 fDiffXTarget = fBallPosX - fTargetX;
+                            f32 fDiffXOrig = fBallPosX - fGuessX;
+                            mv3TargetPosition.f.y = fBallPosY - fDiffXTarget * fDiffY / fDiffXOrig;
+                        }
+                    }
+
+                    mv3TargetPosition.f.z = 0.0f;
+                    mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(0);
+
+                    f32 fPickupDist = mpLooseBallInfo->mfPickupDistance;
+                    f32 fReachDist = fPickupDist + 0.75f;
+                    f32 fDy = m_v3Position.f.y - mv3TargetPosition.f.y;
+                    f32 fDx = m_v3Position.f.x - mv3TargetPosition.f.x;
+                    f32 fDistSq = fDy * fDy + fDx * fDx;
+                    f32 fReachDistSq = fReachDist * fReachDist;
+
+                    if (fDistSq > fReachDistSq)
+                    {
+                        mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(1);
+
+                        f32 fPickupDist1 = mpLooseBallInfo->mfPickupDistance;
+                        f32 fReachDist1 = fPickupDist1 + 0.75f;
+                        f32 fDy1 = m_v3Position.f.y - mv3TargetPosition.f.y;
+                        f32 fDx1 = m_v3Position.f.x - mv3TargetPosition.f.x;
+                        f32 fDistSq1 = fDy1 * fDy1 + fDx1 * fDx1;
+                        f32 fReachDistSq1 = fReachDist1 * fReachDist1;
+
+                        if (fDistSq1 < fReachDistSq1)
+                        {
+                            GetLocalPoint(mv3LocalContactPosition, mv3TargetPosition, m_v3Position, m_aActualFacingDirection);
+
+                            f32 fAngleRatio;
+                            if (mv3LocalContactPosition.f.x > 0.01f)
+                            {
+                                fAngleRatio = mv3LocalContactPosition.f.y / mv3LocalContactPosition.f.x;
+                            }
+                            else if (mv3LocalContactPosition.f.y < 0.0f)
+                            {
+                                fAngleRatio = -10.0f;
+                            }
+                            else
+                            {
+                                fAngleRatio = 10.0f;
+                            }
+
+                            if ((f32)fabs(fAngleRatio) > 1.5f)
+                            {
+                                if (fAngleRatio < 0.0f)
+                                {
+                                    mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(2);
+                                }
+                                else
+                                {
+                                    mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(3);
+                                }
+                            }
+                        }
+                    }
+
+                    {
+                        s32 nAnimID = mpLooseBallInfo->mnAnimID;
+                        if (nAnimID != m_eAnimID || (m_pCurrentAnimController->m_ePlayMode == PM_HOLD && m_pCurrentAnimController->m_fTime == 1.0f))
+                        {
+                            SetAnimState(nAnimID, true, 0.2f, false, false);
+                        }
+                        InitMovementFromAnim(0, v3Zero, 1.0f, false);
+                        return;
+                    }
+                }
+                else
+                {
+                    nlVector3 v3IntVel;
+                    f32 fInterceptTime;
+                    f32 fClosestDist;
+                    bool bFound = FakeBallWorld::FindBallIntercept(m_v3Position, 1.0f, 6.0f, mv3TargetPosition, v3IntVel, fInterceptTime, fClosestDist, 3.0f);
+
+                    if (bFound && mv3TargetPosition.f.z < 1.0f && fClosestDist < 0.75f)
+                    {
+                        CleanGoalieAction();
+                        mPrevGoalieActionState = mGoalieActionState;
+                        mGoalieActionState = GOALIEACTION_LOOSEBALL_DESPERATE;
+                        mnSubstate = 0;
+
+                        f32 fGoalLineX3 = cField::GetGoalLineX(1U);
+                        f32 fGoalieTargetX = mv3TargetPosition.f.x;
+                        f32 fAbsTargetX = (f32)fabs(fGoalieTargetX);
+                        f32 fLimitX = fGoalLineX3 - 0.5f;
+
+                        if (fAbsTargetX > fLimitX)
+                        {
+                            if ((f32)fabs(v3BallPosition.f.x) > fLimitX)
+                            {
+                                mv3TargetPosition = v3BallPosition;
+                            }
+                            else
+                            {
+                                f32 fBallPosY = v3BallPosition.f.y;
+                                f32 fTargetY = mv3TargetPosition.f.y;
+                                f32 fDiffY = fBallPosY - fTargetY;
+                                f32 fTargetX = mv3TargetPosition.f.x;
+                                f32 fBallPosX = v3BallPosition.f.x;
+                                f32 fDiffLimitX = fGoalLineX3 - fLimitX;
+                                f32 fDiffX = fBallPosX - fTargetX;
+                                mv3TargetPosition.f.y = fBallPosY - fDiffLimitX * fDiffY / fDiffX;
+
+                                if (pNet->m_baseLocation.f.x > 0.0f)
+                                {
+                                    mv3TargetPosition.f.x = fLimitX;
+                                }
+                                else
+                                {
+                                    mv3TargetPosition.f.x = -fLimitX;
+                                }
+                            }
+                        }
+
+                        mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(0);
+
+                        f32 fPickupDist = mpLooseBallInfo->mfPickupDistance;
+                        f32 fReachDist = fPickupDist + 0.75f;
+                        f32 fDy = m_v3Position.f.y - mv3TargetPosition.f.y;
+                        f32 fDx = m_v3Position.f.x - mv3TargetPosition.f.x;
+                        f32 fDistSq = fDy * fDy + fDx * fDx;
+                        f32 fReachDistSq = fReachDist * fReachDist;
+
+                        if (fDistSq > fReachDistSq)
+                        {
+                            mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(1);
+
+                            f32 fPickupDist1 = mpLooseBallInfo->mfPickupDistance;
+                            f32 fReachDist1 = fPickupDist1 + 0.75f;
+                            f32 fDy1 = m_v3Position.f.y - mv3TargetPosition.f.y;
+                            f32 fDx1 = m_v3Position.f.x - mv3TargetPosition.f.x;
+                            f32 fDistSq1 = fDy1 * fDy1 + fDx1 * fDx1;
+                            f32 fReachDistSq1 = fReachDist1 * fReachDist1;
+
+                            if (fDistSq1 < fReachDistSq1)
+                            {
+                                GetLocalPoint(mv3LocalContactPosition, mv3TargetPosition, m_v3Position, m_aActualFacingDirection);
+
+                                f32 fAngleRatio;
+                                if (mv3LocalContactPosition.f.x > 0.01f)
+                                {
+                                    fAngleRatio = mv3LocalContactPosition.f.y / mv3LocalContactPosition.f.x;
+                                }
+                                else if (mv3LocalContactPosition.f.y < 0.0f)
+                                {
+                                    fAngleRatio = -10.0f;
+                                }
+                                else
+                                {
+                                    fAngleRatio = 10.0f;
+                                }
+
+                                if ((f32)fabs(fAngleRatio) > 1.5f)
+                                {
+                                    if (fAngleRatio < 0.0f)
+                                    {
+                                        mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(2);
+                                    }
+                                    else
+                                    {
+                                        mpLooseBallInfo = LooseBallAnims::GetDesperationInfo(3);
+                                    }
+                                }
+                            }
+                        }
+
+                        f32 fTargetTime = fInterceptTime - mpLooseBallInfo->mfPickupTime * mpLooseBallInfo->mfAnimDuration;
+                        mfTargetTime = fTargetTime;
+
+                        if (mfTargetTime < 0.02f)
+                        {
+                            s32 nAnimID = mpLooseBallInfo->mnAnimID;
+                            if (nAnimID != m_eAnimID || (m_pCurrentAnimController->m_ePlayMode == PM_HOLD && m_pCurrentAnimController->m_fTime == 1.0f))
+                            {
+                                SetAnimState(nAnimID, true, 0.2f, false, false);
+                            }
+                            InitMovementFromAnim(0, v3Zero, 1.0f, false);
+                            return;
+                        }
+                        else
+                        {
+                            mv3NavTarget = mv3TargetPosition;
+                            f32 fDyNav = v3BallPosition.f.y - m_v3Position.f.y;
+                            f32 fDxNav = v3BallPosition.f.x - m_v3Position.f.x;
+                            m_aDesiredFacingDirection = (s16)(nlATan2f(fDyNav, fDxNav) * 10430.378f);
+
+                            if (mfTargetTime > 1.0f)
+                            {
+                                mUrgency = URGENCY_LOW;
+                            }
+                            else if (mfTargetTime > 0.5f)
+                            {
+                                mUrgency = URGENCY_MED;
+                            }
+                            else
+                            {
+                                mUrgency = URGENCY_HIGH;
+                            }
+
+                            DoNavigation(0.0f, 0.0f, NAVI_FOLLOW_TARGET);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        {
+            bool bDoGrab = false;
+            f32 fAbsBallX = (f32)fabs(v3BallPosition.f.x);
+            f32 fPenaltyBoxX = cField::GetPenaltyBoxX(1U);
+            f32 fPenaltyBoxX2 = cField::GetPenaltyBoxX(1U);
+            f32 fGoalLineX = cField::GetGoalLineX(1U);
+            f32 fMinKickLine = 0.35f * (fGoalLineX - fPenaltyBoxX2) + fPenaltyBoxX;
+
+            if (!IsLooseBallClose(0.0f))
+            {
+                cFielder* pOpponent = GetClosestOpponentFielder(&v3BallPosition);
+
+                f32 fOppDy = pOpponent->m_v3Position.f.y - v3BallPosition.f.y;
+                f32 fOppDx = pOpponent->m_v3Position.f.x - v3BallPosition.f.x;
+                f32 fGoalieDy = m_v3Position.f.y - v3BallPosition.f.y;
+                f32 fGoalieDx = m_v3Position.f.x - v3BallPosition.f.x;
+                f32 fOppDistSq = fOppDy * fOppDy + fOppDx * fOppDx;
+                f32 fGoalieDistSq = fGoalieDy * fGoalieDy + fGoalieDx * fGoalieDx;
+
+                if (fGoalieDistSq > fOppDistSq)
+                {
+                    if (mGoalieActionState == GOALIEACTION_MOVE)
+                    {
+                        return;
+                    }
+                    CleanGoalieAction();
+                    mPrevGoalieActionState = mGoalieActionState;
+                    mGoalieActionState = GOALIEACTION_MOVE;
+                    mnSubstate = 0;
+                    SetAnimState(8, true, 0.2f, false, false);
+                    InitMovementFromAnim(0, v3Zero, 1.0f, false);
+                    mnSubstate = 1;
+                    mMoveDirection = GOALIEDIR_IDLE;
+                    m_pPhysicsCharacter->m_CanCollideWithBall = true;
+                    mbShouldMiss = false;
+                    mbDoNavigate = false;
+                    m_pPhysicsCharacter->m_CanCollidedWithGoalLine = true;
+                    m_pPhysicsCharacter->m_CanCollideWithWall = true;
+                    if (mbStunEffectActive)
+                    {
+                        KillDaze(this);
+                        mbStunEffectActive = false;
+                    }
+                    mpShooter = NULL;
+                    mUrgency = URGENCY_LOW;
+                    mfSpeedScale = 1.0f;
+                    mbPosGoalieNetCheck = false;
+                    mbNegGoalieNetCheck = false;
+                    mbDoHeadTrack = true;
+                    mbBallImpacted = false;
+                    mbNoUserControl = false;
+                    mbPickedUp = false;
+                    ActionMove(0.0f);
+                    return;
+                }
+            }
+            else
+            {
+                if ((f32)fabs(v3BallPosition.f.x) > fAbsBallX - 2.0f || fAbsBallX > fMinKickLine)
+                {
+                    bDoGrab = true;
+                }
+                else
+                {
+                    cPlayer* pPassTarget;
+                    if (GetGlobalPad())
+                    {
+                        pPassTarget = DoFindBestPassTarget(false, false);
+                    }
+                    else
+                    {
+                        FuzzyVariant fvResult = Fuzzy::GetBestPassTarget(this);
+                        if (fvResult.Confidence >= 0.5f)
+                        {
+                            pPassTarget = fvResult.mData.pPlayer;
+                        }
+                        else
+                        {
+                            pPassTarget = DoFindBestPassTarget(false, false);
+                        }
+                    }
+
+                    if (pPassTarget != NULL)
+                    {
+                        f32 fBallDy = v3BallPosition.f.y - m_v3Position.f.y;
+                        f32 fBallDx = v3BallPosition.f.x - m_v3Position.f.x;
+                        f32 fTargetDy = pPassTarget->m_v3Position.f.y - m_v3Position.f.y;
+                        f32 fTargetDx = pPassTarget->m_v3Position.f.x - m_v3Position.f.x;
+                        f32 fBallDz = v3BallPosition.f.z - m_v3Position.f.z;
+                        f32 fTargetDz = pPassTarget->m_v3Position.f.z - m_v3Position.f.z;
+                        f32 fBallDistSq = fBallDy * fBallDy + fBallDx * fBallDx + fBallDz * fBallDz;
+                        f32 fBallDist = nlSqrt(fBallDistSq, true);
+                        f32 fInvDist = 1.0f / fBallDist;
+                        f32 fNormDz = fInvDist * fBallDz;
+                        f32 fNormDy = fInvDist * fBallDy;
+                        f32 fNormDx = fInvDist * fBallDx;
+                        f32 fTargetDistSq = fTargetDy * fTargetDy + fTargetDx * fTargetDx + fTargetDz * fTargetDz;
+                        f32 fInvTargetDist = nlRecipSqrt(fTargetDistSq, true);
+                        f32 fNormTargetDz = fInvTargetDist * fTargetDz;
+                        f32 fNormTargetDy = fInvTargetDist * fTargetDy;
+                        f32 fNormTargetDx = fInvTargetDist * fTargetDx;
+
+                        if (fBallDist < 1.2f)
+                        {
+                            bDoGrab = true;
+                        }
+                        else
+                        {
+                            f32 fDotBallTarget = fNormDy * fNormTargetDy + fNormDx * fNormTargetDx + fNormDz * fNormTargetDz;
+                            if (fDotBallTarget < 0.7071f)
+                            {
+                                bDoGrab = true;
+                            }
+                            else
+                            {
+                                f32 fDotRight = fNormDy * m_m4WorldMatrix.f.m12 + fNormDx * m_m4WorldMatrix.f.m11 + fNormDz * m_m4WorldMatrix.f.m13;
+                                if (fDotRight < 0.0f)
+                                {
+                                    bDoGrab = true;
+                                }
+                                else
+                                {
+                                    cFielder* pOpp = GetClosestOpponentFielder(&v3BallPosition);
+                                    f32 fOppDy = pOpp->m_v3Position.f.y - v3BallPosition.f.y;
+                                    f32 fOppDx = pOpp->m_v3Position.f.x - v3BallPosition.f.x;
+                                    f32 fOppDistSq = fOppDy * fOppDy + fOppDx * fOppDx;
+                                    if (fOppDistSq < fBallDist * fBallDist)
+                                    {
+                                        bDoGrab = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (bDoGrab)
+            {
+                f32 fPredTime = LooseBallAnims::mpLooseBallInfo->mfPickupTime * LooseBallAnims::mpLooseBallInfo->mfAnimDuration;
+                nlVector3 v3PredVel;
+                FakeBallWorld::GetPredictedBallPosition(fPredTime, mv3TargetPosition, v3PredVel);
+
+                GetLocalPoint(mv3LocalContactPosition, mv3TargetPosition, m_v3Position, m_aActualFacingDirection);
+
+                nlVector3 v3CurLocalPos;
+                GetLocalPoint(v3CurLocalPos, v3BallPosition, m_v3Position, m_aActualFacingDirection);
+
+                bool bFacingBall = v3CurLocalPos.f.x >= 0.0f;
+                mpLooseBallInfo = LooseBallAnims::FindLooseBallAnim(mv3LocalContactPosition, bFacingBall);
+            }
+            else
+            {
+                f32 fAbsGoalieX = (f32)fabs(m_v3Position.f.x);
+                f32 fAbsBallXPos = (f32)fabs(v3BallPosition.f.x);
+                f32 fAbsBallYDist = (f32)fabs(v3BallPosition.f.y - m_v3Position.f.y);
+                f32 fDiffX = fAbsBallXPos - fAbsGoalieX;
+                s16 nAngDiff = (s16)(nlATan2f(fAbsBallYDist, fDiffX) * 10430.378f);
+
+                if (fAbsBallX > fMinKickLine && (u16)nAngDiff > 0x4E34)
+                {
+                    mpLooseBallInfo = &LooseBallAnims::mLooseBallKickInfo;
+                }
+                else if (v3BallPosition.f.y * v3BallPosition.f.x > 0.0f)
+                {
+                    mpLooseBallInfo = &LooseBallAnims::mLooseBallKickInfo + 1;
+                }
+                else
+                {
+                    mpLooseBallInfo = &LooseBallAnims::mLooseBallKickInfo + 2;
+                }
+            }
+
+            {
+                nlVector3 v3IntVel;
+                f32 fInterceptTime;
+                f32 fClosestDist;
+                bool bFound = FakeBallWorld::FindBallIntercept(m_v3Position, 1.0f, 6.0f, mv3TargetPosition, v3IntVel, fInterceptTime, fClosestDist, 3.0f);
+
+                if (bFound && mv3TargetPosition.f.z < 1.0f && fClosestDist < 0.4f)
+                {
+                    f32 fDy = mv3TargetPosition.f.y - m_v3Position.f.y;
+                    f32 fDx = mv3TargetPosition.f.x - m_v3Position.f.x;
+                    f32 fPickupDist = mpLooseBallInfo->mfPickupDistance;
+                    f32 fReachDist = 0.4f + fPickupDist;
+                    f32 fDistSq = fDy * fDy + fDx * fDx;
+                    f32 fReachDistSq = fReachDist * fReachDist;
+                    f32 fTargetTime = fInterceptTime - mpLooseBallInfo->mfPickupTime * mpLooseBallInfo->mfAnimDuration;
+
+                    if (fDistSq <= fReachDistSq && fTargetTime < 0.02f)
+                    {
+                        f32 fDist = nlSqrt(fDistSq, true);
+
+                        CleanGoalieAction();
+                        mPrevGoalieActionState = mGoalieActionState;
+                        mGoalieActionState = GOALIEACTION_LOOSEBALL_PICKUP;
+                        mnSubstate = 0;
+                        s32 nAnimID = mpLooseBallInfo->mnAnimID;
+                        SetAnimState(nAnimID, true, 0.2f, false, false);
+                        InitMovementFromAnim(0, v3Zero, 1.0f, false);
+                        mMoveDirection = GOALIEDIR_IDLE;
+                        mfTargetTime = 0.0f;
+                        mfWaitTime = -1.0f;
+                        mbPickedUp = false;
+
+                        if (fDist >= mpLooseBallInfo->mfPickupDistance)
+                        {
+                            return;
+                        }
+
+                        f32 fRemaining = mpLooseBallInfo->mfPickupDistance - fDist;
+                        f32 fPickupTime2 = mpLooseBallInfo->mfPickupTime;
+                        mfTargetTime = fRemaining * fPickupTime2 / mpLooseBallInfo->mfPickupDistance;
+
+                        m_pCurrentAnimController->m_fPrevTime = m_pCurrentAnimController->m_fTime;
+                        m_pCurrentAnimController->m_fTime = mfTargetTime;
+                        return;
+                    }
+                    else
+                    {
+                        mv3NavTarget = mv3TargetPosition;
+                        if (mGoalieActionState != GOALIEACTION_LOOSEBALL_PURSUE_ROLLING)
+                        {
+                            CleanGoalieAction();
+                            mPrevGoalieActionState = mGoalieActionState;
+                            mGoalieActionState = GOALIEACTION_LOOSEBALL_PURSUE_ROLLING;
+                            mnSubstate = 0;
+                        }
+
+                        f32 fDyNav = mv3TargetPosition.f.y - m_v3Position.f.y;
+                        f32 fDxNav = mv3TargetPosition.f.x - m_v3Position.f.x;
+                        m_aDesiredFacingDirection = (s16)(nlATan2f(fDyNav, fDxNav) * 10430.378f);
+
+                        mv3NavTarget = mv3TargetPosition;
+                        mUrgency = URGENCY_MED;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (mGoalieActionState == GOALIEACTION_MOVE)
+                    {
+                        return;
+                    }
+                    CleanGoalieAction();
+                    mPrevGoalieActionState = mGoalieActionState;
+                    mGoalieActionState = GOALIEACTION_MOVE;
+                    mnSubstate = 0;
+                    SetAnimState(8, true, 0.2f, false, false);
+                    InitMovementFromAnim(0, v3Zero, 1.0f, false);
+                    mnSubstate = 1;
+                    mMoveDirection = GOALIEDIR_IDLE;
+                    m_pPhysicsCharacter->m_CanCollideWithBall = true;
+                    mbShouldMiss = false;
+                    mbDoNavigate = false;
+                    m_pPhysicsCharacter->m_CanCollidedWithGoalLine = true;
+                    m_pPhysicsCharacter->m_CanCollideWithWall = true;
+                    if (mbStunEffectActive)
+                    {
+                        KillDaze(this);
+                        mbStunEffectActive = false;
+                    }
+                    mpShooter = NULL;
+                    mUrgency = URGENCY_LOW;
+                    mfSpeedScale = 1.0f;
+                    mbPosGoalieNetCheck = false;
+                    mbNegGoalieNetCheck = false;
+                    mbDoHeadTrack = true;
+                    mbBallImpacted = false;
+                    mbNoUserControl = false;
+                    mbPickedUp = false;
+                    ActionMove(0.0f);
+                    return;
+                }
+            }
+        }
+
+        return;
+    }
+
+    {
+        int nNumSolutions;
+        f32 pSolutions[2];
+
+        CalcInterceptXY(m_v3Position, 0.85f * ((GoalieTweaks*)m_pTweaks)->fRunningSpeed, 0.5f, v3BallPosition, *pBallVelocity, nNumSolutions, pSolutions);
+
+        if (nNumSolutions > 0)
+        {
+            f32 fBestTime;
+            if (nNumSolutions == 2)
+            {
+                fBestTime = (pSolutions[0] < pSolutions[1]) ? pSolutions[0] : pSolutions[1];
+            }
+            else
+            {
+                fBestTime = pSolutions[0];
+            }
+
+            if (fBestTime < 5.0f)
+            {
+                nlVector3 v3IntPos;
+                nlVector3 v3IntVel;
+                f32 fHeightTime = FakeBallWorld::GetPredictedHeightLimitTime(3.0f, fBestTime, v3IntPos, v3IntVel, false);
+
+                if (fHeightTime >= 0.0f)
+                {
+                    f32 fIntX = v3IntPos.f.x;
+                    f32 fAbsIntX = (f32)fabs(fIntX);
+                    f32 fPenaltyBoxX = cField::GetPenaltyBoxX(1U);
+                    bool bInPenaltyArea = false;
+                    if (fAbsIntX > fPenaltyBoxX - 0.0f)
+                    {
+                        if (fIntX * m_v3Position.f.x > 0.0f)
+                        {
+                            f32 fAbsIntY = (f32)fabs(v3IntPos.f.y);
+                            f32 fPenaltyBoxY = cField::GetPenaltyBoxY();
+                            bInPenaltyArea = fAbsIntY < 0.0f + fPenaltyBoxY;
+                        }
+                    }
+
+                    if (bInPenaltyArea)
+                    {
+                        CleanGoalieAction();
+                        mPrevGoalieActionState = mGoalieActionState;
+                        mGoalieActionState = GOALIEACTION_LOOSEBALL_PURSUE_BOUNCING;
+                        mnSubstate = 0;
+
+                        mv3TargetPosition = v3IntPos;
+                        mfTargetTime = fHeightTime;
+                        mfTargetDist = 1.4f;
+
+                        f32 fDy = v3IntPos.f.y - m_v3Position.f.y;
+                        f32 fDx = v3IntPos.f.x - m_v3Position.f.x;
+                        m_aDesiredFacingDirection = (s16)(nlATan2f(fDy, fDx) * 10430.378f);
+
+                        f32 fDistSq = fDy * fDy + fDx * fDx;
+                        s16 nAngDiff = m_aDesiredFacingDirection - m_aActualFacingDirection;
+                        s32 nAnimID = m_eAnimID;
+
+                        if (fDistSq < 1.0f)
+                        {
+                            mMoveDirection = GOALIEDIR_IDLE;
+                            nAnimID = 0x08;
+                        }
+                        else
+                        {
+                            s16 nAbsAngDiff = nAngDiff < 0 ? -nAngDiff : nAngDiff;
+                            mMoveDirection = GOALIEDIR_FORWARD;
+                            u16 uAbsAngDiff = (u16)nAbsAngDiff;
+
+                            if ((nAnimID == 0x24 || nAnimID == 0x25) && m_pCurrentAnimController->m_fTime < 0.92f)
+                            {
+                            }
+                            else if (uAbsAngDiff <= 0x2AF8 || nAnimID == 0x26)
+                            {
+                                nAnimID = 0x26;
+                            }
+                            else if (nAngDiff > 0)
+                            {
+                                nAnimID = 0x25;
+                            }
+                            else
+                            {
+                                nAnimID = 0x24;
+                            }
+                        }
+
+                        if (nAnimID != m_eAnimID || (m_pCurrentAnimController->m_ePlayMode == PM_HOLD && m_pCurrentAnimController->m_fTime == 1.0f))
+                        {
+                            SetAnimState(nAnimID, true, 0.2f, false, false);
+                        }
+                        InitMovementFromAnimSeek(((GoalieTweaks*)m_pTweaks)->fRunningDirectionSeekSpeed, ((GoalieTweaks*)m_pTweaks)->fRunningDirectionSeekFalloff);
+                        return;
+                    }
+
+                    if (mGoalieActionState == GOALIEACTION_MOVE)
+                    {
+                        return;
+                    }
+                    CleanGoalieAction();
+                    mPrevGoalieActionState = mGoalieActionState;
+                    mGoalieActionState = GOALIEACTION_MOVE;
+                    mnSubstate = 0;
+                    SetAnimState(8, true, 0.2f, false, false);
+                    InitMovementFromAnim(0, v3Zero, 1.0f, false);
+                    mnSubstate = 1;
+                    mMoveDirection = GOALIEDIR_IDLE;
+                    m_pPhysicsCharacter->m_CanCollideWithBall = true;
+                    mbShouldMiss = false;
+                    mbDoNavigate = false;
+                    m_pPhysicsCharacter->m_CanCollidedWithGoalLine = true;
+                    m_pPhysicsCharacter->m_CanCollideWithWall = true;
+                    if (mbStunEffectActive)
+                    {
+                        KillDaze(this);
+                        mbStunEffectActive = false;
+                    }
+                    mpShooter = NULL;
+                    mUrgency = URGENCY_LOW;
+                    mfSpeedScale = 1.0f;
+                    mbPosGoalieNetCheck = false;
+                    mbNegGoalieNetCheck = false;
+                    mbDoHeadTrack = true;
+                    mbBallImpacted = false;
+                    mbNoUserControl = false;
+                    mbPickedUp = false;
+                    ActionMove(0.0f);
+                    return;
+                }
+            }
+        }
+
+        CleanGoalieAction();
+        mPrevGoalieActionState = mGoalieActionState;
+        mGoalieActionState = GOALIEACTION_LOOSEBALL_SETUP;
+        mnSubstate = 0;
+
+        f32 fDyFace = v3BallPosition.f.y - m_v3Position.f.y;
+        f32 fDxFace = v3BallPosition.f.x - m_v3Position.f.x;
+        m_aDesiredFacingDirection = (s16)(nlATan2f(fDyFace, fDxFace) * 10430.378f);
+
+        f32 fDyRun = v3BallPosition.f.y - m_v3Position.f.y;
+        f32 fDxRun = v3BallPosition.f.x - m_v3Position.f.x;
+        s16 nAngDiff = m_aDesiredFacingDirection - m_aActualFacingDirection;
+        s32 nAnimID = m_eAnimID;
+        f32 fDistSq = fDyRun * fDyRun + fDxRun * fDxRun;
+
+        if (fDistSq < 1.0f)
+        {
+            mMoveDirection = GOALIEDIR_IDLE;
+            nAnimID = 0x08;
+        }
+        else
+        {
+            s16 nAbsAngDiff = nAngDiff < 0 ? -nAngDiff : nAngDiff;
+            mMoveDirection = GOALIEDIR_FORWARD;
+            u16 uAbsAngDiff = (u16)nAbsAngDiff;
+
+            if ((nAnimID == 0x24 || nAnimID == 0x25) && m_pCurrentAnimController->m_fTime < 0.92f)
+            {
+            }
+            else if (uAbsAngDiff <= 0x2AF8 || nAnimID == 0x26)
+            {
+                nAnimID = 0x26;
+            }
+            else if (nAngDiff > 0)
+            {
+                nAnimID = 0x25;
+            }
+            else
+            {
+                nAnimID = 0x24;
+            }
+        }
+
+        if (nAnimID != m_eAnimID || (m_pCurrentAnimController->m_ePlayMode == PM_HOLD && m_pCurrentAnimController->m_fTime == 1.0f))
+        {
+            SetAnimState(nAnimID, true, 0.2f, false, false);
+        }
+        InitMovementFromAnimSeek(((GoalieTweaks*)m_pTweaks)->fRunningDirectionSeekSpeed, ((GoalieTweaks*)m_pTweaks)->fRunningDirectionSeekFalloff);
+    }
 }
 
 /**

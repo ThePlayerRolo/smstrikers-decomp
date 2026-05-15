@@ -400,6 +400,173 @@ void BraggingRightsOverlay::IngameSceneCreated()
  */
 void BraggingRightsOverlay::TournamentSceneCreated()
 {
+    GameInfoManager* info = nlSingleton<GameInfoManager>::s_pInstance;
+    FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
+    PlayerStats stats[8];
+    int highestTieBreaker[5];
+    int i;
+
+    for (i = 0; i < (int)info->GetNumPlayingTeams(); i++)
+    {
+        stats[i] = info->GetTeamStatsByIndex((unsigned short)i).mPlayerTotalStats;
+    }
+
+    for (int award = 0; award < 5; award++)
+    {
+        mHighestStats[award] = -1;
+        highestTieBreaker[award] = -1;
+
+        PlayerStats* userStats = stats;
+        int user = 0;
+        int mainStat;
+        int tieBreaker;
+
+        while (user < (int)info->GetNumPlayingTeams())
+        {
+            if (info->mCurrentCup->mHumanTeams & (1 << (int)info->GetTeamStatsByIndex((unsigned short)user).mTeamIndex))
+            {
+                switch (award)
+                {
+                case 0:
+                    mainStat = userStats->mNumShotsOnGoal;
+                    if (mainStat == 0)
+                    {
+                        tieBreaker = 0;
+                    }
+                    else
+                    {
+                        tieBreaker = (int)(100.0f * (float)userStats->mNumGoalsFor / (float)userStats->mNumShotsOnGoal);
+                    }
+                    break;
+
+                case 1:
+                    mainStat = userStats->mNumHitsMade;
+                    tieBreaker = userStats->mNumFouls;
+                    break;
+
+                case 2:
+                {
+                    unsigned short steals = userStats->mNumSteals;
+                    tieBreaker = steals;
+                    mainStat = userStats->mNumPassesIntercepted + steals;
+                    break;
+                }
+
+                case 3:
+                    mainStat = userStats->mNumPowerupsUsed;
+                    tieBreaker = userStats->mNumPowerupsHit;
+                    break;
+
+                case 4:
+                    mainStat = userStats->mNumPerfectPasses;
+                    tieBreaker = userStats->mNumPassesReceived;
+                    break;
+                }
+
+                if (mainStat > mHighestStats[award]
+                    || (mainStat == mHighestStats[award] && tieBreaker > highestTieBreaker[award]))
+                {
+                    mHighestStats[award] = mainStat;
+                    highestTieBreaker[award] = tieBreaker;
+                    mAwardWinners[award] = user;
+                }
+            }
+
+            userStats++;
+            user++;
+        }
+
+        TLTextInstance* pText = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
+            presentation,
+            InlineHasher(nlStringLowerHash("Slide1")),
+            InlineHasher(nlStringLowerHash("Layer")),
+            InlineHasher(nlStringLowerHash(TEXT_NAMES[award])),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
+
+        if (mHighestStats[award] == 0)
+        {
+            pText->m_LocStrId = 0x0316C79C;
+        }
+        else
+        {
+            pText->m_LocStrId = GetLOCCharacterName(
+                (eTeamID)info->GetTeamStatsByIndex((unsigned short)mAwardWinners[award]).mTeamIndex,
+                false,
+                false);
+        }
+
+        pText->m_OverloadFlags |= 0x8;
+    }
+
+    TLTextInstance* pPlacement = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
+        presentation,
+        InlineHasher(nlStringLowerHash("Slide1")),
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("Placement")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
+
+    unsigned long winningNameId = GetLOCCharacterName(info->FindWinningTeam(), false, false);
+    nlLocalization* loc = g_pLocalization;
+    const unsigned short* placementString;
+
+    if (loc->m_LookupTable == 0)
+    {
+        placementString = LocalizationTableNotFound;
+    }
+    else
+    {
+        nlLocalization::StringLookup* result = nlBSearch(winningNameId, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
+
+        if (result)
+        {
+            placementString = loc->m_FirstString + result->StringOffset;
+        }
+        else
+        {
+            placementString = MissingLocString;
+        }
+    }
+
+    pPlacement->SetString(placementString);
+
+    TLComponentInstance* pButtonComp = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
+        presentation,
+        InlineHasher(nlStringLowerHash("Slide1")),
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("MENU ITEM5")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
+
+    pButtonComp->SetActiveSlide("IN");
+
+    TLTextInstance* pAwardText = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+        pButtonComp->GetActiveSlide(),
+        InlineHasher(nlStringLowerHash("R JUST")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
+    pAwardText->m_LocStrId = 0xB6940BE2;
+    pAwardText->m_OverloadFlags |= 0x8;
+
+    pButtonComp->SetActiveSlide("OUT");
+
+    pAwardText = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
+        pButtonComp->GetActiveSlide(),
+        InlineHasher(nlStringLowerHash("R JUST")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
+    pAwardText->m_LocStrId = 0xB6940BE2;
+    pAwardText->m_OverloadFlags |= 0x8;
 }
 
 /**
@@ -426,11 +593,18 @@ void BraggingRightsOverlay::ChangeTicker(int tickerRow)
     BasicString<char, Detail::TempStringAllocator> statString
         = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(mHighestStats[tickerRow]);
     unsigned short statWideString[16];
-    BasicString<unsigned short, Detail::TempStringAllocator> formatted;
 
     nlStrToWcs(statString.c_str(), statWideString, 16);
 
-    if (mHighestStats[tickerRow] != 0)
+    BasicString<unsigned short, Detail::TempStringAllocator> formatted;
+    bool useDetailName2 = (mHighestStats[tickerRow] == 1);
+
+    if (mHighestStats[tickerRow] == 0)
+    {
+        BasicString<unsigned short, Detail::TempStringAllocator> detail(LookupLocHash(0xBA05BFBD));
+        formatted = detail;
+    }
+    else
     {
         if (mIsTournamentScene)
         {
@@ -441,25 +615,22 @@ void BraggingRightsOverlay::ChangeTicker(int tickerRow)
                 tickerRow++;
             }
 
-            const unsigned short* detailFormat = LookupLocHash(DETAIL_NAMES[tickerRow][0]);
+            BasicString<unsigned short, Detail::TempStringAllocator> detail(
+                LookupLocHash(DETAIL_NAMES[tickerRow][useDetailName2]));
             const unsigned short* winnerName = LookupLocHash(GetLOCCharacterName(winningTeam, false, false));
 
             formatted = Format<BasicString<unsigned short, Detail::TempStringAllocator>, const unsigned short*, unsigned short[16]>(
-                BasicString<unsigned short, Detail::TempStringAllocator>(detailFormat), winnerName, statWideString);
+                detail, winnerName, statWideString);
         }
         else
         {
-            const unsigned short* detailFormat = LookupLocHash(DETAIL_NAMES[tickerRow][0]);
+            BasicString<unsigned short, Detail::TempStringAllocator> detail(
+                LookupLocHash(DETAIL_NAMES[tickerRow][useDetailName2]));
             const unsigned short* winnerName = LookupLocHash(CONTROLLER_TEXT[mAwardWinners[tickerRow]]);
 
             formatted = Format<BasicString<unsigned short, Detail::TempStringAllocator>, const unsigned short*, unsigned short[16]>(
-                BasicString<unsigned short, Detail::TempStringAllocator>(detailFormat), winnerName, statWideString);
+                detail, winnerName, statWideString);
         }
-    }
-    else
-    {
-        const unsigned short* locString = LookupLocHash(0xBA05BFBD);
-        formatted = BasicString<unsigned short, Detail::TempStringAllocator>(locString);
     }
 
     memcpy(mBuffer, formatted.c_str(), sizeof(mBuffer));

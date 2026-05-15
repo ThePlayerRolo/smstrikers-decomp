@@ -6,6 +6,8 @@
 #include "Game/Game.h"
 #include "Game/AI/Fielder.h"
 #include "Game/AI/Powerups.h"
+#include "Game/GameInfo.h"
+#include "Game/FE/feHelpFuncs.h"
 #include "Game/ReplayManager.h"
 #include "Game/Render/ElectricFence.h"
 #include "Game/RumbleActions.h"
@@ -25,6 +27,7 @@ class cWorldSFX : public cGameSFX
 {
 public:
     void Stop(eWorldSFX, cGameSFX::StopFlag);
+    unsigned long Play(eWorldSFX, float, float, bool, float);
     unsigned long Play(Audio::SoundAttributes&);
 };
 
@@ -188,19 +191,17 @@ EmissionController* EmitGeneric(cCharacter* pCharacter, const char* baseName, co
 /**
  * Offset/Address/Size: 0x2B1C | 0x801A18CC | size: 0x21FC
  */
+extern cCharacter* g_pCurrentlyUpdatingCharacter;
+
 void CharacterTriggerHandler(unsigned int uParam)
 {
     class AnimTriggerCallbackInfo
     {
     public:
-        /* 0x0 */ unsigned long m_uEventID;
-        /* 0x4 */ float m_fIntensity;
-    }; // total size: 0x8
+        unsigned long m_uEventID;
+        float m_fIntensity;
+    };
 
-    extern cCharacter* g_pCurrentlyUpdatingCharacter;
-
-    // TODO: 38.15% match - dispatch tree and per-trigger action blocks still need
-    // exact case-level behavior, call ordering, and register allocation.
     AnimTriggerCallbackInfo* pInfo = (AnimTriggerCallbackInfo*)uParam;
     cCharacter* pCharacter = g_pCurrentlyUpdatingCharacter;
     switch (pInfo->m_uEventID)
@@ -210,158 +211,830 @@ void CharacterTriggerHandler(unsigned int uParam)
         break;
 
     case 0xC9F4F4B0:
+    {
+        s32 hasPad = ((cPlayer*)pCharacter)->GetGlobalPad() != NULL;
+        s32 ownsBall = 0;
+        if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
+            ownsBall = 1;
+        if (g_pBall != NULL && !hasPad && !ownsBall)
+            break;
+        g_pCurrentlyUpdatingCharacter->m_pCharacterSFX->PlayRandomWalkFootstep(100.0f, true);
+        break;
+    }
+
     case 0x50DF765D:
+    {
+        s32 hasPad = ((cPlayer*)pCharacter)->GetGlobalPad() != NULL;
+        s32 ownsBall = 0;
+        if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
+            ownsBall = 1;
+        if (g_pBall != NULL && !hasPad && !ownsBall)
+            break;
+        g_pCurrentlyUpdatingCharacter->m_pCharacterSFX->PlayRandomWalkFootstep(100.0f, true);
+        break;
+    }
+
     case 0x3741435B:
+    {
+        s32 hasPad = ((cPlayer*)pCharacter)->GetGlobalPad() != NULL;
+        s32 ownsBall = 0;
+        if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
+            ownsBall = 1;
+        if (g_pBall != NULL && !hasPad && !ownsBall)
+            break;
+        g_pCurrentlyUpdatingCharacter->m_pCharacterSFX->PlayRandomWalkFootstep(100.0f, true);
+        break;
+    }
+
     case 0xE36392C8:
-    case 0x25642360:
-    case 0x35B0F74E:
-        if (pCharacter->m_pCharacterSFX != NULL)
+    {
+        s32 hasPad = ((cPlayer*)pCharacter)->GetGlobalPad() != NULL;
+        s32 ownsBall = 0;
+        if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
+            ownsBall = 1;
+        if (g_pBall != NULL && !hasPad && !ownsBall)
+            break;
+        g_pCurrentlyUpdatingCharacter->m_pCharacterSFX->PlayRandomWalkFootstep(100.0f, true);
+        break;
+    }
+
+    case 0x7D452499:
+    {
+        s16 teamSlot = (s16)((cPlayer*)pCharacter)->m_pTeam->m_nSide;
+        if (nlSingleton<GameInfoManager>::s_pInstance->GetTeam(teamSlot) != 8)
+            break;
+        s32 isGoalie = (pCharacter->m_eClassType == GOALIE);
+        s32 hasPad = ((cPlayer*)pCharacter)->GetGlobalPad() != NULL;
+        s32 ownsBall = 0;
+        if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
+            ownsBall = 1;
+        if (g_pBall != NULL && !isGoalie && !hasPad && !ownsBall)
+            break;
+        g_pCurrentlyUpdatingCharacter->Play3DSFX((Audio::eCharSFX)0x64, (PosUpdateMethod)2, 100.0f);
+        break;
+    }
+
+    case 0x8F6B5826:
+    {
+        s16 teamSlot = (s16)((cPlayer*)pCharacter)->m_pTeam->m_nSide;
+        if (nlSingleton<GameInfoManager>::s_pInstance->GetTeam(teamSlot) != 8)
+            break;
+        s32 isGoalie = (pCharacter->m_eClassType == GOALIE);
+        s32 hasPad = ((cPlayer*)pCharacter)->GetGlobalPad() != NULL;
+        s32 ownsBall = 0;
+        if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
+            ownsBall = 1;
+        if (g_pBall != NULL && !isGoalie && !hasPad && !ownsBall)
+            break;
+        g_pCurrentlyUpdatingCharacter->Play3DSFX((Audio::eCharSFX)0x63, (PosUpdateMethod)2, 100.0f);
+        break;
+    }
+
+    case 0x0E4E0F3F:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("landing_feet"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
         {
-            pCharacter->m_pCharacterSFX->PlayRandomWalkFootstep(pInfo->m_fIntensity, false);
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
         }
+        pCharacter->AttachEffect(pController);
+        pController->SetPosition(pCharacter->m_v3Position);
+        break;
+    }
+
+    case 0x64D870A7:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("toad_goal_hi_0_dust"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pController->SetPosition(pCharacter->m_v3Position);
+        break;
+    }
+
+    case 0x4DDC1C64:
+        if (pCharacter->m_eClassType == FIELDER)
+            ((cFielder*)pCharacter)->ThrowPowerup();
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x47, (PosUpdateMethod)2, 100.0f);
+        break;
+
+    case 0x5251A784:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("pull_head_out"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pController->m_uUserData = GetCharacterIndex(pCharacter);
+        {
+            Function<EmissionController&> update2;
+            update2.mTag = FREE_FUNCTION;
+            update2.mFreeFunction = UpdateEmitterFromCharacter;
+            pController->SetUpdateCallback(update2);
+        }
+        BeginRumbleAction(RUMBLE_MEDIUM_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x45, (PosUpdateMethod)2, 1.0f);
+        break;
+    }
+
+    case 0xAC6452C8:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("slide_tackle_trail"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pController->m_uUserData = GetCharacterIndex(pCharacter);
+        {
+            Function<EmissionController&> update2;
+            update2.mTag = FREE_FUNCTION;
+            update2.mFreeFunction = UpdateEmitterFromCharacter;
+            pController->SetUpdateCallback(update2);
+        }
+        break;
+    }
+
+    case 0x6D249451:
+        pCharacter->EndEffect(fxGetGroup("slide_tackle_trail"));
         break;
 
     case 0x0F3E9247:
     case 0xC5408AC8:
-        ((cPlayer*)pCharacter)->ClearPowerupAnimState(false);
+        if (pCharacter->m_eClassType == FIELDER)
+            ((cPlayer*)pCharacter)->ClearPowerupAnimState(false);
+        break;
+
+    case 0xC28E3737:
+    {
+        if (g_pBall->mbIsPerfectShot)
+            Audio::gStadGenSFX.Stop((Audio::eWorldSFX)0xB9, cGameSFX::SFX_STOP_FIRST);
+        Audio::gStadGenSFX.Stop((Audio::eWorldSFX)0xBA, cGameSFX::SFX_STOP_FIRST);
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("ball_impact"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.0f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterFromBall;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pController->SetPosition(g_pBall->m_v3Position);
+        pController->SetVelocity(g_pBall->m_v3Velocity);
+        eClassTypes classType = pCharacter->m_eClassType;
+        s32 sfxId = 0xB7;
+        if (classType == FIELDER)
+        {
+            s32 animId = pCharacter->m_eAnimID;
+            if (animId == 0x38)
+                sfxId = 0xB2;
+            else if (animId < 0x38)
+            {
+                if (animId >= 0x1D)
+                {
+                    if (animId < 0x23)
+                        sfxId = 0xC3;
+                }
+                else if (animId >= 0x1A)
+                {
+                    sfxId = 0xC3;
+                }
+            }
+            else if (animId < 0x40)
+            {
+                if (animId >= 0x3D)
+                    sfxId = 0xB2;
+            }
+        }
+        if (classType == FIELDER)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(sfxId, true);
+            attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
+        BeginRumbleAction(RUMBLE_SMALL_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
+        break;
+    }
+
+    case 0x5F5115CE:
+    {
+        cBall* pBall = g_pBall;
+        bool bPlayLine7 = false;
+        if (pBall != NULL && pBall->m_pPassTarget == NULL)
+        {
+            if ((cPlayer*)pCharacter == pBall->m_pOwner || (cPlayer*)pCharacter == pBall->m_pPrevOwner)
+                bPlayLine7 = true;
+        }
+
+        if (pBall == NULL || pBall->m_pPassTarget == (cPlayer*)pCharacter || bPlayLine7)
+            pCharacter->PlayRandomCharDialogue(7, (PosUpdateMethod)2, 100.0f, -1.0f);
+        else
+            pCharacter->PlayRandomCharDialogue(6, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+    }
+
+    case 0x31DDC064:
+        if (g_pBall->mbHyperSTS)
+            pCharacter->PlayRandomCharDialogue(6, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
+    case 0x8F5F00CF:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            s16 teamSlot = (s16)((cPlayer*)pCharacter)->m_pTeam->m_nSide;
+            if (nlSingleton<GameInfoManager>::s_pInstance->GetTeam(teamSlot) == 8)
+                pCharacter->PlayRandomCharDialogue(6, (PosUpdateMethod)2, 100.0f, -1.0f);
+            else
+                pCharacter->Play3DSFX((Audio::eCharSFX)0x5E, (PosUpdateMethod)2, 1.0f);
+        }
+        break;
+
+    case 0x8F5ED456:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0xC1, true);
+            attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
+        break;
+
+    case 0x00266A23:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("dazed"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pController->m_uUserData = GetCharacterIndex(pCharacter);
+        {
+            Function<EmissionController&> update2;
+            update2.mTag = FREE_FUNCTION;
+            update2.mFreeFunction = UpdateEmitterFromCharacter;
+            pController->SetUpdateCallback(update2);
+        }
+        pCharacter->m_pCharacterSFX->StopPlayingAllRandomCharDialogue();
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0x36, true);
+            attrs.m_unk_0x7B = true;
+            pCharacter->PlaySFX(attrs);
+        }
+        else
+            pCharacter->Play3DSFX((Audio::eCharSFX)0x36, (PosUpdateMethod)2, 1.0f);
+        break;
+    }
+
+    case 0xD4C678A2:
+    {
+        if (g_pBall->m_pOwner == (cPlayer*)pCharacter)
+        {
+            EmissionController* pController = EmissionManager::Create(fxGetGroup("divot"), 0);
+            const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+            pController->SetVelocity(vel);
+            pController->m_fGround = 0.02f;
+            {
+                Function<EmissionController&> update;
+                update.mTag = FREE_FUNCTION;
+                update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+                pController->SetUpdateCallback(update);
+            }
+            pCharacter->AttachEffect(pController);
+            pController->SetPosition(g_pBall->m_v3Position);
+            pController->SetVelocity(pCharacter->m_v3Velocity);
+        }
+        break;
+    }
+
+    case 0x77935C1C:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("landing"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        BeginRumbleAction(RUMBLE_MEDIUM_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
+        break;
+    }
+
+    case 0xA1638ABB:
+    {
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x1B, (PosUpdateMethod)2, 1.0f);
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("bomb_landing"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        BeginRumbleAction(RUMBLE_SHOT_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
+        break;
+    }
+
+    case 0x73819990:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("tackle_impact"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pController->m_uUserData = GetCharacterIndex(pCharacter);
+        {
+            Function<EmissionController&> update2;
+            update2.mTag = FREE_FUNCTION;
+            update2.mFreeFunction = UpdateEmitterFromCharacter;
+            pController->SetUpdateCallback(update2);
+        }
+        BeginRumbleAction(RUMBLE_SOLID_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
+        break;
+    }
+
+    case 0x0C3A8B39:
+        BeginRumbleAction(RUMBLE_SMALL_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x0D, (PosUpdateMethod)2, 1.0f);
+        break;
+
+    case 0xB8684601:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x0D, (PosUpdateMethod)2, 1.0f);
+        break;
+
+    case 0x71FED95E:
+        BeginRumbleAction(RUMBLE_SMALL_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
+        break;
+
+    case 0x18F99186:
+        BeginRumbleAction(RUMBLE_MEDIUM_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
         break;
 
     case 0x9DE91576:
         ((cFielder*)pCharacter)->DoSpeedBoost();
         break;
 
-    case 0x4DDC1C64:
-        ((cFielder*)pCharacter)->ThrowPowerup();
-        pCharacter->Play3DSFX((Audio::eCharSFX)0x2A, (PosUpdateMethod)2, 1.0f);
+    case 0xD900F524:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x0B, (PosUpdateMethod)2, 1.0f);
         break;
 
-    case 0xB26140F5:
-        g_pEventManager->CreateValidEvent(0x12, 0x38);
+    case 0x19076C94:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x11, (PosUpdateMethod)2, 1.0f);
+        pCharacter->PlayRandomCharDialogue(3, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
+    case 0xA89AC233:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x11, (PosUpdateMethod)2, 1.0f);
+        pCharacter->PlayRandomCharDialogue(2, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
+    case 0x97831FA1:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("tackle_react"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pController->m_uUserData = GetCharacterIndex(pCharacter);
+        {
+            Function<EmissionController&> update2;
+            update2.mTag = FREE_FUNCTION;
+            update2.mFreeFunction = UpdateEmitterFromCharacter;
+            pController->SetUpdateCallback(update2);
+        }
+        break;
+    }
+
+    case 0x1DF278FA:
+    {
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("shoot_to_score_windup"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pCharacter->AttachEffect(pController);
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x1C, (PosUpdateMethod)1, 100.0f);
+        Audio::gCrowdSFX.Play((Audio::eWorldSFX)0x9E, 100.0f, -1.0f, true, 1.0f);
+        {
+            Function<EmissionController&> update2;
+            update2.mTag = FREE_FUNCTION;
+            update2.mFreeFunction = UpdateEmitterFromBall;
+            pController->SetUpdateCallback(update2);
+        }
+        break;
+    }
+
+    case 0xFD96314E:
+    {
+        pCharacter->StopSFX((Audio::eCharSFX)0x4F);
+        if (((cFielder*)g_pCurrentlyUpdatingCharacter)->meS2SResult == S2S_SUPER_SHOT && ((cPlayer*)g_pCurrentlyUpdatingCharacter)->IsCaptain())
+            g_pCurrentlyUpdatingCharacter->StopSFX((Audio::eCharSFX)0x50);
+        g_pCurrentlyUpdatingCharacter->StopSFX((Audio::eCharSFX)0x3B);
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0xB5, true);
+            attrs.UseStationaryPosVector(g_pCurrentlyUpdatingCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
+        g_pCurrentlyUpdatingCharacter->Play3DSFX((Audio::eCharSFX)0x3C, (PosUpdateMethod)2, 100.0f);
+        break;
+    }
+
+    case 0x0A9AD93F:
+    {
+        if (!g_pCurrentlyUpdatingCharacter->IsPlayingEffect(fxGetGroup("shoot_to_score_windup")))
+            break;
+        nlMatrix4& nodeMatrix = g_pCurrentlyUpdatingCharacter->m_pPoseAccumulator->GetNodeMatrix(g_pCurrentlyUpdatingCharacter->m_nHeadJointIndex);
+        nlVector3 nodePos;
+        nodePos.f.x = nodeMatrix.m[3][0];
+        nodePos.f.y = nodeMatrix.m[3][1];
+        nodePos.f.z = nodeMatrix.m[3][2];
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0x4E, true);
+            attrs.UseStationaryPosVector(nodePos);
+            g_pCurrentlyUpdatingCharacter->PlaySFX(attrs);
+        }
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0x3A, true);
+            attrs.UseStationaryPosVector(nodePos);
+            g_pCurrentlyUpdatingCharacter->PlaySFX(attrs);
+        }
+        cCharacter* pChar2 = g_pCurrentlyUpdatingCharacter;
+        EmissionController* pController = EmissionManager::Create(fxGetGroup("shoot_to_score_jump"), 0);
+        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+        pController->SetVelocity(vel);
+        pController->m_fGround = 0.02f;
+        {
+            Function<EmissionController&> update;
+            update.mTag = FREE_FUNCTION;
+            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+            pController->SetUpdateCallback(update);
+        }
+        pChar2->AttachEffect(pController);
+        pController->SetPosition(pChar2->m_v3Position);
+        break;
+    }
+
+    case 0xEE2E062C:
+    {
+        pCharacter->StopSFX((Audio::eCharSFX)0x4E);
+        nlMatrix4& nodeMatrix = g_pCurrentlyUpdatingCharacter->m_pPoseAccumulator->GetNodeMatrix(g_pCurrentlyUpdatingCharacter->m_nHeadJointIndex);
+        nlVector3 nodePos;
+        nodePos.f.x = nodeMatrix.m[3][0];
+        nodePos.f.y = nodeMatrix.m[3][1];
+        nodePos.f.z = nodeMatrix.m[3][2];
+        if (((cFielder*)g_pCurrentlyUpdatingCharacter)->meS2SResult == S2S_SUPER_SHOT && ((cPlayer*)g_pCurrentlyUpdatingCharacter)->IsCaptain())
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0x50, true);
+            attrs.UseStationaryPosVector(nodePos);
+            g_pCurrentlyUpdatingCharacter->PlaySFX(attrs);
+        }
+        else
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0x4F, true);
+            attrs.UseStationaryPosVector(nodePos);
+            g_pCurrentlyUpdatingCharacter->PlaySFX(attrs);
+        }
+        g_pCurrentlyUpdatingCharacter->StopSFX((Audio::eCharSFX)0x3A);
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0x3B, true);
+            attrs.UseStationaryPosVector(nodePos);
+            g_pCurrentlyUpdatingCharacter->PlaySFX(attrs);
+        }
+        break;
+    }
+
+    case 0xB631C31A:
+        if (pCharacter->m_eClassType == GOALIE)
+            ((Goalie*)pCharacter)->DoPassRelease();
+        break;
+
+    case 0x6580E428:
+    {
+        s32 hasPad = ((cPlayer*)pCharacter)->GetGlobalPad() != NULL;
+        s32 ownsBall = 0;
+        if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
+            ownsBall = 1;
+        if (g_pBall != NULL && !hasPad && !ownsBall)
+            break;
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x0E, (PosUpdateMethod)2, 1.0f);
+        break;
+    }
+
+    case 0xEF7B7383:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x12, (PosUpdateMethod)2, 1.0f);
         break;
 
     case 0x0618ECF3:
-    case 0x09656D24:
-    case 0x8758B65A:
-    case 0x8F5ED456:
-    case 0x95014E78:
-    case 0x9913FAA3:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x47, (PosUpdateMethod)2, 1.0f);
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0xBE, true);
+            attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
+    case 0x05120C87:
+        pCharacter->PlayRandomCharDialogue(6, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
+    case 0xFCE1230C:
+        pCharacter->PlayRandomCharDialogue(2, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
+    case 0xF2DA216B:
+        pCharacter->PlayRandomCharDialogue(1, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
     case 0x9F338B11:
-    case 0xD4DEDCAF:
+        if (Audio::gStadGenSFX.mbInited)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0xC6, true);
+            attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
+        break;
+
+    case 0x42E9F9CF:
+        pCharacter->PlayRandomCharDialogue(3, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
+    case 0x12D0B9BF:
+        pCharacter->PlayRandomCharDialogue(0, (PosUpdateMethod)2, 100.0f, -1.0f);
+        break;
+
+    case 0x95014E78:
     {
         Audio::SoundAttributes attrs;
         attrs.Init();
-        attrs.SetSoundType(0x36, true);
+        attrs.SetSoundType(0xBF, true);
         attrs.UseStationaryPosVector(pCharacter->m_v3Position);
         Audio::gStadGenSFX.Play(attrs);
         break;
     }
 
-    case 0xC28E3737:
-        Audio::gStadGenSFX.Stop((Audio::eWorldSFX)0xB9, cGameSFX::SFX_STOP_FIRST);
+    case 0x21001B24:
+        if (pCharacter->m_eClassType == GOALIE)
+            pCharacter->Play3DSFX((Audio::eCharSFX)0x37, (PosUpdateMethod)2, 1.0f);
         break;
 
-    case 0x6D249451:
-        pCharacter->EndEffect(fxGetGroup("freeze"));
+    case 0xA9BF9E5A:
+        pCharacter->PlayRandomCharDialogue(5, (PosUpdateMethod)2, 100.0f, -1.0f);
         break;
 
-    case 0xFD96314E:
-        pCharacter->StopSFX((Audio::eCharSFX)0x16);
-        pCharacter->StopSFX((Audio::eCharSFX)0x1D);
+    case 0x479F48A7:
+        pCharacter->PlayRandomCharDialogue(8, (PosUpdateMethod)2, 100.0f, -1.0f);
         break;
 
-    case 0x1DB5C7FF:
-        pCharacter->StopSFX((Audio::eCharSFX)0x16);
+    case 0xC19CB638:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x0C, (PosUpdateMethod)1, 1.0f);
         break;
 
-    case 0x0A9AD93F:
+    case 0x884CBC6E:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            pCharacter->Play3DSFX((Audio::eCharSFX)0x62, (PosUpdateMethod)2, 1.0f);
+            pCharacter->PlayRandomCharDialogue(1, (PosUpdateMethod)2, 100.0f, -1.0f);
+        }
+        break;
+
+    case 0x93E76D8E:
+        if (pCharacter->m_eClassType == GOALIE)
+            pCharacter->Play3DSFX((Audio::eCharSFX)0x5D, (PosUpdateMethod)2, 1.0f);
+        break;
+
+    case 0xD847ABD3:
     {
-        const nlVector3 normal = { 0.0f, 0.0f, 1.0f };
-        CharacterElectrocutionEffect(pCharacter, pCharacter->m_v3Position, normal);
+        Audio::SoundAttributes attrs;
+        attrs.Init();
+        attrs.SetSoundType(0x11, true);
+        attrs.m_unk_0x7B = true;
+        pCharacter->PlaySFX(attrs);
+        Audio::SoundAttributes attrs2;
+        attrs2.Init();
+        attrs2.SetSoundType(0x11, true);
+        attrs2.UseStationaryPosVector(pCharacter->m_v3Position);
+        pCharacter->m_pCharacterSFX->PlayRandomCharDialogue((CharDialogueType)3, attrs2, true, NULL);
         break;
     }
 
-    case 0xEE2E062C:
-        KillWindups(pCharacter);
+    case 0x8758B65A:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0x54, true);
+            attrs.m_unk_0x7B = true;
+            pCharacter->PlaySFX(attrs);
+        }
+        else
+            pCharacter->Play3DSFX((Audio::eCharSFX)0x54, (PosUpdateMethod)1, 1.0f);
         break;
 
-    case 0x00266A23:
-    case 0x73819990:
-        EmitStar((cFielder*)pCharacter);
+    case 0x1DB5C7FF:
+        pCharacter->StopSFX((Audio::eCharSFX)0x54);
         break;
 
-    case 0x77935C1C:
-    case 0x97831FA1:
-        EmitMushroom((cFielder*)pCharacter);
+    case 0x7E987E12:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0xB7, true);
+            attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
         break;
 
-    case 0xD4C678A2:
-    case 0xA1638ABB:
-        EmitFreeze((cPlayer*)pCharacter);
+    case 0xD4DEDCAF:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0xBE, true);
+            attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
         break;
 
-    case 0x0E4E0F3F:
-    case 0x64D870A7:
-    case 0xAC6452C8:
-        EmitDaze((cPlayer*)pCharacter);
+    case 0x09656D24:
+    {
+        Audio::SoundAttributes attrs;
+        attrs.Init();
+        attrs.SetSoundType(0xC0, true);
+        attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+        Audio::gStadGenSFX.Play(attrs);
         break;
+    }
 
-    case 0x1DF278FA:
-    case 0x5251A784:
-        EmitUnFreeze((cPlayer*)pCharacter);
-        break;
-
-    case 0xB631C31A:
-        EmitBallPass((cPlayer*)pCharacter);
-        break;
-
-    case 0x6580E428:
-    case 0x7D452499:
-    case 0x8F6B5826:
-    case 0x18F99186:
-    case 0x71FED95E:
-        BeginRumbleAction(RUMBLE_SMALL_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
-        break;
-
-    case 0x0C3A8B39:
-        BeginRumbleAction(RUMBLE_SOLID_CONTACT, ((cPlayer*)pCharacter)->GetGlobalPad());
-        pCharacter->Play3DSFX((Audio::eCharSFX)0x36, (PosUpdateMethod)2, 1.0f);
-        break;
-
-    case 0x19076C94:
-    case 0xA89AC233:
-    case 0x884CBC6E:
-        pCharacter->Play3DSFX((Audio::eCharSFX)0x36, (PosUpdateMethod)2, 1.0f);
-        pCharacter->PlayRandomCharDialogue(4, (PosUpdateMethod)2, 100.0f, -1.0f);
+    case 0x9913FAA3:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            Audio::SoundAttributes attrs;
+            attrs.Init();
+            attrs.SetSoundType(0xB6, true);
+            attrs.UseStationaryPosVector(pCharacter->m_v3Position);
+            Audio::gStadGenSFX.Play(attrs);
+        }
         break;
 
     case 0x7BEE7EA1:
-    case 0x8758B729:
-    case 0xC7114630:
-    case 0x05120C87:
-    case 0x12D0B9BF:
-    case 0x31DDC064:
-    case 0x42E9F9CF:
-    case 0x479F48A7:
-    case 0xA9BF9E5A:
-    case 0xF2DA216B:
-    case 0xFCE1230C:
-        pCharacter->PlayRandomCharDialogue(6, (PosUpdateMethod)2, 100.0f, -1.0f);
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            s16 teamSlot = (s16)((cPlayer*)pCharacter)->m_pTeam->m_nSide;
+            if (nlSingleton<GameInfoManager>::s_pInstance->GetTeam(teamSlot) == 8)
+                pCharacter->PlayRandomCharDialogue(0, (PosUpdateMethod)2, 100.0f, -1.0f);
+            else
+                pCharacter->Play3DSFX((Audio::eCharSFX)0x5F, (PosUpdateMethod)2, 1.0f);
+        }
         break;
 
-    case 0x21001B24:
     case 0x2EF4FA11:
+        if (pCharacter->m_eClassType == GOALIE)
+            pCharacter->Play3DSFX((Audio::eCharSFX)0x60, (PosUpdateMethod)2, 1.0f);
+        break;
+
+    case 0xC7114630:
+        if (pCharacter->m_eClassType == GOALIE)
+        {
+            s16 teamSlot = (s16)((cPlayer*)pCharacter)->m_pTeam->m_nSide;
+            if (nlSingleton<GameInfoManager>::s_pInstance->GetTeam(teamSlot) == 8)
+                pCharacter->PlayRandomCharDialogue(0, (PosUpdateMethod)2, 100.0f, -1.0f);
+            else
+                pCharacter->Play3DSFX((Audio::eCharSFX)0x61, (PosUpdateMethod)2, 1.0f);
+        }
+        break;
+
+    case 0x25642360:
+    case 0x35B0F74E:
+        if (pCharacter->m_eClassType == GOALIE)
+            pCharacter->m_pCharacterSFX->PlayRandomWalkFootstep(100.0f, true);
+        break;
+
+    case 0xB26140F5:
+    {
+        if (g_pBall != NULL)
+        {
+            Event* pEvent = g_pEventManager->CreateValidEvent(0x24, 0x3C);
+            CollisionBallGroundData* pEventData = pEvent ? new (&pEvent->m_data) CollisionBallGroundData() : NULL;
+
+            pEventData->pBall = g_pBall;
+
+            bool bIsShot = false;
+            if (g_pBall->m_tShotTimer.m_uPackedTime != 0 && g_pBall->m_unk_0xA4)
+                bIsShot = true;
+
+            if (bIsShot)
+                pEventData->bIsShot = 1;
+            else
+                pEventData->bIsShot = 0;
+
+            pEventData->position = g_pBall->m_v3Position;
+
+            pEventData->normal.f.x = 0.0f;
+            pEventData->normal.f.y = 0.0f;
+            pEventData->normal.f.z = 1.0f;
+
+            f32 speed = pInfo->m_fIntensity;
+            if (speed <= 100.0f)
+            {
+                pEventData->fVecZComponent = -3.0f;
+            }
+            else if (speed <= 200.0f)
+            {
+                pEventData->fVecZComponent = -4.5f;
+            }
+            else
+            {
+                pEventData->fVecZComponent = -6.0f;
+            }
+        }
+        else
+        {
+            Audio::gStadGenSFX.Play((Audio::eWorldSFX)0xC8, 100.0f, -1.0f, true, 100.0f);
+        }
+        break;
+    }
+
     case 0x4C59A919:
-    case 0xACDB2215:
-    case 0xB8684601:
-    case 0xC19CB638:
-    case 0xD900F524:
-    case 0x93E76D8E:
-    case 0xEF7B7383:
         pCharacter->Play3DSFX((Audio::eCharSFX)0x36, (PosUpdateMethod)2, 1.0f);
         break;
 
-    case 0x5F5115CE:
-        EmitSolidRumble((cPlayer*)pCharacter);
+    case 0xACDB2215:
+        pCharacter->Play3DSFX((Audio::eCharSFX)0x12, (PosUpdateMethod)2, 1.0f);
         break;
 
     default:
@@ -529,8 +1202,6 @@ void EmitBallPass(cPlayer* pPlayer)
  */
 void EmitBallShot(cPlayer* pCharacter, eBallShotEffectType eNewBallEffect, cPlayer*, bool bSilent)
 {
-    // TODO: 71.87% match - captain-team shot effect string path and stack/register
-    // layout around the switch still differ from target.
     EmissionController* pControl = NULL;
     EmissionController* pGlowControl = NULL;
     unsigned long kickSound = (unsigned long)-1;
@@ -556,18 +1227,42 @@ void EmitBallShot(cPlayer* pCharacter, eBallShotEffectType eNewBallEffect, cPlay
     }
     case BALL_EFFECT_S2S_SHOT:
     {
-        EmissionController* pController = EmissionManager::Create(fxGetGroup("shoot_to_score_shot"), 0);
-        const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
-        pController->SetVelocity(vel);
-        pController->m_fGround = 0.0f;
+        if (pCharacter->IsCaptain() || nlSingleton<GameInfoManager>::s_pInstance->GetTeam((s16)pCharacter->m_pTeam->m_nSide) == 8)
         {
-            Function<EmissionController&> update;
-            update.mTag = FREE_FUNCTION;
-            update.mFreeFunction = UpdateEmitterPoseFromCharacter;
-            pController->SetUpdateCallback(update);
+            BasicString<char, Detail::TempStringAllocator> effectName(GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((s16)pCharacter->m_pTeam->m_nSide)));
+            effectName.AppendInPlace("_shoot_to_score_shot");
+
+            if (fxGetGroup(effectName.c_str()) != NULL)
+            {
+                EmissionController* pController = EmissionManager::Create(fxGetGroup(effectName.c_str()), 0);
+                const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+                pController->SetVelocity(vel);
+                pController->m_fGround = 0.0f;
+                {
+                    Function<EmissionController&> update;
+                    update.mTag = FREE_FUNCTION;
+                    update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+                    pController->SetUpdateCallback(update);
+                }
+                pCharacter->AttachEffect(pController);
+                pGlowControl = pController;
+            }
         }
-        pCharacter->AttachEffect(pController);
-        pGlowControl = pController;
+        else
+        {
+            EmissionController* pController = EmissionManager::Create(fxGetGroup("shoot_to_score_shot"), 0);
+            const nlVector3 vel = { 0.0f, 0.0f, 1.0f };
+            pController->SetVelocity(vel);
+            pController->m_fGround = 0.0f;
+            {
+                Function<EmissionController&> update;
+                update.mTag = FREE_FUNCTION;
+                update.mFreeFunction = UpdateEmitterPoseFromCharacter;
+                pController->SetUpdateCallback(update);
+            }
+            pCharacter->AttachEffect(pController);
+            pGlowControl = pController;
+        }
         BeginRumbleAction((eRumbleActionPreset)5, pCharacter->GetGlobalPad());
         break;
     }
@@ -599,8 +1294,8 @@ void EmitBallShot(cPlayer* pCharacter, eBallShotEffectType eNewBallEffect, cPlay
         pGlowControl = pController;
 
         BeginRumbleAction((eRumbleActionPreset)3, pCharacter->GetGlobalPad());
-        g_pBall->InitiateBallBlur(eNewBallEffect, NULL);
         kickSound = 0xBB;
+        g_pBall->InitiateBallBlur(eNewBallEffect, NULL);
         break;
     }
     case BALL_EFFECT_PERFECT_PASS:
@@ -638,7 +1333,7 @@ void EmitBallShot(cPlayer* pCharacter, eBallShotEffectType eNewBallEffect, cPlay
         const float dy = g_pBall->m_v3Position.f.y - g_pBall->m_pPassTarget->m_v3Position.f.y;
         const float dz = g_pBall->m_v3Position.f.z - g_pBall->m_pPassTarget->m_v3Position.f.z;
         const float distSq = dx * dx + dy * dy + dz * dz;
-        if (distSq > 0.0f)
+        if (distSq > g_pGame->m_pGameTweaks->unk22C)
         {
             Audio::SoundAttributes attrs;
             attrs.Init();
@@ -663,8 +1358,8 @@ void EmitBallShot(cPlayer* pCharacter, eBallShotEffectType eNewBallEffect, cPlay
         pCharacter->AttachEffect(pController);
         pControl = pController;
         BeginRumbleAction((eRumbleActionPreset)3, pCharacter->GetGlobalPad());
-        g_pBall->InitiateBallBlur(eNewBallEffect, NULL);
         kickSound = 0xB4;
+        g_pBall->InitiateBallBlur(eNewBallEffect, NULL);
         break;
     }
     case BALL_EFFECT_CHIP_SHOT:

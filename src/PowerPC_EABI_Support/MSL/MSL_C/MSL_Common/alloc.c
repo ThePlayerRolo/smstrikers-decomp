@@ -763,7 +763,7 @@ void* allocate_from_fixed_pools(__mem_pool_obj* pool_obj, u32 size)
 
         p->block_ = b;
         p->next_ = NULL;
-        b->start_ = (FixSubBlock*)((char*)b + 0x14);
+        b->start_ = (FixSubBlock*)((char*)block + 0x14);
         b->n_allocated_ = 0;
         fs->head_ = b;
     }

@@ -547,7 +547,7 @@ void GCAudioStreaming::MonoAudioStream::Warm(bool CoolOnStop)
 
 /**
  * Offset/Address/Size: 0xA48 | 0x801C81F8 | size: 0x384
- * TODO: 79.22% match - buffer loop r-swaps, pADPCMHdr offset calc, init register allocation
+ * TODO: 82.77% match - buffer loop register swaps and callback pool register allocation around OSDisableInterrupts
  */
 void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
 {
@@ -555,22 +555,23 @@ void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
     m_Flags &= ~(1 << SF_SeriousStop);
     m_Flags = (m_Flags & ~(1 << SF_CoolOnStop)) | ((unsigned long)CoolOnStop << SF_CoolOnStop);
 
-    AudioStreamBuffer* pBuf;
     AudioBufferMgr& mgr = m_BuffMgr;
+    AudioStreamBuffer* pBuf;
     unsigned long i = 0;
     unsigned long buffer;
-    unsigned long free;
+    unsigned long freeBuffer;
     unsigned long mask;
     unsigned long test;
 
     for (unsigned long j = 0; j < mgr.m_BufferCount; j++)
     {
-        free = mgr.m_BuffersFree;
+        freeBuffer = mgr.m_BuffersFree;
         mask = 1 << i;
-        test = free & mask;
-        if (test)
+        test = freeBuffer & mask;
+        test = (-(long)test | test) >> 31;
+        if ((int)test == 1)
         {
-            mgr.m_BuffersFree = free & ~mask;
+            mgr.m_BuffersFree = freeBuffer & ~mask;
             pBuf = &mgr.m_Buffers[i];
             pBuf->m_pStream = this;
             pBuf->m_UpdateOffset = 0;
@@ -594,12 +595,13 @@ void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
     i = 0;
     for (unsigned long j = 0; j < mgr.m_BufferCount; j++)
     {
-        free = mgr.m_BuffersFree;
+        freeBuffer = mgr.m_BuffersFree;
         mask = 1 << i;
-        test = free & mask;
-        if (test)
+        test = freeBuffer & mask;
+        test = (-(long)test | test) >> 31;
+        if ((int)test == 1)
         {
-            mgr.m_BuffersFree = free & ~mask;
+            mgr.m_BuffersFree = freeBuffer & ~mask;
             pBuf = &mgr.m_Buffers[i];
             pBuf->m_pStream = this;
             pBuf->m_UpdateOffset = 0;
@@ -663,26 +665,31 @@ void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
     void* pInterlvHdr = nlMalloc(sizeof(INTERLEAVED_ADPCM_HEADER), 0x20, true);
     nlReadAsync(m_pFile, pInterlvHdr, sizeof(INTERLEAVED_ADPCM_HEADER), _InterleavedHdrReadCB, (unsigned long)this);
 
-    unsigned long alignedHdr = ((unsigned long)mgr.m_ADPCMHdrMem + 0x1F) & ~0x1F;
+    AudioStreamBuffer** pBufferIndex = m_Buffers;
     for (buffer = 0; buffer < 2; buffer++)
     {
-        void* pADPCMHdr = (void*)(alignedHdr + buffer * 4);
+        void* pADPCMHdr = (void*)(((unsigned long)mgr.m_ADPCMHdrMem + 0x1F) & ~0x1F);
 
-        bool enabled = OSDisableInterrupts();
+        unsigned long enabled = OSDisableInterrupts();
         READ_CB_INFO* pCBInfo = READ_CB_INFO::s_AllocPool.m_pFree;
         if (pCBInfo)
         {
             READ_CB_INFO::s_AllocPool.m_pFree = pCBInfo->m_next;
+        }
+        else
+        {
+            pCBInfo = 0;
         }
         OSRestoreInterrupts(enabled);
 
         if (pCBInfo)
         {
             pCBInfo->m_next = (READ_CB_INFO*)this;
-            pCBInfo->pBuffer = m_Buffers[buffer];
+            pCBInfo->pBuffer = *pBufferIndex;
         }
 
         nlReadAsync(m_pFile, pADPCMHdr, sizeof(sDSPADPCM), _HdrReadCB, (unsigned long)pCBInfo);
+        pBufferIndex++;
     }
 }
 

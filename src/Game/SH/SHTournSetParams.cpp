@@ -118,7 +118,7 @@ void TournSetParamsScene::BuildSubMenuList(int menuitem, TLComponentInstance* co
         }
         item->mSlideMenuHash = slideHash;
 
-        MenuItem<SlideMenuItem>* menuItem = &sml->mMenuItems[sml->mNumItemsAdded];
+        MenuItem<SlideMenuItem>* menuItem = sml->mMenuItems + sml->mNumItemsAdded;
         menuItem->mType = item;
         sml->mNumItemsAdded++;
 

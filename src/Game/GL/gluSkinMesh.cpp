@@ -7,6 +7,7 @@
 #include "NL/glx/glxDisplayList.h"
 #include "NL/nlDLRing.h"
 #include "NL/nlString.h"
+#include "NL/platvmath.h"
 #include "dolphin/PPCArch.h"
 #include "dolphin/os/OSCache.h"
 
@@ -122,7 +123,7 @@ void ShaderSkinMesh::AttachSkinData(unsigned long program, const nlMatrix4* pRef
 
                 for (unsigned int i = 0; i < curr->num; i++)
                 {
-                    const SkinPair& pair = curr->pairs[i];
+                    SkinPair& pair = curr->pairs[i];
                     float vertexWeight = (float)pair.vertexWeight / 65535.0f;
                     int index = pair.vertexIndex;
 
@@ -138,19 +139,15 @@ void ShaderSkinMesh::AttachSkinData(unsigned long program, const nlMatrix4* pRef
 
                     const signed char* packed = softwareVertices[index].packed_normal;
                     nlVector3 inNormal;
-                    inNormal.f.x = (float)packed[1] * invNormalScale;
-                    inNormal.f.y = (float)packed[0] * invNormalScale;
+                    inNormal.f.x = (float)packed[0] * invNormalScale;
+                    inNormal.f.y = (float)packed[1] * invNormalScale;
                     inNormal.f.z = (float)packed[2] * invNormalScale;
 
                     nlVector3 transformedVertex;
-                    transformedVertex.f.x = matrix.m[0][0] * inVertex->f.x + matrix.m[1][0] * inVertex->f.y + matrix.m[2][0] * inVertex->f.z + matrix.m[3][0];
-                    transformedVertex.f.y = matrix.m[0][1] * inVertex->f.x + matrix.m[1][1] * inVertex->f.y + matrix.m[2][1] * inVertex->f.z + matrix.m[3][1];
-                    transformedVertex.f.z = matrix.m[0][2] * inVertex->f.x + matrix.m[1][2] * inVertex->f.y + matrix.m[2][2] * inVertex->f.z + matrix.m[3][2];
+                    nlMultPosVectorMatrix(transformedVertex, *inVertex, matrix);
 
                     nlVector3 transformedNormal;
-                    transformedNormal.f.x = matrix.m[0][0] * inNormal.f.x + matrix.m[1][0] * inNormal.f.y + matrix.m[2][0] * inNormal.f.z;
-                    transformedNormal.f.y = matrix.m[0][1] * inNormal.f.x + matrix.m[1][1] * inNormal.f.y + matrix.m[2][1] * inNormal.f.z;
-                    transformedNormal.f.z = matrix.m[0][2] * inNormal.f.x + matrix.m[1][2] * inNormal.f.y + matrix.m[2][2] * inNormal.f.z;
+                    nlMultDirVectorMatrix(transformedNormal, inNormal, matrix);
 
                     outVertices[index].f.x += transformedVertex.f.x * vertexWeight;
                     outVertices[index].f.y += transformedVertex.f.y * vertexWeight;

@@ -26,7 +26,7 @@ struct DisplayListEx
 
 /**
  * Offset/Address/Size: 0x0 | 0x801C1E5C | size: 0x2A8
- * TODO: 82.35% match - inner loops use addic./bne instead of bdnz ...
+ * TODO: 84.26% match - stream copy loop register/control-flow diffs remain.
  */
 DisplayList* dlMakeDisplayList(const glModelPacket* packet, bool permanent)
 {
@@ -104,7 +104,7 @@ DisplayList* dlMakeDisplayList(const glModelPacket* packet, bool permanent)
         if (hasCol)
         {
             // Color stream present - write 0xFF marker, then indices for other streams
-            u8 ns = packet->numStreams;
+            u32 ns = packet->numStreams;
             *dst++ = 0xFF;
             n = ns - 1;
             if (n > 0)
@@ -145,7 +145,7 @@ DisplayList* dlMakeDisplayList(const glModelPacket* packet, bool permanent)
         else
         {
             // No color stream - write indices for all streams
-            u8 ns = packet->numStreams;
+            u32 ns = packet->numStreams;
             n = ns;
             if (n > 0)
             {

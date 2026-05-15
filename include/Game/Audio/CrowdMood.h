@@ -72,7 +72,6 @@ struct MOOD_DEFINITION
 
 void UpdateTiming(float);
 void PlayMoodDef(MOOD_DEFINITION&);
-void MoodDefFromBlend(float*, MOOD_DEFINITION&);
 void ChangeCrowdVolume(float);
 // void ___blank(const char*, ...);
 // void NDimDistance<4>(float*, float*);

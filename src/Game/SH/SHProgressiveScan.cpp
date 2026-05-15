@@ -281,9 +281,8 @@ void ProgressiveScanScene::SceneCreated()
 
 /**
  * Offset/Address/Size: 0x940 | 0x80110E10 | size: 0x3C8
- * TODO: 98.31% match - bool negation uses cntlzw/srwi (2 instr) instead of
- * subfic/addi/or/srwi (4 instr) due to -inline deferred vs -inline auto flag difference.
  */
+#pragma inline_depth(2)
 void ProgressiveScanScene::Update(float fDeltaT)
 {
     BaseSceneHandler::Update(fDeltaT);
@@ -340,12 +339,12 @@ void ProgressiveScanScene::Update(float fDeltaT)
     }
     if (!mHasChoiceBeenMade)
     {
-        if ((mElapsedTime += fDeltaT) >= 1.0f)
+        if ((mElapsedTime += fDeltaT) >= 0.5f)
         {
             mSelectorComponent->m_bVisible = true;
             if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 14, true, NULL) || g_pFEInput->IsAutoPressed(FE_ALL_PADS, 13, true, NULL))
             {
-                mElapsedTime = 1.0f;
+                mElapsedTime = 0.5f;
                 mUseProgressiveMode = (mUseProgressiveMode != 1);
                 if (mUseProgressiveMode)
                 {
@@ -360,7 +359,7 @@ void ProgressiveScanScene::Update(float fDeltaT)
             }
             else
             {
-                if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL) || mElapsedTime >= 10.0f)
+                if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL) || mElapsedTime >= 10.5f)
                 {
                     mHasChoiceBeenMade = true;
                     mFadingOut = true;
@@ -376,7 +375,7 @@ void ProgressiveScanScene::Update(float fDeltaT)
     }
     if (!mCanProceed && mHasChoiceBeenMade && mUseProgressiveMode)
     {
-        if ((mElapsedTime += fDeltaT) >= 2.0f)
+        if ((mElapsedTime += fDeltaT) >= 3.0f)
         {
             SwitchMessageImage();
             mCanProceed = true;
@@ -386,12 +385,13 @@ void ProgressiveScanScene::Update(float fDeltaT)
     if (mCanProceed)
     {
         mElapsedTime += fDeltaT;
-        if (mElapsedTime >= 5.0f || g_pFEInput->JustReleased(FE_ALL_PADS, 0x100, false, NULL) || g_pFEInput->JustReleased(FE_ALL_PADS, 0x200, false, NULL))
+        if (mElapsedTime >= 3.5f || g_pFEInput->JustReleased(FE_ALL_PADS, 0x100, false, NULL) || g_pFEInput->JustReleased(FE_ALL_PADS, 0x200, false, NULL))
         {
             nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_HEALTH_WARNING, SCREEN_NOTHING, true);
         }
     }
 }
+#pragma inline_depth()
 
 /**
  * Offset/Address/Size: 0x0 | 0x801104D0 | size: 0x940

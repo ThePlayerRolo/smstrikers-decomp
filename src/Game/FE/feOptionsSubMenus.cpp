@@ -30,6 +30,7 @@ void TempDisableSound();
 static const char* MAIN_MENU_SLIDE = "Slide1";
 static const char* VISUAL_MENU_SLIDE = "Slide6";
 static const char* SAVE_LOAD_SLIDE = "Slide_SaveLoad";
+static const char* CHEATS_MENU_SLIDE = "Slide5";
 static char* MENU_ITEMS_OSL[] = { "Item_Save", "Item_Load" };
 
 /**
@@ -115,9 +116,8 @@ void TempDisableSound();
 
 /**
  * Offset/Address/Size: 0x210 | 0x800B5254 | size: 0x410
- * TODO: 78.83% match - stmw r24 vs r25 register allocation (extra callee-saved reg for
- * buttonstate), missing li r0,0 before stmw, prologue store reordering (m_pres/m_buttons/
- * m_currentButtonState not hoisted before ButtonComponent ctor by MWCC -O4)
+ * TODO: 88.76% match - prologue register/save layout still differs (r24 vs r25 path and
+ * missing early li r0,0 before stmw), plus member store ordering around ButtonComponent ctor.
  */
 OptionsSaveLoad::OptionsSaveLoad(FEPresentation* presentation, ButtonComponent::ButtonState buttonstate)
 {
@@ -180,7 +180,7 @@ OptionsSaveLoad::OptionsSaveLoad(FEPresentation* presentation, ButtonComponent::
         if (i == 0)
             DoubleHighlite::TempDisableSound();
 
-        menuItem->mCallbacks[(i == 0) ? 1 : 2](menuItem->mType);
+        menuItem->ApplyAction((i == 0) ? ON_HIGHLIGHT : ON_UNHIGHLIGHT);
     }
 
     mMenuItems.mFlags = 1;
@@ -2183,7 +2183,7 @@ OptionsCheatsMenu::OptionsCheatsMenu(FEPresentation* pres, ButtonComponent::Butt
     mSlideMenuLists[6] = NULL;
     mSlideMenuLists[7] = NULL;
 
-    pres->SetActiveSlide("Slide5");
+    pres->SetActiveSlide(CHEATS_MENU_SLIDE);
     pres->Update(0.0f);
 
     SetButtonState(btnState);
@@ -2230,17 +2230,14 @@ OptionsCheatsMenu::OptionsCheatsMenu(FEPresentation* pres, ButtonComponent::Butt
         if (i == 0)
         {
             SingleHighlite::TempDisableSound();
-            menuItem->mCallbacks[1](menuItem->mType);
         }
-        else
-        {
-            menuItem->mCallbacks[2](menuItem->mType);
-        }
+
+        menuItem->mCallbacks[(i == 0) ? 1 : 2](menuItem->mType);
 
         mSlideMenuLists[i] = NULL;
     }
 
-    mMenuItems.mFlags = 3;
+    mMenuItems.mFlags = 1;
 
     compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,

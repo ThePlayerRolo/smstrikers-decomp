@@ -15,6 +15,13 @@ extern "C" void sndStreamMixParameterEx(unsigned long stid, unsigned char vol, u
 extern "C" void sndStreamLPFParameter(unsigned long, unsigned long, unsigned long);
 extern "C" void sndStreamDeactivate(unsigned long stid);
 
+class SoundStrToIDNode;
+class AudioLoader
+{
+public:
+    static unsigned long GetSFXIDFromStr(const char*, SoundStrToIDNode**);
+};
+
 struct CROWD_SETTINGS
 {
     /* 0x000 */ float MoodDecayDelay;
@@ -81,6 +88,8 @@ static void WarmRandomStream(const RANDOM_STREAMS& RandomStreams, T* pStream)
 {
     FORCE_DONT_INLINE;
 }
+
+static void MoodDefFromBlend(float*, MOOD_DEFINITION&);
 
 /**
  * Offset/Address/Size: 0x134 | 0x801514D0 | size: 0x2C
@@ -268,10 +277,139 @@ void ChangeCrowdVolume(float NewVolume)
 
 /**
  * Offset/Address/Size: 0x31F8 | 0x8015090C | size: 0x588
+ * TODO: 86.45% match - remaining diffs are pMaxBlend/index register flow and
+ *       inlined ScaleAndAddVocalDef scheduling around chant/heckle updates.
  */
-void MoodDefFromBlend(float*, MOOD_DEFINITION&)
+static inline void ScaleAndAddVocalDef(CROWD_VOCAL_DEFINITION& Dest, const CROWD_VOCAL_DEFINITION& Src, float Scale)
 {
-    FORCE_DONT_INLINE;
+    float srcVol = Src.Volume;
+    Dest.Volume += srcVol * Scale;
+    Dest.VolumeRange += Src.VolumeRange * Scale;
+    if (srcVol != 0.0f)
+    {
+        float invDelay;
+        if (Src.Delay != 0.0f)
+        {
+            invDelay = (1.0f / Src.Delay) * Scale;
+        }
+        else
+        {
+            invDelay = 1000000.0f;
+        }
+        Dest.Delay += invDelay;
+    }
+    else
+    {
+        Dest.Delay = (float)((double)Dest.Delay + 0.000001);
+    }
+    Dest.DelayRange += Src.DelayRange * Scale;
+}
+
+static void MoodDefFromBlend(float* MoodBlend, MOOD_DEFINITION& MoodDef)
+{
+    float Zero;
+    float* pMaxBlend;
+    float AccountedFor;
+    CrowdMood::CROWD_MOOD mood;
+    float zero = 0.0f;
+
+    memset(&MoodDef, 0, sizeof(MOOD_DEFINITION));
+
+    Zero = zero;
+    pMaxBlend = &Zero;
+    AccountedFor = zero;
+
+    for (mood = (CrowdMood::CROWD_MOOD)0; (int)mood < 4; Increment(mood))
+    {
+        if (fabsf(MoodBlend[mood] - zero) <= 0.0001f)
+        {
+            continue;
+        }
+
+        float blendVal = MoodBlend[(int)mood];
+
+        float* pNewMax;
+        if (blendVal > *pMaxBlend)
+        {
+            pNewMax = &MoodBlend[(int)mood];
+        }
+        else
+        {
+            pNewMax = pMaxBlend;
+        }
+
+        AccountedFor += g_CrowdState.CurrentMoodBlend[mood];
+        MoodDef.NeutralVol += g_MoodDefs[mood].NeutralVol * blendVal;
+        pMaxBlend = pNewMax;
+
+        MoodDef.PositiveVol += g_MoodDefs[mood].PositiveVol * MoodBlend[mood];
+        MoodDef.NegativeVol += g_MoodDefs[mood].NegativeVol * MoodBlend[mood];
+
+        ScaleAndAddVocalDef(MoodDef.Chant, g_MoodDefs[mood].Chant, MoodBlend[mood]);
+        ScaleAndAddVocalDef(MoodDef.Heckle, g_MoodDefs[mood].Heckle, MoodBlend[mood]);
+    }
+
+    float remainWeight = 1.0f - AccountedFor;
+    if (remainWeight <= 0.0f)
+    {
+        remainWeight = 0.0f;
+    }
+
+    const MOOD_DEFINITION& SatMoodDef = g_MoodDefs[CrowdMood::CM_Neutral];
+    MoodDef.NeutralVol += SatMoodDef.NeutralVol * remainWeight;
+    MoodDef.PositiveVol += SatMoodDef.PositiveVol * remainWeight;
+    MoodDef.NegativeVol += SatMoodDef.NegativeVol * remainWeight;
+    ScaleAndAddVocalDef(MoodDef.Chant, SatMoodDef.Chant, remainWeight);
+    ScaleAndAddVocalDef(MoodDef.Heckle, SatMoodDef.Heckle, remainWeight);
+
+    if (MoodDef.Chant.Delay != 0.0f)
+    {
+        MoodDef.Chant.Delay = 1.0f / MoodDef.Chant.Delay;
+    }
+    if (MoodDef.Heckle.Delay != 0.0f)
+    {
+        MoodDef.Heckle.Delay = 1.0f / MoodDef.Heckle.Delay;
+    }
+
+    if (*pMaxBlend < remainWeight)
+    {
+        pMaxBlend = MoodBlend + CrowdMood::CM_Neutral;
+    }
+
+    MoodDef.Chant.Volume -= MoodDef.Chant.VolumeRange;
+    MoodDef.Chant.VolumeRange *= 2.0f;
+    MoodDef.Chant.Delay -= MoodDef.Chant.DelayRange;
+    MoodDef.Chant.DelayRange *= 2.0f;
+    MoodDef.Heckle.Volume -= MoodDef.Heckle.VolumeRange;
+    MoodDef.Heckle.VolumeRange *= 2.0f;
+    MoodDef.Heckle.Delay -= MoodDef.Heckle.DelayRange;
+    MoodDef.Heckle.DelayRange *= 2.0f;
+
+    if (*pMaxBlend > 0.0f)
+    {
+        int dominantMood = (pMaxBlend - MoodBlend);
+        const MOOD_DEFINITION& SatDef = g_MoodDefs[dominantMood];
+        if (*pMaxBlend > SatDef.SaturationStart && SatDef.SaturationVolume > 0.0f)
+        {
+            float satFactor = (*pMaxBlend - SatDef.SaturationStart) / (1.0f - SatDef.SaturationStart);
+            MoodDef.SaturationVolume = satFactor * SatDef.SaturationVolume;
+            const char* sampleName = g_Settings.SaturationSampleNames[dominantMood];
+            if (g_CrowdAudio.CurrentSaturationSampleName != sampleName)
+            {
+                g_CrowdAudio.CurrentSaturationSampleName = sampleName;
+                MoodDef.SaturationSFXId = AudioLoader::GetSFXIDFromStr(sampleName, 0);
+            }
+            else
+            {
+                MoodDef.SaturationSFXId = g_CrowdAudio.CurrentSaturationSFXId;
+            }
+        }
+        else
+        {
+            MoodDef.SaturationVolume = 0.0f;
+            g_CrowdAudio.CurrentSaturationSampleName = 0;
+        }
+    }
 }
 
 /**

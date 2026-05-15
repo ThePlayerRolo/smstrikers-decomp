@@ -106,7 +106,7 @@ void FEPopupMenu::SetOptionTextColourOnCurrent(bool)
 /**
  * Offset/Address/Size: 0x164 | 0x80098410 | size: 0x2FC
  * TODO: 99.5% match - stack frame 0x150 vs 0x130: MWCC not reusing InlineHasher(0)
- * argument copy stack locations across Find calls (all diffs are stack offsets only).
+ * argument copy stack locations across sequential Find calls (all diffs are i-only).
  */
 void FEPopupMenu::ResizeHighlight()
 {
@@ -234,6 +234,7 @@ void FEPopupMenu::SetPositions()
     nlTextBox::StringDrawInfo drawInfo;
     float messageHeight;
     float highlightScale;
+    volatile float keepF22;
     nlColour colour;
     int i;
     nlColour colour2;
@@ -264,11 +265,16 @@ void FEPopupMenu::SetPositions()
         InlineHasher(0));
 
     messagePosition = pText->GetAssetPosition();
-    drawInfo = pText->m_DrawInfo;
+    struct Copy88
+    {
+        unsigned long w[22];
+    };
+    *(Copy88*)&drawInfo = *(Copy88*)&pText->m_DrawInfo;
     messageHeight = (float)(drawInfo.RowCount * drawInfo.pFont->m_Metrics.RenderHeight);
     prevOptionHeight = messageHeight * 0.5f;
     totalHeight = messageHeight;
     topOfMessage = messagePosition.e[1] + prevOptionHeight;
+    keepF22 = topOfMessage;
 
     if (messageHeight == 0.0f)
     {
@@ -444,6 +450,8 @@ void FEPopupMenu::SetPositions()
 
     pImage->SetAssetScale(mHighlightSize.e[0], mHighlightSize.e[1] * highlightScale, mHighlightSize.e[2]);
 
+    keepF22 += optionY;
+
     pHighlight->m_bVisible = true;
     mMenuDisplayed = true;
 }
@@ -616,11 +624,11 @@ void FEPopupMenu::Update(float fDeltaT)
 
 /**
  * Offset/Address/Size: 0x2F24 | 0x8009B1D0 | size: 0x6B8
- * TODO: 17.23% match - option-label string copy/update loop and popup-open event
- * selection path are still incomplete.
  */
 void FEPopupMenu::SceneCreated()
 {
+    typedef BasicString<unsigned short, Detail::TempStringAllocator> WStr;
+
     struct PopupStringData
     {
         unsigned short* mData;
@@ -640,7 +648,7 @@ void FEPopupMenu::SceneCreated()
         InlineHasher(0),
         InlineHasher(0));
 
-    PopupStringData*& textData = reinterpret_cast<PopupStringData*&>(mPopup.pMessage);
+    PopupStringData*& textData = reinterpret_cast<PopupStringData*&>(mPopup.pMessage->m_data);
     PopupStringData* oldData = textData;
 
     if (oldData == NULL)
@@ -697,13 +705,88 @@ void FEPopupMenu::SceneCreated()
         pText->m_OverloadFlags |= 4;
     }
 
-    for (int i = mPopup.numOptions; i < 4; i++)
+    WStr** optionLabel = mPopup.pOptionLabels;
+    char** optionName = optionNames;
+    int i;
+
+    for (i = 0; i < mPopup.numOptions; i++)
     {
         pText = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
             presentation,
             InlineHasher(nlStringLowerHash("Slide1")),
             InlineHasher(nlStringLowerHash("Layer")),
-            InlineHasher(nlStringLowerHash(optionNames[i])),
+            InlineHasher(nlStringLowerHash(*optionName)),
+            InlineHasher(0),
+            InlineHasher(0),
+            InlineHasher(0));
+
+        PopupStringData*& optionData = reinterpret_cast<PopupStringData*&>((*optionLabel)->m_data);
+        PopupStringData* oldOptionData = optionData;
+
+        if (oldOptionData == NULL)
+        {
+            PopupStringData* data = (PopupStringData*)nlMalloc(0x10, 8, true);
+            if (data != NULL)
+            {
+                data->mData = (unsigned short*)nlMalloc(2, 8, true);
+                data->mSize = 1;
+                data->mCapacity = 1;
+                data->mRefCount = 1;
+                data->mData[0] = 0;
+            }
+            optionData = data;
+        }
+        else if (oldOptionData->mRefCount != 1)
+        {
+            PopupStringData* data = (PopupStringData*)nlMalloc(0x10, 8, true);
+            if (data != NULL)
+            {
+                data->mData = (unsigned short*)nlMalloc(oldOptionData->mSize * 2, 8, true);
+                data->mSize = oldOptionData->mSize;
+                data->mCapacity = oldOptionData->mSize;
+
+                for (int j = 0; j < data->mSize; j++)
+                {
+                    data->mData[j] = oldOptionData->mData[j];
+                }
+
+                data->mRefCount = 1;
+            }
+
+            if (--oldOptionData->mRefCount == 0)
+            {
+                if (oldOptionData != NULL)
+                {
+                    delete[] oldOptionData->mData;
+                }
+                if (oldOptionData != NULL)
+                {
+                    nlFree(oldOptionData);
+                }
+            }
+
+            oldOptionData = data;
+            optionData = oldOptionData;
+        }
+
+        pText->SetString((optionData != NULL) ? optionData->mData : NULL);
+
+        if (i == 0)
+        {
+            mHighlightedOptionColour = pText->GetAssetColour();
+        }
+
+        optionLabel++;
+        optionName++;
+    }
+
+    for (int k = mPopup.numOptions; k < 4; k++)
+    {
+        pText = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
+            presentation,
+            InlineHasher(nlStringLowerHash("Slide1")),
+            InlineHasher(nlStringLowerHash("Layer")),
+            InlineHasher(nlStringLowerHash(optionNames[k])),
             InlineHasher(0),
             InlineHasher(0),
             InlineHasher(0));
@@ -715,6 +798,25 @@ void FEPopupMenu::SceneCreated()
     }
 
     FEAudio::EnableSounds(true);
+
+    switch (PopupEntries[mType].mMessageType)
+    {
+    case 0:
+        FEAudio::PlayAnimAudioEvent("sfx_popup_open_normal", false);
+        break;
+    case 1:
+        FEAudio::PlayAnimAudioEvent("sfx_popup_open_question", false);
+        break;
+    case 2:
+        FEAudio::PlayAnimAudioEvent("sfx_popup_open_deny", false);
+        break;
+    case 3:
+        FEAudio::PlayAnimAudioEvent("sfx_popup_open_unlocked", false);
+        break;
+    default:
+        break;
+    }
+
     FEAudio::EnableSounds(false);
 
     TLComponentInstance* pHighlight = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
@@ -801,7 +903,7 @@ FEPopupMenu::FEPopupMenu()
     , mHighlightedOption(0)
     , mAcceptDelayTime(0.0f)
     , mControlInput(FE_ALL_PADS)
-    , mUnknownA64(0)
+    , mUnknownA64(EMPTY)
     , mType(INVALID_TYPE)
     , mButtons()
     , mUnknownAA4(true)

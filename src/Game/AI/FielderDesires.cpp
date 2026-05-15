@@ -12,6 +12,7 @@
 #include "Game/AnimInventory.h"
 #include "Game/FormationDefines.h"
 #include "Game/GameTweaks.h"
+#include "Game/Render/ShootToScoreMeter.h"
 
 extern FuzzyVariant fvNotSet;
 extern cTeam* g_pCurrentlyUpdatingTeam;
@@ -32,6 +33,11 @@ class ShotMeter
 {
 public:
     eShotMeterState m_eShotMeterState;
+    float m_fTime;
+    float m_fScoreValue;
+    float m_fSpeedValue;
+    float m_fSTSValue;
+    float mfSShotAimValue;
     void ShotReleased(cFielder* pFielder);
     float GetTotalDuration() const;
     void CalcOneTimerValue(cFielder* pFielder, bool bWasPerfectPass);
@@ -193,15 +199,13 @@ bool cFielder::InitDesire(const sDesireParams* pParams, float fConfidence)
 
 /**
  * Offset/Address/Size: 0x54DC | 0x80036260 | size: 0xD30
- * TODO: 45.35% match - stack frame/register allocation and shared switch-table control flow still diverge from target asm.
+ * TODO: 50.43% match - stack frame/register allocation and second-switch branch flow still diverge from target asm.
  */
 bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, float fDuration, FuzzyVariant opt1, FuzzyVariant opt2)
 {
     unsigned long uQueuedThoughtHash;
     bool bDesireInitSuccess;
-
     FORCE_DONT_INLINE;
-
     if (GetGlobalPad() == NULL && m_pBall != NULL && m_eFielderDesireState == FIELDERDESIRE_WINDUP_SHOT
         && (u32)(eDesireType - FIELDERDESIRE_PASS) > 1 && eDesireType != FIELDERDESIRE_DEKE)
     {
@@ -210,10 +214,8 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         InitActionShot(false);
         return true;
     }
-
     uQueuedThoughtHash = 0;
     bDesireInitSuccess = true;
-
     m_DesireCommonVars.tAge.m_uPackedTime = 0;
     m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
     m_DesireCommonVars.fMisc = 0.0f;
@@ -221,7 +223,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
     m_DesireCommonVars.pBallOwner = g_pBall->m_pOwner;
     m_DesireCommonVars.pSBC = Fuzzy::GetStrategicBallCarrier(m_pTeam).mData.pPlayer;
     m_DesireCommonVars.turboRequest = TR_FAR_DISTANCE;
-
     if (fDuration > 0.0f)
     {
         SetDesireDuration(fDuration, true);
@@ -233,37 +234,35 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         case FIELDERDESIRE_CUT_AND_BREAK:
             SetDesireDuration(3.0f, true);
             break;
-
-        case FIELDERDESIRE_USER_CONTROLLED:
-            SetDesireDuration(99999.0f, true);
-            break;
-
         case FIELDERDESIRE_FINISH_ACTION:
             SetDesireDuration(99999.0f, true);
             break;
-
-        case FIELDERDESIRE_WAIT_FOR_THOUGHT_CAP:
-            SetDesireDuration(0.0f, true);
+        case FIELDERDESIRE_USER_CONTROLLED:
+            SetDesireDuration(99999.0f, true);
             break;
-
         case FIELDERDESIRE_WAIT:
             SetDesireDuration(0.5f, true);
             break;
-
+        case FIELDERDESIRE_SLIDE_ATTACK:
+            SetDesireDuration(1.0f, true);
+            break;
+        case FIELDERDESIRE_HIT:
+            SetDesireDuration(1.0f, true);
+            break;
+        case FIELDERDESIRE_RUN_TO_NET:
+            SetDesireDuration(1.0f, true);
+            break;
         case FIELDERDESIRE_DEKE:
         case FIELDERDESIRE_GET_IN_POSITION:
         case FIELDERDESIRE_GET_OPEN:
-        case FIELDERDESIRE_HIT:
         case FIELDERDESIRE_INTERCEPT_BALL:
         case FIELDERDESIRE_MARK:
         case FIELDERDESIRE_PROTECT_BALL:
-        case FIELDERDESIRE_RUN_TO_NET:
         case FIELDERDESIRE_RUN_UPFIELD:
         case FIELDERDESIRE_RUN_DOWNFIELD:
         case FIELDERDESIRE_RUN_TO_LOCATION:
         case FIELDERDESIRE_PASS:
         case FIELDERDESIRE_SHOOT:
-        case FIELDERDESIRE_SLIDE_ATTACK:
         case FIELDERDESIRE_SUPPORT_BALL_DEFENSIVE:
         case FIELDERDESIRE_SUPPORT_BALL_OFFENSIVE:
         case FIELDERDESIRE_USE_POWERUP:
@@ -272,12 +271,13 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         case FIELDERDESIRE_POST_WHISTLE:
             SetDesireDuration(1.0f, true);
             break;
-
+        case FIELDERDESIRE_WAIT_FOR_THOUGHT_CAP:
+            SetDesireDuration(0.0f, true);
+            break;
         default:
             break;
         }
     }
-
     switch (eDesireType)
     {
     case FIELDERDESIRE_CUT_AND_BREAK:
@@ -310,15 +310,12 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-
     case FIELDERDESIRE_DEKE:
         m_pAvoidance->SetThingsToAvoid(0);
         break;
-
     case FIELDERDESIRE_GET_IN_POSITION:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-
     case FIELDERDESIRE_GET_OPEN:
         if (g_pGame->IsThoughtAllowed(mThoughtHashInitGetOpen))
         {
@@ -329,11 +326,9 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
             uQueuedThoughtHash = mThoughtHashInitGetOpen;
         }
         break;
-
     case FIELDERDESIRE_HIT:
     {
         cFielder* pTarget = (cFielder*)opt1.mData.pPlayer;
-
         if (pTarget != NULL && pTarget->m_eClassType == FIELDER)
         {
             if (pTarget == NULL)
@@ -350,65 +345,51 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-
     case FIELDERDESIRE_INTERCEPT_BALL:
     {
         m_eDesireSubState = 0;
         m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
-
         if (g_pBall->m_pPassTarget != NULL)
         {
             float fRandomTime = nlRandomf(0.15f, &nlDefaultSeed) - 0.075f;
             m_DesireCommonVars.tMiscTimer.SetSeconds(g_pBall->m_tPassTargetTimer.GetSeconds() * (0.5f + fRandomTime));
         }
-
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
     }
-
     case FIELDERDESIRE_MARK:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
         break;
-
     case FIELDERDESIRE_PROTECT_BALL:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-
     case FIELDERDESIRE_RUN_TO_NET:
         bDesireInitSuccess = InitDesireRunToNet();
         break;
-
     case FIELDERDESIRE_RUN_UPFIELD:
     case FIELDERDESIRE_RUN_DOWNFIELD:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-
     case FIELDERDESIRE_RUN_TO_LOCATION:
     {
         bool bTurbo = opt2.mData.b;
-
         if (m_pBall != NULL)
         {
             ReleaseBall();
         }
-
         m_DesireCommonVars.v3DesiredPosition = opt1.mData.vector;
         m_DesireCommonVars.turboRequest = bTurbo ? TR_FORCED_OFF : TR_FAR_DISTANCE;
-
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
     }
-
     case FIELDERDESIRE_PASS:
     {
         cPlayer* pTarget = (cPlayer*)opt1.mData.pPlayer;
-
         if (pTarget != NULL)
         {
             mActionPassingVars.pPassTarget = pTarget;
             mActionPassingVars.bVolleyPass = opt2.mData.b;
-
             if (m_fActualSpeed > m_pTweaks->fRunningSpeed)
             {
                 m_fDesiredSpeed = m_pTweaks->fRunningSpeed;
@@ -417,7 +398,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
             {
                 m_fDesiredSpeed = m_fActualSpeed;
             }
-
             m_pAvoidance->SetThingsToAvoid(0);
         }
         else
@@ -427,18 +407,15 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-
     case FIELDERDESIRE_SHOOT:
     {
         bool bShootToScore = opt1.mData.b;
         bool bChipShot = opt2.mData.b;
-
         if (m_pBall != NULL)
         {
             if (bShootToScore)
             {
                 SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-
                 if (GenerateFilteredRandom() <= pSkillTweaks->Off_CaptainS2SChance)
                 {
                     m_DesireCommonVars.fMisc = g_pGame->m_pGameTweaks->unk294;
@@ -447,7 +424,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
                 {
                     m_DesireCommonVars.fMisc = g_pGame->m_pGameTweaks->unk294 + (float)(0.6f * GenerateFilteredRandom() - 0.30000001192092896);
                 }
-
                 SetDesireDuration(100000000.0f, true);
                 mActionShotVars.bIsShootToScore = true;
             }
@@ -456,16 +432,13 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
                 mActionShotVars.bIsChipShot = bChipShot;
                 mActionShotVars.bIsShootToScore = false;
             }
-
             m_pAvoidance->SetThingsToAvoid(0);
         }
         break;
     }
-
     case FIELDERDESIRE_SLIDE_ATTACK:
     {
         cFielder* pTarget = (cFielder*)opt1.mData.pPlayer;
-
         if (pTarget != NULL && pTarget->m_eClassType == FIELDER)
         {
             m_DesireSlideAttackVars.m_pSlideAttackTarget = pTarget;
@@ -479,53 +452,23 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-
     case FIELDERDESIRE_SUPPORT_BALL_DEFENSIVE:
     case FIELDERDESIRE_SUPPORT_BALL_OFFENSIVE:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-
-    case FIELDERDESIRE_USE_POWERUP:
-    {
-        cFielder* pTarget = (cFielder*)opt2.mData.pPlayer;
-
-        if (pTarget == NULL || pTarget->m_eClassType == FIELDER)
-        {
-            ePowerUpType ePowerup = (ePowerUpType)opt1.mData.i;
-            PowerUpTeamType powerUp = m_pTeam->GetCurrentPowerUp();
-
-            if (ePowerup == powerUp.eType)
-            {
-                if (!IsPlayingPowerupAnim())
-                {
-                    UseTeamPowerup(pTarget);
-                }
-            }
-        }
-        else
-        {
-            bDesireInitSuccess = false;
-            AbortPendingThoughts();
-        }
-        break;
-    }
-
     case FIELDERDESIRE_WINDUP_PASS:
     {
         if (g_pGame->IsThoughtAllowed(mThoughtHashInitWindupPass))
         {
             cPlayer* pTarget = (cPlayer*)opt1.mData.pPlayer;
-
             if (pTarget != NULL)
             {
                 bool bHighPass = opt2.mData.b;
-
                 if (m_pBall != NULL)
                 {
                     mActionPassingVars.pPassTarget = pTarget;
                     SetDesireDuration(3.2f, true);
                     mActionPassingVars.bVolleyPass = bHighPass;
-
                     if (bHighPass)
                     {
                         m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
@@ -534,17 +477,13 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
                     {
                         m_DesireCommonVars.tMiscTimer.SetSeconds(3.0f);
                     }
-
                     SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
                     float fReactionTimeRange = 0.85f * (0.3f * (1.0f - pSkillTweaks->Off_Reaction));
-
                     m_DesireCommonVars.fMisc = 0.85f + (nlRandomf(fReactionTimeRange, &nlDefaultSeed) - (0.5f * fReactionTimeRange));
-
                     SetSpaceSearch(new (nlMalloc(0x28, 8, false)) SSearchOpenLane(this, pTarget));
                     m_pSpaceSearch->m_bDebugOn = false;
                     m_pSpaceSearch->FindBestPosition(m_DesireCommonVars.v3DesiredPosition, m_v3Position, DIR_TOWARD_TARGET, &pTarget->m_v3Position, 4.5f, 0x8000);
                     m_pAvoidance->SetThingsToAvoid(0x1F);
-
                     bDesireInitSuccess = true;
                 }
                 else
@@ -556,7 +495,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
                         m_sQueuedDesireParams.opt1 = fvNotSet;
                         m_sQueuedDesireParams.opt2 = fvNotSet;
                     }
-
                     bDesireInitSuccess = false;
                 }
             }
@@ -572,7 +510,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-
     case FIELDERDESIRE_WINDUP_SHOT:
     {
         if (m_pBall != NULL)
@@ -588,36 +525,29 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
                 SetDesireDuration(999999.9f, true);
                 m_DesireWindupForShotVars.bIsBallAwayFromCarrier = true;
             }
-
             m_pAvoidance->SetThingsToAvoid(0);
         }
         break;
     }
-
     case FIELDERDESIRE_USER_CONTROLLED:
         StartRunning();
         m_pAvoidance->SetThingsToAvoid(8);
         break;
-
     case FIELDERDESIRE_FINISH_ACTION:
         m_pAvoidance->SetThingsToAvoid(0);
         break;
-
     case FIELDERDESIRE_POST_WHISTLE:
         if (m_pBall != NULL)
         {
             ReleaseBall();
             g_pBall->ShootRelease(m_v3Velocity, SPINTYPE_NONE);
         }
-
         m_DesireCommonVars.tMiscTimer.SetSeconds(2.0f);
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-
     case FIELDERDESIRE_WAIT:
         m_fDesiredSpeed = 0.0f;
         break;
-
     case FIELDERDESIRE_NEED_DESIRE:
     case FIELDERDESIRE_ONETIMER:
     case FIELDERDESIRE_RECEIVE_PASS_FROM_IDLE:
@@ -626,7 +556,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
     default:
         break;
     }
-
     if (uQueuedThoughtHash != 0)
     {
         QueueDesire(eDesireType, fDuration, opt1, opt2);
@@ -637,7 +566,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
     {
         bDesireInitSuccess = SetDesire(eDesireType, fConfidence);
     }
-
     return bDesireInitSuccess;
 }
 
@@ -952,6 +880,101 @@ void cFielder::UpdateDesireState(float fDeltaT)
         }
         break;
 
+    case FIELDERDESIRE_SHOOT:
+        if (m_pBall != NULL)
+        {
+            if (m_eActionState == ACTION_SHOOT_TO_SCORE)
+            {
+                if (mActionShootToScoreVars.bShootWasPressed)
+                {
+                    SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                    float fShootToScoreChance = pSkillTweaks->Shoot_CaptainS2SSecondButtonChance - ShootToScoreMeter::instance.mfRumbleAmount;
+
+                    if (GenerateFilteredRandom() < fShootToScoreChance)
+                    {
+                        m_DesireCommonVars.fMisc = -g_pGame->m_pGameTweaks->unk298;
+                    }
+                    else
+                    {
+                        m_DesireCommonVars.fMisc = -(g_pGame->m_pGameTweaks->unk298 + (float)(0.6f * GenerateFilteredRandom() - 0.30000001192092896));
+                    }
+
+                    mActionShootToScoreVars.bShootWasPressed = false;
+                }
+            }
+            else if (!IsBallAwayFromCarrier())
+            {
+                if (mActionShotVars.bIsShootToScore)
+                {
+                    mActionShotVars.bIsShootToScore = false;
+                    InitActionShootToScore();
+                }
+                else
+                {
+                    if (ShouldIClearBall())
+                    {
+                        m_pShotMeter->m_fTime = 1.0f + (float)nlRandom((unsigned int)(g_pGame->m_pGameTweaks->unk2D0 - 1.0f), &nlDefaultSeed);
+                    }
+
+                    m_pShotMeter->ShotReleased(this);
+                    InitActionShot(mActionShotVars.bIsChipShot);
+                }
+            }
+        }
+        else if (IsActionDone())
+        {
+            SetDesireDuration(0.0f, true);
+        }
+        break;
+
+    case FIELDERDESIRE_WINDUP_PASS:
+    {
+        if (m_pBall == NULL || Incapacitated(mActionPassingVars.pPassTarget) != 0.0f)
+        {
+            SetDesireDuration(0.0f, true);
+            break;
+        }
+
+        SetDesiredSpeedAndDirectionToPosition(fDeltaT, m_DesireCommonVars.v3DesiredPosition, TR_FORCED_OFF, 1.0f, 1.0f);
+
+        bool bInitPass = false;
+        if (m_DesireCommonVars.tMiscTimer.m_uPackedTime != 0)
+        {
+            float fInDanger = Fuzzy::InDangerDelayed(g_pScriptCurrentFielder).mData.f;
+            float fFarToGoalie = FLESS(FarToTheirGoalie(g_pScriptCurrentFielder), 0.3f);
+            float fDistance = GetDistanceToDesiredPos();
+            float fClosingSpeed = GetClosingSpeed2D(m_DesireCommonVars.v3DesiredPosition, v3Zero, m_v3Position, m_v3Velocity);
+
+            if (fClosingSpeed < 0.0f || fDistance <= 1.0f)
+            {
+                bInitPass = true;
+            }
+            else
+            {
+                if (fInDanger < fFarToGoalie)
+                {
+                    fInDanger = fFarToGoalie;
+                }
+
+                if (fInDanger >= m_DesireCommonVars.fMisc)
+                {
+                    bInitPass = true;
+                }
+            }
+        }
+        else
+        {
+            bInitPass = true;
+        }
+
+        if (bInitPass && !IsBallAwayFromCarrier())
+        {
+            SetDesireDuration(0.0f, true);
+            InitDesire(FIELDERDESIRE_PASS, m_fDesireConfidence, -1.0f, FuzzyVariant(mActionPassingVars.pPassTarget), FuzzyVariant(mActionPassingVars.bVolleyPass));
+        }
+        break;
+    }
+
     case FIELDERDESIRE_POST_WHISTLE:
         if (g_pGame->m_eGameState == GS_GAMEPLAY || g_pGame->m_eGameState == GS_OVERTIME)
         {
@@ -1012,8 +1035,6 @@ void cFielder::UpdateDesireState(float fDeltaT)
         break;
 
     case FIELDERDESIRE_NEED_DESIRE:
-    case FIELDERDESIRE_SHOOT:
-    case FIELDERDESIRE_WINDUP_PASS:
     default:
         break;
     }
@@ -1294,25 +1315,42 @@ void cFielder::DesireMark(float fDeltaT)
         float dirZ = pNet->m_baseLocation.f.z - 0.0f;
 
         float fInvLength = nlRecipSqrt((dirY * dirY) + (dirX * dirX) + (dirZ * dirZ), true);
+        dirZ = fInvLength * dirZ;
         dirY = fInvLength * dirY;
         dirX = fInvLength * dirX;
-        dirZ = fInvLength * dirZ;
 
         nlVector3 vAccumulated_v3 = v3Zero;
         float fTotalWeight_v3 = 0.0f;
 
-        float fMarkingNetPassBalance = Interpolate(g_vMarkingNetPassBalance.f.x, g_vMarkingNetPassBalance.f.y, pSkillTweaks->Def_Marking);
-        float fMarkingDistance = Interpolate(g_vMarkDistance.f.x, g_vMarkDistance.f.y, pSkillTweaks->Def_Marking);
-        float fMarkFormationBalance = Interpolate(g_vMarkFormationBalance.f.x, g_vMarkFormationBalance.f.y, pSkillTweaks->Def_Marking);
-        float fMarkBallOwnerBalance = Interpolate(g_vMarkBallOwner.f.x, g_vMarkBallOwner.f.y, pSkillTweaks->Def_Marking);
-        float fMarkThreatCoeff = Interpolate(g_vMarkImmediateThreatCoeff.f.x, g_vMarkImmediateThreatCoeff.f.y, pSkillTweaks->Def_Marking);
+        float fMarkingNetPassBalance = Interpolate(
+            g_vMarkingNetPassBalance.f.x,
+            g_vMarkingNetPassBalance.f.y,
+            SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
+        float fMarkingDistance = Interpolate(
+            g_vMarkDistance.f.x,
+            g_vMarkDistance.f.y,
+            SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
+        float fMarkFormationBalance = Interpolate(
+            g_vMarkFormationBalance.f.x,
+            g_vMarkFormationBalance.f.y,
+            SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
+        float fMarkBallOwnerBalance = Interpolate(
+            g_vMarkBallOwner.f.x,
+            g_vMarkBallOwner.f.y,
+            SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
+        float fMarkThreatCoeff = Interpolate(
+            g_vMarkImmediateThreatCoeff.f.x,
+            g_vMarkImmediateThreatCoeff.f.y,
+            SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
 
-        float fDistanceMultiplier = Interpolate(0.5f, 1.0f, FarToTheirNet(m_pMark));
-        fMarkingDistance = fMarkingDistance * fDistanceMultiplier;
+        fMarkingDistance = fMarkingDistance * Interpolate(0.5f, 1.0f, FarToTheirNet(m_pMark));
 
-        if (UserControlledT(m_pTeam) != 0.0f && (ReceivingPass(m_pMark) != 0.0f || WindingUpForShot(m_pMark) != 0.0f))
+        if (UserControlledT(m_pTeam) != 0.0f)
         {
-            fMarkingDistance = fMarkingDistance * fMarkThreatCoeff;
+            if (ReceivingPass(m_pMark) != 0.0f || WindingUpForShot(m_pMark) != 0.0f)
+            {
+                fMarkingDistance = fMarkingDistance * fMarkThreatCoeff;
+            }
         }
 
         if (m_pMark->m_pBall == NULL)
@@ -1354,14 +1392,14 @@ void cFielder::DesireMark(float fDeltaT)
                 float fThreatTargetY = (fMarkingDistance * (fToNetInvLength * fToNetY)) + fSBCY;
                 float fThreatTargetX = (fMarkingDistance * (fToNetInvLength * fToNetX)) + fSBCX;
 
-                FuzzyVariant markBallOwner = Fuzzy::ShouldIMarkBallOwner(this);
-                if (markBallOwner.mData.f > 0.0f)
+                float fMarkBallOwner = Fuzzy::ShouldIMarkBallOwner(this).mData.f;
+                if (fMarkBallOwner > 0.0f)
                 {
-                    float fWeight = markBallOwner.mData.f * fMarkBallOwnerBalance;
+                    float fWeight = fMarkBallOwner * fMarkBallOwnerBalance;
 
                     vAccumulated_v3.f.z = (fWeight * fThreatTargetZ) + vAccumulated_v3.f.z;
-                    vAccumulated_v3.f.y = (fWeight * fThreatTargetY) + vAccumulated_v3.f.y;
                     vAccumulated_v3.f.x = (fWeight * fThreatTargetX) + vAccumulated_v3.f.x;
+                    vAccumulated_v3.f.y = (fWeight * fThreatTargetY) + vAccumulated_v3.f.y;
                     fTotalWeight_v3 = fTotalWeight_v3 + fWeight;
                 }
             }
@@ -1372,8 +1410,8 @@ void cFielder::DesireMark(float fDeltaT)
         float fMarkTargetZ = (fMarkingDistance * dirZ) + 0.0f;
 
         vAccumulated_v3.f.y = (fMarkFormationBalance * fMarkTargetY) + vAccumulated_v3.f.y;
-        vAccumulated_v3.f.z = (fMarkFormationBalance * fMarkTargetZ) + vAccumulated_v3.f.z;
         vAccumulated_v3.f.x = (fMarkFormationBalance * fMarkTargetX) + vAccumulated_v3.f.x;
+        vAccumulated_v3.f.z = (fMarkFormationBalance * fMarkTargetZ) + vAccumulated_v3.f.z;
         fTotalWeight_v3 = fTotalWeight_v3 + fMarkFormationBalance;
 
         nlVector3 v3FormationPosition;
@@ -1386,19 +1424,23 @@ void cFielder::DesireMark(float fDeltaT)
         float fFormationWeight = 1.0f - fMarkFormationBalance;
         fTotalWeight_v3 = fTotalWeight_v3 + fFormationWeight;
         vAccumulated_v3.f.z = (fFormationWeight * v3FormationPosition.f.z) + vAccumulated_v3.f.z;
-        vAccumulated_v3.f.y = (fFormationWeight * v3FormationPosition.f.y) + vAccumulated_v3.f.y;
         vAccumulated_v3.f.x = (fFormationWeight * v3FormationPosition.f.x) + vAccumulated_v3.f.x;
+        vAccumulated_v3.f.y = (fFormationWeight * v3FormationPosition.f.y) + vAccumulated_v3.f.y;
 
+        nlVector3 v3DesiredPosition;
         if (fTotalWeight_v3 > 0.0f)
         {
-            m_DesireCommonVars.v3DesiredPosition.f.x = (1.0f / fTotalWeight_v3) * vAccumulated_v3.f.x;
-            m_DesireCommonVars.v3DesiredPosition.f.y = (1.0f / fTotalWeight_v3) * vAccumulated_v3.f.y;
-            m_DesireCommonVars.v3DesiredPosition.f.z = (1.0f / fTotalWeight_v3) * vAccumulated_v3.f.z;
+            float fInvTotalWeight = 1.0f / fTotalWeight_v3;
+            v3DesiredPosition.f.x = fInvTotalWeight * vAccumulated_v3.f.x;
+            v3DesiredPosition.f.y = fInvTotalWeight * vAccumulated_v3.f.y;
+            v3DesiredPosition.f.z = fInvTotalWeight * vAccumulated_v3.f.z;
         }
         else
         {
-            m_DesireCommonVars.v3DesiredPosition = v3Zero;
+            v3DesiredPosition = v3Zero;
         }
+
+        m_DesireCommonVars.v3DesiredPosition = v3DesiredPosition;
     }
 
     SetDesiredSpeedAndDirectionToPosition(fDeltaT, m_DesireCommonVars.v3DesiredPosition, TR_FAR_DISTANCE, 0.75f, 0.75f);
