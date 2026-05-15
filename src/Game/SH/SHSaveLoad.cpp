@@ -352,15 +352,17 @@ void CheckResults()
     {
         FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
 
-        Function<FnVoidVoid> continueCB;
-        continueCB.mTag = FREE_FUNCTION;
-        continueCB.mFreeFunction = ContinueWithoutSavingCB;
+        {
+            Function<FnVoidVoid> continueCB;
+            continueCB.mTag = FREE_FUNCTION;
+            continueCB.mFreeFunction = ContinueWithoutSavingCB;
 
-        Function<FnVoidVoid> formatCB;
-        formatCB.mTag = FREE_FUNCTION;
-        formatCB.mFreeFunction = FormatCB;
+            Function<FnVoidVoid> formatCB;
+            formatCB.mTag = FREE_FUNCTION;
+            formatCB.mFreeFunction = FormatCB;
 
-        pPopup->Create((ePopupMenu)0x1F, continueCB, formatCB);
+            pPopup->Create((ePopupMenu)0x1F, continueCB, formatCB);
+        }
         SaveLoad::RememberCurrentMemCardSerialID(0);
         return;
     }
@@ -650,10 +652,6 @@ void CheckResults()
         gSaveLoadFinished = true;
         return;
     }
-
-    case 2:
-        gSaveLoadFinished = true;
-        return;
 
     default:
         return;

@@ -1219,66 +1219,63 @@ void GetShadowBoundingSquare(const glModel* model, const nlMatrix4& matrix, floa
     AABBDimensions dimensions;
     GetAABBDimensions(model, dimensions, userData);
 
-    float zero = 0.0f;
+    register float maxZ = dimensions.mMax.f.z;
+    register float zero = 0.0f;
+    register float maxY = dimensions.mMax.f.y;
+    register float minY = dimensions.mMin.f.y;
+    register float minZ = dimensions.mMin.f.z;
+
     nlVector4 points[8];
     nlVector4* point = points;
     int i = 0;
 
-    float minX = dimensions.mMin.f.x;
-    float minY = dimensions.mMin.f.y;
-    float minZ = dimensions.mMin.f.z;
-    float maxZ = dimensions.mMax.f.z;
-    float maxY = dimensions.mMax.f.y;
-    float maxX = dimensions.mMax.f.x;
-
-    points[0].f.x = minX;
+    points[0].f.x = dimensions.mMin.f.x;
     points[0].f.y = minY;
-    float m13 = matrix.f.m13;
+    register float m13 = matrix.f.m13;
     points[0].f.z = minZ;
-    float m11 = matrix.f.m11;
+    register float m11 = matrix.f.m11;
     points[0].f.w = zero;
-    float m23 = matrix.f.m23;
+    register float m23 = matrix.f.m23;
 
-    points[1].f.x = minX;
-    float m21 = matrix.f.m21;
+    points[1].f.x = dimensions.mMin.f.x;
+    register float m21 = matrix.f.m21;
     points[1].f.y = minY;
-    float m33 = matrix.f.m33;
+    register float m33 = matrix.f.m33;
     points[1].f.z = maxZ;
-    float m31 = matrix.f.m31;
+    register float m31 = matrix.f.m31;
     points[1].f.w = zero;
-    float m43 = matrix.f.m43;
+    register float m43 = matrix.f.m43;
 
-    points[2].f.x = minX;
-    float m41 = matrix.f.m41;
+    points[2].f.x = dimensions.mMin.f.x;
+    register float m41 = matrix.f.m41;
     points[2].f.y = maxY;
-    float m12 = matrix.f.m12;
+    register float m12 = matrix.f.m12;
     points[2].f.z = minZ;
-    float m22 = matrix.f.m22;
+    register float m22 = matrix.f.m22;
     points[2].f.w = zero;
-    float m32 = matrix.f.m32;
+    register float m32 = matrix.f.m32;
 
-    points[3].f.x = minX;
+    points[3].f.x = dimensions.mMin.f.x;
     points[3].f.y = maxY;
-    float one = 1.0f;
     points[3].f.z = maxZ;
     points[3].f.w = zero;
 
-    points[4].f.x = maxX;
+    points[4].f.x = dimensions.mMax.f.x;
     points[4].f.y = minY;
     points[4].f.z = minZ;
     points[4].f.w = zero;
 
-    points[5].f.x = maxX;
+    points[5].f.x = dimensions.mMax.f.x;
     points[5].f.y = minY;
     points[5].f.z = maxZ;
     points[5].f.w = zero;
 
-    points[6].f.x = maxX;
+    points[6].f.x = dimensions.mMax.f.x;
     points[6].f.y = maxY;
     points[6].f.z = minZ;
     points[6].f.w = zero;
 
-    points[7].f.x = maxX;
+    points[7].f.x = dimensions.mMax.f.x;
     points[7].f.y = maxY;
     points[7].f.z = maxZ;
     points[7].f.w = zero;
@@ -1291,6 +1288,7 @@ void GetShadowBoundingSquare(const glModel* model, const nlMatrix4& matrix, floa
     lightX = -lightX;
     lightY = -lightY;
 
+    float one = 1.0f;
     nlMatrix4 projected;
     projected.f.m13 = one;
     float xOverZ = lightX / lightZ;
@@ -1303,14 +1301,14 @@ void GetShadowBoundingSquare(const glModel* model, const nlMatrix4& matrix, floa
     projected.f.m34 = one;
     projected.f.m44 = zero;
 
-    projected.f.m13 = m11 + xOverZ * m13;
-    projected.f.m23 = m21 + xOverZ * m23;
-    projected.f.m33 = m31 + xOverZ * m33;
-    projected.f.m43 = m41 + xOverZ * m43;
-    projected.f.m14 = m12 + yOverZ * m13;
-    projected.f.m24 = m22 + yOverZ * m23;
-    projected.f.m34 = m32 + yOverZ * m33;
-    projected.f.m44 = matrix.f.m42 + yOverZ * m43;
+    projected.f.m11 = m11 + xOverZ * m13;
+    projected.f.m21 = m21 + xOverZ * m23;
+    projected.f.m31 = m31 + xOverZ * m33;
+    projected.f.m41 = m41 + xOverZ * m43;
+    projected.f.m12 = m12 + yOverZ * m13;
+    projected.f.m22 = m22 + yOverZ * m23;
+    projected.f.m32 = m32 + yOverZ * m33;
+    projected.f.m42 = matrix.f.m42 + yOverZ * m43;
 
     for (; i < 8; i++, point++)
     {

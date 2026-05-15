@@ -2206,7 +2206,7 @@ long SaveLoad::StartMemoryCardIDCheck(int slot, void (*callback)(long))
 
 /**
  * Offset/Address/Size: 0x264 | 0x80189BC0 | size: 0x12C
- * TODO: 79.87% match - extra cmpwi/ble loop-guard checks remain in both block
+ * TODO: 83.31% match - extra cmpwi/ble loop-guard checks remain in both block
  * counting loops, and register allocation still differs in the icon header-size
  * arithmetic chain.
  */
@@ -2240,26 +2240,15 @@ int SaveLoad::GetSaveBlockSize(int)
 
     IconCfg.IconCount = iconCount;
     negOne = ~(iconCount | negOne);
-
     int clutSize = 0x200;
     int iconDataSize = iconCount * (iconFormat << 10);
-
     IconCfg.IconFormat = iconFormat;
-
-    int iconClutMask = negOne >> 31;
-    int bannerClutMask = negOne >> 31;
-
     IconCfg.IconSpeeds[0] = speed;
-
-    int iconClutResult = clutSize & iconClutMask;
-    int bannerDataSize = iconFormat * 0xC00;
-    int bannerClutResult = clutSize & bannerClutMask;
-
+    int bannerClut = (negOne >> 31) & clutSize;
+    int bannerSize = iconFormat * 0xC00;
+    int iconClut = (negOne >> 31) & clutSize;
     IconCfg.BannerFormat = iconFormat;
-
-    int total = iconClutResult + bannerDataSize;
-    total += iconDataSize;
-    total += bannerClutResult;
+    int total = bannerClut + bannerSize + iconDataSize + iconClut;
 
     origSize = (int)(IconCfg.HeaderSize = total + 0x40);
     dataSize = (u32)(origSize + 0x1FFF) >> 13;
@@ -2280,10 +2269,9 @@ static inline MemCard* GetCardBySlot(int slot)
 
 /**
  * Offset/Address/Size: 0xD8 | 0x80189A34 | size: 0x18C
- * TODO: 82.19% match - slot/card register allocation still differs in prologue/epilogue;
- * both block-count loops still emit extra cmpwi/ble guard pairs; tail still emits
- * adde to temp + clrlwi before return.
  */
+#pragma push
+#pragma opt_propagation off
 u8 SaveLoad::HasEnoughFreeSpace(int Slot)
 {
     int slot = Slot;
@@ -2295,8 +2283,11 @@ u8 SaveLoad::HasEnoughFreeSpace(int Slot)
     dataSize = (u32)(dataSize + 0x1FFF) >> 13;
     if (origSize > 0)
     {
-        for (; dataSize > 0; dataSize--)
+        while (dataSize > 0)
+        {
             numBlocks++;
+            dataSize--;
+        }
     }
 
     MemCard::ICON_CONFIG IconCfg;
@@ -2307,9 +2298,9 @@ u8 SaveLoad::HasEnoughFreeSpace(int Slot)
     memset(IconCfg.IconSpeeds, 0, 8);
     memset(&IconCfg, 0, sizeof(MemCard::ICON_CONFIG));
 
-    int iconFormat = 2;
-    int iconCount = 1;
     int negOne = -1;
+    int iconCount = 1;
+    int iconFormat = 2;
     int speed = 3;
 
     int iconSize = iconCount * (iconFormat << 10);
@@ -2331,8 +2322,11 @@ u8 SaveLoad::HasEnoughFreeSpace(int Slot)
     dataSize = (u32)(origSize + 0x1FFF) >> 13;
     if (origSize > 0)
     {
-        for (; dataSize > 0; dataSize--)
+        while (dataSize > 0)
+        {
             numBlocks++;
+            dataSize--;
+        }
     }
 
     unsigned long sectorSize = card->m_CardInfo.SectorSize;
@@ -2347,6 +2341,7 @@ u8 SaveLoad::HasEnoughFreeSpace(int Slot)
 
     return 1;
 }
+#pragma pop
 
 /**
  * Offset/Address/Size: 0x34 | 0x80189990 | size: 0xA4

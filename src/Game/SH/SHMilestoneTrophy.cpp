@@ -3,6 +3,9 @@
 #include "Game/FE/FEAudio.h"
 #include "Game/FE/feFinder.h"
 #include "Game/FE/feInput.h"
+#include "Game/FE/feLibObject.h"
+#include "Game/FE/tlInstance.h"
+#include "Game/FE/tlTextInstance.h"
 #include "Game/GameInfo.h"
 #include "Game/GameSceneManager.h"
 #include "NL/nlBSearch.h"
@@ -248,9 +251,6 @@ struct TLInstanceView
 };
 
 extern unsigned long GetLOCTrophyName(eTrophyType);
-extern "C" void SetString__14TLTextInstanceFPCUs(TLTextInstance*, const unsigned short*);
-extern "C" const nlColour& GetColour__11FELibObjectCFv(void*);
-extern "C" void SetAssetColour__10TLInstanceFRC8nlColour(void*, const nlColour&);
 extern nlLocalization* g_pLocalization;
 extern const unsigned short LocalizationTableNotFound[];
 extern const unsigned short MissingLocString[];
@@ -342,6 +342,7 @@ void MilestoneTrophyScene::SceneCreated()
     typedef TLComponentInstance* (*FindCompPresByRef)(FEPresentation*, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&);
 
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
+    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
 
     int statAccumulated = 0;
     int statNeeded = 0;
@@ -449,7 +450,7 @@ void MilestoneTrophyScene::SceneCreated()
     switch (mTrophy)
     {
     case TROPHY_VETERAN_CUP:
-        statAccumulated = nlSingleton<GameInfoManager>::s_pInstance->mUserInfo.mNumGamesPlayed;
+        statAccumulated = gameInfo->mUserInfo.mNumGamesPlayed;
         bronzeStat = 25;
         silverStat = 50;
         goldStat = 100;
@@ -468,7 +469,7 @@ void MilestoneTrophyScene::SceneCreated()
         break;
 
     case TROPHY_SNIPER_CUP:
-        statAccumulated = nlSingleton<GameInfoManager>::s_pInstance->mUserInfo.mNumGoalsScored;
+        statAccumulated = gameInfo->mUserInfo.mNumGoalsScored;
         bronzeStat = 75;
         silverStat = 150;
         goldStat = 300;
@@ -487,7 +488,7 @@ void MilestoneTrophyScene::SceneCreated()
         break;
 
     case TROPHY_STRIKER_CUP:
-        statAccumulated = nlSingleton<GameInfoManager>::s_pInstance->mUserInfo.mNumSTSAttempts;
+        statAccumulated = gameInfo->mUserInfo.mNumSTSAttempts;
         bronzeStat = 25;
         silverStat = 50;
         goldStat = 100;
@@ -506,7 +507,7 @@ void MilestoneTrophyScene::SceneCreated()
         break;
 
     case TROPHY_TACTICIAN_CUP:
-        statAccumulated = nlSingleton<GameInfoManager>::s_pInstance->mUserInfo.mNumPerfectPasses;
+        statAccumulated = gameInfo->mUserInfo.mNumPerfectPasses;
         bronzeStat = 75;
         silverStat = 150;
         goldStat = 300;
@@ -525,7 +526,7 @@ void MilestoneTrophyScene::SceneCreated()
         break;
 
     case TROPHY_PARAMEDIC_CUP:
-        statAccumulated = nlSingleton<GameInfoManager>::s_pInstance->mUserInfo.mNumHits;
+        statAccumulated = gameInfo->mUserInfo.mNumHits;
         bronzeStat = 250;
         silverStat = 500;
         goldStat = 1000;
@@ -586,7 +587,7 @@ void MilestoneTrophyScene::SceneCreated()
             (InlineHasher&)h5,
             (InlineHasher&)h3,
             (InlineHasher&)h1);
-        SetString__14TLTextInstanceFPCUs(pTotal, mTotalBuffer);
+        pTotal->SetString(mTotalBuffer);
     }
 
     if (mIsNew)
@@ -631,12 +632,12 @@ void MilestoneTrophyScene::SceneCreated()
         arrows->m_bVisible = false;
     }
 
-    eMilestoneColour levelReached = nlSingleton<GameInfoManager>::s_pInstance->GetMilestoneLevel(mTrophy);
+    eMilestoneColour levelReached = gameInfo->GetMilestoneLevel(mTrophy);
     BasicString<char, Detail::TempStringAllocator> fileName(TROPHY_TEXTURE_FILENAMES[(int)mTrophy]);
     if (levelReached == MILESTONE_BLACK)
     {
         mAsyncTrophy->QueueLoad(fileName.c_str(), mDoBlockLoad);
-        SetAssetColour__10TLInstanceFRC8nlColour((void*)pTrophyImage, TROPHY_BLACK_MILESTONE);
+        pTrophyImage->SetAssetColour(TROPHY_BLACK_MILESTONE);
 
         statNeeded = bronzeStat;
         LOOKUP_LOC(0x138E19E5, locString);
@@ -649,7 +650,7 @@ void MilestoneTrophyScene::SceneCreated()
     {
         fileName = fileName.Append("_bronze");
         mAsyncTrophy->QueueLoad(fileName.c_str(), mDoBlockLoad);
-        SetAssetColour__10TLInstanceFRC8nlColour((void*)pTrophyImage, GetColour__11FELibObjectCFv(((TLInstanceView*)pTrophyImage)->m_component));
+        pTrophyImage->SetAssetColour(((FELibObject*)((TLInstanceView*)pTrophyImage)->m_component)->GetColour());
 
         statNeeded = silverStat;
         LOOKUP_LOC(0x3A916A4A, locString);
@@ -662,7 +663,7 @@ void MilestoneTrophyScene::SceneCreated()
     {
         fileName = fileName.Append("_silver");
         mAsyncTrophy->QueueLoad(fileName.c_str(), mDoBlockLoad);
-        SetAssetColour__10TLInstanceFRC8nlColour((void*)pTrophyImage, GetColour__11FELibObjectCFv(((TLInstanceView*)pTrophyImage)->m_component));
+        pTrophyImage->SetAssetColour(((FELibObject*)((TLInstanceView*)pTrophyImage)->m_component)->GetColour());
 
         statNeeded = goldStat;
         LOOKUP_LOC(0x0AD790FB, locString);
@@ -674,11 +675,11 @@ void MilestoneTrophyScene::SceneCreated()
     else
     {
         mAsyncTrophy->QueueLoad(fileName.c_str(), mDoBlockLoad);
-        SetAssetColour__10TLInstanceFRC8nlColour((void*)pTrophyImage, GetColour__11FELibObjectCFv(((TLInstanceView*)pTrophyImage)->m_component));
+        pTrophyImage->SetAssetColour(((FELibObject*)((TLInstanceView*)pTrophyImage)->m_component)->GetColour());
     }
     mDoBlockLoad = false;
 
-    if (nlSingleton<GameInfoManager>::s_pInstance->HasTrophy(mTrophy))
+    if (gameInfo->HasTrophy(mTrophy))
     {
         BasicString<char, Detail::TempStringAllocator> accumulatedString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(statAccumulated);
 
@@ -733,7 +734,7 @@ void MilestoneTrophyScene::SceneCreated()
                 (InlineHasher&)h5,
                 (InlineHasher&)h3,
                 (InlineHasher&)h1);
-            SetString__14TLTextInstanceFPCUs(pStat, mStatBuffer);
+            pStat->SetString(mStatBuffer);
         }
 
         LOOKUP_LOC(0xF8710578, locString);
@@ -796,7 +797,7 @@ void MilestoneTrophyScene::SceneCreated()
                 (InlineHasher&)h5,
                 (InlineHasher&)h3,
                 (InlineHasher&)h1);
-            SetString__14TLTextInstanceFPCUs(pStat, mStatBuffer);
+            pStat->SetString(mStatBuffer);
         }
 
         BasicString<char, Detail::TempStringAllocator> bronzeString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(bronzeStat);
@@ -859,7 +860,7 @@ void MilestoneTrophyScene::SceneCreated()
             (InlineHasher&)h5,
             (InlineHasher&)h3,
             (InlineHasher&)h1);
-        SetString__14TLTextInstanceFPCUs(pDescription, mDescriptionBuffer);
+        pDescription->SetString(mDescriptionBuffer);
     }
 
     if (!mButtons.mAlreadyCentred)

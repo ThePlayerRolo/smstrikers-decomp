@@ -2,6 +2,7 @@
 #include "Game/FE/feFinder.h"
 #include "Game/FE/feInput.h"
 #include "Game/FE/Overlay/OverlayHandlerSummary.h"
+#include "Game/GameInfo.h"
 #include "Game/OverlayManager.h"
 
 static char* WINNER_TEXTURES[9][3] = {
@@ -107,8 +108,6 @@ WinnerOverlay::~WinnerOverlay()
  * TODO: 75.07% match - stack layout/register allocation still diverges in
  * localization string construction and UI setup paths.
  */
-template <typename To, typename From>
-To LexicalCast(const From&);
 
 template <typename StringType, typename ValueType>
 StringType Format(const StringType&, const ValueType&);
@@ -116,15 +115,11 @@ StringType Format(const StringType&, const ValueType&);
 template <typename StringType, typename ValueType1, typename ValueType2>
 StringType Format(const StringType&, const ValueType1&, const ValueType2&);
 
-class GameInfoManager;
-
 extern void* g_pLocalization;
 extern const unsigned short LocalizationTableNotFound[];
 extern const unsigned short MissingLocString[];
 
-extern "C" int GetTeam__15GameInfoManagerCFs(void*, short);
-extern "C" bool IsInDemoMode__15GameInfoManagerCFv(void*);
-extern "C" unsigned long GetLOCTeamName__F7eTeamID(int);
+unsigned long GetLOCTeamName(eTeamID);
 
 void WinnerOverlay::SceneCreated()
 {
@@ -270,11 +265,11 @@ void WinnerOverlay::SceneCreated()
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
     presentation->SetActiveSlide("MENU IN2");
 
-    void* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
     short winnerSide = (short)((scoreRight >> 31) + ((unsigned int)scoreLeft >> 31) + ((unsigned int)scoreRight >= (unsigned int)scoreLeft));
-    mWinningTeam = (eTeamID)GetTeam__15GameInfoManagerCFs(gameInfo, winnerSide);
+    mWinningTeam = (eTeamID)gameInfo->GetTeam(winnerSide);
 
-    unsigned long winnerLocID = GetLOCTeamName__F7eTeamID(mWinningTeam);
+    unsigned long winnerLocID = GetLOCTeamName((eTeamID)mWinningTeam);
     const unsigned short* winnerLocString;
 
     loc = (LocalizationLocal*)g_pLocalization;
@@ -540,7 +535,7 @@ void WinnerOverlay::SceneCreated()
     mWinnerActionWhite->mImageInstance = pImage;
     mWinnerActionWhite->QueueLoad(WINNER_TEXTURES[mWinningTeam][2], false);
 
-    if (IsInDemoMode__15GameInfoManagerCFv(gameInfo))
+    if (gameInfo->IsInDemoMode())
     {
         findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
 

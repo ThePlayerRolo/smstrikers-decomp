@@ -872,14 +872,13 @@ void NisPlayer::LoadTriggers(Nis& nis)
     unsigned long nisHash = nlStringHash(name.c_str());
     if (!FunctionExists(nisHash))
     {
-        i = 0;
+        int i = 0;
         while (true)
         {
-            BasicStringData<char>* data = name.m_data;
             int len;
-            if (data != NULL)
+            if (name.m_data != NULL)
             {
-                len = data->mSize - 1;
+                len = name.m_data->mSize - 1;
             }
             else
             {
@@ -893,9 +892,36 @@ void NisPlayer::LoadTriggers(Nis& nis)
 
             if (name[i] == '_')
             {
-                char* at = (char*)name.c_str() + i;
+                name[i];
+                name[i];
+                char* src = &name[i];
+                char* dest;
+                if (name.m_data != NULL)
+                {
+                    dest = name.m_data->mData;
+                }
+                else
+                {
+                    dest = NULL;
+                }
+
+                while (src != name.m_data->mData + name.m_data->mSize)
+                {
+                    *dest++ = *src++;
+                }
+                name.m_data->mSize -= (int)(src - dest);
+
                 BasicString<char, Detail::TempStringAllocator> all("all");
-                const char* begin = all.c_str();
+                char* at = &name[0];
+                const char* begin;
+                if (all.m_data != NULL)
+                {
+                    begin = all.m_data->mData;
+                }
+                else
+                {
+                    begin = NULL;
+                }
                 const char* end;
                 if (all.m_data != NULL)
                 {
@@ -905,8 +931,8 @@ void NisPlayer::LoadTriggers(Nis& nis)
                 {
                     end = NULL;
                 }
-
                 name.insert(at, begin, end);
+                break;
             }
 
             i = i + 1;

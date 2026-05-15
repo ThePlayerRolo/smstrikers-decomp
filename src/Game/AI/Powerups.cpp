@@ -2810,8 +2810,6 @@ RedShell::~RedShell()
 /**
  * Offset/Address/Size: 0x1628 | 0x8005BF14 | size: 0x24C
  */
-extern "C" void SeekTarget__8RedShellFv(RedShell*);
-
 void RedShell::Update(float dt)
 {
     nlPolar polar;
@@ -2885,7 +2883,7 @@ void RedShell::Update(float dt)
     }
     else if (mtNoHitTimer.GetSeconds() < 0.8f)
     {
-        SeekTarget__8RedShellFv(this);
+        SeekTarget();
     }
 
     if (m_bShouldDestroy)

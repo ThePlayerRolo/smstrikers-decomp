@@ -189,9 +189,8 @@ void ShaderSkinMesh::AttachSkinData(unsigned long program, const nlMatrix4* pRef
 
     BoneMapList* mapList = nlRingGetStart<BoneMapList>(boneMaps)->m_next;
     glModelPacket* pPacket = pModel->packets;
-    glModelPacket* pEndPacket = pPacket + pModel->numPackets;
 
-    while (pPacket < pEndPacket)
+    while (pPacket < pModel->packets + pModel->numPackets)
     {
         pPacket->state.matrix = matrix;
 

@@ -4976,8 +4976,6 @@ bool cFielder::SetDesire(eFielderDesireState eNewDesire, float fConfidence)
     return false;
 }
 
-extern "C" eStrafeDirection CalculateStrafeDirection__8cFielderFUsUs(cFielder*, unsigned short, unsigned short);
-
 /**
  * Offset/Address/Size: 0x3B44 | 0x8001CE80 | size: 0x218
  * TODO: 99.74% match - remaining r0/r3 register allocation swap in the
@@ -5090,7 +5088,7 @@ u8 cFielder::ShouldIStrafe()
             aDesiredFacingDir = (u16)(s32)(10430.378f * angle);
         }
 
-        eStrafeDirection strafeResult = CalculateStrafeDirection__8cFielderFUsUs(this, aDesiredFacingDir, m_aDesiredMovementDirection);
+        eStrafeDirection strafeResult = CalculateStrafeDirection(aDesiredFacingDir, m_aDesiredMovementDirection);
         if (strafeResult == STRAFE_FORWARD)
         {
             aDesiredFacingDir = m_aDesiredMovementDirection;

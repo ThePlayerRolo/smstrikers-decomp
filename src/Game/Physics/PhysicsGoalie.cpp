@@ -65,12 +65,13 @@ bool PhysicsGoalie::SweepTestForBallContact(const nlVector3& ballPrevPosition, c
 
 /**
  * Offset/Address/Size: 0x4A8 | 0x80139F28 | size: 0x2D8
- * TODO: 83.10% match - callee-saved register mapping and f30/f31 lifetime ordering still differ.
+ * TODO: 85.42% match - callee-saved register mapping in argument pinning still differs.
  */
 bool PhysicsGoalie::SweepTestEveryBone(float ballRadius, const nlVector3& ballPrevPosition, const nlVector3& ballCurrentPosition, nlVector3& outContactNormal, nlVector3& outContactPos) const
 {
     ListEntry<PhysicsBoneVolume*>* boneVolumeEntry = m_BoneVolumes.m_Head;
     nlVector3 accumulatedNormal = { 0.0f, 0.0f, 0.0f };
+    float cantCollide;
     float smallestSweepResult = 1.0f;
 
     bool didHitBone = false;
@@ -81,7 +82,7 @@ bool PhysicsGoalie::SweepTestEveryBone(float ballRadius, const nlVector3& ballPr
         return false;
     }
 
-    float cantCollide = CANT_COLLIDE;
+    cantCollide = CANT_COLLIDE;
     while (boneVolumeEntry != NULL)
     {
         PhysicsBoneVolume* boneVolume = boneVolumeEntry->data;

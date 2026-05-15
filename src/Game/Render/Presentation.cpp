@@ -757,28 +757,19 @@ void Presentation::Call(const char* functionName, const char* nisFilter)
  */
 void Presentation::EventHandler(Event* event)
 {
-    class Team
+    struct TeamLocal
     {
-    public:
-        char _pad[0x3C];
+        s32 m_nSide;
+        u8 _pad[0x38];
         s32 m_nScore;
-        Team* GetOtherTeam();
     };
 
-    class Player
-    {
-    public:
-        bool IsCaptain() const;
-    };
+    struct PlayerLocal;
 
     struct GameLocal
     {
         char _pad[0x1C];
         float m_fGameDuration;
-        s32 m_nLastTeamToScore;
-        eGameState m_eGameState;
-        float GetGameTime();
-        void ChangeGameState(eGameState);
     };
 
     struct NisPlayerGoalData
@@ -805,9 +796,9 @@ void Presentation::EventHandler(Event* event)
         unsigned int uGoalType : 15;
         unsigned int uIsHyper : 1;
         nlVector3 v3ShotPosition;
-        Player* pScorer;
-        Player* pAssister;
-        Player* pLastTouch[2];
+        PlayerLocal* pScorer;
+        PlayerLocal* pAssister;
+        PlayerLocal* pLastTouch[2];
     };
 
     struct TreeNodeLocal;
@@ -851,11 +842,30 @@ void Presentation::EventHandler(Event* event)
         u32 m_uUserData;
     };
 
-    extern Team* g_pTeams[];
+    struct AIPadLocal
+    {
+        void* m_pPad;
+    };
+
+    struct CharacterLocal
+    {
+        u8 _pad0[0x1C0];
+        AIPadLocal* m_pController;
+        u8 _pad1[0x8];
+        TeamLocal* m_pTeam;
+    };
+
+    extern TeamLocal* g_pTeams[];
+    extern CharacterLocal* g_pCharacters[10];
+    extern AIPadLocal mAIPads__12AIPadManager[4];
     extern unsigned int nlDefaultSeed;
     extern void* fxGetGroup__FPCc(const char*);
     extern void* Create__15EmissionManagerFP12EffectsGroupUs(void*, unsigned short);
     extern void SetPosition__18EmissionControllerFRC9nlVector3(void*, const nlVector3&);
+    extern TeamLocal* GetOtherTeam__5cTeamFv(TeamLocal*);
+    extern bool IsCaptain__7cPlayerCFv(PlayerLocal*);
+    extern float GetGameTime__5cGameFv(cGame*);
+    extern void Set__6ConfigFPCcb(Config*, const char*, bool);
     extern void __dla__FPv(void*);
     extern void __dl__FPv(void*);
 
@@ -954,7 +964,7 @@ void Presentation::EventHandler(Event* event)
 
         if (tvp.tag == 0)
         {
-            cfg.Set("no_presentation", "false");
+            Set__6ConfigFPCcb(&cfg, "no_presentation", false);
             noPresentation = false;
         }
         else if (tvp.type == _BOOL)
@@ -1007,11 +1017,10 @@ void Presentation::EventHandler(Event* event)
 
         if (gsd != 0)
         {
-            NisPlayerGoalData* np = (NisPlayerGoalData*)NisPlayer::Instance();
-            np->mWinnerSide[1] = gsd->uTeamIndex;
+            ((NisPlayerGoalData*)NisPlayer::Instance())->mWinnerSide[1] = gsd->uTeamIndex;
 
-            Team* team = g_pTeams[gsd->uTeamIndex];
-            s32 scoreDiff = team->m_nScore - team->GetOtherTeam()->m_nScore;
+            TeamLocal* team = g_pTeams[gsd->uTeamIndex];
+            s32 scoreDiff = team->m_nScore - GetOtherTeam__5cTeamFv(team)->m_nScore;
             bool tiesTheGame = (scoreDiff == 0);
 
             bool takeTheLead = true;
@@ -1020,17 +1029,16 @@ void Presentation::EventHandler(Event* event)
                 takeTheLead = false;
             }
 
-            GameLocal* game = (GameLocal*)g_pGame;
-            bool inSuddenDeath = (game->m_eGameState == GS_OVERTIME);
+            bool inSuddenDeath = (g_pGame->m_eGameState == GS_OVERTIME);
 
             bool byCaptain;
             if (gsd->uGoalType == 5)
             {
-                byCaptain = gsd->pLastTouch[gsd->uTeamIndex]->IsCaptain();
+                byCaptain = IsCaptain__7cPlayerCFv(gsd->pLastTouch[gsd->uTeamIndex]);
             }
             else
             {
-                byCaptain = gsd->pScorer->IsCaptain();
+                byCaptain = IsCaptain__7cPlayerCFv(gsd->pScorer);
             }
 
             const char* filter = "high";
@@ -1084,12 +1092,12 @@ void Presentation::EventHandler(Event* event)
             {
                 if (g_pGame != 0)
                 {
-                    float duration = game->m_fGameDuration;
-                    if (game->GetGameTime() >= duration)
+                    float duration = ((GameLocal*)g_pGame)->m_fGameDuration;
+                    if (GetGameTime__5cGameFv(g_pGame) >= duration)
                     {
                         s32 awayScore = g_pTeams[1]->m_nScore;
                         s32 homeScore = g_pTeams[0]->m_nScore;
-                        np->mWinnerSide[0] = (awayScore < homeScore);
+                        ((NisPlayerGoalData*)NisPlayer::Instance())->mWinnerSide[0] = (awayScore < homeScore);
                         script = "GoalSuddenDeath";
                     }
                 }
@@ -1114,6 +1122,54 @@ void Presentation::EventHandler(Event* event)
 
                 NisPlayer::Instance()->SetExtraNameFilter(filter);
                 CallFunction(nlStringHash(script));
+            }
+
+            AIPadLocal* aiPad = mAIPads__12AIPadManager;
+            bool foundTeamPad = false;
+            for (s32 i = 0; i < 4; i++)
+            {
+                CharacterLocal** character = g_pCharacters;
+                for (s32 j = 0; j < 5; j++)
+                {
+                    CharacterLocal* c0 = character[0];
+                    if (c0->m_pController == aiPad)
+                    {
+                        if ((s32)gsd->uTeamIndex == c0->m_pTeam->m_nSide)
+                        {
+                            mIsAllowedToSkip[i] = true;
+                            foundTeamPad = true;
+                        }
+                        else
+                        {
+                            mIsAllowedToSkip[i] = false;
+                        }
+                    }
+
+                    CharacterLocal* c1 = character[1];
+                    if (c1->m_pController == aiPad)
+                    {
+                        if ((s32)gsd->uTeamIndex == c1->m_pTeam->m_nSide)
+                        {
+                            mIsAllowedToSkip[i] = true;
+                            foundTeamPad = true;
+                        }
+                        else
+                        {
+                            mIsAllowedToSkip[i] = false;
+                        }
+                    }
+
+                    character += 2;
+                }
+                aiPad++;
+            }
+
+            if (!foundTeamPad)
+            {
+                mIsAllowedToSkip[0] = true;
+                mIsAllowedToSkip[1] = true;
+                mIsAllowedToSkip[2] = true;
+                mIsAllowedToSkip[3] = true;
             }
         }
     }

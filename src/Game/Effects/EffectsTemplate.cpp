@@ -218,6 +218,7 @@ static void BlendSpan(nlColour* pColour, int cindex, const ColourKey& k0, const 
 void GetColourComponent(SimpleParser* parser, nlColour* pColour, int cindex)
 {
     typedef DLListContainerBase<ColourKey, NewAdapter<DLListEntry<ColourKey> > > ColourKeyList;
+    ColourKey keyTmp;
     char ind[8];
     char val[8];
     ColourKey key;
@@ -246,17 +247,22 @@ void GetColourComponent(SimpleParser* parser, nlColour* pColour, int cindex)
             i++;
         }
         val[i] = 0;
+
         int index = atoi(ind);
         int value = atoi(val);
-        key.index = index;
-        key.value = value;
+        ColourKey* pKey = &key;
+        ColourKey* pKeyTmp = &keyTmp;
+        pKey->index = index;
+        pKey->value = value;
+        *pKeyTmp = *pKey;
+
         DLListEntry<ColourKey>* entry = (DLListEntry<ColourKey>*)nlMalloc(0x10, 8, false);
         if (entry != NULL)
         {
             entry->m_next = NULL;
             entry->m_prev = NULL;
             entry->m_data.index = index;
-            entry->m_data.value = key.value;
+            entry->m_data.value = pKeyTmp->value;
         }
         nlDLRingAddEnd<DLListEntry<ColourKey> >(&keys.m_Head, entry);
     }

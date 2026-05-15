@@ -389,8 +389,6 @@ ChooseCupSceneV2::~ChooseCupSceneV2()
 /**
  * Offset/Address/Size: 0x1A2C | 0x800DBCB0 | size: 0x274
  */
-extern "C" void DisplayCup__16ChooseCupSceneV2Fv(ChooseCupSceneV2*);
-
 void ChooseCupSceneV2::SceneCreated()
 {
     typedef TLImageInstance* (*FindImageByValue)(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher);
@@ -451,7 +449,7 @@ void ChooseCupSceneV2::SceneCreated()
     TLImageInstance* pTrophyImage = findImage.byRef(slide, (InlineHasher&)hB, (InlineHasher&)h9, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
     mCupImage->mImageInstance = pTrophyImage;
 
-    DisplayCup__16ChooseCupSceneV2Fv(this);
+    DisplayCup();
 
     findText.byValue = FEFinder<TLTextInstance, 3>::Find<TLSlide>;
 
@@ -612,7 +610,7 @@ void ChooseCupSceneV2::Update(float fDeltaT)
     {
         if (mUpdateSlide)
         {
-            DisplayCup__16ChooseCupSceneV2Fv(this);
+            DisplayCup();
             mUpdateSlide = false;
         }
         return;

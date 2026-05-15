@@ -1038,7 +1038,8 @@ FuzzyVariant Fuzzy::GetBestLooseBallPassTarget(cFielder* TheFielder)
     float fBestConfidence = 0.0f;
 
     FuzzyVariant fvFielder((cPlayer*)TheFielder);
-    unsigned long hash = (unsigned long)GetBestLooseBallPassTarget + ((Variant*)&fvFielder)->GetHash();
+    unsigned long hash = (unsigned long)GetBestLooseBallPassTarget;
+    hash += ((Variant*)&fvFielder)->GetHash();
     FuzzyVariant fvFielder2((cPlayer*)TheFielder);
 
     ScriptQuestionCache* cache = ScriptQuestionCache::Instance();
@@ -1132,18 +1133,14 @@ FuzzyVariant Fuzzy::GetBestLooseBallPassTarget(cFielder* TheFielder)
         return bestValue;
     }
 
-    FuzzyVariant dangerValue = InDanger(TheFielder);
-    float fTrueConfidence = dangerValue.Confidence;
+    float fTrueConfidence = InDanger(TheFielder).Confidence;
     float fFalseConfidence = 1.0f - fTrueConfidence;
-    float fMinVal = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    float fMaxVal = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    float fBranchRatio = fMinVal / fMaxVal;
+    float fBranchRatio = ((fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence) / ((fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence);
 
     if (fTrueConfidence > 0.0f)
     {
         SaveConfidence PushDOM(&fConfidence);
-        if (fConfidence > fTrueConfidence)
-            fConfidence = fTrueConfidence;
+        fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             fConfidence = (float)fConfidence * fBranchRatio;
 
@@ -1151,15 +1148,12 @@ FuzzyVariant Fuzzy::GetBestLooseBallPassTarget(cFielder* TheFielder)
 
         fTrueConfidence = (theBestPassTarget.Confidence <= fConfidence) ? theBestPassTarget.Confidence : fConfidence;
         fFalseConfidence = 1.0f - fTrueConfidence;
-        fMinVal = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fMaxVal = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fBranchRatio = fMinVal / fMaxVal;
+        fBranchRatio = ((fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence) / ((fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence);
 
         if (fTrueConfidence > 0.0f)
         {
             SaveConfidence PushDOM(&fConfidence);
-            if (fConfidence > fTrueConfidence)
-                fConfidence = fTrueConfidence;
+            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
             if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                 fConfidence = (float)fConfidence * fBranchRatio;
             if (fConfidence > 0.0f)

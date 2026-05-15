@@ -51,14 +51,14 @@ DrawableNetMesh::~DrawableNetMesh()
 
 /**
  * Offset/Address/Size: 0x91C | 0x80114878 | size: 0x264
- * TODO: 88.56% match - matrix row constant register assignment (f0/f3) and
- *       instruction scheduling around netPlaneX setup remain mismatched.
+ * TODO: 96.86% match - floating-point register allocation and constant-load
+ *       placement still differ in plane transform setup.
  */
 void DrawableNetMesh::RenderInvisiblePlanes() const
 {
     float goalLineX = cField::GetGoalLineX(1U);
-    float netHeight = cNet::m_fNetHeight;
     float netWidth = cNet::m_fNetWidth;
+    float netHeight = cNet::m_fNetHeight;
 
     glSetDefaultState(true);
     glSetRasterState(GLS_DepthWrite, 1);
@@ -81,7 +81,7 @@ void DrawableNetMesh::RenderInvisiblePlanes() const
 
     glQuad3 quad;
 
-    netPlaneX = goalLineX - 1.0f;
+    netPlaneX = goalLineX - 0.05f;
     matrix.m[3][0] = netPlaneX;
     matrix.m[3][1] = 0.0f;
     matrix.m[3][2] = halfHeight;
@@ -90,7 +90,7 @@ void DrawableNetMesh::RenderInvisiblePlanes() const
     quad.SetColour(c);
     glAttachQuad3(GLV_InvisiblePlane, 1, &quad, true);
 
-    netPlaneX = 1.0f + goalLineX;
+    netPlaneX = 0.05f + goalLineX;
     matrix.m[3][0] = netPlaneX;
     matrix.m[3][1] = 0.0f;
     matrix.m[3][2] = halfHeight;
@@ -99,7 +99,7 @@ void DrawableNetMesh::RenderInvisiblePlanes() const
     quad.SetColour(c);
     glAttachQuad3(GLV_InvisiblePlane, 1, &quad, true);
 
-    netPlaneX = -goalLineX - 1.0f;
+    netPlaneX = -goalLineX - 0.05f;
     matrix.m[3][0] = netPlaneX;
     matrix.m[3][1] = 0.0f;
     matrix.m[3][2] = halfHeight;
@@ -108,7 +108,7 @@ void DrawableNetMesh::RenderInvisiblePlanes() const
     quad.SetColour(c);
     glAttachQuad3(GLV_InvisiblePlane, 1, &quad, true);
 
-    netPlaneX = 1.0f - goalLineX;
+    netPlaneX = 0.05f - goalLineX;
     matrix.m[3][0] = netPlaneX;
     matrix.m[3][1] = 0.0f;
     matrix.m[3][2] = halfHeight;

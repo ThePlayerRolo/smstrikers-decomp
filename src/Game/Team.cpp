@@ -484,7 +484,6 @@ static inline void UpdateBallInterceptTime(cTeam* pTeam)
 void cTeam::Update(float dt)
 {
     extern cTeam* g_pCurrentlyUpdatingTeam;
-    extern void UpdateTeamAI__5cTeamFf(cTeam*, float);
 
     g_pCurrentlyUpdatingTeam = this;
 
@@ -531,7 +530,7 @@ void cTeam::Update(float dt)
     qsort(m_pBallInterceptOrderedFielders, 4, 4, BestAbleToInterceptBall);
     mtBallInterceptTimer.SetSeconds(0.0f);
 
-    UpdateTeamAI__5cTeamFf(this, dt);
+    UpdateTeamAI(dt);
 
     for (int i = 0; i < 4; i++)
     {

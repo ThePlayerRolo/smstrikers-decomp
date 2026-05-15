@@ -1407,14 +1407,6 @@ bool GoalieSave::TriggerCallback(float fTime, float fDuration, unsigned long uEv
     return true;
 }
 
-/**
- * Offset/Address/Size: 0x780 | 0x80053BA0 | size: 0x64C
- */
-void GoalieSave::AddAreaToGrid(SaveData*)
-{
-    FORCE_DONT_INLINE;
-}
-
 static inline void AddPointToGrid(SaveData* pSaveData, const nlVector3& v3Point)
 {
     float z = v3Point.f.z;
@@ -1456,6 +1448,245 @@ static inline void AddPointToGrid(SaveData* pSaveData, const nlVector3& v3Point)
             newEntry->data = pSaveData;
         }
         nlListAddStart<ListEntry<SaveData*> >(&cell.m_Head, newEntry, &cell.m_Tail);
+    }
+}
+
+/**
+ * Offset/Address/Size: 0x780 | 0x80053BA0 | size: 0x64C
+ */
+void GoalieSave::AddAreaToGrid(SaveData* pSaveData)
+{
+    SaveData* pCur;
+    nlVector3 v3TopRight;
+    nlVector3 v3BotLeft;
+    float yInc;
+    float zInc;
+    nlVector3 v3CurColPos;
+    nlVector3 v3CurRowPos;
+    SaveData* pCurBot;
+    SaveData* pNextRight;
+    SaveData* pNextNextRight;
+    SaveData* pCurLeft;
+    SaveData* pCurRight;
+    SaveData* pCurUp;
+    SaveData* pCurRightUp;
+    SaveData* pClosest;
+    float fCloseDist;
+
+    pCur = pSaveData;
+    while (pCur != NULL)
+    {
+        pCurRightUp = pCur;
+        pCur = pCur->mpConnectedSaveData[3];
+    }
+    while (pCurRightUp != NULL)
+    {
+        pCurRightUp = pCurRightUp->mpConnectedSaveData[0];
+    }
+
+    pCur = pSaveData;
+    while (pCur != NULL)
+    {
+        pCurUp = pCur;
+        pCur = pCur->mpConnectedSaveData[2];
+    }
+    while (pCurUp != NULL)
+    {
+        pCurBot = pCurUp;
+        pCurUp = pCurUp->mpConnectedSaveData[0];
+    }
+
+    {
+        SaveData* end;
+        pCur = pSaveData;
+        while (pCur != NULL)
+        {
+            end = pCur;
+            pCur = pCur->mpConnectedSaveData[3];
+        }
+        while (end != NULL)
+        {
+            pNextRight = end;
+            end = end->mpConnectedSaveData[1];
+        }
+    }
+
+    {
+        SaveData* end;
+        pCur = pSaveData;
+        while (pCur != NULL)
+        {
+            end = pCur;
+            pCur = pCur->mpConnectedSaveData[2];
+        }
+        while (end != NULL)
+        {
+            end = end->mpConnectedSaveData[1];
+        }
+    }
+
+    yInc = (float)(0.95 * (cField::GetNet(1.0f)->GetNetWidth() / 7.0f));
+    zInc = (float)(0.95 * (cField::GetNet(1.0f)->GetNetHeight() / 5.0f));
+
+    pCur = pCurBot;
+    v3TopRight = pCurBot->mv3SavePos;
+    while (pCur != NULL)
+    {
+        if (pCur->mv3SavePos.f.y > v3TopRight.f.y)
+            v3TopRight.f.y = pCur->mv3SavePos.f.y;
+        pCur = pCur->mpConnectedSaveData[1];
+    }
+    while (pCurBot != NULL)
+    {
+        if (pCurBot->mv3SavePos.f.z > v3TopRight.f.z)
+            v3TopRight.f.z = pCurBot->mv3SavePos.f.z;
+        pCurBot = pCurBot->mpConnectedSaveData[3];
+    }
+
+    pSaveData->mv3GroupMaxCoords = v3TopRight;
+    float halfYInc = 0.51f * yInc;
+    float halfZInc = 0.51f * zInc;
+    v3TopRight.f.y += halfYInc;
+    v3TopRight.f.z += halfZInc;
+
+    pCur = pNextRight;
+    v3BotLeft = pNextRight->mv3SavePos;
+    while (pCur != NULL)
+    {
+        if (pCur->mv3SavePos.f.y < v3BotLeft.f.y)
+            v3BotLeft.f.y = pCur->mv3SavePos.f.y;
+        pCur = pCur->mpConnectedSaveData[0];
+    }
+    pCur = pNextRight;
+    while (pCur != NULL)
+    {
+        if (pCur->mv3SavePos.f.z < v3BotLeft.f.z)
+            v3BotLeft.f.z = pCur->mv3SavePos.f.z;
+        pCur = pCur->mpConnectedSaveData[2];
+    }
+
+    pSaveData->mv3GroupMinCoords = v3BotLeft;
+    v3BotLeft.f.y -= halfYInc;
+    v3BotLeft.f.z -= halfZInc;
+
+    pCurBot = pNextRight;
+    pNextNextRight = pNextRight->mpConnectedSaveData[2];
+    v3CurRowPos = v3BotLeft;
+
+    while (v3CurRowPos.f.y < v3TopRight.f.y)
+    {
+        if (v3CurRowPos.f.y >= pNextRight->mv3SavePos.f.y && pNextNextRight != NULL)
+        {
+            pCurBot = pNextRight;
+            pNextRight = pNextNextRight;
+            pNextNextRight = pNextNextRight->mpConnectedSaveData[2];
+        }
+        pCurLeft = pCurBot;
+        pCurRight = pNextRight;
+        v3CurColPos = v3CurRowPos;
+
+        while (v3CurColPos.f.z < v3TopRight.f.z)
+        {
+            pCurRightUp = pCurLeft;
+            pCur = pCurLeft;
+            for (; pCurRightUp != NULL && v3CurColPos.f.z > pCurRightUp->mv3SavePos.f.z; pCurRightUp = pCurRightUp->mpConnectedSaveData[0])
+            {
+                pCur = pCurRightUp;
+            }
+            for (; pCur != NULL && v3CurColPos.f.z < pCur->mv3SavePos.f.z; pCur = pCur->mpConnectedSaveData[1])
+            {
+                pCurRightUp = pCur;
+            }
+            if (pCur == NULL)
+            {
+                pCurLeft = pCurRightUp;
+                pCurUp = pCurRightUp;
+            }
+            else if (pCurRightUp == NULL)
+            {
+                pCurLeft = pCur;
+                pCurUp = pCur;
+            }
+            else
+            {
+                pCurUp = pCurRightUp;
+                pCurLeft = pCur;
+            }
+
+            pCurRightUp = pCurRight;
+            pCur = pCurRight;
+            for (; pCurRightUp != NULL && v3CurColPos.f.z > pCurRightUp->mv3SavePos.f.z; pCurRightUp = pCurRightUp->mpConnectedSaveData[0])
+            {
+                pCur = pCurRightUp;
+            }
+            for (; pCur != NULL && v3CurColPos.f.z < pCur->mv3SavePos.f.z; pCur = pCur->mpConnectedSaveData[1])
+            {
+                pCurRightUp = pCur;
+            }
+            if (pCur == NULL)
+            {
+                pCurRight = pCurRightUp;
+            }
+            else if (pCurRightUp == NULL)
+            {
+                pCurRight = pCur;
+                pCurRightUp = pCur;
+            }
+            else
+            {
+                pCurRight = pCur;
+            }
+
+            {
+                float z = v3CurColPos.f.z;
+                float y = v3CurColPos.f.y;
+                float dz = pCurLeft->mv3SavePos.f.z - z;
+                float dy = pCurLeft->mv3SavePos.f.y - y;
+                fCloseDist = dz * dz + dy * dy;
+                pClosest = pCurLeft;
+
+                if (pCurLeft != pCurUp)
+                {
+                    float upDz = pCurUp->mv3SavePos.f.z - z;
+                    float upDy = pCurUp->mv3SavePos.f.y - y;
+                    float d = upDz * upDz + upDy * upDy;
+                    if (d < fCloseDist)
+                    {
+                        fCloseDist = d;
+                        pClosest = pCurUp;
+                    }
+                }
+
+                if (pCurLeft != pCurRight)
+                {
+                    float rightDz = pCurRight->mv3SavePos.f.z - z;
+                    float rightDy = pCurRight->mv3SavePos.f.y - y;
+                    float d = rightDz * rightDz + rightDy * rightDy;
+                    if (d < fCloseDist)
+                    {
+                        fCloseDist = d;
+                        pClosest = pCurRight;
+                    }
+                    if (pCurRight != pCurRightUp)
+                    {
+                        float upRightDz = pCurRightUp->mv3SavePos.f.z - z;
+                        float upRightDy = pCurRightUp->mv3SavePos.f.y - y;
+                        float d2 = upRightDz * upRightDz + upRightDy * upRightDy;
+                        if (d2 < fCloseDist)
+                        {
+                            fCloseDist = d2;
+                            pClosest = pCurRightUp;
+                        }
+                    }
+                }
+            }
+
+            pClosest->mv3GroupMinCoords = pSaveData->mv3GroupMinCoords;
+            pClosest->mv3GroupMaxCoords = pSaveData->mv3GroupMaxCoords;
+            AddPointToGrid(pClosest, v3CurColPos);
+            v3CurColPos.f.z += zInc;
+        }
+        v3CurRowPos.f.y += yInc;
     }
 }
 

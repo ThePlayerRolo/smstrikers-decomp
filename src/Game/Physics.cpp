@@ -88,9 +88,6 @@ public:
     char m_szBaseName[0x20];
 };
 
-extern "C" void ConstructStaticPhysicsPrimitives__13PhysicsLoaderFP20CharacterPhysicsData(
-    PhysicsLoader*,
-    CharacterPhysicsData*);
 extern "C" PhysicsWorld* __ct__12PhysicsWorldFv(PhysicsWorld*);
 extern "C" SimpleCollisionSpace* __ct__20SimpleCollisionSpaceFP12PhysicsWorld(SimpleCollisionSpace*, PhysicsWorld*);
 extern "C" PhysicsGroundPlane* __ct__18PhysicsGroundPlaneFP14CollisionSpace(PhysicsGroundPlane*, CollisionSpace*);
@@ -458,8 +455,7 @@ bool PhysicsLoader::StartLoad(LoadingManager*)
         PhysicsNet::spPhysNetNegativeX->mpNetMesh->Initialize(uNegativeNetMeshID);
     }
 
-    ConstructStaticPhysicsPrimitives__13PhysicsLoaderFP20CharacterPhysicsData(
-        pThis,
+    pThis->ConstructStaticPhysicsPrimitives(
         BasicStadium::GetCurrentStadium()->m_pCharacterPhysicsData);
 
     return true;
