@@ -787,13 +787,24 @@ void ParticleSystem::RenderAllParticles(eGLView view)
                 glQuad3 q;
                 q.SetupRotatedRectangle(size, size, rot, false, false);
                 q.SetColour(light.m_Colour);
-                for (int i = 0; i < 4; i++)
+                nlColour* pColour = q.m_colour;
+                for (int i = 0; i < 2; i++)
                 {
-                    q.m_pos[i].f.x += light.m_v3Position.f.x;
-                    q.m_pos[i].f.y += light.m_v3Position.f.y;
-                    q.m_pos[i].f.z += light.m_v3Position.f.z;
-                    q.m_pos[i].f.z = 0.03125f;
-                    q.m_colour[i].c[3] = (unsigned char)((int)q.m_colour[i].c[3] / 3);
+                    int idx = i * 2;
+                    q.m_pos[idx].f.x += light.m_v3Position.f.x;
+                    q.m_pos[idx].f.y += light.m_v3Position.f.y;
+                    q.m_pos[idx].f.z += light.m_v3Position.f.z;
+                    q.m_pos[idx].f.z = 0.03125f;
+                    pColour[0].c[3] = (unsigned char)((int)pColour[0].c[3] / 3);
+
+                    idx++;
+                    q.m_pos[idx].f.x += light.m_v3Position.f.x;
+                    q.m_pos[idx].f.y += light.m_v3Position.f.y;
+                    q.m_pos[idx].f.z += light.m_v3Position.f.z;
+                    q.m_pos[idx].f.z = 0.03125f;
+                    pColour[1].c[3] = (unsigned char)((int)pColour[1].c[3] / 3);
+
+                    pColour += 2;
                 }
 
                 glModel* pModel = (glModel*)q.GetModel(true);
@@ -807,15 +818,19 @@ void ParticleSystem::RenderAllParticles(eGLView view)
     else if (m_pTemplate->m_uModelID != 0xFFFFFFFF)
     {
         GLVertexAnim* pAnim = glInventory.GetVertexAnim(m_pTemplate->m_uModelID);
-        eEffectsBlend blendType = EfBlend_Num;
+        eEffectsBlend blendType;
         Particle* pPart = (Particle*)m_Particles.m_headNode;
-        const nlMatrix4* pCoord = m_pTemplate->m_bLocalSpace ? &mCoordSys : nullptr;
 
         nlMatrix4 m;
-        m = mCoordSys;
-        m.e[2] = -m.e[2];
-        m.e[6] = -m.e[6];
-        m.e[10] = -m.e[10];
+        nlMatrix4 mScale;
+        nlMatrix4 mRot;
+        nlMatrix4 mCoord;
+        mCoord = mCoordSys;
+        mCoord.e[2] = -mCoord.e[2];
+        mCoord.e[6] = -mCoord.e[6];
+        mCoord.e[10] = -mCoord.e[10];
+
+        const nlMatrix4* pCoord = m_pTemplate->m_bLocalSpace ? &mCoordSys : nullptr;
 
         if (m_pTemplate->m_eBlend == EfBlend_Normal)
         {
@@ -843,17 +858,14 @@ void ParticleSystem::RenderAllParticles(eGLView view)
                 rotRad += 0.0000958738f * (float)(short)m_aFacing;
             }
 
-            nlMatrix4 mRot;
             nlMakeRotationMatrixZ(mRot, rotRad);
-            nlMatrix4 mScale;
             nlMakeScaleMatrix(mScale, size, size, size);
             nlMultMatrices(mScale, mScale, mRot);
 
-            nlMatrix4 m2;
-            nlMultMatrices(m2, m, mScale);
-            m2.e[12] = ret.position[0].f.x;
-            m2.e[13] = ret.position[0].f.y;
-            m2.e[14] = ret.position[0].f.z;
+            nlMultMatrices(m, mCoord, mScale);
+            m.e[12] = ret.position[0].f.x;
+            m.e[13] = ret.position[0].f.y;
+            m.e[14] = ret.position[0].f.z;
 
             void* pUserData = glUserAlloc(GLUD_ConstantColour, 4, false);
             if (pUserData != nullptr)
@@ -864,7 +876,7 @@ void ParticleSystem::RenderAllParticles(eGLView view)
             u32 hMatrix = glAllocMatrix();
             if (hMatrix != 0xFFFFFFFF)
             {
-                glSetMatrix(hMatrix, m2);
+                glSetMatrix(hMatrix, m);
             }
 
             float meshRateScale = 1.0f;

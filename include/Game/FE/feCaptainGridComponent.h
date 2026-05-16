@@ -17,7 +17,7 @@ public:
     void SetAllItemsActive();
     virtual void MoveHighlightToTarget(eTeamID);
     eTeamID GetSelectedItem() const;
-    void IsValid(eTeamID);
+    bool IsValid(eTeamID);
     void SetValid(eTeamID, bool);
     void UpdateSuperTeamIconState();
     void Update(eFEINPUT_PAD);

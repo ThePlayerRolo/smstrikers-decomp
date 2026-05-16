@@ -1400,7 +1400,7 @@ void Bowser::SetTiltParameters(float fYAxisTilt)
 
 /**
  * Offset/Address/Size: 0x954 | 0x801596C8 | size: 0x6F0
- * TODO: 95.01% match - r29/r31 register swap due to dead code GS_END_GAME block changing MWCC graph coloring
+ * TODO: 96.28% match - r29/r31 register swap with stack-slot placement diffs in duplicated leave/setup paths
  */
 bool Bowser::CheckForAbort()
 {
@@ -1414,121 +1414,79 @@ bool Bowser::CheckForAbort()
         if (meBowserState != BOWSER_STATE_LEAVE)
         {
             if (nlSingleton<GameInfoManager>::s_pInstance->IsBowserAttackEnabled())
-            {
                 g_pEventManager->CreateValidEvent(0x3b, 0x14);
-            }
-
             meBowserState = BOWSER_STATE_LEAVE;
             mAnimID = BOWSER_ANIM_JUMP;
-
             cPN_SAnimController* controller = NULL;
-
             if (cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList == NULL)
-            {
                 SlotPoolBase::BaseAddNewBlock(&cPN_SAnimController::m_SAnimControllerSlotPool, sizeof(cPN_SAnimController));
-            }
-
             if (cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList != NULL)
             {
                 controller = (cPN_SAnimController*)cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList;
                 cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList = cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList->m_next;
             }
-
-            controller = new (controller) cPN_SAnimController(
-                mpAnim[BOWSER_ANIM_JUMP],
-                (const AnimRetarget*)0,
-                PM_HOLD,
-                (void (*)(unsigned int, cPN_SAnimController*))0,
-                (unsigned int)0,
-                (bool)0);
-
+            controller = new (controller) cPN_SAnimController(mpAnim[BOWSER_ANIM_JUMP], (const AnimRetarget*)0, PM_HOLD, (void (*)(unsigned int, cPN_SAnimController*))0, (unsigned int)0, (bool)0);
             cPN_Blender* blender;
-
             if (mpFeatherBlender->GetChild(0) != NULL)
             {
                 blender = NULL;
-
                 if (cPN_Blender::m_BlenderSlotPool.m_FreeList == NULL)
-                {
                     SlotPoolBase::BaseAddNewBlock(&cPN_Blender::m_BlenderSlotPool, sizeof(cPN_Blender));
-                }
-
                 if (cPN_Blender::m_BlenderSlotPool.m_FreeList != NULL)
                 {
                     blender = (cPN_Blender*)cPN_Blender::m_BlenderSlotPool.m_FreeList;
                     cPN_Blender::m_BlenderSlotPool.m_FreeList = cPN_Blender::m_BlenderSlotPool.m_FreeList->m_next;
                 }
-
                 if (blender != NULL)
-                {
                     blender = __ct__11cPN_BlenderFP9cPoseNodeP9cPoseNodef(blender, *mpFeatherBlender->GetChildPtr(0), controller, 0.2f);
-                }
             }
             else
             {
                 blender = (cPN_Blender*)controller;
             }
-
             mpFeatherBlender->SetChild(0, blender);
             mpAnimController = controller;
-
             cBaseCamera* camera = nlDLRingGetStart<cBaseCamera>(cCameraManager::m_cameraStack);
             nlVector3 v3CameraTarget = camera->GetTargetPosition();
-
             nlVector3 v3Velocity = { 25.0f, 0.0f, 25.0f };
             unsigned short aDesired = 0;
-
             if (v3CameraTarget.f.x > mv3Position.f.x)
             {
                 v3Velocity.f.x *= -1.0f;
                 aDesired = 0x8000;
             }
-
             maDesiredFacingDirection = aDesired;
             mv3Velocity = v3Velocity;
-
             mtStateTimer.SetSeconds(2.0f);
-
             if (mpFeatherBlender->GetChild(1) != NULL)
-            {
                 mpFeatherBlender->BeginBlendOut(0.1f);
-            }
-
             mpFeatherController = NULL;
         }
         return true;
     }
-
     if (gameState == GS_END_GAME)
     {
         EmissionManager::Destroy((unsigned long)this, fxGetGroup("bowser_fire"));
         g_pEventManager->CreateValidEvent(0x65, 0x14);
-
         u8 savedVisible = mbIsVisible;
         mbIsVisible = false;
         meBowserState = BOWSER_STATE_HIDDEN;
         mfDesiredSpeed = 0.0f;
-
         if (mpFeatherBlender->GetChild(1) != NULL)
         {
             delete mpFeatherBlender->GetChild(1);
             mpFeatherBlender->SetChild(1, NULL);
         }
-
         mpFeatherController = NULL;
         SetPosition(gv3BowserHomePosition);
-
         mv3Velocity = v3Zero;
         maFacingDirection = 0;
-
         mpPhysObj->DisableCollisions();
-
         if (!(mAttackType == BOWSER_ATTACK_STOMP && mStompStage != 2))
         {
             eBowserAttackType savedAttackType = mAttackType;
-
-            SetTiltParameters(0.0f);
-
+            mfYAxisTilt = 0.0f;
+            cCameraManager::SetWorldUpVectorTilt(0.0f, 0.0f);
             if (g_pBall != NULL)
             {
                 PhysicsAIBall* pPhys = g_pBall->m_pPhysicsBall;
@@ -1547,24 +1505,14 @@ bool Bowser::CheckForAbort()
                     }
                 }
             }
-
             mAttackType = BOWSER_ATTACK_ROLL;
-
             if (g_pGame->m_pGameTweaks->unk310 < 0.0f)
-            {
                 g_pGame->ResetBowser();
-            }
-
             if (mbAlive)
             {
                 mbAlive = false;
-
-                if (nlSingleton<GameInfoManager>::s_pInstance->IsBowserAttackEnabled()
-                    && savedAttackType != BOWSER_ATTACK_STOMP
-                    && savedVisible)
-                {
+                if (nlSingleton<GameInfoManager>::s_pInstance->IsBowserAttackEnabled() && savedAttackType != BOWSER_ATTACK_STOMP && savedVisible)
                     g_pEventManager->CreateValidEvent(0x37, 0x14);
-                }
             }
         }
         else
@@ -1573,101 +1521,64 @@ bool Bowser::CheckForAbort()
         }
         return true;
     }
-
     float fDuration = g_pGame->m_fGameDuration;
     float fRemainingTime = fDuration - g_pGame->GetGameTime();
-    if (fRemainingTime >= 15.0f)
-        return false;
-
-    if (mAttackType == BOWSER_ATTACK_STOMP)
-        return false;
-
-    if (meBowserState != BOWSER_STATE_LEAVE)
+    if (fRemainingTime < 15.0f && mAttackType != BOWSER_ATTACK_STOMP)
     {
-        if (nlSingleton<GameInfoManager>::s_pInstance->IsBowserAttackEnabled())
+        if (meBowserState != BOWSER_STATE_LEAVE)
         {
-            g_pEventManager->CreateValidEvent(0x3b, 0x14);
-        }
-
-        meBowserState = BOWSER_STATE_LEAVE;
-        mAnimID = BOWSER_ANIM_JUMP;
-
-        cPN_SAnimController* controller = NULL;
-
-        if (cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList == NULL)
-        {
-            SlotPoolBase::BaseAddNewBlock(&cPN_SAnimController::m_SAnimControllerSlotPool, sizeof(cPN_SAnimController));
-        }
-
-        if (cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList != NULL)
-        {
-            controller = (cPN_SAnimController*)cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList;
-            cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList = cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList->m_next;
-        }
-
-        controller = new (controller) cPN_SAnimController(
-            mpAnim[BOWSER_ANIM_JUMP],
-            (const AnimRetarget*)0,
-            PM_HOLD,
-            (void (*)(unsigned int, cPN_SAnimController*))0,
-            (unsigned int)0,
-            (bool)0);
-
-        cPN_Blender* blender;
-
-        if (mpFeatherBlender->GetChild(0) != NULL)
-        {
-            blender = NULL;
-
-            if (cPN_Blender::m_BlenderSlotPool.m_FreeList == NULL)
+            if (nlSingleton<GameInfoManager>::s_pInstance->IsBowserAttackEnabled())
+                g_pEventManager->CreateValidEvent(0x3b, 0x14);
+            meBowserState = BOWSER_STATE_LEAVE;
+            mAnimID = BOWSER_ANIM_JUMP;
+            cPN_SAnimController* controller = NULL;
+            if (cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList == NULL)
+                SlotPoolBase::BaseAddNewBlock(&cPN_SAnimController::m_SAnimControllerSlotPool, sizeof(cPN_SAnimController));
+            if (cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList != NULL)
             {
-                SlotPoolBase::BaseAddNewBlock(&cPN_Blender::m_BlenderSlotPool, sizeof(cPN_Blender));
+                controller = (cPN_SAnimController*)cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList;
+                cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList = cPN_SAnimController::m_SAnimControllerSlotPool.m_FreeList->m_next;
             }
-
-            if (cPN_Blender::m_BlenderSlotPool.m_FreeList != NULL)
+            controller = new (controller) cPN_SAnimController(mpAnim[BOWSER_ANIM_JUMP], (const AnimRetarget*)0, PM_HOLD, (void (*)(unsigned int, cPN_SAnimController*))0, (unsigned int)0, (bool)0);
+            cPN_Blender* blender;
+            if (mpFeatherBlender->GetChild(0) != NULL)
             {
-                blender = (cPN_Blender*)cPN_Blender::m_BlenderSlotPool.m_FreeList;
-                cPN_Blender::m_BlenderSlotPool.m_FreeList = cPN_Blender::m_BlenderSlotPool.m_FreeList->m_next;
+                blender = NULL;
+                if (cPN_Blender::m_BlenderSlotPool.m_FreeList == NULL)
+                    SlotPoolBase::BaseAddNewBlock(&cPN_Blender::m_BlenderSlotPool, sizeof(cPN_Blender));
+                if (cPN_Blender::m_BlenderSlotPool.m_FreeList != NULL)
+                {
+                    blender = (cPN_Blender*)cPN_Blender::m_BlenderSlotPool.m_FreeList;
+                    cPN_Blender::m_BlenderSlotPool.m_FreeList = cPN_Blender::m_BlenderSlotPool.m_FreeList->m_next;
+                }
+                if (blender != NULL)
+                    blender = __ct__11cPN_BlenderFP9cPoseNodeP9cPoseNodef(blender, *mpFeatherBlender->GetChildPtr(0), controller, 0.2f);
             }
-
-            if (blender != NULL)
+            else
             {
-                blender = __ct__11cPN_BlenderFP9cPoseNodeP9cPoseNodef(blender, *mpFeatherBlender->GetChildPtr(0), controller, 0.2f);
+                blender = (cPN_Blender*)controller;
             }
+            mpFeatherBlender->SetChild(0, blender);
+            mpAnimController = controller;
+            cBaseCamera* camera = nlDLRingGetStart<cBaseCamera>(cCameraManager::m_cameraStack);
+            nlVector3 v3CameraTarget = camera->GetTargetPosition();
+            nlVector3 v3Velocity = { 25.0f, 0.0f, 25.0f };
+            unsigned short aDesired = 0;
+            if (v3CameraTarget.f.x > mv3Position.f.x)
+            {
+                v3Velocity.f.x *= -1.0f;
+                aDesired = 0x8000;
+            }
+            maDesiredFacingDirection = aDesired;
+            mv3Velocity = v3Velocity;
+            mtStateTimer.SetSeconds(2.0f);
+            if (mpFeatherBlender->GetChild(1) != NULL)
+                mpFeatherBlender->BeginBlendOut(0.1f);
+            mpFeatherController = NULL;
         }
-        else
-        {
-            blender = (cPN_Blender*)controller;
-        }
-
-        mpFeatherBlender->SetChild(0, blender);
-        mpAnimController = controller;
-
-        cBaseCamera* camera = nlDLRingGetStart<cBaseCamera>(cCameraManager::m_cameraStack);
-        nlVector3 v3CameraTarget = camera->GetTargetPosition();
-
-        nlVector3 v3Velocity = { 25.0f, 0.0f, 25.0f };
-        unsigned short aDesired = 0;
-
-        if (v3CameraTarget.f.x > mv3Position.f.x)
-        {
-            v3Velocity.f.x *= -1.0f;
-            aDesired = 0x8000;
-        }
-
-        maDesiredFacingDirection = aDesired;
-        mv3Velocity = v3Velocity;
-
-        mtStateTimer.SetSeconds(2.0f);
-
-        if (mpFeatherBlender->GetChild(1) != NULL)
-        {
-            mpFeatherBlender->BeginBlendOut(0.1f);
-        }
-
-        mpFeatherController = NULL;
+        return true;
     }
-    return true;
+    return false;
 }
 
 /**

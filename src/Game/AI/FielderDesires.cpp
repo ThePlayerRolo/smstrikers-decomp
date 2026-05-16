@@ -1449,7 +1449,7 @@ void cFielder::DesireMark(float fDeltaT)
 
 /**
  * Offset/Address/Size: 0x35E4 | 0x80034368 | size: 0x408
- * TODO: 84.11% match - second loop uses do-while countdown to prevent unrolling; remaining gap is mtctr/bdnz vs cmpwi/blt due to -inline auto vs -inline deferred flags
+ * TODO: 93.62% match - remaining diffs are register allocation around this pointer and clamp compare form in support-location loop
  */
 void cFielder::DesireSupportBall(float fDeltaT, bool bDefensive)
 {
@@ -1460,103 +1460,98 @@ void cFielder::DesireSupportBall(float fDeltaT, bool bDefensive)
     }
 
     const SupportBallAILocation* pAILocations = bDefensive ? g_vSupportBallDefensiveAILocations : g_vSupportBallOffensiveAILocations;
-    int iNumSupportLocs = bDefensive ? 6 : 6;
+    int iNumRules = bDefensive ? 6 : 6;
 
-    nlVector3 v3FutureBallFieldLocation;
-    nlVector3 v3FutureBallAILocation;
+    nlVector3 v3BallPosition;
+    nlVector3 v3BallAILoc;
 
     cBall* pBall = g_pBall;
-    v3FutureBallFieldLocation.f.x = pBall->m_v3Position.f.x + (0.2f * pBall->GetAIVelocity()->f.x);
+    v3BallPosition.f.x = pBall->m_v3Position.f.x + (0.2f * pBall->GetAIVelocity()->f.x);
 
     pBall = g_pBall;
-    v3FutureBallFieldLocation.f.y = pBall->m_v3Position.f.y + (0.2f * pBall->GetAIVelocity()->f.y);
-    v3FutureBallFieldLocation.f.z = 0.0f;
+    v3BallPosition.f.y = pBall->m_v3Position.f.y + (0.2f * pBall->GetAIVelocity()->f.y);
+    v3BallPosition.f.z = 0.0f;
 
-    FieldLocToAILoc(v3FutureBallAILocation, v3FutureBallFieldLocation, (eTeamSide)m_pTeam->m_nSide);
+    FieldLocToAILoc(v3BallAILoc, v3BallPosition, (eTeamSide)m_pTeam->m_nSide);
 
-    int nearestIndices[2] = { -1, -1 };
-    float nearestDists[2] = { 1000000000.0f, 1000000000.0f };
+    int best_rule_i[2] = { -1, -1 };
+    float best_rule_distance[2] = { 1000000000.0f, 1000000000.0f };
 
-    for (int i = 0; i < iNumSupportLocs; i++)
+    for (int i = 0; i < iNumRules; i++)
     {
-        float dy = v3FutureBallAILocation.f.y - pAILocations[i].y0;
-        float dx = v3FutureBallAILocation.f.x - pAILocations[i].x0;
+        float dy = v3BallAILoc.f.y - pAILocations[i].y0;
+        float dx = v3BallAILoc.f.x - pAILocations[i].x0;
         float dist = nlSqrt(dx * dx + dy * dy, true);
 
-        if (dist < nearestDists[0])
+        if (dist < best_rule_distance[0])
         {
-            nearestDists[1] = nearestDists[0];
-            nearestIndices[1] = nearestIndices[0];
-            nearestIndices[0] = i;
-            nearestDists[0] = dist;
+            best_rule_distance[1] = best_rule_distance[0];
+            best_rule_i[1] = best_rule_i[0];
+            best_rule_i[0] = i;
+            best_rule_distance[0] = dist;
         }
-        else if (dist < nearestDists[1])
+        else if (dist < best_rule_distance[1])
         {
-            nearestIndices[1] = i;
-            nearestDists[1] = dist;
+            best_rule_i[1] = i;
+            best_rule_distance[1] = dist;
         }
     }
 
-    nlVector2 v2LocationOffsets[2];
-    nlVector2 v2SupportBallAILocs[2];
+    nlVector2 v2OffsetFromBall[2];
+    nlVector2 v2TargetPositions[2];
 
-    int n = 2;
-    int i = 0;
-    do
+    for (int i_rule = 0; i_rule < 2; i_rule++)
     {
-        const SupportBallAILocation* pLocation = &pAILocations[nearestIndices[i]];
+        const SupportBallAILocation* pLocation = &pAILocations[best_rule_i[i_rule]];
 
-        v2LocationOffsets[i].f.x = pLocation->x1 - pLocation->x0;
-        v2LocationOffsets[i].f.y = pLocation->y1 - pLocation->y0;
+        v2OffsetFromBall[i_rule].f.x = pLocation->x1 - pLocation->x0;
+        v2OffsetFromBall[i_rule].f.y = pLocation->y1 - pLocation->y0;
 
-        float x = v3FutureBallAILocation.f.x + v2LocationOffsets[i].f.x;
-        if (x < 0.0f)
+        float x = v3BallAILoc.f.x + v2OffsetFromBall[i_rule].f.x;
+        if (!(x >= 0.0f))
         {
             x = 0.0f;
         }
-        if (x > 4.0f)
+        if (!(x <= 4.0f))
         {
             x = 4.0f;
         }
-        v2SupportBallAILocs[i].f.x = x;
+        v2TargetPositions[i_rule].f.x = x;
 
-        float y = v3FutureBallAILocation.f.y + v2LocationOffsets[i].f.y;
-        if (y < -1.0f)
+        float y = v3BallAILoc.f.y + v2OffsetFromBall[i_rule].f.y;
+        if (!(y >= -1.0f))
         {
             y = -1.0f;
         }
-        if (y > 1.0f)
+        if (!(y <= 1.0f))
         {
             y = 1.0f;
         }
-        v2SupportBallAILocs[i].f.y = y;
+        v2TargetPositions[i_rule].f.y = y;
+    }
 
-        i++;
-    } while (--n > 0);
-
-    nlVector3 v3TargetAILoc = {
+    nlVector3 v3SupportPosition = {
         0.0f,
         0.0f,
         0.0f,
     };
 
-    float fWeight0 = nearestDists[1] / (nearestDists[0] + nearestDists[1]);
-    float fWeight1 = 1.0f - fWeight0;
+    float t = best_rule_distance[1] / (best_rule_distance[0] + best_rule_distance[1]);
 
-    v3TargetAILoc.f.x = (fWeight1 * v2SupportBallAILocs[1].f.x) + (fWeight0 * v2SupportBallAILocs[0].f.x);
-    v3TargetAILoc.f.y = (fWeight1 * v2SupportBallAILocs[1].f.y) + (fWeight0 * v2SupportBallAILocs[0].f.y);
+    v3SupportPosition.f.x = (t * v2TargetPositions[0].f.x) + ((1.0f - t) * v2TargetPositions[1].f.x);
+    v3SupportPosition.f.y = (t * v2TargetPositions[0].f.y) + ((1.0f - t) * v2TargetPositions[1].f.y);
 
-    AILocToFieldLoc(v3TargetAILoc, v3TargetAILoc, (eTeamSide)m_pTeam->m_nSide);
+    AILocToFieldLoc(v3SupportPosition, v3SupportPosition, (eTeamSide)m_pTeam->m_nSide);
 
-    float fTotalWeight = 0.0f;
+    float fTotalWeight_v3 = 0.0f;
     float fAIBallLocationWeight = 0.7f;
 
-    nlVector3 v3DesiredPosition = v3Zero;
-    v3DesiredPosition.f.x = (fAIBallLocationWeight * v3TargetAILoc.f.x) + v3DesiredPosition.f.x;
-    v3DesiredPosition.f.y = (fAIBallLocationWeight * v3TargetAILoc.f.y) + v3DesiredPosition.f.y;
-    v3DesiredPosition.f.z = (fAIBallLocationWeight * v3TargetAILoc.f.z) + v3DesiredPosition.f.z;
+    nlVector3 vAccumulated_v3 = v3Zero;
+    vAccumulated_v3.f.y = (fAIBallLocationWeight * v3SupportPosition.f.y) + vAccumulated_v3.f.y;
+    vAccumulated_v3.f.x = (fAIBallLocationWeight * v3SupportPosition.f.x) + vAccumulated_v3.f.x;
+    vAccumulated_v3.f.z = (fAIBallLocationWeight * v3SupportPosition.f.z) + vAccumulated_v3.f.z;
 
-    fTotalWeight = fTotalWeight + fAIBallLocationWeight;
+    fTotalWeight_v3 = fTotalWeight_v3 + fAIBallLocationWeight;
 
     nlVector3 v3FormationPosition;
     m_DesireCommonVars.bInPosition = GetFormationPosition(v3FormationPosition, 0.0f);
@@ -1566,26 +1561,26 @@ void cFielder::DesireSupportBall(float fDeltaT, bool bDefensive)
     }
 
     float fFormationWeight = 0.3f;
-    fTotalWeight = fTotalWeight + fFormationWeight;
+    fTotalWeight_v3 = fTotalWeight_v3 + fFormationWeight;
 
-    v3DesiredPosition.f.x = (fFormationWeight * v3FormationPosition.f.x) + v3DesiredPosition.f.x;
-    v3DesiredPosition.f.y = (fFormationWeight * v3FormationPosition.f.y) + v3DesiredPosition.f.y;
-    v3DesiredPosition.f.z = (fFormationWeight * v3FormationPosition.f.z) + v3DesiredPosition.f.z;
+    vAccumulated_v3.f.z = (fFormationWeight * v3FormationPosition.f.z) + vAccumulated_v3.f.z;
+    vAccumulated_v3.f.y = (fFormationWeight * v3FormationPosition.f.y) + vAccumulated_v3.f.y;
+    vAccumulated_v3.f.x = (fFormationWeight * v3FormationPosition.f.x) + vAccumulated_v3.f.x;
 
-    nlVector3 v3FinalDesiredPosition;
-    if (fTotalWeight > 0.0f)
+    nlVector3 v3DesiredPos;
+    if (fTotalWeight_v3 > 0.0f)
     {
-        float fInvWeight = 1.0f / fTotalWeight;
-        v3FinalDesiredPosition.f.x = fInvWeight * v3DesiredPosition.f.x;
-        v3FinalDesiredPosition.f.y = fInvWeight * v3DesiredPosition.f.y;
-        v3FinalDesiredPosition.f.z = fInvWeight * v3DesiredPosition.f.z;
+        float fInvWeight = 1.0f / fTotalWeight_v3;
+        v3DesiredPos.f.x = fInvWeight * vAccumulated_v3.f.x;
+        v3DesiredPos.f.y = fInvWeight * vAccumulated_v3.f.y;
+        v3DesiredPos.f.z = fInvWeight * vAccumulated_v3.f.z;
     }
     else
     {
-        v3FinalDesiredPosition = v3Zero;
+        v3DesiredPos = v3Zero;
     }
 
-    SetDesiredSpeedAndDirectionToPosition(fDeltaT, v3FinalDesiredPosition, TR_FAR_DISTANCE, 1.0f, 1.0f);
+    SetDesiredSpeedAndDirectionToPosition(fDeltaT, v3DesiredPos, TR_FAR_DISTANCE, 1.0f, 1.0f);
     ShouldIStrafe();
 }
 

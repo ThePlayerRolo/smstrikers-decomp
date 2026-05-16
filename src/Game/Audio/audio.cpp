@@ -100,14 +100,13 @@ void nlListAddStart<FadeAudioData>(FadeAudioData** head, FadeAudioData* entry, F
 
 /**
  * Offset/Address/Size: 0x3AB0 | 0x8013FFC4 | size: 0xF60
- * TODO: 89.74% match - register allocation and branch layout differ in volume-group initialization and typed config-cast blocks.
  */
 static void ReadVolGroupSettings()
 {
     extern const char* AUDIO_DEFAULT_VOLUMEGROUPS_CONFIG_FILE;
 
     int i;
-    for (i = 0; i < 24; i++)
+    for (i = 0; i < 23; i++)
     {
         gfVolumeGroups[i] = 1.0f;
     }
@@ -122,25 +121,32 @@ static void ReadVolGroupSettings()
         globalConfig.Set("crowd_only", false);
         crowdOnly = false;
     }
-    else if (crowdOnlyTvp.type == _BOOL)
-    {
-        crowdOnly = LexicalCast<bool, bool>(crowdOnlyTvp.value.b);
-    }
-    else if (crowdOnlyTvp.type == _INT)
-    {
-        crowdOnly = LexicalCast<bool, int>(crowdOnlyTvp.value.i);
-    }
-    else if (crowdOnlyTvp.type == _FLOAT)
-    {
-        crowdOnly = LexicalCast<bool, float>(crowdOnlyTvp.value.f);
-    }
-    else if (crowdOnlyTvp.type == _STRING)
-    {
-        crowdOnly = LexicalCast<bool, const char*>(crowdOnlyTvp.value.s);
-    }
     else
     {
-        crowdOnly = false;
+        bool parsedCrowdOnly;
+
+        if (crowdOnlyTvp.type == _BOOL)
+        {
+            parsedCrowdOnly = LexicalCast<bool, bool>(crowdOnlyTvp.value.b);
+        }
+        else if (crowdOnlyTvp.type == _INT)
+        {
+            parsedCrowdOnly = LexicalCast<bool, int>(crowdOnlyTvp.value.i);
+        }
+        else if (crowdOnlyTvp.type == _FLOAT)
+        {
+            parsedCrowdOnly = LexicalCast<bool, float>(crowdOnlyTvp.value.f);
+        }
+        else if (crowdOnlyTvp.type == _STRING)
+        {
+            parsedCrowdOnly = LexicalCast<bool, const char*>(crowdOnlyTvp.value.s);
+        }
+        else
+        {
+            parsedCrowdOnly = false;
+        }
+
+        crowdOnly = parsedCrowdOnly;
     }
 
     Config config(Config::ALLOCATE_HIGH);
@@ -154,25 +160,32 @@ static void ReadVolGroupSettings()
             config.Set("Crowd", 0.8f);
             crowd = 0.8f;
         }
-        else if (tvp.type == _BOOL)
-        {
-            crowd = LexicalCast<float, bool>(tvp.value.b);
-        }
-        else if (tvp.type == _INT)
-        {
-            crowd = LexicalCast<float, int>(tvp.value.i);
-        }
-        else if (tvp.type == _FLOAT)
-        {
-            crowd = LexicalCast<float, float>(tvp.value.f);
-        }
-        else if (tvp.type == _STRING)
-        {
-            crowd = LexicalCast<float, const char*>(tvp.value.s);
-        }
         else
         {
-            crowd = 0.0f;
+            float parsedCrowd;
+
+            if (tvp.type == _BOOL)
+            {
+                parsedCrowd = LexicalCast<float, bool>(tvp.value.b);
+            }
+            else if (tvp.type == _INT)
+            {
+                parsedCrowd = LexicalCast<float, int>(tvp.value.i);
+            }
+            else if (tvp.type == _FLOAT)
+            {
+                parsedCrowd = LexicalCast<float, float>(tvp.value.f);
+            }
+            else if (tvp.type == _STRING)
+            {
+                parsedCrowd = LexicalCast<float, const char*>(tvp.value.s);
+            }
+            else
+            {
+                parsedCrowd = 0.0f;
+            }
+
+            crowd = parsedCrowd;
         }
     }
 
@@ -189,25 +202,32 @@ static void ReadVolGroupSettings()
                 config.Set("FE", 0.8f);
                 fe = 0.8f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                fe = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                fe = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                fe = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                fe = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                fe = 0.0f;
+                float parsedFe;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedFe = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedFe = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedFe = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedFe = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedFe = 0.0f;
+                }
+
+                fe = parsedFe;
             }
         }
 
@@ -219,25 +239,32 @@ static void ReadVolGroupSettings()
                 config.Set("Birdo", 1.0f);
                 birdo = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                birdo = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                birdo = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                birdo = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                birdo = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                birdo = 0.0f;
+                float parsedBirdo;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedBirdo = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedBirdo = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedBirdo = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedBirdo = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedBirdo = 0.0f;
+                }
+
+                birdo = parsedBirdo;
             }
         }
 
@@ -249,25 +276,32 @@ static void ReadVolGroupSettings()
                 config.Set("Bowser", 1.0f);
                 bowser = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                bowser = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                bowser = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                bowser = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                bowser = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                bowser = 0.0f;
+                float parsedBowser;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedBowser = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedBowser = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedBowser = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedBowser = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedBowser = 0.0f;
+                }
+
+                bowser = parsedBowser;
             }
         }
 
@@ -279,25 +313,32 @@ static void ReadVolGroupSettings()
                 config.Set("Critter", 1.0f);
                 critter = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                critter = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                critter = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                critter = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                critter = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                critter = 0.0f;
+                float parsedCritter;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedCritter = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedCritter = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedCritter = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedCritter = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedCritter = 0.0f;
+                }
+
+                critter = parsedCritter;
             }
         }
 
@@ -309,25 +350,32 @@ static void ReadVolGroupSettings()
                 config.Set("Daisy", 1.0f);
                 daisy = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                daisy = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                daisy = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                daisy = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                daisy = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                daisy = 0.0f;
+                float parsedDaisy;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedDaisy = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedDaisy = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedDaisy = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedDaisy = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedDaisy = 0.0f;
+                }
+
+                daisy = parsedDaisy;
             }
         }
 
@@ -339,25 +387,32 @@ static void ReadVolGroupSettings()
                 config.Set("DK", 1.0f);
                 dk = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                dk = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                dk = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                dk = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                dk = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                dk = 0.0f;
+                float parsedDk;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedDk = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedDk = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedDk = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedDk = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedDk = 0.0f;
+                }
+
+                dk = parsedDk;
             }
         }
 
@@ -369,25 +424,32 @@ static void ReadVolGroupSettings()
                 config.Set("Hammer Brothers", 1.0f);
                 hammerBrothers = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                hammerBrothers = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                hammerBrothers = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                hammerBrothers = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                hammerBrothers = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                hammerBrothers = 0.0f;
+                float parsedHammerBrothers;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedHammerBrothers = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedHammerBrothers = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedHammerBrothers = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedHammerBrothers = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedHammerBrothers = 0.0f;
+                }
+
+                hammerBrothers = parsedHammerBrothers;
             }
         }
 
@@ -399,25 +461,32 @@ static void ReadVolGroupSettings()
                 config.Set("Koopa", 1.0f);
                 koopa = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                koopa = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                koopa = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                koopa = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                koopa = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                koopa = 0.0f;
+                float parsedKoopa;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedKoopa = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedKoopa = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedKoopa = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedKoopa = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedKoopa = 0.0f;
+                }
+
+                koopa = parsedKoopa;
             }
         }
 
@@ -429,25 +498,32 @@ static void ReadVolGroupSettings()
                 config.Set("Luigi", 1.0f);
                 luigi = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                luigi = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                luigi = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                luigi = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                luigi = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                luigi = 0.0f;
+                float parsedLuigi;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedLuigi = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedLuigi = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedLuigi = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedLuigi = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedLuigi = 0.0f;
+                }
+
+                luigi = parsedLuigi;
             }
         }
 
@@ -459,25 +535,32 @@ static void ReadVolGroupSettings()
                 config.Set("Mario", 1.0f);
                 mario = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                mario = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                mario = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                mario = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                mario = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                mario = 0.0f;
+                float parsedMario;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedMario = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedMario = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedMario = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedMario = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedMario = 0.0f;
+                }
+
+                mario = parsedMario;
             }
         }
 
@@ -489,25 +572,32 @@ static void ReadVolGroupSettings()
                 config.Set("Peach", 1.0f);
                 peach = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                peach = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                peach = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                peach = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                peach = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                peach = 0.0f;
+                float parsedPeach;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedPeach = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedPeach = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedPeach = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedPeach = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedPeach = 0.0f;
+                }
+
+                peach = parsedPeach;
             }
         }
 
@@ -519,25 +609,32 @@ static void ReadVolGroupSettings()
                 config.Set("Super", 1.0f);
                 super = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                super = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                super = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                super = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                super = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                super = 0.0f;
+                float parsedSuper;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedSuper = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedSuper = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedSuper = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedSuper = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedSuper = 0.0f;
+                }
+
+                super = parsedSuper;
             }
         }
 
@@ -549,25 +646,32 @@ static void ReadVolGroupSettings()
                 config.Set("Toad", 1.0f);
                 toad = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                toad = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                toad = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                toad = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                toad = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                toad = 0.0f;
+                float parsedToad;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedToad = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedToad = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedToad = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedToad = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedToad = 0.0f;
+                }
+
+                toad = parsedToad;
             }
         }
 
@@ -579,25 +683,32 @@ static void ReadVolGroupSettings()
                 config.Set("Waluigi", 1.0f);
                 waluigi = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                waluigi = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                waluigi = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                waluigi = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                waluigi = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                waluigi = 0.0f;
+                float parsedWaluigi;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedWaluigi = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedWaluigi = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedWaluigi = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedWaluigi = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedWaluigi = 0.0f;
+                }
+
+                waluigi = parsedWaluigi;
             }
         }
 
@@ -609,25 +720,32 @@ static void ReadVolGroupSettings()
                 config.Set("Wario", 1.0f);
                 wario = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                wario = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                wario = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                wario = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                wario = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                wario = 0.0f;
+                float parsedWario;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedWario = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedWario = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedWario = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedWario = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedWario = 0.0f;
+                }
+
+                wario = parsedWario;
             }
         }
 
@@ -639,25 +757,32 @@ static void ReadVolGroupSettings()
                 config.Set("Yoshi", 1.0f);
                 yoshi = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                yoshi = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                yoshi = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                yoshi = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                yoshi = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                yoshi = 0.0f;
+                float parsedYoshi;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedYoshi = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedYoshi = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedYoshi = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedYoshi = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedYoshi = 0.0f;
+                }
+
+                yoshi = parsedYoshi;
             }
         }
 
@@ -669,25 +794,32 @@ static void ReadVolGroupSettings()
                 config.Set("All Ingame Dialogue", 1.0f);
                 allIngameDialogue = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                allIngameDialogue = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                allIngameDialogue = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                allIngameDialogue = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                allIngameDialogue = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                allIngameDialogue = 0.0f;
+                float parsedAllIngameDialogue;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedAllIngameDialogue = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedAllIngameDialogue = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedAllIngameDialogue = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedAllIngameDialogue = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedAllIngameDialogue = 0.0f;
+                }
+
+                allIngameDialogue = parsedAllIngameDialogue;
             }
         }
 
@@ -699,25 +831,32 @@ static void ReadVolGroupSettings()
                 config.Set("All FE Dialogue", 1.0f);
                 allFEDialogue = 1.0f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                allFEDialogue = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                allFEDialogue = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                allFEDialogue = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                allFEDialogue = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                allFEDialogue = 0.0f;
+                float parsedAllFEDialogue;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedAllFEDialogue = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedAllFEDialogue = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedAllFEDialogue = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedAllFEDialogue = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedAllFEDialogue = 0.0f;
+                }
+
+                allFEDialogue = parsedAllFEDialogue;
             }
         }
 
@@ -729,25 +868,32 @@ static void ReadVolGroupSettings()
                 config.Set("Everything Else", 0.8f);
                 everythingElse = 0.8f;
             }
-            else if (tvp.type == _BOOL)
-            {
-                everythingElse = LexicalCast<float, bool>(tvp.value.b);
-            }
-            else if (tvp.type == _INT)
-            {
-                everythingElse = LexicalCast<float, int>(tvp.value.i);
-            }
-            else if (tvp.type == _FLOAT)
-            {
-                everythingElse = LexicalCast<float, float>(tvp.value.f);
-            }
-            else if (tvp.type == _STRING)
-            {
-                everythingElse = LexicalCast<float, const char*>(tvp.value.s);
-            }
             else
             {
-                everythingElse = 0.0f;
+                float parsedEverythingElse;
+
+                if (tvp.type == _BOOL)
+                {
+                    parsedEverythingElse = LexicalCast<float, bool>(tvp.value.b);
+                }
+                else if (tvp.type == _INT)
+                {
+                    parsedEverythingElse = LexicalCast<float, int>(tvp.value.i);
+                }
+                else if (tvp.type == _FLOAT)
+                {
+                    parsedEverythingElse = LexicalCast<float, float>(tvp.value.f);
+                }
+                else if (tvp.type == _STRING)
+                {
+                    parsedEverythingElse = LexicalCast<float, const char*>(tvp.value.s);
+                }
+                else
+                {
+                    parsedEverythingElse = 0.0f;
+                }
+
+                everythingElse = parsedEverythingElse;
             }
         }
 

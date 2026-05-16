@@ -1004,23 +1004,32 @@ void ChooseCupSceneV2::DisplayCup()
             firstHalf = firstHalf.Append(CUP_SEPARATOR);
         }
 
-        const unsigned short* secondHalfLoc;
+        BasicString<unsigned short, Detail::TempStringAllocator> secondHalf;
         if (mCupToDisplay == TROPHY_BOWSER_CUP || mCupToDisplay == TROPHY_SUPER_BOWSER_CUP)
         {
-            secondHalfLoc = LookupLocString("CUPEXP_KNOCKOUT");
+            const unsigned short* secondHalfLoc = LookupLocString("CUPEXP_KNOCKOUT");
+
+            BasicStringData<unsigned short>* secondHalfData = (BasicStringData<unsigned short>*)nlMalloc(0x10, 8, true);
+            if (secondHalfData != 0)
+            {
+                CopyWideString(secondHalfData, secondHalfLoc);
+            }
+
+            secondHalf = BasicString<unsigned short, Detail::TempStringAllocator>(secondHalfData);
         }
         else
         {
-            secondHalfLoc = LookupLocString("CUPEXP_LEAGUE");
+            const unsigned short* secondHalfLoc = LookupLocString("CUPEXP_LEAGUE");
+
+            BasicStringData<unsigned short>* secondHalfData = (BasicStringData<unsigned short>*)nlMalloc(0x10, 8, true);
+            if (secondHalfData != 0)
+            {
+                CopyWideString(secondHalfData, secondHalfLoc);
+            }
+
+            secondHalf = BasicString<unsigned short, Detail::TempStringAllocator>(secondHalfData);
         }
 
-        BasicStringData<unsigned short>* secondHalfData = (BasicStringData<unsigned short>*)nlMalloc(0x10, 8, true);
-        if (secondHalfData != 0)
-        {
-            CopyWideString(secondHalfData, secondHalfLoc);
-        }
-
-        BasicString<unsigned short, Detail::TempStringAllocator> secondHalf(secondHalfData);
         BasicString<unsigned short, Detail::TempStringAllocator> descriptor = firstHalf.Append(secondHalf);
 
         memcpy(mDescriptorBuffer, descriptor.c_str(), 0x200);

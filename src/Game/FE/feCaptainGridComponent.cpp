@@ -121,7 +121,7 @@ eTeamID ICaptainGridComponent::GetSelectedItem() const
 /**
  * Offset/Address/Size: 0x17C | 0x800C1870 | size: 0x90
  */
-void ICaptainGridComponent::IsValid(eTeamID teamID)
+bool ICaptainGridComponent::IsValid(eTeamID teamID)
 {
     int position;
 
@@ -159,7 +159,7 @@ void ICaptainGridComponent::IsValid(eTeamID teamID)
         break;
     }
 
-    mMapMenu->IsItemActive(position);
+    return mMapMenu->IsItemActive(position);
 }
 
 /**

@@ -195,30 +195,12 @@ void glplatResourceRelease(unsigned long long resourceId)
     tDebugPrintManager::Print(DC_GLPLAT, "total : (%0.3fMB) %uKB .. %uKB dTex\n", totalAlloc >> 10, totalTex >> 10, fMB * fConst);
 }
 
-/**
- * Offset/Address/Size: 0x310 | 0x801B6C38 | size: 0x130
- * TODO: 81.3% match - Known MWCC limitation: do/while(--count) with complex
- * loop body (7 lwz + adds) produces addic./bne instead of mtctr/bdnz; also
- * or operand order swap at line 24 (r4,r0 vs r0,r4). See mwcc-patterns.md.
- */
-unsigned long long glplatResourceMark()
+static inline void ResourceAllocMark()
 {
-    int texLevel = glx_GetTexMarkerLevel();
-    unsigned long long resourceId = texLevel | ((unsigned long long)n_phys << 32);
+    s32 level = g_uResourceMarker + 1;
+    g_uResourceMarker = level;
 
-    glx_AdvanceTexMarkerLevel();
-    gl_ConstantMarkerAdvance();
-    glInventory.ResourceMark();
-
-    s32* resourceMarker = (s32*)&g_uResourceMarker;
-    s32 newMarker = *resourceMarker;
-    newMarker = newMarker + 1;
-    GLXMemoryInfo* p = g_uResourceAlloc;
-    u32 totalAlloc = 0;
-    u32 totalTex = totalAlloc;
-    *resourceMarker = newMarker;
-
-    GLXMemoryInfo* entry = &p[newMarker];
+    GLXMemoryInfo* entry = &g_uResourceAlloc[level];
     entry->m_uBytes[0] = 0;
     entry->m_uBytes[1] = 0;
     entry->m_uBytes[2] = 0;
@@ -226,9 +208,16 @@ unsigned long long glplatResourceMark()
     entry->m_uBytes[4] = 0;
     entry->m_uBytes[5] = 0;
     entry->m_uTexBundle = 0;
+}
 
-    u32 count = (u32)(newMarker + 1);
-    if (newMarker >= 0)
+static inline void ResourceAllocTotal(u32* pTotalAlloc, u32* pTotalTex)
+{
+    u32 totalAlloc = 0;
+    u32 totalTex = 0;
+    s32 level = g_uResourceMarker;
+    GLXMemoryInfo* p = g_uResourceAlloc;
+    u32 count = (u32)(level + 1);
+    if (level >= 0)
     {
         do
         {
@@ -251,11 +240,33 @@ unsigned long long glplatResourceMark()
         } while (--count);
     }
 
+    *pTotalAlloc = totalAlloc;
+    *pTotalTex = totalTex;
+}
+
+/**
+ * Offset/Address/Size: 0x310 | 0x801B6C38 | size: 0x130
+ */
+unsigned long long glplatResourceMark()
+{
+    int texLevel = glx_GetTexMarkerLevel();
+    unsigned long long marker = texLevel | ((unsigned long long)n_phys << 32);
+
+    glx_AdvanceTexMarkerLevel();
+    gl_ConstantMarkerAdvance();
+    glInventory.ResourceMark();
+
+    ResourceAllocMark();
+
+    u32 totalAlloc;
+    u32 totalTex;
+    ResourceAllocTotal(&totalAlloc, &totalTex);
+
     f32 fConst = 1.0f / 1024.0f;
     f32 fMB = (f32)totalAlloc * fConst;
     tDebugPrintManager::Print(DC_GLPLAT, "total : (%0.3fMB) %uKB .. %uKB dTex\n", totalAlloc >> 10, totalTex >> 10, fMB * fConst);
 
-    return resourceId;
+    return marker;
 }
 
 /**

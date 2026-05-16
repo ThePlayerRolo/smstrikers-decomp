@@ -2,6 +2,7 @@
 #include "types.h"
 #include "Game/FE/feFinder.h"
 #include "Game/FE/feHelpFuncs.h"
+#include "Game/FE/fePopupMenu.h"
 #include "Game/FE/feTemplates.h"
 #include "Game/GameSceneManager.h"
 #include "Game/SH/SHCupHub.h"
@@ -615,15 +616,15 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
     if (mCurrentState == STATE_IN)
     {
         TLSlide* slide = presentation->m_currentSlide;
-        if (presentation->m_fadeDuration >= (slide->m_start + slide->m_duration))
-        {
-            mCurrentState = STATE_SCROLLING;
-            OnActivate();
-        }
-        else
+        if (presentation->m_fadeDuration < (slide->m_start + slide->m_duration))
         {
             return;
         }
+
+        mCurrentState = STATE_SCROLLING;
+        presentation->SetActiveSlide("CHANGER");
+        BaseSceneHandler* base = this;
+        base->OnActivate();
     }
 
     TLComponentInstance* pTickerComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
@@ -637,7 +638,7 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
 
     TLSlide* tickerSlide = pTickerComp->GetActiveSlide();
     float endTime = tickerSlide->m_start + tickerSlide->m_duration;
-    if (tickerSlide->m_time >= endTime)
+    if (pTickerComp->GetActiveSlide()->m_time >= endTime)
     {
         mTicker->Update(fDeltaT);
     }
@@ -697,15 +698,7 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
         }
         else
         {
-            bool left = g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xB, true, NULL);
-            bool right = false;
-
-            if (!left)
-            {
-                right = g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xC, true, NULL);
-            }
-
-            if (left || right)
+            if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xB, true, NULL) || g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xC, true, NULL))
             {
                 TeamData* data = &mTeamData[mCurrentRow];
                 if (!data->isEmpty)
@@ -734,11 +727,11 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
                     }
                     mPressStartComponent->m_bVisible = (result == 1);
 
-                    if (left)
+                    if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xB, true, NULL))
                     {
                         FEAudio::PlayAnimAudioEvent("sfx_option_scroll_left", false);
                     }
-                    else
+                    else if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xC, true, NULL))
                     {
                         FEAudio::PlayAnimAudioEvent("sfx_option_scroll_right", false);
                     }
@@ -773,11 +766,13 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
                 }
                 else if (result == -1)
                 {
-                    nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+                    FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+                    pPopup->Create(POPUP_FILLALLSLOTS);
                 }
                 else if (result == -2)
                 {
-                    nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+                    FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+                    pPopup->Create(POPUP_NO_HUMAN_TOURNAMENT);
                 }
             }
         }
@@ -802,24 +797,35 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
     {
         if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL))
         {
-            if (mCurrentCaptain == TEAM_MYSTERY)
+            if (mCaptainGrid->IsValid(mCurrentCaptain))
             {
-                mTeamData[mCurrentRow].captain = mCurrentCaptain;
-                mTeamData[mCurrentRow].sidekick = mCurrentSK;
-                mTeamData[mCurrentRow].isEmpty = false;
-                mCaptainGrid->SetValid(mCurrentCaptain, false);
-                mTeamData[mCurrentRow].isHumanPlayer = true;
-                UpdateRow(mCurrentRow);
-                ChangeState(mCurrentState, STATE_SCROLLING);
-                lastCaptainSelectSoundStrPlayed = FECharacterSound::PlayCaptainName(mCurrentCaptain);
-                ScrollDown(false);
+                if (mCurrentCaptain == TEAM_MYSTERY)
+                {
+                    mTeamData[mCurrentRow].captain = mCurrentCaptain;
+                    mTeamData[mCurrentRow].sidekick = mCurrentSK;
+                    mTeamData[mCurrentRow].isEmpty = false;
+                    mCaptainGrid->SetValid(mCurrentCaptain, false);
+                    if (!(*(u8*)((u8*)this + 0x334)))
+                    {
+                        mTeamData[mCurrentRow].isHumanPlayer = true;
+                        *(u8*)((u8*)this + 0x334) = true;
+                    }
+                    UpdateRow(mCurrentRow);
+                    ChangeState(mCurrentState, STATE_SCROLLING);
+                    lastCaptainSelectSoundStrPlayed = FECharacterSound::PlayCaptainName(mCurrentCaptain);
+                    ScrollDown(false);
+                }
+                else
+                {
+                    ChangeState(mCurrentState, STATE_SIDEKICK);
+                    lastCaptainSelectSoundStrPlayed = FECharacterSound::PlayCaptainName(mCurrentCaptain);
+                }
+                FEAudio::PlayAnimAudioEvent("sfx_accept", false);
             }
             else
             {
-                ChangeState(mCurrentState, STATE_SIDEKICK);
-                lastCaptainSelectSoundStrPlayed = FECharacterSound::PlayCaptainName(mCurrentCaptain);
+                FEAudio::PlayAnimAudioEvent("sfx_deny", false);
             }
-            FEAudio::PlayAnimAudioEvent("sfx_accept", false);
         }
         else if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x200, false, NULL))
         {
@@ -853,7 +859,11 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
             mTeamData[mCurrentRow].sidekick = mCurrentSK;
             mTeamData[mCurrentRow].isEmpty = false;
             mCaptainGrid->SetValid(mCurrentCaptain, false);
-            mTeamData[mCurrentRow].isHumanPlayer = true;
+            if (!(*(u8*)((u8*)this + 0x334)))
+            {
+                mTeamData[mCurrentRow].isHumanPlayer = true;
+                *(u8*)((u8*)this + 0x334) = true;
+            }
             UpdateRow(mCurrentRow);
             ChangeState(mCurrentState, STATE_SCROLLING);
             FEAudio::PlayAnimAudioEvent("sfx_accept_no_screen_change", false);

@@ -181,31 +181,35 @@ void ShootToScoreMeter::DrawMeter()
         projectedX = 320.0f * screenPosition.f.x;
         screenPosition.f.y = projectedY;
         screenPosition.f.x = projectedX;
-        screenPosition.f.y = projectedY + 240.0f;
-        screenPosition.f.x = projectedX + 320.0f;
+        screenPosition.f.y = screenPosition.f.y + 240.0f;
+        screenPosition.f.x = screenPosition.f.x + 320.0f;
         screenPosition.f.z = -0.1f;
-        screenPosition.f.y = screenPosition.f.y - 20.0f;
-
-        if (screenPosition.f.x < 92.0f)
-        {
-            screenPosition.f.x = 92.0f;
-        }
-        else if (screenPosition.f.x > 548.0f)
-        {
-            screenPosition.f.x = 548.0f;
-        }
-
-        if (screenPosition.f.y < 84.0f)
-        {
-            screenPosition.f.y = 84.0f;
-        }
-        else if (screenPosition.f.y > 396.0f)
-        {
-            screenPosition.f.y = 396.0f;
-        }
+        screenPosition.f.y = screenPosition.f.y + -20.0f;
 
         scale = 640.0f;
         scaledMeterWidth = MeterWidth * scale;
+
+        projectedX = screenPosition.f.x;
+        if (!(projectedX >= 92.0f))
+        {
+            projectedX = 92.0f;
+        }
+        if (!(projectedX <= 548.0f))
+        {
+            projectedX = 548.0f;
+        }
+
+        projectedY = screenPosition.f.y;
+        if (!(projectedY >= 84.0f))
+        {
+            projectedY = 84.0f;
+        }
+        if (!(projectedY <= 396.0f))
+        {
+            projectedY = 396.0f;
+        }
+        screenPosition.f.x = projectedX;
+        screenPosition.f.y = projectedY;
 
         matrix.m[3][0] = screenPosition.f.x;
         matrix.m[3][1] = screenPosition.f.y;

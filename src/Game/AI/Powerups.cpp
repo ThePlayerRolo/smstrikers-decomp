@@ -373,14 +373,41 @@ void PowerupThrowPosition(int nThrowOrder, eThrowStyle eStyle, PowerupBase* pNew
 /**
  * Offset/Address/Size: 0x4F00 | 0x8005F7EC | size: 0xA98
  */
-void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPowerups, Bowser* pBowser)
+u8 PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPowerups, Bowser* pBowser)
 {
-    eThrowStyle eStyle = THROW_ARROW;
-    ePowerupSize eSize = POWERUPSIZE_SMALL;
-    float fMediumChance = 0.0f;
-    float fBigChance = 0.0f;
-    float fExplodeChance = 0.0f;
-    bool bExplode = false;
+    volatile eThrowStyle eStyle;
+    ePowerupSize eSize;
+    float fMediumChance;
+    float fBigChance;
+    float fExplodeChance;
+    bool bExplode;
+    float fRandom;
+    float fArrowChance;
+    float fSpreadChance;
+    float fSurroundChance;
+    float fHorizChance;
+    PowerupBase* pFirstPowerup;
+    cFielder* pTarget;
+    cTeam* pTargetTeam;
+    cFielder* pTargetFielders[4];
+    int a;
+    int j;
+    bool bFoundLocation;
+    int i;
+    PowerupBase* pPowerup;
+    float fBananaRadius;
+    float fBobombRadius;
+    float fGreenShellRadius;
+    float fFreezeShellRadius;
+    float fRedShellRadius;
+    float fSpinyShellRadius;
+
+    eStyle = THROW_ARROW;
+    eSize = POWERUPSIZE_SMALL;
+    fMediumChance = 0.0f;
+    fBigChance = 0.0f;
+    fExplodeChance = 0.0f;
+    bExplode = false;
 
     switch (eType)
     {
@@ -436,11 +463,11 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
         }
         else
         {
-            float fRandom = nlRandomf(1.0f, &nlDefaultSeed);
-            float fArrowChance = g_pGame->m_pGameTweaks->fPowerupArrowThrowChance;
-            float fSpreadChance = fArrowChance + g_pGame->m_pGameTweaks->fPowerupSpreadThrowChance;
-            float fSurroundChance = fSpreadChance + g_pGame->m_pGameTweaks->fPowerupSurroundThrowChance;
-            float fHorizChance = fSurroundChance + g_pGame->m_pGameTweaks->fPowerupHorizontalLineThrowChance;
+            fRandom = nlRandomf(1.0f, &nlDefaultSeed);
+            fArrowChance = g_pGame->m_pGameTweaks->fPowerupArrowThrowChance;
+            fSpreadChance = fArrowChance + g_pGame->m_pGameTweaks->fPowerupSpreadThrowChance;
+            fSurroundChance = fSpreadChance + g_pGame->m_pGameTweaks->fPowerupSurroundThrowChance;
+            fHorizChance = fSurroundChance + g_pGame->m_pGameTweaks->fPowerupHorizontalLineThrowChance;
 
             if (fRandom < fArrowChance)
             {
@@ -473,7 +500,7 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
     }
     else
     {
-        float fRandom = nlRandomf(1.0f, &nlDefaultSeed);
+        fRandom = nlRandomf(1.0f, &nlDefaultSeed);
         if (fRandom < fExplodeChance)
         {
             bExplode = true;
@@ -532,13 +559,7 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
             }
         }
     }
-
-    PowerupBase* pFirstPowerup = NULL;
-    cFielder* pTarget;
-    cTeam* pTargetTeam;
-    cFielder* pTargetFielders[4];
-    int a;
-    int j;
+    pFirstPowerup = NULL;
 
     if (pThrower != NULL)
     {
@@ -564,7 +585,7 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
     for (a = 0; a < nnumOfPowerups; a++)
     {
         PowerupBase** pRegistry = g_pPowerups;
-        bool bFoundLocation = false;
+        bFoundLocation = false;
 
         for (j = 0; j < 25; j++, pRegistry++)
         {
@@ -577,24 +598,31 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
             {
                 continue;
             }
-
-            PowerupBase* pPowerup = NULL;
+            pPowerup = NULL;
 
             switch (eType)
             {
             case POWER_UP_BANANA:
             {
-                float fBananaRadius;
+                if (pThrower->m_eCharacterClass == 2)
+                {
+                    eSize = POWERUPSIZE_MEDIUM;
+                }
+                else if (pThrower->m_pTeam->GetCaptain()->m_eCharacterClass == 2)
+                {
+                    eSize = POWERUPSIZE_MEDIUM;
+                }
+
                 switch (eSize)
                 {
                 case POWERUPSIZE_MEDIUM:
                     fBananaRadius = g_pGame->m_pGameTweaks->fBananaMediumRadius;
                     break;
-                case POWERUPSIZE_LARGE:
-                    fBananaRadius = g_pGame->m_pGameTweaks->fBananaBigRadius;
+                case POWERUPSIZE_SMALL:
+                    fBananaRadius = g_pGame->m_pGameTweaks->fBananaSmallRadius;
                     break;
                 default:
-                    fBananaRadius = g_pGame->m_pGameTweaks->fBananaSmallRadius;
+                    fBananaRadius = g_pGame->m_pGameTweaks->fBananaBigRadius;
                     break;
                 }
 
@@ -621,17 +649,16 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
             }
             case POWER_UP_BOBOMB:
             {
-                float fBobombRadius;
                 switch (eSize)
                 {
                 case POWERUPSIZE_MEDIUM:
                     fBobombRadius = g_pGame->m_pGameTweaks->fBobombMediumRadius;
                     break;
-                case POWERUPSIZE_LARGE:
-                    fBobombRadius = g_pGame->m_pGameTweaks->fBobombBigRadius;
+                case POWERUPSIZE_SMALL:
+                    fBobombRadius = g_pGame->m_pGameTweaks->fBobombSmallRadius;
                     break;
                 default:
-                    fBobombRadius = g_pGame->m_pGameTweaks->fBobombSmallRadius;
+                    fBobombRadius = g_pGame->m_pGameTweaks->fBobombBigRadius;
                     break;
                 }
 
@@ -668,17 +695,16 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
             }
             case POWER_UP_GREEN_SHELL:
             {
-                float fGreenShellRadius;
                 switch (eSize)
                 {
                 case POWERUPSIZE_MEDIUM:
                     fGreenShellRadius = g_pGame->m_pGameTweaks->fShellMediumRadius;
                     break;
-                case POWERUPSIZE_LARGE:
-                    fGreenShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
+                case POWERUPSIZE_SMALL:
+                    fGreenShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
                     break;
                 default:
-                    fGreenShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
+                    fGreenShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
                     break;
                 }
 
@@ -705,17 +731,16 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
             }
             case POWER_UP_FREEZE_SHELL:
             {
-                float fFreezeShellRadius;
                 switch (eSize)
                 {
                 case POWERUPSIZE_MEDIUM:
                     fFreezeShellRadius = g_pGame->m_pGameTweaks->fShellMediumRadius;
                     break;
-                case POWERUPSIZE_LARGE:
-                    fFreezeShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
+                case POWERUPSIZE_SMALL:
+                    fFreezeShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
                     break;
                 default:
-                    fFreezeShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
+                    fFreezeShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
                     break;
                 }
 
@@ -742,17 +767,16 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
             }
             case POWER_UP_RED_SHELL:
             {
-                float fRedShellRadius;
                 switch (eSize)
                 {
                 case POWERUPSIZE_MEDIUM:
                     fRedShellRadius = g_pGame->m_pGameTweaks->fShellMediumRadius;
                     break;
-                case POWERUPSIZE_LARGE:
-                    fRedShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
+                case POWERUPSIZE_SMALL:
+                    fRedShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
                     break;
                 default:
-                    fRedShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
+                    fRedShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
                     break;
                 }
 
@@ -779,17 +803,16 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
             }
             case POWER_UP_SPINY_SHELL:
             {
-                float fSpinyShellRadius;
                 switch (eSize)
                 {
                 case POWERUPSIZE_MEDIUM:
                     fSpinyShellRadius = g_pGame->m_pGameTweaks->fShellMediumRadius;
                     break;
-                case POWERUPSIZE_LARGE:
-                    fSpinyShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
+                case POWERUPSIZE_SMALL:
+                    fSpinyShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
                     break;
                 default:
-                    fSpinyShellRadius = g_pGame->m_pGameTweaks->fShellSmallRadius;
+                    fSpinyShellRadius = g_pGame->m_pGameTweaks->fShellBigRadius;
                     break;
                 }
 
@@ -831,7 +854,6 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
 
                 if (pPowerup->m_eType == POWER_UP_RED_SHELL)
                 {
-                    int i;
                     for (i = 0; i < 4; i++)
                     {
                         if (pFirstPowerup->m_pTarget == pTargetFielders[i])
@@ -869,8 +891,9 @@ void PowerupCreateAndThrow(cFielder* pThrower, ePowerUpType eType, int nnumOfPow
         pData->Thrower = pThrower;
         pData->Target = pTarget;
     }
-}
 
+    return 1;
+}
 /**
  * Offset/Address/Size: 0x4EB4 | 0x8005F7A0 | size: 0x4C
  * TODO: 98.8% match - r4/r5 register swap on strength-reduced loop pointer and index.

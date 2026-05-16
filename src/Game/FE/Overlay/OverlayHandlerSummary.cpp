@@ -600,8 +600,8 @@ void SummaryOverlay::DisplayUserSummary(eSummaryType matchSummaryType)
 
             displayedStats[j] = &mCumulativeUserStats[j];
 
-            key = nlStringLowerHash("TOTAL_USER_STATS");
             loc = (LocalizationLocal*)g_pLocalization;
+            key = nlStringLowerHash("TOTAL_USER_STATS");
 
             if (loc->m_LookupTable == 0)
             {
@@ -620,16 +620,14 @@ void SummaryOverlay::DisplayUserSummary(eSummaryType matchSummaryType)
                 }
             }
 
-            {
-                WideBasicString unformatted(locString);
-                NLString numGamesString(LexicalCast<NLString, int>((int)nlSingleton<StatsTracker>::s_pInstance->mNumConsecutiveGamesPlayed));
-                unsigned short tempBuffer[32];
-                WideBasicString formatted;
+            WideBasicString unformatted(locString);
+            NLString numGamesString(LexicalCast<NLString, int>((int)nlSingleton<StatsTracker>::s_pInstance->mNumConsecutiveGamesPlayed));
+            unsigned short tempBuffer[32];
+            WideBasicString formatted;
 
-                nlStrToWcs(numGamesString.c_str(), tempBuffer, 0x40);
-                formatted = Format(unformatted, tempBuffer);
-                memcpy(mTitleBuffer, formatted.c_str(), 0x80);
-            }
+            nlStrToWcs(numGamesString.c_str(), tempBuffer, 0x40);
+            formatted = Format(unformatted, tempBuffer);
+            memcpy(mTitleBuffer, formatted.c_str(), 0x80);
 
             pTitleText = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
                 pSlide,

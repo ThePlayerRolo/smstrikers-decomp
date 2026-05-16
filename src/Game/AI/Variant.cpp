@@ -95,63 +95,82 @@ void Variant_stub()
 NLString Variant::ToString() const
 {
     NLString toString;
-    int type = mType;
 
-    if (type != FT_UNSPECIFIED)
+    if (mType != FT_UNSPECIFIED)
     {
         NLString dataString = "???";
 
-        switch (type)
+        switch (mType)
         {
         case FT_BOOL:
             dataString = mData.b ? "TRUE" : "FALSE";
             break;
 
         case FT_CHAR:
-            dataString = Format(NLString("{0}"), mData.c);
+        {
+            NLString format = "{0}";
+            dataString = Format(format, mData.c);
             break;
+        }
 
         case FT_SHORT:
         {
+            NLString format = "{0}";
             int value = mData.s;
-            dataString = Format(NLString("{0}"), value);
+            dataString = Format(format, value);
             break;
         }
 
         case FT_INT:
-            dataString = Format(NLString("{0}"), mData.i);
+        {
+            NLString format = "{0}";
+            dataString = Format(format, mData.i);
             break;
+        }
 
         case FT_U32:
-            dataString = Format(NLString("{0}"), mData.u);
+        {
+            NLString format = "{0}";
+            dataString = Format(format, mData.u);
             break;
+        }
 
         case FT_FLOAT:
-            dataString = Format(NLString("{0}"), mData.f);
+        {
+            NLString format = "{0}";
+            dataString = Format(format, mData.f);
             break;
+        }
+
+        case FT_VECTOR:
+        {
+            NLString format = "({0},{1},{2})";
+            dataString = Format(format, mData.vector.f.x, mData.vector.f.y, mData.vector.f.z);
+            break;
+        }
 
         case FT_PLAYER:
             if (mData.pPlayer != 0)
             {
+                NLString format = "UPID={0}";
                 int value = mData.pPlayer->GetUniqueID(-1);
-                dataString = Format(NLString("UPID={0}"), value);
+                dataString = Format(format, value);
             }
             break;
 
         case FT_TEAM:
             if (mData.pTeam != 0)
             {
+                NLString format = "Team={0}";
                 const char* team = "Away";
-                if (mData.pTeam->m_nSide == HOME)
+
+                if (mData.pTeam->m_nSide == 0)
                 {
                     team = "Home";
                 }
-                dataString = Format(NLString("Team={0}"), team);
-            }
-            break;
 
-        case FT_VECTOR:
-            dataString = Format(NLString("({0},{1},{2})"), mData.vector.f.x, mData.vector.f.y, mData.vector.f.z);
+                dataString = Format(format, team);
+            }
             break;
         }
 

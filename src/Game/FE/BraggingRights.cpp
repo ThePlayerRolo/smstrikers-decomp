@@ -677,49 +677,59 @@ void BraggingRightsScene::SceneCreated()
     TLTextInstance* pText;
     int totalStats[5];
     int currentStats[5];
-    TeamStats userStats;
+    u32 userStatsBuffer[sizeof(TeamStats) / sizeof(u32)];
+    TeamStats* userStats = (TeamStats*)userStatsBuffer;
     unsigned char complete[5] = { 0, 0, 0, 0, 0 };
     int i;
+
+    memset(&userStats->mPlayerTotalStats, 0, sizeof(userStats->mPlayerTotalStats));
+    userStats->mPlayerTotalStats.mRecordType.mTeamID = TEAM_MARIO;
+    userStats->mPlayerTotalStats.mType = TYPE_TEAM;
+    userStats->mTeamIndex = TEAM_MARIO;
+    userStats->mNumWins = 0;
+    userStats->mNumLosses = 0;
+    userStats->mNumOTLosses = 0;
+    userStats->mNumPoints = 0;
 
     for (i = 0; i < info->GetNumPlayingTeams(); i++)
     {
         TeamStats tempStats = info->GetTeamStatsByIndex((unsigned short)i);
         if (tempStats.mTeamIndex == info->GetUserSelectedCupTeam())
         {
-            userStats = tempStats;
+            *userStats = tempStats;
         }
     }
 
     totalStats[0] = info->mUserInfo.mNumGamesPlayed;
-    currentStats[0] = userStats.mPlayerTotalStats.mNumGamesPlayed;
+    currentStats[0] = userStats->mPlayerTotalStats.mNumGamesPlayed;
     if (totalStats[0] >= 100)
     {
         complete[0] = 1;
     }
 
     totalStats[1] = info->mUserInfo.mNumGoalsScored;
-    currentStats[1] = userStats.mPlayerTotalStats.mNumGoalsFor;
+    currentStats[1] = userStats->mPlayerTotalStats.mNumGoalsFor;
     if (totalStats[1] >= 300)
     {
         complete[1] = 1;
     }
 
     totalStats[2] = info->mUserInfo.mNumSTSAttempts;
-    currentStats[2] = userStats.mPlayerTotalStats.mNumSTSAttempts;
+    currentStats[2] = userStats->mPlayerTotalStats.mNumSTSAttempts;
     if (totalStats[2] >= 100)
     {
         complete[2] = 1;
     }
 
     totalStats[3] = info->mUserInfo.mNumPerfectPasses;
-    currentStats[3] = userStats.mPlayerTotalStats.mNumPerfectPasses;
+    currentStats[3] = userStats->mPlayerTotalStats.mNumPerfectPasses;
     if (totalStats[3] >= 300)
     {
         complete[3] = 1;
     }
 
     totalStats[4] = info->mUserInfo.mNumHits;
-    currentStats[4] = userStats.mPlayerTotalStats.mNumHitsMade;
+    currentStats[4] = userStats->mPlayerTotalStats.mNumHitsMade;
     if (totalStats[4] >= 1000)
     {
         complete[4] = 1;

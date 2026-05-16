@@ -2576,7 +2576,8 @@ void OptionsSubMenu::Update(float)
                                 }
                                 else if (inst->m_type == TLAT_IMAGE)
                                 {
-                                    if (inst->m_hash != nlStringLowerHash("white_box"))
+                                    unsigned long hash = inst->m_hash;
+                                    if (hash != nlStringLowerHash("white_box"))
                                     {
                                         inst->SetAssetColour(SubMenuUnhighliteColour);
                                     }
@@ -2668,7 +2669,8 @@ void OptionsSubMenu::Update(float)
                                 }
                                 else if (inst->m_type == TLAT_IMAGE)
                                 {
-                                    if (inst->m_hash != nlStringLowerHash("white_box"))
+                                    unsigned long hash = inst->m_hash;
+                                    if (hash != nlStringLowerHash("white_box"))
                                     {
                                         inst->SetAssetColour(SubMenuHighliteColour);
                                     }
@@ -2685,8 +2687,11 @@ void OptionsSubMenu::Update(float)
                 }
             }
         }
+
+        return;
     }
-    else if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xE, true, NULL))
+
+    if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xE, true, NULL))
     {
         SlideMenuList* activeList = (SlideMenuList*)mSlideMenuLists[mMenuItems.mCurrentIndex];
         int locked;
@@ -2726,7 +2731,8 @@ void OptionsSubMenu::Update(float)
                                 }
                                 else if (inst->m_type == TLAT_IMAGE)
                                 {
-                                    if (inst->m_hash != nlStringLowerHash("white_box"))
+                                    unsigned long hash = inst->m_hash;
+                                    if (hash != nlStringLowerHash("white_box"))
                                     {
                                         inst->SetAssetColour(SubMenuUnhighliteColour);
                                     }
@@ -2815,7 +2821,8 @@ void OptionsSubMenu::Update(float)
                                 }
                                 else if (inst->m_type == TLAT_IMAGE)
                                 {
-                                    if (inst->m_hash != nlStringLowerHash("white_box"))
+                                    unsigned long hash = inst->m_hash;
+                                    if (hash != nlStringLowerHash("white_box"))
                                     {
                                         inst->SetAssetColour(SubMenuHighliteColour);
                                     }
@@ -2832,8 +2839,11 @@ void OptionsSubMenu::Update(float)
                 }
             }
         }
+
+        return;
     }
-    else if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xB, true, NULL))
+
+    if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xB, true, NULL))
     {
         SlideMenuList* slideMenuList = (SlideMenuList*)mSlideMenuLists[mMenuItems.mCurrentIndex];
         if (slideMenuList != NULL)
@@ -2891,8 +2901,11 @@ void OptionsSubMenu::Update(float)
                 FEAudio::PlayAnimAudioEvent("sfx_deny", false);
             }
         }
+
+        return;
     }
-    else if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xC, true, NULL))
+
+    if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xC, true, NULL))
     {
         SlideMenuList* slideMenuList = (SlideMenuList*)mSlideMenuLists[mMenuItems.mCurrentIndex];
         if (slideMenuList != NULL)

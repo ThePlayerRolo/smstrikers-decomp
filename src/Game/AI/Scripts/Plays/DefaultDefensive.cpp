@@ -239,52 +239,54 @@ FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
 
 /**
  * Offset/Address/Size: 0x3A58 | 0x80089110 | size: 0xE5C
- * TODO: 75.17% match - stmw r27 vs individual r28-r31 stores (inline deferred caches
- * fvNotSet in r29, needs 5 GPRs), r30/r31 vs r29/r30 register cascade, f28 min-chain
- * in-place vs f0 temp. -inline deferred file compiled with -inline auto on decomp.me.
- * @3199 unknown float (guessed 0.5f).
+ * TODO: 98.16% match - initial InPassingLane clamp still uses temporary `f0`
+ * instead of in-place `f28`; remaining diffs are nested branch/register layout.
  */
 FuzzyVariant Fuzzy::DefendPassInPlay(float fConfidence, cDecisionEntity* pEntity)
 {
     float fBestConfidence = 0.0f;
-    cPlayer* pTarget;
 
-    float fTrueConf1 = IsPassInPlayDelayed();
-    float fFalseConf1 = 1.0f - fTrueConf1;
-    float fMin1 = (fTrueConf1 <= fFalseConf1) ? fTrueConf1 : fFalseConf1;
-    float fMax1 = (fTrueConf1 >= fFalseConf1) ? fTrueConf1 : fFalseConf1;
-    float fRatio1 = fMin1 / fMax1;
+    float fTrueConfidence = IsPassInPlayDelayed();
+    float fFalseConfidence = 1.0f - fTrueConfidence;
 
-    if (fTrueConf1 > 0.0f)
+    float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+    float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+    float fBranchRatio = fMin / fMax;
+
+    if (fTrueConfidence > 0.0f)
     {
         SaveConfidence PushDOM(&fConfidence);
-        fConfidence = (fConfidence <= fTrueConf1) ? fConfidence : fTrueConf1;
-        if (fConfidence < fTrueConf1 && fTrueConf1 < 0.2f)
-            fConfidence = fConfidence * fRatio1;
+        fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+        if (fConfidence < fTrueConfidence && fTrueConfidence < 0.2f)
+            fConfidence = fConfidence * fBranchRatio;
 
-        pTarget = g_pScriptBall->m_pPassTarget;
+        cPlayer* pTarget = g_pScriptBall->m_pPassTarget;
 
         float fNotReceivingVolley = 1.0f - ReceivingVolleyPassDelayed(pTarget);
         float fNotHigh = 1.0f - High(g_pScriptBall);
-        float fTrueConf2 = InPassingLane(g_pScriptCurrentFielder);
-        fNotHigh = (fNotHigh <= fNotReceivingVolley) ? fNotHigh : fNotReceivingVolley;
-        fTrueConf2 = (fTrueConf2 <= fNotHigh) ? fTrueConf2 : fNotHigh;
+        float fInPassingLane = InPassingLane(g_pScriptCurrentFielder);
 
-        float fFalseConf2 = 1.0f - fTrueConf2;
-        float fMin2 = (fTrueConf2 <= fFalseConf2) ? fTrueConf2 : fFalseConf2;
-        float fMax2 = (fTrueConf2 >= fFalseConf2) ? fTrueConf2 : fFalseConf2;
+        fNotHigh = (fNotHigh <= fNotReceivingVolley) ? fNotHigh : fNotReceivingVolley;
+        fInPassingLane = (fInPassingLane <= fNotHigh) ? fInPassingLane : fNotHigh;
+
+        float fFalseConf2 = 1.0f - fInPassingLane;
+
+        float fMin2 = (fInPassingLane <= fFalseConf2) ? fInPassingLane : fFalseConf2;
+        float fMax2 = (fInPassingLane >= fFalseConf2) ? fInPassingLane : fFalseConf2;
         float fRatio2 = fMin2 / fMax2;
 
-        // CALL 1: Desire 6 (intercept/block pass), @3199 constant, direct Def_BlockPassChance
-        if (fTrueConf2 > 0.0f)
+        if (fInPassingLane > 0.0f)
         {
             SaveConfidence PushDOM2(&fConfidence);
-            fConfidence = (fConfidence <= fTrueConf2) ? fConfidence : fTrueConf2;
-            if (fConfidence < fTrueConf2 && fTrueConf2 < 0.2f)
+            fConfidence = (fConfidence <= fInPassingLane) ? fConfidence : fInPassingLane;
+            if (fConfidence < fInPassingLane && fInPassingLane < 0.2f)
                 fConfidence = fConfidence * fRatio2;
-            if (fConfidence > fBestConfidence)
+
+            if (fConfidence > 0.0f)
                 fBestConfidence = fConfidence;
-            pEntity->QueueActionSetDesire(6, fConfidence, 0.5f, FuzzyVariant(pTarget), fvNotSet);
+
+            pEntity->QueueActionSetDesire(6, fConfidence, 0.5f, fvNotSet, fvNotSet);
+
             SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
             pEntity->m_pLastQueuedAction->m_fSelectionChance = pTweaks->Def_BlockPassChance;
         }
@@ -297,110 +299,141 @@ FuzzyVariant Fuzzy::DefendPassInPlay(float fConfidence, cDecisionEntity* pEntity
                 fConfidence = fConfidence * fRatio2;
 
             float fOnScreen = OnScreen(pTarget);
-            float fClose = CloseTo(g_pScriptCurrentFielder, pTarget);
-            float fTackle = AtIdealDistanceForTackling(g_pScriptCurrentFielder, pTarget);
-            if (fClose >= fTackle)
-                fTackle = fClose;
-            float fNotSep = 1.0f - SeparatingFrom(g_pScriptCurrentFielder, pTarget);
-            float fTrueConf3 = (fOnScreen <= fTackle) ? fOnScreen : fTackle;
-            fTrueConf3 = (fTrueConf3 <= fNotSep) ? fTrueConf3 : fNotSep;
-            float fFalseConf3 = 1.0f - fTrueConf3;
-            float fMin3 = (fTrueConf3 <= fFalseConf3) ? fTrueConf3 : fFalseConf3;
-            float fMax3 = (fTrueConf3 >= fFalseConf3) ? fTrueConf3 : fFalseConf3;
+            float fNotOnScreen = 1.0f - fOnScreen;
+
+            float fMin3 = (fOnScreen <= fNotOnScreen) ? fOnScreen : fNotOnScreen;
+            float fMax3 = (fOnScreen >= fNotOnScreen) ? fOnScreen : fNotOnScreen;
             float fRatio3 = fMin3 / fMax3;
 
-            if (fTrueConf3 > 0.0f)
+            if (fOnScreen > 0.0f)
             {
                 SaveConfidence PushDOM4(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConf3) ? fConfidence : fTrueConf3;
-                if (fConfidence < fTrueConf3 && fTrueConf3 < 0.2f)
+                fConfidence = (fConfidence <= fOnScreen) ? fConfidence : fOnScreen;
+                if (fConfidence < fOnScreen && fOnScreen < 0.2f)
                     fConfidence = fConfidence * fRatio3;
 
-                float fRecvVolley = ReceivingVolleyPassDelayed(pTarget);
-                float fNotRecvVolley2 = 1.0f - fRecvVolley;
-                float fMin4 = (fRecvVolley <= fNotRecvVolley2) ? fRecvVolley : fNotRecvVolley2;
-                float fMax4 = (fRecvVolley >= fNotRecvVolley2) ? fRecvVolley : fNotRecvVolley2;
+                float fClose = CloseTo(g_pScriptCurrentFielder, pTarget);
+                float fAtIdeal = AtIdealDistanceForTackling(g_pScriptCurrentFielder, pTarget);
+                fClose = (fAtIdeal >= fClose) ? fAtIdeal : fClose;
+
+                float fNotSeparating = 1.0f - SeparatingFrom(g_pScriptCurrentFielder, pTarget);
+                fNotSeparating = (fNotSeparating <= fClose) ? fNotSeparating : fClose;
+
+                float fFalseConf4 = 1.0f - fNotSeparating;
+
+                float fMin4 = (fNotSeparating <= fFalseConf4) ? fNotSeparating : fFalseConf4;
+                float fMax4 = (fNotSeparating >= fFalseConf4) ? fNotSeparating : fFalseConf4;
                 float fRatio4 = fMin4 / fMax4;
 
-                // CALL 2: Volley TRUE branch - Desire 5, 0.0f, CalcSelectChance(Def_VolleyPassDefendChance)
-                if (fRecvVolley > 0.0f)
+                if (fNotSeparating > 0.0f)
                 {
                     SaveConfidence PushDOM5(&fConfidence);
-                    fConfidence = (fConfidence <= fRecvVolley) ? fConfidence : fRecvVolley;
-                    if (fConfidence < fRecvVolley && fRecvVolley < 0.2f)
+                    fConfidence = (fConfidence <= fNotSeparating) ? fConfidence : fNotSeparating;
+                    if (fConfidence < fNotSeparating && fNotSeparating < 0.2f)
                         fConfidence = fConfidence * fRatio4;
-                    float fNotRepeatHeavy1 = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edHeavyAttack);
-                    float fFalseConf5 = 1.0f - fNotRepeatHeavy1;
-                    float fMin5 = (fNotRepeatHeavy1 <= fFalseConf5) ? fNotRepeatHeavy1 : fFalseConf5;
-                    float fMax5 = (fNotRepeatHeavy1 >= fFalseConf5) ? fNotRepeatHeavy1 : fFalseConf5;
+
+                    float fRecVolley = ReceivingVolleyPassDelayed(pTarget);
+                    float fNotRecVolley = 1.0f - fRecVolley;
+
+                    float fMin5 = (fRecVolley <= fNotRecVolley) ? fRecVolley : fNotRecVolley;
+                    float fMax5 = (fRecVolley >= fNotRecVolley) ? fRecVolley : fNotRecVolley;
                     float fRatio5 = fMin5 / fMax5;
-                    if (fNotRepeatHeavy1 > 0.0f)
+
+                    if (fRecVolley > 0.0f)
                     {
                         SaveConfidence PushDOM6(&fConfidence);
-                        fConfidence = (fConfidence <= fNotRepeatHeavy1) ? fConfidence : fNotRepeatHeavy1;
-                        if (fConfidence < fNotRepeatHeavy1 && fNotRepeatHeavy1 < 0.2f)
+                        fConfidence = (fConfidence <= fRecVolley) ? fConfidence : fRecVolley;
+                        if (fConfidence < fRecVolley && fRecVolley < 0.2f)
                             fConfidence = fConfidence * fRatio5;
-                        if (fConfidence > fBestConfidence)
-                            fBestConfidence = fConfidence;
-                        pEntity->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant(pTarget), fvNotSet);
-                        SkillTweaks* pTweaks2 = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                        float fAggressive = Aggressive(g_pScriptCurrentFielder);
-                        pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks2->Def_VolleyPassDefendChance, fAggressive);
-                    }
-                }
 
-                // CALL 3: Volley FALSE branch - Desire 5, 0.0f, CalcSelectChance(Def_HeavyAttackChance)
-                if (fNotRecvVolley2 > 0.0f)
-                {
-                    SaveConfidence PushDOM7(&fConfidence);
-                    fConfidence = (fConfidence <= fNotRecvVolley2) ? fConfidence : fNotRecvVolley2;
-                    if (fConfidence < fNotRecvVolley2 && fNotRecvVolley2 < 0.2f)
-                        fConfidence = fConfidence * fRatio4;
-                    float fNotRepeatHeavy2 = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edHeavyAttack);
-                    float fFalseConf6 = 1.0f - fNotRepeatHeavy2;
-                    float fMin6 = (fNotRepeatHeavy2 <= fFalseConf6) ? fNotRepeatHeavy2 : fFalseConf6;
-                    float fMax6 = (fNotRepeatHeavy2 >= fFalseConf6) ? fNotRepeatHeavy2 : fFalseConf6;
-                    float fRatio6 = fMin6 / fMax6;
-                    if (fNotRepeatHeavy2 > 0.0f)
+                        float fNotRepeat = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edHeavyAttack);
+                        float fRepeat = 1.0f - fNotRepeat;
+
+                        float fMin6 = (fNotRepeat <= fRepeat) ? fNotRepeat : fRepeat;
+                        float fMax6 = (fNotRepeat >= fRepeat) ? fNotRepeat : fRepeat;
+                        float fRatio6 = fMin6 / fMax6;
+
+                        if (fNotRepeat > 0.0f)
+                        {
+                            SaveConfidence PushDOM7(&fConfidence);
+                            fConfidence = (fConfidence <= fNotRepeat) ? fConfidence : fNotRepeat;
+                            if (fConfidence < fNotRepeat && fNotRepeat < 0.2f)
+                                fConfidence = fConfidence * fRatio6;
+
+                            if (fConfidence > fBestConfidence)
+                                fBestConfidence = fConfidence;
+
+                            pEntity->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant(pTarget), fvNotSet);
+
+                            SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                            float fAggressive = Aggressive(g_pScriptCurrentFielder);
+                            pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_VolleyPassDefendChance, fAggressive);
+                        }
+                    }
+
+                    if (fNotRecVolley > 0.0f)
                     {
                         SaveConfidence PushDOM8(&fConfidence);
-                        fConfidence = (fConfidence <= fNotRepeatHeavy2) ? fConfidence : fNotRepeatHeavy2;
-                        if (fConfidence < fNotRepeatHeavy2 && fNotRepeatHeavy2 < 0.2f)
-                            fConfidence = fConfidence * fRatio6;
-                        if (fConfidence > fBestConfidence)
-                            fBestConfidence = fConfidence;
-                        pEntity->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant(pTarget), fvNotSet);
-                        SkillTweaks* pTweaks3 = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                        float fAggressive2 = Aggressive(g_pScriptCurrentFielder);
-                        pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks3->Def_HeavyAttackChance, fAggressive2);
+                        fConfidence = (fConfidence <= fNotRecVolley) ? fConfidence : fNotRecVolley;
+                        if (fConfidence < fNotRecVolley && fNotRecVolley < 0.2f)
+                            fConfidence = fConfidence * fRatio5;
+
+                        float fNotRepeat2 = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edHeavyAttack);
+                        float fRepeat2 = 1.0f - fNotRepeat2;
+
+                        float fMin7 = (fNotRepeat2 <= fRepeat2) ? fNotRepeat2 : fRepeat2;
+                        float fMax7 = (fNotRepeat2 >= fRepeat2) ? fNotRepeat2 : fRepeat2;
+                        float fRatio7 = fMin7 / fMax7;
+
+                        if (fNotRepeat2 > 0.0f)
+                        {
+                            SaveConfidence PushDOM9(&fConfidence);
+                            fConfidence = (fConfidence <= fNotRepeat2) ? fConfidence : fNotRepeat2;
+                            if (fConfidence < fNotRepeat2 && fNotRepeat2 < 0.2f)
+                                fConfidence = fConfidence * fRatio7;
+
+                            if (fConfidence > fBestConfidence)
+                                fBestConfidence = fConfidence;
+
+                            pEntity->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant(pTarget), fvNotSet);
+
+                            SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                            float fAggressive = Aggressive(g_pScriptCurrentFielder);
+                            pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_HeavyAttackChance, fAggressive);
+                        }
                     }
                 }
-            }
 
-            // CALL 4: Mark comparison - Desire 6, @3199, CalcSelectChance(Def_BlockPassChance)
-            if (fFalseConf3 > 0.0f)
-            {
-                SaveConfidence PushDOM9(&fConfidence);
-                fConfidence = (fConfidence <= fFalseConf3) ? fConfidence : fFalseConf3;
-                if (fConfidence < fFalseConf3 && fFalseConf3 < 0.2f)
-                    fConfidence = fConfidence * fRatio3;
-                float fMarkConf = (pTarget == g_pScriptCurrentMark) ? 1.0f : 0.0f;
-                float fFalseConf7 = 1.0f - fMarkConf;
-                float fMin7 = (fMarkConf <= fFalseConf7) ? fMarkConf : fFalseConf7;
-                float fMax7 = (fMarkConf >= fFalseConf7) ? fMarkConf : fFalseConf7;
-                float fRatio7 = fMin7 / fMax7;
-                if (fMarkConf > 0.0f)
+                if (fFalseConf4 > 0.0f)
                 {
                     SaveConfidence PushDOM10(&fConfidence);
-                    fConfidence = (fConfidence <= fMarkConf) ? fConfidence : fMarkConf;
-                    if (fConfidence < fMarkConf && fMarkConf < 0.2f)
-                        fConfidence = fConfidence * fRatio7;
-                    if (fConfidence > fBestConfidence)
-                        fBestConfidence = fConfidence;
-                    pEntity->QueueActionSetDesire(6, fConfidence, 0.5f, FuzzyVariant(pTarget), fvNotSet);
-                    SkillTweaks* pTweaks4 = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                    float fAggressive3 = Aggressive(g_pScriptCurrentFielder);
-                    pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks4->Def_BlockPassChance, fAggressive3);
+                    fConfidence = (fConfidence <= fFalseConf4) ? fConfidence : fFalseConf4;
+                    if (fConfidence < fFalseConf4 && fFalseConf4 < 0.2f)
+                        fConfidence = fConfidence * fRatio4;
+
+                    float fIsCurrentMark = (pTarget == g_pScriptCurrentMark) ? 1.0f : 0.0f;
+                    float fNotCurrentMark = 1.0f - fIsCurrentMark;
+
+                    float fMin8 = (fIsCurrentMark <= fNotCurrentMark) ? fIsCurrentMark : fNotCurrentMark;
+                    float fMax8 = (fIsCurrentMark >= fNotCurrentMark) ? fIsCurrentMark : fNotCurrentMark;
+                    float fRatio8 = fMin8 / fMax8;
+
+                    if (fIsCurrentMark > 0.0f)
+                    {
+                        SaveConfidence PushDOM11(&fConfidence);
+                        fConfidence = (fConfidence <= fIsCurrentMark) ? fConfidence : fIsCurrentMark;
+                        if (fConfidence < fIsCurrentMark && fIsCurrentMark < 0.2f)
+                            fConfidence = fConfidence * fRatio8;
+
+                        if (fConfidence > fBestConfidence)
+                            fBestConfidence = fConfidence;
+
+                        pEntity->QueueActionSetDesire(6, fConfidence, 0.5f, fvNotSet, fvNotSet);
+
+                        SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                        float fAggressive = Aggressive(g_pScriptCurrentFielder);
+                        pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_BlockPassChance, fAggressive);
+                    }
                 }
             }
         }
@@ -409,12 +442,6 @@ FuzzyVariant Fuzzy::DefendPassInPlay(float fConfidence, cDecisionEntity* pEntity
     return FuzzyVariant(fBestConfidence);
 }
 
-/**
- * Offset/Address/Size: 0x2140 | 0x800877F8 | size: 0x1918
- * TODO: 99.24% match - f27/f28 register swap in fNotRepeatSlide/fOnMush2,
- * r28/r29 swap in FuzzyVariant(BallOwner) construction, lfs load order,
- * weighted expression accumulator register
- */
 FuzzyVariant Fuzzy::TryAttacking(float fConfidence, cDecisionEntity* pEntity)
 {
     float fBestConfidence = 0.0f;

@@ -262,20 +262,22 @@ void PauseMenuScene::OnSelectQUIT(TLComponentInstance*)
         if (nlSingleton<GameInfoManager>::s_pInstance->mIsInStrikers101Mode)
         {
             {
+                Detail::MemFunImpl<void, void (PauseMenuScene::*)()> (*makeMemFun)(void (PauseMenuScene::*)()) = MemFun<PauseMenuScene, void>;
                 Function<FnVoidVoid> yes(Bind<void, Detail::MemFunImpl<void, void (PauseMenuScene::*)()>, PauseMenuScene*>(
-                    MemFun<PauseMenuScene, void>(&PauseMenuScene::OnSelectPopupYESFORFEIT), this));
+                    makeMemFun(&PauseMenuScene::OnSelectPopupYESFORFEIT), this));
                 Function<FnVoidVoid> no(Bind<void, Detail::MemFunImpl<void, void (PauseMenuScene::*)()>, PauseMenuScene*>(
-                    MemFun<PauseMenuScene, void>(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
+                    makeMemFun(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
                 popup->Create(POPUP_INGAME_QUIT_STRIKERS_101, yes, no);
             }
         }
         else if (nlSingleton<GameInfoManager>::s_pInstance->mCurrentMode == GameInfoManager::GM_FRIENDLY || g_pGame->m_eGameState == GS_END_GAME)
         {
             {
+                Detail::MemFunImpl<void, void (PauseMenuScene::*)()> (*makeMemFun)(void (PauseMenuScene::*)()) = MemFun<PauseMenuScene, void>;
                 Function<FnVoidVoid> yes(Bind<void, Detail::MemFunImpl<void, void (PauseMenuScene::*)()>, PauseMenuScene*>(
-                    MemFun<PauseMenuScene, void>(&PauseMenuScene::OnSelectPopupYESFORFEIT), this));
+                    makeMemFun(&PauseMenuScene::OnSelectPopupYESFORFEIT), this));
                 Function<FnVoidVoid> no(Bind<void, Detail::MemFunImpl<void, void (PauseMenuScene::*)()>, PauseMenuScene*>(
-                    MemFun<PauseMenuScene, void>(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
+                    makeMemFun(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
                 popup->Create(POPUP_INGAME_QUIT_MATCH, yes, no);
             }
         }
@@ -284,18 +286,20 @@ void PauseMenuScene::OnSelectQUIT(TLComponentInstance*)
                      && nlSingleton<GameInfoManager>::s_pInstance->GetPlayingSide((unsigned short)mQuittingController) != -1))
         {
             {
+                Detail::MemFunImpl<void, void (PauseMenuScene::*)()> (*makeMemFun)(void (PauseMenuScene::*)()) = MemFun<PauseMenuScene, void>;
                 Function<FnVoidVoid> yes(Bind<void, Detail::MemFunImpl<void, void (PauseMenuScene::*)()>, PauseMenuScene*>(
-                    MemFun<PauseMenuScene, void>(&PauseMenuScene::OnSelectPopupYESFORFEIT), this));
+                    makeMemFun(&PauseMenuScene::OnSelectPopupYESFORFEIT), this));
                 Function<FnVoidVoid> no(Bind<void, Detail::MemFunImpl<void, void (PauseMenuScene::*)()>, PauseMenuScene*>(
-                    MemFun<PauseMenuScene, void>(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
+                    makeMemFun(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
                 popup->Create(POPUP_INGAME_FORFEIT_MATCH, yes, no);
             }
         }
         else
         {
             {
+                Detail::MemFunImpl<void, void (PauseMenuScene::*)()> (*makeMemFun)(void (PauseMenuScene::*)()) = MemFun<PauseMenuScene, void>;
                 Function<FnVoidVoid> no(Bind<void, Detail::MemFunImpl<void, void (PauseMenuScene::*)()>, PauseMenuScene*>(
-                    MemFun<PauseMenuScene, void>(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
+                    makeMemFun(&PauseMenuScene::OnSelectPopupNOFORFEIT), this));
                 popup->Create(POPUP_NO_FORFEIT, no);
             }
         }
@@ -722,7 +726,7 @@ void PauseMenuScene::SceneCreated()
 
 /**
  * Offset/Address/Size: 0x268 | 0x800AD760 | size: 0x5E4
- * TODO: 83.81% match - r27/r28/r29 register allocation swap for i/goToChooseSides/connState, overlay pop loop structure, ExitMenuState branch pattern
+ * TODO: 87.80% match - controller loop register assignment and final resume-call sequence still differ
  */
 void PauseMenuScene::Update(float fDeltaT)
 {
@@ -762,7 +766,10 @@ void PauseMenuScene::Update(float fDeltaT)
         if (!(currentTime >= endTime))
             return;
 
-        if (mTransitionTo == TT_OUT)
+        if (mTransitionTo != TT_OUT)
+        {
+        }
+        else
         {
             FrontEnd::ExitMenuState();
         }
@@ -771,9 +778,9 @@ void PauseMenuScene::Update(float fDeltaT)
         return;
     }
 
-    u8 goToChooseSides = 0;
-    int i = 0;
-    u8* connState = &FrontEnd::m_ctrlConnectedState[0];
+    register int i = 0;
+    register u8 goToChooseSides = 0;
+    register u8* connState = &FrontEnd::m_ctrlConnectedState[0];
 
     for (; i < 4; i++)
     {
@@ -833,10 +840,9 @@ void PauseMenuScene::Update(float fDeltaT)
 
     if (g_pFEInput->IsAutoPressed(mControllingInput, 0xd, true, NULL))
     {
-        int flags = mMenuItems.mFlags;
         int currentIndex = mMenuItems.mCurrentIndex;
-        u8 wrapBit = flags & 1;
-        int skipDisabled = flags & 2;
+        int wrapBit = mMenuItems.mFlags & 1;
+        int skipDisabled = mMenuItems.mFlags & 2;
         int newIndex = currentIndex - 1;
 
         while (true)
@@ -855,7 +861,7 @@ void PauseMenuScene::Update(float fDeltaT)
             if (!skipDisabled)
                 break;
 
-            if (!mMenuItems.mMenuItems[newIndex].mLocked)
+            if (!mMenuItems.mMenuItems[newIndex].mDisabled)
                 break;
 
             newIndex = newIndex - 1;
@@ -871,10 +877,9 @@ void PauseMenuScene::Update(float fDeltaT)
 
     if (g_pFEInput->IsAutoPressed(mControllingInput, 0xe, true, NULL))
     {
-        int flags = mMenuItems.mFlags;
         int currentIndex = mMenuItems.mCurrentIndex;
-        u8 wrapBit = flags & 1;
-        int skipDisabled = flags & 2;
+        int wrapBit = mMenuItems.mFlags & 1;
+        int skipDisabled = mMenuItems.mFlags & 2;
         int newIndex = currentIndex + 1;
 
         while (true)
@@ -893,7 +898,7 @@ void PauseMenuScene::Update(float fDeltaT)
             if (!skipDisabled)
                 break;
 
-            if (!mMenuItems.mMenuItems[newIndex].mLocked)
+            if (!mMenuItems.mMenuItems[newIndex].mDisabled)
                 break;
 
             newIndex = newIndex + 1;
@@ -910,18 +915,17 @@ void PauseMenuScene::Update(float fDeltaT)
     if (g_pFEInput->JustPressed(mControllingInput, 0x100, false, &mQuittingController))
     {
         int selectedIndex = mMenuItems.mCurrentIndex;
-        MenuItem<TLComponentInstance>* item = &mMenuItems.mMenuItems[selectedIndex];
         MenuResult result;
 
-        if (item->mCallbacks[ON_APPLY].mTag != EMPTY)
+        if (mMenuItems.mMenuItems[selectedIndex].mCallbacks[ON_APPLY].mTag != EMPTY)
         {
-            if (item->mDisabled)
+            if (mMenuItems.mMenuItems[selectedIndex].mDisabled)
             {
                 result = RES_ITEM_DISABLED;
             }
             else
             {
-                item->mCallbacks[ON_APPLY](item->mType);
+                mMenuItems.mMenuItems[selectedIndex].mCallbacks[ON_APPLY](mMenuItems.mMenuItems[selectedIndex].mType);
                 result = RES_OK;
             }
         }
@@ -955,7 +959,7 @@ void PauseMenuScene::Update(float fDeltaT)
 
     if (!FrontEnd::m_bGameOver)
     {
-        OnSelectRESUME(NULL);
+        (this->*(&PauseMenuScene::OnSelectRESUME))(NULL);
     }
     else
     {

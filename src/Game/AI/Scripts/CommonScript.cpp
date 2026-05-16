@@ -726,7 +726,9 @@ FuzzyVariant Fuzzy::ShouldIAttemptOneTimer(cFielder* TheFielder)
     float fBestConfidence = 0.0f;
 
     FuzzyVariant fvFielder((cPlayer*)TheFielder);
-    unsigned long hash = (unsigned long)ShouldIAttemptOneTimer + ((Variant*)&fvFielder)->GetHash();
+    unsigned long functionAddress = (unsigned long)ShouldIAttemptOneTimer;
+    unsigned long hash = ((Variant*)&fvFielder)->GetHash();
+    hash += functionAddress;
     FuzzyVariant fvFielder2((cPlayer*)TheFielder);
 
     ScriptQuestionCache* cache = ScriptQuestionCache::Instance();
@@ -737,11 +739,10 @@ FuzzyVariant Fuzzy::ShouldIAttemptOneTimer(cFielder* TheFielder)
 
     if (g_bScriptQuestionCachingUseSTD)
     {
-        StdMapNode* stdNode;
-        __find(&stdNode, &cache->mQuestionCacheMapSTD, &hash);
-        StdMapNode* stdFound = stdNode;
-        if ((StdMapNodeBase*)stdFound != &((StdMapTree*)&cache->mQuestionCacheMapSTD)->x4)
+        std::map<unsigned long, FuzzyVariant>::iterator stdIt = cache->mQuestionCacheMapSTD.find(hash);
+        if (*(StdMapNodeBase**)&stdIt != &((StdMapTree*)&cache->mQuestionCacheMapSTD)->x4)
         {
+            StdMapNode* stdFound = *(StdMapNode**)&stdIt;
             cache->mCacheHits++;
             bestValue = stdFound->value;
             lookupFound = 1;
@@ -2109,26 +2110,26 @@ FuzzyVariant Fuzzy::GoodToShoot(cFielder* TheFielder)
             fConfidence = (float)fConfidence * fBranchRatio;
         }
 
-        float fLikelyToScore = LikelyToScore(TheFielder);
+        float fNetOpeness = LikelyToScore(TheFielder);
         float fPlayerDistance = PlayerShotDistance(TheFielder);
-        float fNetWeighting = 0.5f;
-        float fPlayerWeighting = 0.5f;
-        float fTotalSum = fLikelyToScore * fNetWeighting + fPlayerDistance * fPlayerWeighting;
-        float fTotalWeight = fNetWeighting + fPlayerWeighting;
-        float fScore = 0.0f;
+        float fPlayerWeighting = g_pGame->m_pGameTweaks->unk2E0;
+        float fNetWeighting = g_pGame->m_pGameTweaks->unk2DC;
+        float fTotalSum = 1.0f + fNetOpeness * fNetWeighting + fPlayerDistance * fPlayerWeighting;
+        float fTotalWeight = 1.0f + fNetWeighting + fPlayerWeighting;
+        fNetOpeness = 1.0f;
 
-        if (fTotalWeight > 0.0f)
+        if (fTotalWeight > 1.0f)
         {
-            fScore = fTotalSum / fTotalWeight;
+            fNetOpeness = fTotalSum / fTotalWeight;
         }
 
-        if (fScore < 0.0f)
+        if (fNetOpeness < 0.0f)
         {
-            fScore = 0.0f;
+            fNetOpeness = 0.0f;
         }
-        if (fScore > 1.0f)
+        if (fNetOpeness > 1.0f)
         {
-            fScore = 1.0f;
+            fNetOpeness = 1.0f;
         }
 
         Goalie* pGoalie = NULL;
@@ -2169,48 +2170,48 @@ FuzzyVariant Fuzzy::GoodToShoot(cFielder* TheFielder)
             {
                 fConfidence = (float)fConfidence * fBranchRatio2;
             }
+        }
 
-            float fTrueConfidence3 = CloseToTheirGoalie((cPlayer*)TheFielder);
-            float fFalseConfidence3 = 1.0f - fTrueConfidence3;
-            float fBranchRatio3 = (fTrueConfidence3 <= fFalseConfidence3) ? fTrueConfidence3 : fFalseConfidence3;
-            fBranchRatio3 = fBranchRatio3 / ((fTrueConfidence3 >= fFalseConfidence3) ? fTrueConfidence3 : fFalseConfidence3);
+        float fTrueConfidence3 = CloseToTheirGoalie((cPlayer*)TheFielder);
+        float fFalseConfidence3 = 1.0f - fTrueConfidence3;
+        float fBranchRatio3 = (fTrueConfidence3 <= fFalseConfidence3) ? fTrueConfidence3 : fFalseConfidence3;
+        fBranchRatio3 = fBranchRatio3 / ((fTrueConfidence3 >= fFalseConfidence3) ? fTrueConfidence3 : fFalseConfidence3);
 
-            if (fTrueConfidence3 > 0.0f)
+        if (fTrueConfidence3 > 0.0f)
+        {
+            SaveConfidence PushDOM(&fConfidence);
+
+            fConfidence = (fConfidence <= fTrueConfidence3) ? fConfidence : fTrueConfidence3;
+            if ((fConfidence < fTrueConfidence3) && (fTrueConfidence3 < 0.5f))
             {
-                SaveConfidence PushDOM(&fConfidence);
-
-                fConfidence = (fConfidence <= fTrueConfidence3) ? fConfidence : fTrueConfidence3;
-                if ((fConfidence < fTrueConfidence3) && (fTrueConfidence3 < 0.5f))
-                {
-                    fConfidence = (float)fConfidence * fBranchRatio3;
-                }
-
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    float fNearToNet = NearToTheirNet((cPlayer*)TheFielder);
-                    FuzzyVariant fvResult(fNearToNet * 0.3f + fScore * 0.7f);
-                    bestValue = fvResult;
-                }
+                fConfidence = (float)fConfidence * fBranchRatio3;
             }
 
-            if (fFalseConfidence3 > 0.0f)
+            if (fConfidence > fBestConfidence)
             {
-                SaveConfidence PushDOM(&fConfidence);
+                fBestConfidence = fConfidence;
+                float fNearToNet = NearToTheirNet((cPlayer*)TheFielder);
+                FuzzyVariant fvResult(fNearToNet * 0.3f + fNetOpeness * 0.7f);
+                bestValue = fvResult;
+            }
+        }
 
-                fConfidence = (fConfidence <= fFalseConfidence3) ? fConfidence : fFalseConfidence3;
-                if ((fConfidence < fFalseConfidence3) && (fFalseConfidence3 < 0.5f))
-                {
-                    fConfidence = (float)fConfidence * fBranchRatio3;
-                }
+        if (fFalseConfidence3 > 0.0f)
+        {
+            SaveConfidence PushDOM(&fConfidence);
 
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    float fNearToNet = NearToTheirNet((cPlayer*)TheFielder);
-                    FuzzyVariant fvResult(fNearToNet * 0.3f + fScore * 0.7f);
-                    bestValue = fvResult;
-                }
+            fConfidence = (fConfidence <= fFalseConfidence3) ? fConfidence : fFalseConfidence3;
+            if ((fConfidence < fFalseConfidence3) && (fFalseConfidence3 < 0.5f))
+            {
+                fConfidence = (float)fConfidence * fBranchRatio3;
+            }
+
+            if (fConfidence > fBestConfidence)
+            {
+                fBestConfidence = fConfidence;
+                float fNearToNet = NearToTheirNet((cPlayer*)TheFielder);
+                FuzzyVariant fvResult(fNearToNet * 0.3f + fNetOpeness * 0.7f);
+                bestValue = fvResult;
             }
         }
     }

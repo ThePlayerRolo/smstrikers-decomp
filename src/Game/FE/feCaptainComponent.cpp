@@ -1307,6 +1307,8 @@ void IChooseCaptain::SceneCreated(FEPresentation* presentation)
     compinstance->m_bVisible = false;
     mSidekickComponents[1]->m_bVisible = false;
 
+    ICaptainGridComponent* captainGrid = (ICaptainGridComponent*)nlMalloc(sizeof(ICaptainGridComponent), 8, false);
+    if (captainGrid)
     {
         volatile InlineHasher hB, hA;
         volatile InlineHasher h9, h8, h6, h4, h2, h0;
@@ -1338,9 +1340,12 @@ void IChooseCaptain::SceneCreated(FEPresentation* presentation)
             (InlineHasher&)h3,
             (InlineHasher&)h1);
         ;
-        mCaptainGridComponents[0] = new (8, false) ICaptainGridComponent(compinstance, false);
+        captainGrid = new (captainGrid) ICaptainGridComponent(compinstance, false);
     }
+    mCaptainGridComponents[0] = captainGrid;
 
+    captainGrid = (ICaptainGridComponent*)nlMalloc(sizeof(ICaptainGridComponent), 8, false);
+    if (captainGrid)
     {
         volatile InlineHasher hB, hA;
         volatile InlineHasher h9, h8, h6, h4, h2, h0;
@@ -1372,12 +1377,15 @@ void IChooseCaptain::SceneCreated(FEPresentation* presentation)
             (InlineHasher&)h3,
             (InlineHasher&)h1);
         ;
-        mCaptainGridComponents[1] = new (8, false) ICaptainGridComponent(compinstance, true);
+        captainGrid = new (captainGrid) ICaptainGridComponent(compinstance, true);
     }
+    mCaptainGridComponents[1] = captainGrid;
 
     mCaptainGridComponents[0]->BuildMapMenu();
     mCaptainGridComponents[1]->BuildMapMenu();
 
+    ISidekickGridComponent* sidekickGrid = (ISidekickGridComponent*)nlMalloc(sizeof(ISidekickGridComponent), 8, false);
+    if (sidekickGrid)
     {
         volatile InlineHasher hB, hA;
         volatile InlineHasher h9, h8, h6, h4, h2, h0;
@@ -1409,9 +1417,12 @@ void IChooseCaptain::SceneCreated(FEPresentation* presentation)
             (InlineHasher&)h3,
             (InlineHasher&)h1);
         ;
-        mSidekickGridComponents[0] = new (8, false) ISidekickGridComponent(compinstance, false);
+        sidekickGrid = new (sidekickGrid) ISidekickGridComponent(compinstance, false);
     }
+    mSidekickGridComponents[0] = sidekickGrid;
 
+    sidekickGrid = (ISidekickGridComponent*)nlMalloc(sizeof(ISidekickGridComponent), 8, false);
+    if (sidekickGrid)
     {
         volatile InlineHasher hB, hA;
         volatile InlineHasher h9, h8, h6, h4, h2, h0;
@@ -1443,8 +1454,9 @@ void IChooseCaptain::SceneCreated(FEPresentation* presentation)
             (InlineHasher&)h3,
             (InlineHasher&)h1);
         ;
-        mSidekickGridComponents[1] = new (8, false) ISidekickGridComponent(compinstance, true);
+        sidekickGrid = new (sidekickGrid) ISidekickGridComponent(compinstance, true);
     }
+    mSidekickGridComponents[1] = sidekickGrid;
 
     mSidekickGridComponents[0]->mParentComponent->m_bVisible = false;
     mSidekickGridComponents[1]->mParentComponent->m_bVisible = false;

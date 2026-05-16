@@ -514,16 +514,16 @@ static inline float CalcPenaltyWorth(ePenaltyType eType)
 
 static inline void DoPenaltyCardBookingInline(cFielder* pFouler, cFielder* pFoulee, ePenaltyType eType)
 {
-    int ePenaltyTypeAdjusted = eType;
+    ePenaltyType ePenaltyTypeAdjusted = eType;
     if (pFoulee->m_tBallUnPossessionTimer.GetSeconds() < 0.5f)
     {
         if (ePenaltyTypeAdjusted == 1)
         {
-            ePenaltyTypeAdjusted = 0;
+            ePenaltyTypeAdjusted = PEN_TYPE_HIT_WITH_BALL;
         }
         else if (ePenaltyTypeAdjusted == 3)
         {
-            ePenaltyTypeAdjusted = 2;
+            ePenaltyTypeAdjusted = PEN_TYPE_SLIDE_WITH_BALL;
         }
     }
 
@@ -554,15 +554,15 @@ static inline void DoPenaltyCardBookingInline(cFielder* pFouler, cFielder* pFoul
         pData = new ((u8*)pEvent + 0x10) PenaltyData();
     }
 
-    pData->fPenaltyWorth = CalcPenaltyWorth((ePenaltyType)ePenaltyTypeAdjusted);
+    pData->fPenaltyWorth = CalcPenaltyWorth(ePenaltyTypeAdjusted);
     pData->pFouler = pFouler;
     pData->pFoulee = pFoulee;
 }
 
 /**
  * Offset/Address/Size: 0xAEBC | 0x800241F8 | size: 0x151C
- * TODO: 89.13% match - 4 of 8 CalcPenaltyWorth copies not second-level inlined
- * inside DoPenaltyCardBookingInline (MWCC inline budget limit: 4884 vs 5404 bytes).
+ * TODO: 99.07% match - remaining diffs are register assignment order in prologue
+ * and a shortened final slide-attack tail block near function epilogue.
  */
 void cFielder::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
 {
