@@ -61,7 +61,8 @@ u32 __strtoul(int base, int max_width, int (*ReadProc)(void*, int, int), void* R
         case start:
             if (isspace(c))
             {
-                c = (*ReadProc)(ReadProcArg, 0, __GetAChar);
+                c = fetch();
+                count--;
                 spaces++;
                 break;
             }
@@ -183,7 +184,8 @@ u32 __strtoul(int base, int max_width, int (*ReadProc)(void*, int, int), void* R
     }
     else
     {
-        *chars_scanned = count + spaces - 1;
+        count--;
+        *chars_scanned = count + spaces;
     }
 
     unfetch(c);

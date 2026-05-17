@@ -285,12 +285,10 @@ TakeGameMemSnapshot::Detail::LexicalCastImpl<BasicString<char, ::Detail::TempStr
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0xED8 | 0x800A579C | size: 0xD74
-//  */
-// void TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator%<unsigned long>(const unsigned long&)
-// {
-// }
+/**
+ * Offset/Address/Size: 0xED8 | 0x800A579C | size: 0xD74
+ * TODO: 88.84% match - register allocation off by 1 (stmw r25 vs r26), bne+b vs beq branch pattern in operator[] COW check
+ */
 
 // /**
 //  * Offset/Address/Size: 0x164 | 0x800A4A28 | size: 0xD74
@@ -1087,6 +1085,40 @@ public:
     FormatImpl& operator%(const T& t);
 };
 
+template <typename StringType, typename T1, typename T2, typename T3>
+StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3);
+
+template <typename StringType>
+template <typename T>
+FormatImpl<StringType>& FormatImpl<StringType>::operator%(const T& t)
+{
+    StringType insert = LexicalCast<StringType, T>(t);
+
+    for (int i = 0; i < (int)mString.size() - 1; i++)
+    {
+        if (mString[i] != '{')
+            continue;
+
+        if (i + 1 >= (int)mString.size() - 1)
+            continue;
+
+        if (mString[i + 1] - '0' != mCurrentPos)
+            continue;
+
+        if (i + 2 >= (int)mString.size() - 1)
+            continue;
+
+        if (mString[i + 2] != '}')
+            continue;
+
+        mString.erase(&mString[i], &mString[i + 3]);
+        mString.insert(&mString[i], &insert[0], &insert[(int)insert.size() - 1]);
+    }
+
+    mCurrentPos++;
+    return *this;
+}
+
 } // namespace TakeGameMemSnapshot
 
 // Force instantiation of TakeGameMemSnapshot::FormatImpl -- REMOVE once real callers exist.
@@ -1094,6 +1126,49 @@ void feHelpFuncs_stub()
 {
     TakeGameMemSnapshot::FormatImpl<BasicString<char, Detail::TempStringAllocator> > impl;
     BasicString<char, Detail::TempStringAllocator> result = (BasicString<char, Detail::TempStringAllocator>)impl;
+    unsigned long ul = 0;
+    impl % ul;
+    unsigned int ui = 0;
+    impl % ui;
+}
+
+/**
+ * Offset/Address/Size: 0x0 | 0x800A48C4 | size: 0x13C
+ */
+template <>
+BasicString<char, ::Detail::TempStringAllocator>
+TakeGameMemSnapshot::Format<BasicString<char, ::Detail::TempStringAllocator>, unsigned long, unsigned int, unsigned int>(
+    const BasicString<char, ::Detail::TempStringAllocator>& format,
+    const unsigned long& value1,
+    const unsigned int& value2,
+    const unsigned int& value3)
+{
+    struct FormatImplLayoutCharTempULUIUI
+    {
+        BasicString<char, ::Detail::TempStringAllocator> mString;
+        int mCurrentPos;
+
+        FormatImplLayoutCharTempULUIUI(BasicStringData<char>* data)
+            : mString(data)
+            , mCurrentPos(0)
+        {
+        }
+    };
+
+    BasicStringData<char>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImplLayoutCharTempULUIUI impl(data);
+    BasicString<char, ::Detail::TempStringAllocator> value = (BasicString<char, ::Detail::TempStringAllocator>)((((TakeGameMemSnapshot::FormatImpl<BasicString<char, ::Detail::TempStringAllocator> >&)impl) % value1) % value2 % value3);
+
+    return (BasicString<char, ::Detail::TempStringAllocator>)value;
 }
 
 /**
@@ -1109,16 +1184,6 @@ void TakeGameMemSnapshot::ResetTimers()
  * Offset/Address/Size: 0x130 | 0x800A31EC | size: 0x504
  * TODO: 89.66% match - r29/r30 register swap for pFile after third fopen
  */
-static const char* StadiumNames[7] = {
-    "luigi",
-    "dk",
-    "daisy",
-    "waluigi",
-    "mario",
-    "peach",
-    "bowser",
-};
-
 namespace TakeGameMemSnapshot
 {
 template <typename StringType, typename T1, typename T2, typename T3>
@@ -1127,6 +1192,16 @@ StringType Format(const StringType& fmt, const T1& a, const T2& b, const T3& c);
 
 void TakeGameMemSnapshot::WriteToDisk()
 {
+    static const char* StadiumNames[7] = {
+        "luigi",
+        "dk",
+        "daisy",
+        "waluigi",
+        "mario",
+        "peach",
+        "bowser",
+    };
+
     const char* filename = "gamesnapshot.txt";
     FILE* pFile = fopen(filename, "r");
 
@@ -1139,7 +1214,8 @@ void TakeGameMemSnapshot::WriteToDisk()
     }
     fclose(pFile);
 
-    pFile = fopen(filename, "at");
+    FILE* appendFile;
+    appendFile = fopen(filename, "at");
 
     BasicString<char, ::Detail::TempStringAllocator> data;
     data.AppendInPlace(NameTeamTable[GameInfoManager::GetInstance()->GetTeam(0)].name);
@@ -1159,17 +1235,24 @@ void TakeGameMemSnapshot::WriteToDisk()
     data.AppendInPlace(StadiumNames[GameInfoManager::GetInstance()->GetStadium()]);
     data.AppendInPlace(",");
 
-    fwrite(data.c_str(), 1, data.m_data ? data.m_data->mSize - 1 : 0, pFile);
+    fwrite(data.c_str(), 1, data.m_data ? data.m_data->mSize - 1 : 0, appendFile);
 
     BasicString<char, ::Detail::TempStringAllocator> stats;
-    BasicString<char, ::Detail::TempStringAllocator> fmt("{0},{1},{2}\n");
-    unsigned long largestBlock = nlVirtualLargestBlock();
-    unsigned int totalFree = nlVirtualTotalFree();
-    unsigned int stdLargest = StandardAllocator.LargestFreeBlock();
-    stats = Format<BasicString<char, ::Detail::TempStringAllocator>, unsigned long, unsigned int, unsigned int>(fmt, largestBlock, totalFree, stdLargest);
+    {
+        BasicString<char, ::Detail::TempStringAllocator> fmt("{0},{1},{2}\n");
+        unsigned long largestFree;
+        unsigned int freeVM;
+        unsigned int largestFreeVM;
 
-    fwrite(stats.c_str(), 1, stats.m_data ? stats.m_data->mSize - 1 : 0, pFile);
-    fclose(pFile);
+        largestFreeVM = nlVirtualLargestBlock();
+        freeVM = nlVirtualTotalFree();
+        largestFree = StandardAllocator.LargestFreeBlock();
+
+        stats = Format<BasicString<char, ::Detail::TempStringAllocator>, unsigned long, unsigned int, unsigned int>(fmt, largestFree, freeVM, largestFreeVM);
+    }
+
+    fwrite(stats.c_str(), 1, stats.m_data ? stats.m_data->mSize - 1 : 0, appendFile);
+    fclose(appendFile);
 }
 
 /**

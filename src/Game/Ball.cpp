@@ -172,7 +172,9 @@ void cBall::SetPassTargetTimer(float seconds)
 void cBall::SetPassTarget(cPlayer* passTargetPlayer, const nlVector3& pos, bool)
 {
     m_pPassTarget = passTargetPlayer;
-    m_v3PassIntercept = pos;
+    m_v3PassIntercept.as_u32[0] = pos.as_u32[0];
+    m_v3PassIntercept.as_u32[1] = pos.as_u32[1];
+    m_v3PassIntercept.as_u32[2] = pos.as_u32[2];
 }
 
 /**
@@ -190,8 +192,8 @@ void cBall::WarpTo(const nlVector3& toPos)
 
 /**
  * Offset/Address/Size: 0x42C | 0x80009E00 | size: 0x30C
- * TODO: 98.93% match - stfs store order swap in AngVel normalization (cc/d0),
- *       FPR register allocation (f8/f5/f7/f6 vs f5/f6/f8/f7) in both velocity cross-product blocks.
+ * TODO: 99.03% match - FPR register allocation
+ *       (f8/f5/f7/f6 vs f5/f6/f8/f7) in both velocity cross-product blocks.
  */
 void cBall::UpdateOrientation(float fDeltaT)
 {
@@ -216,9 +218,7 @@ void cBall::UpdateOrientation(float fDeltaT)
             if (fAng > 0.01f)
             {
                 fInvAng = 1.0f / fAng;
-                v3AngVel.f.z = fInvAng * v3AngVel.f.z;
-                v3AngVel.f.y = fInvAng * v3AngVel.f.y;
-                v3AngVel.f.x = fInvAng * v3AngVel.f.x;
+                _nlVec3Scale(v3AngVel, fInvAng);
                 nlMakeQuat(qOrientationDelta, v3AngVel, fAng * fDeltaT);
             }
             else
@@ -2047,12 +2047,65 @@ cBall::cBall()
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x1B4 | 0x8000D6F0 | size: 0x67C
-//  */
-// void BasicString<char, Detail::TempStringAllocator>::insert(char*, const char*, const char*)
-// {
-// }
+/**
+ * Offset/Address/Size: 0x1B4 | 0x8000D6F0 | size: 0x67C
+ */
+template <>
+void BasicString<char, Detail::TempStringAllocator>::insert(char* at, const char* begin, const char* end)
+{
+    (*this)[0];
+    int offset = at - (m_data ? m_data->mData : (char*)0);
+    (*this)[0];
+    (*this)[0];
+    int size = end - begin;
+    int newSize = m_data->mSize + size;
+    if (newSize > m_data->mCapacity)
+    {
+        BasicStringData<char>* oldData = m_data;
+        BasicStringData<char>* data = (BasicStringData<char>*)Detail::TempStringAllocator::allocate(sizeof(BasicStringData<char>));
+        if (data != 0)
+        {
+            data->mData = (char*)Detail::TempStringAllocator::allocate(newSize);
+            data->mSize = oldData->mSize;
+            data->mCapacity = newSize;
+            memset(data->mData, 0, newSize);
+            for (int j = 0; j < oldData->mSize; j++)
+            {
+                data->mData[j] = oldData->mData[j];
+            }
+            data->mRefCount = 1;
+        }
+        if (--oldData->mRefCount == 0)
+        {
+            if (oldData)
+            {
+                if (oldData)
+                {
+                    delete[] oldData->mData;
+                }
+                if (oldData)
+                {
+                    nlFree(oldData);
+                }
+            }
+        }
+        m_data = data;
+    }
+    at = m_data->mData + offset;
+    char* t = m_data->mData + m_data->mSize - 1;
+    while (t >= at)
+    {
+        *(t + size) = *t;
+        t--;
+    }
+    while (begin != end)
+    {
+        *at = *begin;
+        begin++;
+        at++;
+    }
+    m_data->mSize += size;
+}
 
 // /**
 //  * Offset/Address/Size: 0x830 | 0x8000DD6C | size: 0x94

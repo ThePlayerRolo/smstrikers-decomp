@@ -1376,6 +1376,7 @@ void fePopupMenu_stub()
     WideBasicString s3 = fn(s, value);
     FormatImpl<WideBasicString> fi;
     WideBasicString s2 = (WideBasicString)fi;
+    WideBasicString s4 = Format<WideBasicString, WideBasicString, WideBasicString, WideBasicString>(s, s, s, s);
 
     unsigned long key = 0;
     nlBSearch<nlLocalization::StringLookup, unsigned long>(key, (nlLocalization::StringLookup*)0, 0);

@@ -2467,12 +2467,11 @@ bool Goalie::CheckForLooseBallShotInProgress()
 
 /**
  * Offset/Address/Size: 0x69D8 | 0x800494D4 | size: 0x3A8
- * TODO: 92.18% match - r29/r30 GPR swap (pFielder/bInNetZone), volatile FPR naming,
- * cror+bne+b vs ble branch patterns, return-false block duplication
+ * TODO: 96.11% match - FPR allocation around ownerDistSq/net-zone math, fmadds
+ * operand order in net-width check, and clamp compare branch direction (beq vs bne).
  */
 bool Goalie::CheckForSTSAttack()
 {
-    bool bInNetZone;
     cFielder* pFielder;
     bool bCanAttack;
 
@@ -2495,108 +2494,118 @@ bool Goalie::CheckForSTSAttack()
         f32 fCloseDistSq;
         f32 fMaxDistSq;
         f32 fCurrentAnimTime;
+        bool bInNetZone;
 
-        pFielder = g_pBall->GetOwnerFielder();
+        cFielder* pOppFielder = g_pBall->GetOwnerFielder();
 
-        cPN_SAnimController* pController = pFielder->m_pCurrentAnimController;
+        cPN_SAnimController* pController = pOppFielder->m_pCurrentAnimController;
         fAnimScale = (f32)pController->m_pSAnim->m_nNumKeys / 30.0f;
         fCurrentAnimTime = fAnimScale * pController->m_fTime;
-        f32 fTriggerTime = fAnimScale * GetCurrentAnimTriggerTime(pFielder, 0x85181B83, 0);
+        f32 fTriggerTime = fAnimScale * GetCurrentAnimTriggerTime(pOppFielder, 0x85181B83, 0);
 
         f32 fPickupDuration = LooseBallAnims::mAttackSTSInfo.mfPickupTime * LooseBallAnims::mAttackSTSInfo.mfAnimDuration;
         if ((fCurrentAnimTime + fPickupDuration) < fTriggerTime)
         {
-            f32 dy = pFielder->m_v3Position.f.y - m_v3Position.f.y;
-            f32 dx = pFielder->m_v3Position.f.x - m_v3Position.f.x;
-            ownerDistSq = dx * dx + dy * dy;
-
-            f32 fCloseDist = LooseBallAnims::mAttackSTSInfo.mfPickupDistance + ((GoalieTweaks*)m_pTweaks)->fSTSAttackCloseDistance;
-            f32 fMaxDist = LooseBallAnims::mAttackSTSInfo.mfPickupDistance + ((GoalieTweaks*)m_pTweaks)->fSTSAttackMaxDistance;
-            fCloseDistSq = fCloseDist * fCloseDist;
-            fMaxDistSq = fMaxDist * fMaxDist;
-
-            fSaveIgnoreMargin = ((GoalieTweaks*)m_pTweaks)->fSaveIgnoreMargin;
-
-            if (((float)fabsf(pFielder->m_v3Position.f.x) > (cField::GetGoalLineX(1U) - 1.0f))
-                && ((float)fabsf(pFielder->m_v3Position.f.y) < (cNet::m_fNetWidth * 0.5f + fSaveIgnoreMargin))
-                && (pFielder->m_v3Position.f.z < (fSaveIgnoreMargin + cNet::m_fNetHeight)))
+            do
             {
-                bInNetZone = true;
-            }
-            else
-            {
-                bInNetZone = false;
-            }
+                f32 dy = pOppFielder->m_v3Position.f.y - m_v3Position.f.y;
+                f32 dx = pOppFielder->m_v3Position.f.x - m_v3Position.f.x;
+                ownerDistSq = dx * dx + dy * dy;
 
-            nlVector3 v3GoalPos = m_pTeam->m_pNet->m_baseLocation;
+                f32 fCloseDist = LooseBallAnims::mAttackSTSInfo.mfPickupDistance + ((GoalieTweaks*)m_pTweaks)->fSTSAttackCloseDistance;
+                f32 fMaxDist = LooseBallAnims::mAttackSTSInfo.mfPickupDistance + ((GoalieTweaks*)m_pTweaks)->fSTSAttackMaxDistance;
+                fCloseDistSq = fCloseDist * fCloseDist;
+                fMaxDistSq = fMaxDist * fMaxDist;
 
-            f32 halfWidth = 0.5f * cNet::m_fNetWidth;
-            f32 clampedY = -halfWidth;
+                fSaveIgnoreMargin = ((GoalieTweaks*)m_pTweaks)->fSaveIgnoreMargin;
 
-            if (pFielder->m_v3Position.f.y >= clampedY)
-            {
-                clampedY = pFielder->m_v3Position.f.y;
-            }
-
-            if (clampedY > halfWidth)
-            {
-                clampedY = halfWidth;
-            }
-
-            v3GoalPos.f.y = clampedY;
-
-            f32 dfx = v3GoalPos.f.x - pFielder->m_v3Position.f.x;
-            f32 dfy = v3GoalPos.f.y - pFielder->m_v3Position.f.y;
-            f32 dgx = v3GoalPos.f.x - m_v3Position.f.x;
-            f32 dgy = v3GoalPos.f.y - m_v3Position.f.y;
-            f32 distSqFielder = dfx * dfx + dfy * dfy;
-            f32 distSqGoalie = dgx * dgx + dgy * dgy;
-
-            static FilteredRandomChance randgenSTS;
-
-            if (!bInNetZone)
-            {
-                if (distSqFielder >= distSqGoalie)
+                if (((float)fabsf(pOppFielder->m_v3Position.f.x) > (cField::GetGoalLineX(1U) - 1.0f))
+                    && ((float)fabsf(pOppFielder->m_v3Position.f.y) < (cNet::m_fNetWidth * 0.5f + fSaveIgnoreMargin))
+                    && (pOppFielder->m_v3Position.f.z < (fSaveIgnoreMargin + cNet::m_fNetHeight)))
                 {
-                    if (ownerDistSq <= fCloseDistSq)
+                    bInNetZone = true;
+                }
+                else
+                {
+                    bInNetZone = false;
+                }
+
+                nlVector3 v3GoalPos = m_pTeam->m_pNet->m_baseLocation;
+
+                f32 halfWidth = 0.5f * cNet::m_fNetWidth;
+                f32 clampedY = -halfWidth;
+
+                if (pOppFielder->m_v3Position.f.y >= clampedY)
+                {
+                    clampedY = pOppFielder->m_v3Position.f.y;
+                }
+
+                if (clampedY <= halfWidth)
+                {
+                }
+                else
+                {
+                    clampedY = halfWidth;
+                }
+
+                v3GoalPos.f.y = clampedY;
+
+                f32 dfx = v3GoalPos.f.x - pOppFielder->m_v3Position.f.x;
+                f32 dfy = v3GoalPos.f.y - pOppFielder->m_v3Position.f.y;
+                f32 dgx = v3GoalPos.f.x - m_v3Position.f.x;
+                f32 dgy = v3GoalPos.f.y - m_v3Position.f.y;
+                f32 distSqFielder = dfx * dfx + dfy * dfy;
+                f32 distSqGoalie = dgx * dgx + dgy * dgy;
+
+                static FilteredRandomChance randgenSTS;
+
+                if (!bInNetZone)
+                {
+                    if (distSqFielder < distSqGoalie)
                     {
-                    }
-                    else if (ownerDistSq <= fMaxDistSq)
-                    {
-                        if (!randgenSTS.genrand(((GoalieTweaks*)m_pTweaks)->fSTSAttackChancePerFrame))
-                        {
-                            return false;
-                        }
                     }
                     else
                     {
-                        return false;
+                        if (ownerDistSq <= fCloseDistSq)
+                        {
+                        }
+                        else if (ownerDistSq <= fMaxDistSq)
+                        {
+                            if (!randgenSTS.genrand(((GoalieTweaks*)m_pTweaks)->fSTSAttackChancePerFrame))
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
-            }
 
-            f32 fTimeToImpact = fAnimScale * GetCurrentAnimTriggerTime(pFielder, 0x2C8DABFA, 0);
-            fTimeToImpact = fTimeToImpact - fCurrentAnimTime;
-            f32 fPickupDuration2 = LooseBallAnims::mAttackSTSInfo.mfPickupTime * LooseBallAnims::mAttackSTSInfo.mfAnimDuration;
-            fTimeToImpact = fTimeToImpact - fPickupDuration2;
+                f32 fTimeToImpact = fAnimScale * GetCurrentAnimTriggerTime(pOppFielder, 0x2C8DABFA, 0);
+                fTimeToImpact = fTimeToImpact - fCurrentAnimTime;
+                f32 fPickupDuration2 = LooseBallAnims::mAttackSTSInfo.mfPickupTime * LooseBallAnims::mAttackSTSInfo.mfAnimDuration;
+                fTimeToImpact = fTimeToImpact - fPickupDuration2;
 
-            mfWaitTime = fTimeToImpact;
-            if (fTimeToImpact < 0.0f)
-            {
-                fTimeToImpact = 0.0f;
-            }
+                mfWaitTime = fTimeToImpact;
+                if (fTimeToImpact < 0.0f)
+                {
+                    fTimeToImpact = 0.0f;
+                }
 
-            mfTargetTime = fTimeToImpact;
-            mpLooseBallInfo = &LooseBallAnims::mAttackSTSInfo;
-            CleanGoalieAction();
+                mfTargetTime = fTimeToImpact;
+                mpLooseBallInfo = &LooseBallAnims::mAttackSTSInfo;
+                CleanGoalieAction();
 
-            mPrevGoalieActionState = mGoalieActionState;
-            mGoalieActionState = GOALIEACTION_STS_ATTACK_SETUP;
-            mnSubstate = 0;
-            mUrgency = URGENCY_LOW;
-            ActionSTSAttackSetup(1.0f);
+                mPrevGoalieActionState = mGoalieActionState;
+                mGoalieActionState = GOALIEACTION_STS_ATTACK_SETUP;
+                mnSubstate = 0;
+                mUrgency = URGENCY_LOW;
+                ActionSTSAttackSetup(1.0f);
 
-            return true;
+                return true;
+            } while (false);
         }
     }
 

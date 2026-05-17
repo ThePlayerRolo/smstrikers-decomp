@@ -1876,9 +1876,8 @@ void cFielder::ActionLateOneTimerFromVolley(float)
  * Offset/Address/Size: 0x5DF0 | 0x8002C928 | size: 0x36C
  */
 /**
- * TODO: 95.00% match (scratch hvdpW) - 10 register diffs in fMaxSimulatedTime
- * int-to-float conversion (offsets 60-80): f0/f1/f2 cyclically rotated by 1.
- * Deep MWCC register allocator quirk, not fixable via C-level changes.
+ * TODO: 99.63% match (scratch WNy4d) - register diffs in fMaxSimulatedTime
+ * int-to-float conversion (offsets 60-80): f0/f1/f2 cyclic rotation.
  */
 void cFielder::DoCommonInitActionLooseBall(const nlVector3& rv3OneTimerTarget)
 {
@@ -1941,12 +1940,8 @@ void cFielder::DoCommonInitActionLooseBall(const nlVector3& rv3OneTimerTarget)
 
     nlSinCos(&fSin, &fCos, m_aActualFacingDirection);
 
+    nlVec3SetRotatedXY(v3ContactOffsetWorld, v3ContactOffsetLocal, fCos, fSin);
     nlVector3* pContactOffsetWorld = &v3ContactOffsetWorld;
-    float xSin = v3ContactOffsetLocal.f.x * fSin;
-    float ySin = v3ContactOffsetLocal.f.y * fSin;
-    pContactOffsetWorld->f.z = v3ContactOffsetLocal.f.z;
-    pContactOffsetWorld->f.x = (v3ContactOffsetLocal.f.x * fCos) - ySin;
-    pContactOffsetWorld->f.y = (v3ContactOffsetLocal.f.y * fCos) + xSin;
 
     mActionOneTimerVars.fOneTimerAnimTime = pBestBallContactAnimInfo->fAnimContactFrame / (float)pBestContactAnim->m_nNumKeys;
 
@@ -1955,9 +1950,9 @@ void cFielder::DoCommonInitActionLooseBall(const nlVector3& rv3OneTimerTarget)
     m_pCurrentAnimController->m_fPlaybackSpeedScale = (pBestBallContactAnimInfo->fAnimContactFrame / 30.0f)
                                                     / (fSimulatedTime + FixedUpdateTask::GetPhysicsUpdateTick());
 
-    v3MoveAdjustment.f.y = (v3SimulatedBallPos.f.y - pContactOffsetWorld->f.y) - m_v3Position.f.y;
-    v3MoveAdjustment.f.z = (v3SimulatedBallPos.f.z - pContactOffsetWorld->f.z) - m_v3Position.f.z;
-    v3MoveAdjustment.f.x = (v3SimulatedBallPos.f.x - pContactOffsetWorld->f.x) - m_v3Position.f.x;
+    nlVector3 v3TmpAdjustment;
+    nlVec3Sub(v3TmpAdjustment, v3SimulatedBallPos, *pContactOffsetWorld);
+    nlVec3Sub(v3MoveAdjustment, v3TmpAdjustment, m_v3Position);
 
     InitMovementFromAnim(0, v3MoveAdjustment, mActionOneTimerVars.fOneTimerAnimTime, false);
 
@@ -4408,12 +4403,10 @@ void cFielder::ActionWait(float)
     // EMPTY
 }
 
-// At the bottom of FielderActions.cpp -- REMOVE once real callers exist.
 void FielderActions_stub()
 {
-    FormatImpl<BasicString<char, Detail::TempStringAllocator> > impl;
-    BasicString<char, Detail::TempStringAllocator> result = (BasicString<char, Detail::TempStringAllocator>)impl;
-
     const char* s = "";
+    BasicString<char, Detail::TempStringAllocator> fmt("{0}");
+    BasicString<char, Detail::TempStringAllocator> result = Format<BasicString<char, Detail::TempStringAllocator>, const char*>(fmt, s);
     LexicalCast<BasicString<char, Detail::TempStringAllocator>, const char*>(s);
 }

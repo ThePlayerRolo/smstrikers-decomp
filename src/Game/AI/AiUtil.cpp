@@ -731,7 +731,7 @@ float AIsgn(float fValue)
 
 /**
  * Offset/Address/Size: 0x2E4 | 0x80005D90 | size: 0x234
- * TODO: 96.56% match - remaining diffs are f30/f31 saved FPR swap in MWCC
+ * TODO: 96.77% match - remaining diffs are f30/f31 saved FPR swap in MWCC
  * graph-coloring register allocator (lenSq gets f31 instead of f30)
  */
 nlVector3 GetClosestPointOnLineABFromPointC(const nlVector3& a, const nlVector3& b, const nlVector3& c)
@@ -754,30 +754,30 @@ nlVector3 GetClosestPointOnLineABFromPointC(const nlVector3& a, const nlVector3&
     f32 cY = a.f.y + v13;
     f32 cZ = a.f.z + v29;
 
-    f32 t = dot / fLenSq;
-    f32 tx = t * v10;
-    f32 v8 = t * v31;
-    f32 v1 = t * v28;
+    f32 v1 = dot / fLenSq;
+    f32 tx = v1 * v10;
+    f32 v8 = v1 * v31;
+    v1 = v1 * v28;
 
-    tx = v12 - tx;
     v8 = v13 - v8;
+    tx = v12 - tx;
     v1 = v29 - v1;
 
-    f32 projX = cX - tx;
     f32 projY = cY - v8;
     f32 projZ = cZ - v1;
+    f32 projX = cX - tx;
 
     nlVector3 projected;
     projected.f.x = projX;
     projected.f.y = projY;
     projected.f.z = projZ;
 
-    v29 = a.f.y - projY;
     f32 v27 = a.f.z - projZ;
+    v29 = a.f.y - projY;
     v28 = a.f.x - projX;
-    v31 = b.f.z - projZ;
     f32 v25 = b.f.y - projY;
     f32 v26 = b.f.x - projX;
+    v31 = b.f.z - projZ;
 
     f32 lineLen = nlSqrt(fLenSq, true);
     f32 distASq = v29 * v29 + v28 * v28 + v27 * v27;

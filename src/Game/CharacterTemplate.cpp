@@ -921,9 +921,7 @@ s32 SidekickTexture_cb(unsigned long arg0)
 
 /**
  * Offset/Address/Size: 0x1ABC | 0x80013DA4 | size: 0x240
- * TODO: 96.11% match - register allocation diffs (r29<>r31, r28<>r30, r26<>r28, r27<>r29,
- * r31<>r26, r30<>r25, r25<>r27), beq vs bne/b branch in hierarchy search loop, extra li r0,0
- * in retarget search setup
+ * TODO: 96.53% match - hierarchy search compare still emits beq instead of bne+b
  */
 cPlayer* CreateCharacter(int nPlayerID, int nTeamID, eCharacterClass cc, bool bForViewer)
 {
@@ -965,18 +963,21 @@ hierFound:
     {
         int idx = 0;
         ListEntry<AnimRetargetList*>* retEntry = g_aCharacterTemplates[cc]->pAnimRetargetListInventory->m_lItemList.m_Head;
-        AnimRetargetList* retResult = NULL;
+        u32 retData;
         while (retEntry != NULL)
         {
             if (idx == 0)
             {
-                retResult = retEntry->data;
-                break;
+                retData = (u32)retEntry->data;
+                goto retFound;
             }
             retEntry = retEntry->next;
             idx++;
         }
-        pAnimRetarget = retResult;
+        retData = 0;
+
+    retFound:
+        pAnimRetarget = (AnimRetargetList*)retData;
     }
 
     FielderTweaks* pTweaks = new (nlMalloc(0x124, 8, false)) FielderTweaks(g_aCharacterTemplateInfo[cc].szTweaksFilename);
@@ -1014,7 +1015,7 @@ static char* GetCharacterTriggerFileName(eCharacterClass cc);
 
 /**
  * Offset/Address/Size: 0x1CFC | 0x80013FE4 | size: 0x3F0
- * TODO: 94.27% match - 2 scheduling diffs (lwz pHierInv2 hoisted before nlLoadEntireFile in target)
+ * TODO: 98.87% match - register allocation differs in hierarchy/retarget inventory temporaries (r27/r26/r28)
  */
 void CharacterLoadingGuts(tCharacterTemplate* pCharacterTemplate, const tCharacterTemplateInfo& charTemplateInfo, eCharacterClass cc, bool bForViewer)
 {
@@ -1028,9 +1029,8 @@ void CharacterLoadingGuts(tCharacterTemplate* pCharacterTemplate, const tCharact
     pCharacterTemplate->pHierarchyInventory = pHierInv;
 
     u32 hierFileSize;
-    cInventory<cSHierarchy>* pHierInv2;
+    cInventory<cSHierarchy>* pHierInv2 = pCharacterTemplate->pHierarchyInventory;
     nlChunk* hierData = (nlChunk*)nlLoadEntireFile(charTemplateInfo.szHierarchyFilename, &hierFileSize, 0x20, AllocateStart);
-    pHierInv2 = pCharacterTemplate->pHierarchyInventory;
 
     ListEntry<char*>* memEntry = (ListEntry<char*>*)nlMalloc(8, 8, false);
     if (memEntry != NULL)
@@ -1082,23 +1082,7 @@ void CharacterLoadingGuts(tCharacterTemplate* pCharacterTemplate, const tCharact
 
     pCharacterTemplate->uAnimInventoryHashID = nlStringLowerHash(charTemplateInfo.szAnimFilename);
 
-    cAnimInventory* found = NULL;
-    s32 i = 0;
-    while (i < NUM_FIELDER_CLASSES)
-    {
-        if (i != (s32)cc)
-        {
-            if (g_aCharacterTemplates[i] != NULL)
-            {
-                if (pCharacterTemplate->uAnimInventoryHashID == g_aCharacterTemplates[i]->uAnimInventoryHashID)
-                {
-                    found = g_aCharacterTemplates[i]->pAnimInventory;
-                    break;
-                }
-            }
-        }
-        i++;
-    }
+    cAnimInventory* found = FindDuplicateAnimInventory(cc, pCharacterTemplate->uAnimInventoryHashID);
 
     if (found != NULL)
     {
@@ -1134,8 +1118,8 @@ void CharacterLoadingGuts(tCharacterTemplate* pCharacterTemplate, const tCharact
         pCharacterTemplate->pAnimRetargetListInventory = pRetargetInv;
 
         u32 retargetFileSize;
-        nlChunk* retargetData = (nlChunk*)nlLoadEntireFile(charTemplateInfo.szAnimRetargetFilename, &retargetFileSize, 0x20, AllocateStart);
         cInventory<AnimRetargetList>* pRetInv = pCharacterTemplate->pAnimRetargetListInventory;
+        nlChunk* retargetData = (nlChunk*)nlLoadEntireFile(charTemplateInfo.szAnimRetargetFilename, &retargetFileSize, 0x20, AllocateStart);
 
         ListEntry<char*>* retMemEntry = (ListEntry<char*>*)nlMalloc(8, 8, false);
         if (retMemEntry != NULL)

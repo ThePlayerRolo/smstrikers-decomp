@@ -255,15 +255,20 @@ void ReplayChoreo::LoadScript()
     mByteCode = nlLoadEntireFile("replay/replay_choreo.byte_code", &fileSize, 0x20, (eAllocType)0);
     LoadByteCode(mByteCode);
 
-    for (int d = 0; d < 3; d++)
+    int j;
+    int w;
+    int t;
+    int d;
+
+    for (d = 0; d < 3; d++)
     {
-        for (int w = 0; w < 3; w++)
+        for (w = 0; w < 3; w++)
         {
-            for (int t = 0; t < 9; t++)
+            for (t = 0; t < 9; t++)
             {
                 mNumScripts[d][w][t] = 0;
 
-                for (int j = 0; j < 8; j++)
+                for (j = 0; j < 8; j++)
                 {
                     BasicString<char, Detail::TempStringAllocator> name;
                     {

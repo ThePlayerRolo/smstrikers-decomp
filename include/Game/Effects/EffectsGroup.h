@@ -24,6 +24,15 @@ enum eJointBinding
 class EffectsTerrainSpec
 {
 public:
+    ~EffectsTerrainSpec()
+    {
+        if (m_pTerrainIDs != NULL)
+        {
+            delete[] m_pTerrainIDs;
+            m_pTerrainIDs = NULL;
+        }
+    }
+
     bool HasTerrain(unsigned long terrainID) const;
 
     unsigned long* m_pTerrainIDs;
@@ -71,6 +80,27 @@ public:
 class EffectsGroup
 {
 public:
+    ~EffectsGroup()
+    {
+        if (m_specs != NULL)
+        {
+            if (m_specs != NULL)
+            {
+                ::operator delete[]((char*)m_specs - 0x10);
+            }
+        }
+        if (m_userSpecs != 0)
+        {
+            for (int i = 0; i < m_userSpecs; i++)
+            {
+                delete m_userSpecsPtr[i];
+                m_userSpecsPtr[i] = NULL;
+            }
+            delete[] m_userSpecsPtr;
+            m_userSpecsPtr = NULL;
+        }
+    }
+
     /* 0x00 */ u32 m_hashID;
     /* 0x04 */ EffectsSpec* m_specs;
     /* 0x08 */ int m_numSpecs;

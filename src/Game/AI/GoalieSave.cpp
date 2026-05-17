@@ -3,6 +3,8 @@
 #include "Game/AI/FilteredRandom.h"
 #include "Game/Field.h"
 
+#pragma inline_depth(255)
+
 static nlAVLTree<int, SaveData*, DefaultKeyCompare<int> > gSaveMap;
 static nlListContainer<SaveData*> gSaveGrid[7][5];
 
@@ -750,8 +752,6 @@ static void InsertSorted(nlDLListContainer<MyMiniData*>& list, MyMiniData* data)
  */
 SaveData* GoalieSave::FindBestSave(SaveBlendInfo& blendInfo, const nlVector3& v3LocalPos, float fTime, bool bDoNearSearch, unsigned int uSaveType, bool bFromTakeoff)
 {
-    typedef SaveData* (*FindBestInListFunc)(SaveBlendInfo&, nlListContainer<SaveData*>&, const nlVector3&, float, unsigned int, bool);
-
     int i;
     int j;
     SaveData* pSaveData;
@@ -785,7 +785,7 @@ SaveData* GoalieSave::FindBestSave(SaveBlendInfo& blendInfo, const nlVector3& v3
     if (nlSingleton<GameInfoManager>::s_pInstance->IsStunnedGoaliesOn())
         uSaveType &= ~3;
 
-    pSaveData = ((FindBestInListFunc)GoalieSave::FindBestInList)(
+    pSaveData = GoalieSave::FindBestInList(
         blendInfo,
         gSaveGrid[i][j],
         v3LocalPos,
@@ -831,7 +831,7 @@ SaveData* GoalieSave::FindBestSave(SaveBlendInfo& blendInfo, const nlVector3& v3
 
             if (cellList != NULL)
             {
-                pSaveData = ((FindBestInListFunc)GoalieSave::FindBestInList)(
+                pSaveData = GoalieSave::FindBestInList(
                     blendInfo,
                     *cellList,
                     v3LocalPos,
@@ -863,8 +863,301 @@ SaveData* GoalieSave::FindBestSave(SaveBlendInfo& blendInfo, const nlVector3& v3
 /**
  * Offset/Address/Size: 0x1A1C | 0x80054E3C | size: 0x5A4
  */
-void GoalieSave::FindBestInList(SaveBlendInfo&, nlListContainer<SaveData*>&, const nlVector3&, float, unsigned int, bool)
+SaveData* GoalieSave::FindBestInList(SaveBlendInfo& blendInfo, nlListContainer<SaveData*>& SaveList, const nlVector3& v3LocalPos, float fTime, unsigned int uSaveType, bool bFromTakeoff)
 {
+    static float fDefaultMilestoneValues[2] = { 0.4f, 0.7f };
+
+    float fClosest = 10000.0f;
+    SaveData* pClosest = NULL;
+    SaveBlendInfo tempBlendInfo;
+    nlVector3 v3AdjLocalPos;
+    float fSaveTime;
+    SaveData* pConnected;
+    float fLastTime;
+    float fThisTime;
+    unsigned char bEmptySpot;
+    float fInvSegTime;
+
+    int milestone = bFromTakeoff ? 1 : 0;
+
+    ListEntry<SaveData*>* pEntry = SaveList.m_Head;
+    while (pEntry != NULL)
+    {
+        SaveData* pCur = pEntry->data;
+
+        if (!(uSaveType & pCur->muSaveType))
+            goto advance;
+
+        fSaveTime = pCur->mfMilestonePercent[2] * pCur->mfDuration;
+        {
+            float fMilestoneVal = pCur->mfMilestonePercent[milestone];
+
+            if (fMilestoneVal > 0.0f)
+            {
+                float fMilDur = fMilestoneVal * pCur->mfDuration;
+                fSaveTime = fSaveTime - fMilDur;
+                if (bFromTakeoff)
+                {
+                    nlVec3Add(v3AdjLocalPos, v3LocalPos, pCur->mv3TakeoffPos);
+                }
+                else
+                {
+                    v3AdjLocalPos = v3LocalPos;
+                }
+            }
+            else
+            {
+                float fScale = 1.0f - fDefaultMilestoneValues[milestone];
+                v3AdjLocalPos = v3LocalPos;
+                fSaveTime = fSaveTime * fScale;
+            }
+        }
+
+        if (fSaveTime <= fTime)
+            goto advance;
+
+        pCur = GoalieSave::GetClosestBlendedPos(tempBlendInfo, v3AdjLocalPos, pCur);
+
+        fSaveTime = tempBlendInfo.mfMilestoneTime[2];
+        {
+            float fThisTime = tempBlendInfo.mfMilestoneTime[milestone];
+
+            if (fThisTime > 0.0f)
+            {
+                fSaveTime = fSaveTime - fThisTime;
+                if (bFromTakeoff)
+                {
+                    nlVec3Add(v3AdjLocalPos, v3LocalPos, pCur->mv3TakeoffPos);
+                }
+            }
+            else
+            {
+                float fScale = 1.0f - fDefaultMilestoneValues[milestone];
+                fSaveTime = fSaveTime * fScale;
+            }
+        }
+
+        if (fSaveTime <= fTime)
+            goto advance;
+
+        {
+            float fDistZ = v3AdjLocalPos.f.z - tempBlendInfo.mv3BlendedSavePos.f.z;
+            float fDistY = v3AdjLocalPos.f.y - tempBlendInfo.mv3BlendedSavePos.f.y;
+            fSaveTime = fDistY * fDistY + fDistZ * fDistZ;
+        }
+
+        if (fSaveTime >= fClosest)
+            goto advance;
+
+        if (fSaveTime >= mfCatchAllowDistSq)
+        {
+            if (pCur->muSaveType & 3)
+                goto advance;
+        }
+
+        fClosest = fSaveTime;
+        pClosest = pCur;
+
+        blendInfo.mfStartTime = tempBlendInfo.mfStartTime;
+        blendInfo.mfMilestoneTime[0] = tempBlendInfo.mfMilestoneTime[0];
+        blendInfo.mfMilestoneTime[1] = tempBlendInfo.mfMilestoneTime[1];
+        blendInfo.mfMilestoneTime[2] = tempBlendInfo.mfMilestoneTime[2];
+        blendInfo.mfMilestoneTime[3] = tempBlendInfo.mfMilestoneTime[3];
+        blendInfo.mfMilestoneTime[4] = tempBlendInfo.mfMilestoneTime[4];
+
+        {
+            int k;
+            float* dst = &blendInfo.mfMilestoneScale[0][0];
+            float* src = &tempBlendInfo.mfMilestoneScale[0][0];
+            for (k = 0; k < 10; k++)
+            {
+                dst[0] = src[0];
+                dst[1] = src[1];
+                dst += 2;
+                src += 2;
+            }
+        }
+
+        blendInfo.mfSaveBlendPrimary = tempBlendInfo.mfSaveBlendPrimary;
+        blendInfo.mfSaveBlendSecondary = tempBlendInfo.mfSaveBlendSecondary;
+        blendInfo.mfSaveBlendComposite = tempBlendInfo.mfSaveBlendComposite;
+        blendInfo.mpSaveData[0] = tempBlendInfo.mpSaveData[0];
+        blendInfo.mpSaveData[1] = tempBlendInfo.mpSaveData[1];
+        blendInfo.mpSaveData[2] = tempBlendInfo.mpSaveData[2];
+        blendInfo.mpSaveData[3] = tempBlendInfo.mpSaveData[3];
+        blendInfo.mv3BlendedSavePos.f.x = tempBlendInfo.mv3BlendedSavePos.f.x;
+        blendInfo.mv3BlendedSavePos.f.y = tempBlendInfo.mv3BlendedSavePos.f.y;
+        blendInfo.mv3BlendedSavePos.f.z = tempBlendInfo.mv3BlendedSavePos.f.z;
+
+        {
+            float fStartAdj = blendInfo.mfMilestoneTime[2] - fTime;
+            if (0.0f >= fStartAdj)
+                fStartAdj = 0.0f;
+            blendInfo.mfStartTime = fStartAdj;
+        }
+
+        if (bFromTakeoff)
+        {
+            blendInfo.mv3BlendedSavePos.f.x -= pCur->mv3TakeoffPos.f.x;
+            blendInfo.mv3BlendedSavePos.f.y -= pCur->mv3TakeoffPos.f.y;
+            blendInfo.mv3BlendedSavePos.f.z -= pCur->mv3TakeoffPos.f.z;
+        }
+
+        if (fSaveTime < 0.0025f)
+            break;
+
+    advance:
+        pEntry = pEntry->next;
+    }
+
+    if (pClosest == NULL)
+        return pClosest;
+
+    bEmptySpot = 0;
+    fLastTime = 0.0f;
+
+    {
+        int i;
+        float fNegOne = -1.0f;
+
+        for (i = 0; i < 4; i++)
+        {
+            pConnected = blendInfo.mpSaveData[i];
+            if (pConnected == NULL)
+                goto nextSlot;
+
+            {
+                float fRunning;
+                fThisTime = pConnected->mfMilestonePercent[0] * pConnected->mfDuration;
+                fRunning = fLastTime;
+
+                if (fThisTime > fLastTime)
+                {
+                    blendInfo.mfMilestoneScale[i][0] = fThisTime - fLastTime;
+                    fRunning = fThisTime;
+                }
+                else
+                {
+                    blendInfo.mfMilestoneScale[i][0] = fNegOne;
+                    bEmptySpot = 1;
+                }
+
+                fThisTime = pConnected->mfMilestonePercent[1] * pConnected->mfDuration;
+                if (fThisTime > fLastTime)
+                {
+                    blendInfo.mfMilestoneScale[i][1] = fThisTime - fRunning;
+                    fRunning = fThisTime;
+                }
+                else
+                {
+                    blendInfo.mfMilestoneScale[i][1] = fNegOne;
+                    bEmptySpot = 1;
+                }
+
+                fThisTime = pConnected->mfMilestonePercent[2] * pConnected->mfDuration;
+                if (fThisTime > fLastTime)
+                {
+                    blendInfo.mfMilestoneScale[i][2] = fThisTime - fRunning;
+                    fRunning = fThisTime;
+                }
+                else
+                {
+                    blendInfo.mfMilestoneScale[i][2] = fNegOne;
+                    bEmptySpot = 1;
+                }
+
+                fThisTime = pConnected->mfMilestonePercent[3] * pConnected->mfDuration;
+                if (fThisTime > fLastTime)
+                {
+                    blendInfo.mfMilestoneScale[i][3] = fThisTime - fRunning;
+                    fRunning = fThisTime;
+                }
+                else
+                {
+                    blendInfo.mfMilestoneScale[i][3] = fNegOne;
+                    bEmptySpot = 1;
+                }
+
+                fThisTime = pConnected->mfMilestonePercent[4] * pConnected->mfDuration;
+                if (fThisTime > fLastTime)
+                {
+                    blendInfo.mfMilestoneScale[i][4] = fThisTime - fRunning;
+                }
+                else
+                {
+                    blendInfo.mfMilestoneScale[i][4] = fNegOne;
+                    bEmptySpot = 1;
+                }
+            }
+
+        nextSlot:;
+        }
+    }
+
+    {
+        int i;
+        float fPrevTime = 0.0f;
+        for (i = 0; i < 5; i++)
+        {
+            fThisTime = blendInfo.mfMilestoneTime[i];
+            if (fThisTime <= fPrevTime)
+                goto nextMilestone;
+
+            {
+                float fSegDuration = fThisTime - fPrevTime;
+                fInvSegTime = 1.0f / fSegDuration;
+                fPrevTime = fThisTime;
+
+                if (blendInfo.mpSaveData[0])
+                    blendInfo.mfMilestoneScale[0][i] *= fInvSegTime;
+                if (blendInfo.mpSaveData[1])
+                    blendInfo.mfMilestoneScale[1][i] *= fInvSegTime;
+                if (blendInfo.mpSaveData[2])
+                    blendInfo.mfMilestoneScale[2][i] *= fInvSegTime;
+                if (blendInfo.mpSaveData[3])
+                    blendInfo.mfMilestoneScale[3][i] *= fInvSegTime;
+            }
+
+        nextMilestone:;
+        }
+    }
+
+    if (!(unsigned char)bEmptySpot)
+        return pClosest;
+
+    if (blendInfo.mfMilestoneTime[4] <= 0.0f)
+    {
+        blendInfo.mfMilestoneScale[0][4] = blendInfo.mfMilestoneScale[0][3];
+        blendInfo.mfMilestoneScale[1][4] = blendInfo.mfMilestoneScale[1][3];
+        blendInfo.mfMilestoneScale[2][4] = blendInfo.mfMilestoneScale[2][3];
+        blendInfo.mfMilestoneScale[3][4] = blendInfo.mfMilestoneScale[3][3];
+    }
+
+    if (blendInfo.mfMilestoneTime[3] <= 0.0f)
+    {
+        blendInfo.mfMilestoneScale[0][3] = blendInfo.mfMilestoneScale[0][2];
+        blendInfo.mfMilestoneScale[1][3] = blendInfo.mfMilestoneScale[1][2];
+        blendInfo.mfMilestoneScale[2][3] = blendInfo.mfMilestoneScale[2][2];
+        blendInfo.mfMilestoneScale[3][3] = blendInfo.mfMilestoneScale[3][2];
+    }
+
+    if (blendInfo.mfMilestoneTime[2] <= 0.0f)
+    {
+        blendInfo.mfMilestoneScale[0][2] = blendInfo.mfMilestoneScale[0][1];
+        blendInfo.mfMilestoneScale[1][2] = blendInfo.mfMilestoneScale[1][1];
+        blendInfo.mfMilestoneScale[2][2] = blendInfo.mfMilestoneScale[2][1];
+        blendInfo.mfMilestoneScale[3][2] = blendInfo.mfMilestoneScale[3][1];
+    }
+
+    if (blendInfo.mfMilestoneTime[1] <= 0.0f)
+    {
+        blendInfo.mfMilestoneScale[0][1] = blendInfo.mfMilestoneScale[0][0];
+        blendInfo.mfMilestoneScale[1][1] = blendInfo.mfMilestoneScale[1][0];
+        blendInfo.mfMilestoneScale[2][1] = blendInfo.mfMilestoneScale[2][0];
+        blendInfo.mfMilestoneScale[3][1] = blendInfo.mfMilestoneScale[3][0];
+    }
+
+    return pClosest;
 }
 
 /**
@@ -872,7 +1165,7 @@ void GoalieSave::FindBestInList(SaveBlendInfo&, nlListContainer<SaveData*>&, con
  * TODO: 81.83% match - branch structure and register usage still diverge in
  * vertical row traversal and edge-selection blending paths.
  */
-void GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3& v3TargetPos, SaveData* pSaveData)
+SaveData* GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3& v3TargetPos, SaveData* pSaveData)
 {
     extern float Interpolate(float, float, float);
 
@@ -1332,6 +1625,7 @@ void GoalieSave::GetClosestBlendedPos(SaveBlendInfo& blendInfo, const nlVector3&
     }
 
     blendInfo.mv3BlendedSavePos.f.x = pClosest->mv3SavePos.f.x;
+    return pClosest;
 }
 /**
  * Offset/Address/Size: 0xF4C | 0x8005436C | size: 0x44
@@ -1744,9 +2038,7 @@ void GoalieSave::AddSegmentToGrid(SaveData* pSaveData1, SaveData* pSaveData2)
         else
             pCurSaveData = pSaveData2;
         AddPointToGrid(pCurSaveData, v3CurPos);
-        v3CurPos.f.z += dz;
-        v3CurPos.f.y += dy;
-        v3CurPos.f.x += dx;
+        nlVec3Add(v3CurPos, dx, dy, dz);
     }
 }
 

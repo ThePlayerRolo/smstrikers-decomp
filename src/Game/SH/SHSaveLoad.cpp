@@ -972,8 +972,8 @@ void SaveLoadScene::SceneCreated()
 
 /**
  * Offset/Address/Size: 0x8C8 | 0x800B0E50 | size: 0x644
- * TODO: 80.93% match - InlineHasher stack slot assignments differ (array at sp+0x54 vs
- * target interleaved at sp+0x24), srwi vs rlwinm encoding for PreviousNoCardInSlotState
+ * TODO: 97.20% match - remaining diffs are in InlineHasher stack slot ordering and
+ * srwi vs rlwinm bool materialization for PreviousNoCardInSlotState
  */
 void SaveLoadScene::Update(float fDeltaT)
 {
@@ -1043,40 +1043,42 @@ void SaveLoadScene::Update(float fDeltaT)
         }
     }
 
-    if (m_displayText)
+    TLTextInstance* text = m_displayText;
+    if (text != NULL)
     {
-        switch ((unsigned)gSceneTypeStack[gSceneTypeStackDepth - 1])
+        eSaveLoad prevOp = gSceneTypeStack[gSceneTypeStackDepth - 1];
+        switch ((unsigned)prevOp)
         {
         case ST_SAVE:
         case ST_GAMESAVEIDTEST:
-            m_displayText->m_LocStrId = 0xCF941DC9;
-            m_displayText->m_OverloadFlags |= 0x8;
+            text->m_LocStrId = 0xCF941DC9;
+            text->m_OverloadFlags |= 0x8;
             break;
         case ST_LOAD:
-            m_displayText->m_LocStrId = 0xFAA420FA;
-            m_displayText->m_OverloadFlags |= 0x8;
-            break;
-        case ST_DELETE:
-            m_displayText->m_LocStrId = 0x1A7FDB2D;
-            m_displayText->m_OverloadFlags |= 0x8;
+            text->m_LocStrId = 0xFAA420FA;
+            text->m_OverloadFlags |= 0x8;
             break;
         case ST_FORMAT:
         case ST_CONFIRM_FORMAT:
-            m_displayText->m_LocStrId = 0x81D26163;
-            m_displayText->m_OverloadFlags |= 0x8;
+            text->m_LocStrId = 0x81D26163;
+            text->m_OverloadFlags |= 0x8;
+            break;
+        case ST_DELETE:
+            text->m_LocStrId = 0x1A7FDB2D;
+            text->m_OverloadFlags |= 0x8;
             break;
         case ST_ASK_SAVE:
         case ST_ASK_LOAD:
         case ST_CHECKING:
         case ST_SHOULD_LOAD_OR_SAVE:
-            m_displayText->m_LocStrId = 0xE8E70E54;
-            m_displayText->m_OverloadFlags |= 0x8;
+            text->m_LocStrId = 0xE8E70E54;
+            text->m_OverloadFlags |= 0x8;
             break;
         case ST_ABOUT_AUTOSAVE:
             break;
-        case 11:
-            m_displayText->m_LocStrId = 0xF501447B;
-            m_displayText->m_OverloadFlags |= 0x8;
+        case (eSaveLoad)11:
+            text->m_LocStrId = 0xF501447B;
+            text->m_OverloadFlags |= 0x8;
             break;
         }
     }
@@ -1121,7 +1123,7 @@ void SaveLoadScene::Update(float fDeltaT)
 
     if (m_pFEPresentation->m_currentSlide == mAboutAutoSaveSlide)
     {
-        UpdateForAboutToSaveSlide();
+        (this->*(&SaveLoadScene::UpdateForAboutToSaveSlide))();
         return;
     }
 

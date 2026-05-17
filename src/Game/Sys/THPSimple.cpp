@@ -376,10 +376,7 @@ void MixAudio(short* destination, short* source, unsigned long sample)
                     break;
                 }
 
-                if (requestSample >= sample)
-                {
-                    requestSample = sample;
-                }
+                requestSample = (requestSample >= sample) ? sample : requestSample;
 
                 thpsrc = simple->audioBuffer[simple->audioOutputIndex].mCurPtr;
                 dst = destination;
@@ -576,9 +573,9 @@ static int VideoDecode(unsigned char* videoFrame)
 
 /**
  * Offset/Address/Size: 0x684 | 0x801CC5E8 | size: 0x390
- * TODO: 87.69% match - compiler doesn't precompute readBuffer field base pointers
- * (addi r29,r31,0xa4 / addi r28,r31,0x9c), causing stmw r25 vs r23 and cascading
- * register diffs throughout. Also ret3 placement and audioDecodeIndex increment ordering.
+ * TODO: 92.82% match - readBuffer base pointer still emits lwzu from +0x9C
+ * instead of separate +0xA4/+0x9C bases; loop counter register allocation and
+ * return-3 branch placement still differ.
  */
 extern "C" long THPSimpleDecode(long audioTrack)
 {
@@ -587,14 +584,19 @@ extern "C" long THPSimpleDecode(long audioTrack)
     unsigned char* ptr;
     unsigned long* compSizePtr;
     unsigned long sample;
+    THPReadBuffer* readBuffer;
+    long nextDecodeIndex;
 
-    if (((THPSimpleControlWork*)&SimpleControl)->readBuffer[((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex].mIsValid == 0)
+    readBuffer = ((THPSimpleControlWork*)&SimpleControl)->readBuffer;
+    nextDecodeIndex = ((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex;
+
+    if (readBuffer[nextDecodeIndex].mIsValid == 0)
     {
         goto ret2;
     }
 
-    compSizePtr = (unsigned long*)(((THPSimpleControlWork*)&SimpleControl)->readBuffer[((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex].mPtr + 8);
-    ptr = ((THPSimpleControlWork*)&SimpleControl)->readBuffer[((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex].mPtr + ((THPSimpleControlWork*)&SimpleControl)->compInfo.mNumComponents * 4 + 8;
+    compSizePtr = (unsigned long*)(readBuffer[nextDecodeIndex].mPtr + 8);
+    ptr = readBuffer[nextDecodeIndex].mPtr + ((THPSimpleControlWork*)&SimpleControl)->compInfo.mNumComponents * 4 + 8;
 
     if (((THPSimpleControlWork*)&SimpleControl)->audioExist != 0 && AudioSystem != 1)
     {
@@ -655,12 +657,12 @@ extern "C" long THPSimpleDecode(long audioTrack)
         }
     }
 
-    ((THPSimpleControlWork*)&SimpleControl)->readBuffer[((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex].mIsValid = 0;
+    readBuffer[nextDecodeIndex].mIsValid = 0;
     ((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex = (((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex + 1 >= NumReadBuffers) ? 0 : ((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex + 1;
 
     old = OSDisableInterrupts();
 
-    if (((THPSimpleControlWork*)&SimpleControl)->readBuffer[((THPSimpleControlWork*)&SimpleControl)->readIndex].mIsValid == 0 && ((THPSimpleControlWork*)&SimpleControl)->readProgress == 0 && ((THPSimpleControlWork*)&SimpleControl)->dvdError == 0 && ((THPSimpleControlWork*)&SimpleControl)->preFetchState == 1)
+    if (readBuffer[((THPSimpleControlWork*)&SimpleControl)->readIndex].mIsValid == 0 && ((THPSimpleControlWork*)&SimpleControl)->readProgress == 0 && ((THPSimpleControlWork*)&SimpleControl)->dvdError == 0 && ((THPSimpleControlWork*)&SimpleControl)->preFetchState == 1)
     {
         if ((unsigned long)((THPSimpleControlWork*)&SimpleControl)->totalReadFrame > ((THPSimpleControlWork*)&SimpleControl)->numFrames - 1)
         {
@@ -676,7 +678,7 @@ extern "C" long THPSimpleDecode(long audioTrack)
         ((THPSimpleControlWork*)&SimpleControl)->readProgress = 1;
         nlSeek(((THPSimpleControlWork*)&SimpleControl)->fileInfo, ((THPSimpleControlWork*)&SimpleControl)->curOffset, 0);
         nlReadAsync(((THPSimpleControlWork*)&SimpleControl)->fileInfo,
-            ((THPSimpleControlWork*)&SimpleControl)->readBuffer[((THPSimpleControlWork*)&SimpleControl)->readIndex].mPtr,
+            readBuffer[((THPSimpleControlWork*)&SimpleControl)->readIndex].mPtr,
             ((THPSimpleControlWork*)&SimpleControl)->readSize,
             __THPSimpleDVDCallback,
             0);
@@ -766,7 +768,7 @@ extern "C" unsigned long THPSimpleCalcNeedMemory(int numReadBuffers, int numAudi
 
 /**
  * Offset/Address/Size: 0x116C | 0x801CCDD0 | size: 0x3CC
- * TODO: 94.7% match - r6/r7/r8 register shift in unrolled loop body
+ * TODO: 95.2% match - r6/r7/r8 register assignment differs in unrolled read/audio loops and tail setup
  */
 extern "C" int THPSimpleSetBuffer(unsigned char* buffer)
 {
@@ -774,6 +776,7 @@ extern "C" int THPSimpleSetBuffer(unsigned char* buffer)
     unsigned char* ptr;
     unsigned long numRead;
     unsigned long numAudio;
+    PlatTexture* tex;
 
     if (((THPSimpleControlWork*)&SimpleControl)->open && ((THPSimpleControlWork*)&SimpleControl)->preFetchState == 0)
     {
@@ -786,9 +789,10 @@ extern "C" int THPSimpleSetBuffer(unsigned char* buffer)
 
         ((THPSimpleControlWork*)&SimpleControl)->textureSet.mYTexture = (u8*)glx_GetTex(glGetTexture("movie"), 1, 1)->m_SwizzledData;
         ((THPSimpleControlWork*)&SimpleControl)->textureSet.mUTexture = (u8*)glx_GetTex(glGetTexture("movie_u"), 1, 1)->m_SwizzledData;
-        ((THPSimpleControlWork*)&SimpleControl)->textureSet.mVTexture = (u8*)glx_GetTex(glGetTexture("movie_v"), 1, 1)->m_SwizzledData;
-
+        tex = glx_GetTex(glGetTexture("movie_v"), 1, 1);
         numRead = NumReadBuffers;
+        ((THPSimpleControlWork*)&SimpleControl)->textureSet.mVTexture = (u8*)tex->m_SwizzledData;
+
         for (i = 0; i < numRead; i++)
         {
             ((THPSimpleControlWork*)&SimpleControl)->readBuffer[i].mPtr = ptr;

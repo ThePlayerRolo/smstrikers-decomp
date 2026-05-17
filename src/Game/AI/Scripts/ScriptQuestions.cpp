@@ -1416,8 +1416,8 @@ float FallenDown(cFielder* pFielder)
 
 /**
  * Offset/Address/Size: 0x3FA0 | 0x80082A28 | size: 0x268
- * TODO: 95.81% match - remaining FP temp register allocation (f0/f2 swap for 65536.0f constant),
- *   fGoalDeltaX fmuls operand order, and goalie delta scheduling (compiler computes DeltaY before DeltaX)
+ * TODO: 96.31% match - remaining f0/f2 FP temp swap in the goalie-angle conversion block
+ *   and goalie delta scheduling around the center-angle atan2 call
  */
 float LikelyToScoreFromPosition(const nlVector3& v3Position, const nlVector3& v3GoaliePosition, const cNet* pNet, bool)
 {
@@ -1433,14 +1433,15 @@ float LikelyToScoreFromPosition(const nlVector3& v3Position, const nlVector3& v3
     float fGoalieDeltaX;
 
     float fSideSign = pNet->m_sideSign;
-    float fOpenAngle = g_pGame->m_pGameTweaks->unk2D4;
-    fOpenAngle *= 65536.0f;
+    float fOpenAngle = 65536.0f;
+    fOpenAngle *= g_pGame->m_pGameTweaks->unk2D4;
     fNetHalfWidth = 0.5f * cNet::m_fNetWidth;
     aNetAngle = ((s32)fOpenAngle) / 360;
 
     fGoalLine = pNet->GetGoalLineX();
 
-    float fGoalDeltaX = (fGoalLine - v3Position.f.x) * fSideSign;
+    float fGoalX = fGoalLine - v3Position.f.x;
+    float fGoalDeltaX = fGoalX * fSideSign;
     float fPositionY = v3Position.f.y;
 
     float fUpperAngle = nlATan2f(fNetHalfWidth - fPositionY, fGoalDeltaX);
@@ -2165,8 +2166,8 @@ float WideOpenPosition(const nlVector3& v3Position, cTeam* pOpponentTeam, cPlaye
 
 /**
  * Offset/Address/Size: 0x2B10 | 0x80081598 | size: 0x274
- * TODO: 91.72% match - remaining blockers are f30/f31 load order, inner-loop index/pointer
- * register swap (r31/r27), and NULL-check/control-flow ordering around the inner loop header.
+ * TODO: 97.52% match - remaining blockers are inner-loop prologue ordering at pPlayers[1]
+ * init and fcmpu operand ordering in the fIncapacitated zero-check.
  */
 static inline float check_goalie_local(const Goalie* pGoalie, const eGoalieActionState actionState)
 {
@@ -2207,52 +2208,94 @@ static inline float check_fielder_local(cFielder* pFielder)
 
 float Open(cFielder* pFielder)
 {
+    int i_player;
+    int i;
+    cTeam* pOtherTeam;
+    f32 fWeight;
+    f32 fTotal;
+    const nlVector2* pOpenRadius;
+
     if (pFielder == NULL)
     {
         return 0.0f;
     }
 
-    int i;
-    cTeam* pOtherTeam = pFielder->m_pTeam->GetOtherTeam();
-    f32 fWeight = 1.0f;
-    f32 fTotal = 0.0f;
-    const nlVector2* pOpenRadius = &g_pGame->m_pFuzzyTweaks->vOpenRadius;
+    pOtherTeam = pFielder->m_pTeam->GetOtherTeam();
+    fTotal = 0.0f;
+    fWeight = 1.0f;
+    pOpenRadius = &g_pGame->m_pFuzzyTweaks->vOpenRadius;
 
     pOtherTeam->GetOtherTeam();
 
     for (i = 0; i < 5; i++)
     {
-        cPlayer* pPlayers[2] = { pOtherTeam->GetPlayer(i), NULL };
+        cPlayer* pPlayers[2] = { NULL, NULL };
+        pPlayers[0] = pOtherTeam->GetPlayer(i);
+        cPlayer** ppPlayer = pPlayers;
 
-        for (int j = 0; j < 2; j++)
+        for (i_player = 0; i_player < 2; i_player++, ppPlayer++)
         {
-            cPlayer* pPlayer = pPlayers[j];
+            u8 isIncap;
+            cPlayer* pPlayer = *ppPlayer;
             if (pPlayer == NULL)
             {
                 continue;
             }
 
-            f32 fIncapacitated = 0.0f;
+            f32 fIncapacitated;
             if (pPlayer == NULL)
             {
                 fIncapacitated = 0.0f;
             }
-            else if (pPlayer->m_eClassType == GOALIE)
+            else
             {
-                Goalie* pGoalie = (Goalie*)pPlayer;
-                eGoalieActionState actionState = pGoalie->mGoalieActionState;
-                fIncapacitated = check_goalie_local(pGoalie, actionState);
-            }
-            else if (pPlayer->m_eClassType == FIELDER)
-            {
-                fIncapacitated = check_fielder_local((cFielder*)pPlayer);
+                fIncapacitated = 0.0f;
+                if (pPlayer->m_eClassType == GOALIE)
+                {
+                    Goalie* pGoalie = (Goalie*)pPlayer;
+                    bool result = true;
+                    eGoalieActionState actionState = pGoalie->mGoalieActionState;
+                    int isRecover = (((int)GOALIEACTION_STS_RECOVER - (int)actionState) == 0);
+
+                    if ((isRecover & 0xFF) == 0)
+                    {
+                        bool isBusy = (pGoalie->m_pBall != NULL)
+                                   || (actionState == GOALIEACTION_PASS)
+                                   || (actionState == GOALIEACTION_PASS_INTERCEPT)
+                                   || (actionState == GOALIEACTION_MOVE)
+                                   || (actionState == GOALIEACTION_MOVE_WB)
+                                   || (actionState == GOALIEACTION_PASS_INTERCEPT)
+                                   || (actionState == GOALIEACTION_PURSUE_BALL_CARRIER)
+                                   || (actionState == GOALIEACTION_PURSUE_BALL_POUNCE)
+                                   || (actionState == GOALIEACTION_LOOSEBALL_SETUP)
+                                   || (actionState == GOALIEACTION_LOOSEBALL_CATCH)
+                                   || (actionState == GOALIEACTION_LOOSEBALL_PICKUP)
+                                   || (actionState == GOALIEACTION_LOOSEBALL_PURSUE_BOUNCING)
+                                   || (actionState == GOALIEACTION_LOOSEBALL_PURSUE_ROLLING);
+                        if (isBusy)
+                        {
+                            result = false;
+                        }
+                    }
+
+                    fIncapacitated = result ? 1.0f : 0.0f;
+                }
+                else if (pPlayer->m_eClassType == FIELDER)
+                {
+                    isIncap = 0;
+                    if (((cFielder*)pPlayer)->IsFrozen() || ((cFielder*)pPlayer)->IsFallenDown(25.0f))
+                    {
+                        isIncap = 1;
+                    }
+
+                    fIncapacitated = isIncap ? 1.0f : 0.0f;
+                }
             }
 
             if (fIncapacitated == 0.0f)
             {
-                cPlayer* pDistPlayer = pPlayers[j];
-                f32 dy = pFielder->m_v3Position.f.y - pDistPlayer->m_v3Position.f.y;
-                f32 dx = pFielder->m_v3Position.f.x - pDistPlayer->m_v3Position.f.x;
+                f32 dx = pFielder->m_v3Position.f.x - (*ppPlayer)->m_v3Position.f.x;
+                f32 dy = pFielder->m_v3Position.f.y - (*ppPlayer)->m_v3Position.f.y;
                 f32 dist = nlSqrt(dx * dx + dy * dy, true);
                 f32 normalized = NormalizeVal(dist, *pOpenRadius);
                 if (normalized > 0.0f)

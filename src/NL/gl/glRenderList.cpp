@@ -208,7 +208,7 @@ void gl_ViewAttachPacket(eGLView view, unsigned long layer, const glModelPacket*
 
 /**
  * Offset/Address/Size: 0x440 | 0x801D9700 | size: 0x290
- * TODO: 87.27% match - callback/member-pointer temporaries still land in different
+ * TODO: 99.84% match - callback/member-pointer temporaries still land in different
  * stack slots than target in texture/depth and list-walk branches.
  */
 void GLRenderList::Iterate(eGLView view, void (*cb)(eGLView, unsigned long, const glModelPacket*))
@@ -268,10 +268,10 @@ void GLRenderList::Iterate(eGLView view, void (*cb)(eGLView, unsigned long, cons
     }
     else if (m_unk_0x04 == GLVSort_Reverse)
     {
-        GLPacketList* pList = packetList;
-        if (pList->m_Head != NULL)
+        if (packetList->m_Head != NULL)
         {
             cb(view, 1, NULL);
+            GLPacketList* pList = packetList;
             helper.m_CBClass = &pkCallback;
             helper.m_CB = &PacketCallbackManager::ListCallback;
             walkCb = &PacketWalkHelper::Callback;
@@ -280,10 +280,10 @@ void GLRenderList::Iterate(eGLView view, void (*cb)(eGLView, unsigned long, cons
     }
     else
     {
-        GLPacketList* pList2 = packetList;
-        if (pList2->m_Head != NULL)
+        if (packetList->m_Head != NULL)
         {
             cb(view, 1, NULL);
+            GLPacketList* pList2 = packetList;
             helper2.m_CBClass = &pkCallback;
             helper2.m_CB = &PacketCallbackManager::ListCallback;
             walkCb2 = &PacketWalkHelper::Callback;
@@ -345,106 +345,105 @@ static unsigned long glv_StreamsChanged;
 
 /**
  * Offset/Address/Size: 0x748 | 0x801D9A08 | size: 0x298
- * TODO: 92.38% match - MWCC strength-reduction optimization for texture array
- * (addi r5,r30,4 pointer iteration) not reproducible in decomp.me compiler.
+ * TODO: 97.14% match - register allocation/order differs in texconfig, texture,
+ * and stream comparison blocks around 0x801D9B1C-0x801D9C50.
  */
 void PacketCallbackManager::DoCallback(const glModelPacket* p, unsigned int count)
 {
-    PacketCallbackManagerLayout* self = (PacketCallbackManagerLayout*)this;
     unsigned long flags = 0;
 
-    if (p->state.program != self->m_LastProgram)
+    if (p->state.program != m_LastProgram)
     {
         flags |= 0x86;
-        self->m_LastProgram = p->state.program;
+        m_LastProgram = p->state.program;
     }
 
     if (p->userData == 0)
     {
-        if (self->m_LastUserdata != 0)
+        if (m_LastUserdata != 0)
         {
             unsigned long userDataChanged = glv_UserDataChanged;
-            self->m_LastUserdata = p->userData;
+            m_LastUserdata = p->userData;
             flags |= userDataChanged;
         }
     }
     else
     {
         unsigned long userDataChanged = glv_UserDataChanged;
-        self->m_LastUserdata = p->userData;
+        m_LastUserdata = p->userData;
         flags |= userDataChanged;
     }
 
-    if (p->materialset != self->m_LastMaterialSet)
+    if (p->materialset != m_LastMaterialSet)
     {
         unsigned long materialChanged = glv_MaterialChanged;
         flags |= materialChanged;
     }
 
-    if (p->state.userStateKey != self->m_LastUserStateKey)
+    if (p->state.userStateKey != m_LastUserStateKey)
     {
         unsigned long userStateKeyChanged = glv_UserStateKeyChanged;
-        self->m_LastUserStateKey = p->state.userStateKey;
+        m_LastUserStateKey = p->state.userStateKey;
         flags |= userStateKeyChanged;
     }
 
-    if (p->state.raster != self->m_LastRaster)
+    if (p->state.raster != m_LastRaster)
     {
         unsigned long rasterChanged = glv_RasterChanged;
-        self->m_LastRaster = p->state.raster;
+        m_LastRaster = p->state.raster;
         flags |= rasterChanged;
     }
 
     unsigned long textureStateLow = ((const unsigned long*)&p->state.texturestate)[0];
-    unsigned long lastTextureStateLow = ((const unsigned long*)&self->m_LastTextureState)[0];
+    unsigned long lastTextureStateLow = ((const unsigned long*)&m_LastTextureState)[0];
     unsigned long textureStateHigh = ((const unsigned long*)&p->state.texturestate)[1];
-    unsigned long lastTextureStateHigh = ((const unsigned long*)&self->m_LastTextureState)[1];
+    unsigned long lastTextureStateHigh = ((const unsigned long*)&m_LastTextureState)[1];
     unsigned long textureStateDiffLow = textureStateLow ^ lastTextureStateLow;
     unsigned long textureStateDiffHigh = textureStateHigh ^ lastTextureStateHigh;
     if ((textureStateDiffHigh | textureStateDiffLow) != 0)
     {
-        ((unsigned long*)&self->m_LastTextureState)[1] = textureStateHigh;
+        ((unsigned long*)&m_LastTextureState)[1] = textureStateHigh;
         unsigned long textureStateChanged = glv_TextureStateChanged;
-        ((unsigned long*)&self->m_LastTextureState)[0] = textureStateLow;
+        ((unsigned long*)&m_LastTextureState)[0] = textureStateLow;
         flags |= textureStateChanged;
     }
 
-    if (p->state.matrix != self->m_LastMatrix)
+    if (p->state.matrix != m_LastMatrix)
     {
         unsigned long matrixChanged = glv_MatrixChanged;
-        self->m_LastMatrix = p->state.matrix;
+        m_LastMatrix = p->state.matrix;
         flags |= matrixChanged;
     }
 
-    unsigned long texConfig = p->state.texconfig;
-    unsigned long lastTexConfig = self->m_LastTexconfig;
-    if (texConfig != lastTexConfig)
+    if (p->state.texconfig != m_LastTexconfig)
     {
         unsigned long texConfigChanged = glv_TexConfigChanged;
         unsigned long textureChanged = glv_TextureChanged;
         flags |= texConfigChanged;
-        self->m_LastTexconfig = texConfig;
+        m_LastTexconfig = p->state.texconfig;
         flags |= textureChanged;
     }
 
     {
         unsigned long textureChanged = glv_TextureChanged;
+        unsigned long texture;
         int i;
         for (i = 0; i < 6; i++)
         {
-            if (p->state.texture[i] != self->m_LastTexture[i])
+            texture = p->state.texture[i];
+            if (m_LastTexture[i] != texture)
             {
-                self->m_LastTexture[i] = p->state.texture[i];
+                m_LastTexture[i] = texture;
                 flags |= textureChanged;
             }
         }
     }
 
-    glModelStream* lastStreams = self->m_LastStreams;
-    unsigned int numStreams = p->numStreams;
+    glModelStream* lastStreams = m_LastStreams;
+    int numStreams = p->numStreams;
     unsigned int streamChanged;
 
-    if (self->m_LastNumStreams != numStreams)
+    if (m_LastNumStreams != numStreams)
     {
         streamChanged = 1;
     }
@@ -452,7 +451,7 @@ void PacketCallbackManager::DoCallback(const glModelPacket* p, unsigned int coun
     {
         glModelStream* streams = p->streams;
 
-        for (unsigned int i = numStreams; i > 0; i--)
+        for (int i = numStreams; i > 0; i--)
         {
             if (streams->address != lastStreams->address)
             {
@@ -469,10 +468,10 @@ void PacketCallbackManager::DoCallback(const glModelPacket* p, unsigned int coun
 stream_compare_done:
     if ((streamChanged & 0xFF) != 0)
     {
-        self->m_LastNumStreams = numStreams;
+        m_LastNumStreams = numStreams;
         glModelStream* streams = p->streams;
         unsigned long streamsChanged = glv_StreamsChanged;
-        self->m_LastStreams = streams;
+        m_LastStreams = streams;
         flags |= streamsChanged;
     }
 
@@ -480,7 +479,7 @@ stream_compare_done:
 
     while (count != 0)
     {
-        self->m_Cb(self->m_View, stage, p);
+        m_Cb(m_View, stage, p);
         count--;
     }
 }

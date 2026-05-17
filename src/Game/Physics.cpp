@@ -192,9 +192,10 @@ void PhysicsLoader::DestroyPhysics()
     s_PhysicsMeshes.m_lItemList.m_Head = NULL;
     s_PhysicsMeshes.m_lItemList.m_Tail = NULL;
 
+    ListEntry<char*>** memTail = &s_PhysicsMeshes.m_lMemList.m_Tail;
     while (s_PhysicsMeshes.m_lMemList.m_Head != NULL)
     {
-        ListEntry<char*>* removed = nlListRemoveStart<ListEntry<char*> >(&s_PhysicsMeshes.m_lMemList.m_Head, &s_PhysicsMeshes.m_lMemList.m_Tail);
+        ListEntry<char*>* removed = nlListRemoveStart<ListEntry<char*> >(&s_PhysicsMeshes.m_lMemList.m_Head, memTail);
         void* mesh;
         if (&mesh != NULL)
         {
@@ -349,9 +350,8 @@ void PhysicsLoader::ConstructStaticPhysicsPrimitives(CharacterPhysicsData* pPhys
 
 /**
  * Offset/Address/Size: 0x728 | 0x80133238 | size: 0x2C0
- * TODO: 94.0% match - stack frame is 0x120 instead of 0x130, register allocation starts at r26
- *       instead of r24. Target uses add base+offset loop pattern, current uses pointer advancement.
- *       MWCC register allocator difference with -inline deferred.
+ * TODO: 96.39% match - stack frame/register window still differ (0x120/r26.. vs 0x130/r24..),
+ *       and sideline/corner loops still lower to pointer-advance form instead of base+offset form.
  */
 bool PhysicsLoader::StartLoad(LoadingManager*)
 {
@@ -362,7 +362,7 @@ bool PhysicsLoader::StartLoad(LoadingManager*)
     int j;
     unsigned long uPositiveNetMeshID;
     unsigned long uNegativeNetMeshID;
-    char szTemp[0x100];
+    char szTemp[0x104];
 
     dSetAllocHandler(ODEAlloc);
     dSetReallocHandler(ODERealloc);
@@ -414,14 +414,15 @@ bool PhysicsLoader::StartLoad(LoadingManager*)
                 cField::mSidelines[i].fDistance);
         }
 
-        pEntry = (ListEntry<PhysicsObject*>*)nlMalloc(8, 8, false);
-        if (pEntry != NULL)
+        void* pMem = nlMalloc(8, 8, false);
+        ListEntry<PhysicsObject*>* pWallEntry = (ListEntry<PhysicsObject*>*)pMem;
+        if (pMem != NULL)
         {
-            pEntry->next = NULL;
-            pEntry->data = pWall;
+            pWallEntry->next = NULL;
+            pWallEntry->data = pWall;
         }
 
-        nlListAddEnd(pHead, pTail, pEntry);
+        nlListAddEnd(pHead, pTail, pWallEntry);
     }
 
     for (j = 0; j < 4; j++)

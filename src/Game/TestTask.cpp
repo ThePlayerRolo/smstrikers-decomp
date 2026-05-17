@@ -8,6 +8,19 @@
 #include "types.h"
 
 #include "NL/nlBasicString.h"
+#include "NL/nlFormat.h"
+
+typedef BasicString<char, Detail::TempStringAllocator> NLString;
+typedef NLString (*Format2FFn)(const NLString&, const float&, const float&);
+
+void TestTask_stub()
+{
+    NLString format;
+    float value1 = 0.0f;
+    float value2 = 0.0f;
+    volatile Format2FFn fn2 = Format<NLString, float, float>;
+    fn2(format, value1, value2);
+}
 
 namespace
 {

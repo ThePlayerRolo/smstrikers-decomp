@@ -1225,8 +1225,8 @@ void CupTrophyScene::SetLossRecord(Spoil& spoil)
     hNameB.m_Hash = hash;
 
     hash = nlStringLowerHash("Layer");
-    hLayerA.m_Hash = hash;
     hLayerB.m_Hash = hash;
+    hLayerA.m_Hash = hash;
 
     TLTextInstance* text = findComp.byRef(
         pres->m_currentSlide,

@@ -20,10 +20,10 @@ public:
     class iterator
     {
     public:
-        u32 m_field0;
-        u32 m_field1;
-        u32 m_field2;
-        StringType m_token;
+        const Tokenizer* mTokenizer;
+        const char* mIter;
+        const char* mEnd;
+        StringType mToken;
 
         iterator(const Tokenizer& tokenizer, const char* endPtr);
         iterator& operator++();
@@ -31,7 +31,7 @@ public:
 
         bool operator!=(const iterator& other) const
         {
-            return m_field1 != other.m_field1;
+            return mIter != other.mIter;
         }
     };
 

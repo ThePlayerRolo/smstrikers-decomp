@@ -104,12 +104,17 @@ struct ColourKeyListShim
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x8E4 | 0x801F27A4 | size: 0x58
-//  */
-// void AVLTreeBase<unsigned long, EffectsTemplate*, NewAdapter<AVLTreeEntry<unsigned long, EffectsTemplate*> >, DefaultKeyCompare<unsigned long> >::DeleteValues()
-// {
-// }
+#pragma inline_depth(0)
+/**
+ * Offset/Address/Size: 0x8E4 | 0x801F27A4 | size: 0x58
+ */
+void AVLTreeBase<unsigned long, EffectsTemplate*, NewAdapter<AVLTreeEntry<unsigned long, EffectsTemplate*> >, DefaultKeyCompare<unsigned long> >::DeleteValues()
+{
+    FORCE_DONT_INLINE;
+    DestroyTree(&AVLTreeBase::DeleteValue);
+    m_NumElements = 0;
+}
+#pragma inline_depth(255)
 
 // /**
 //  * Offset/Address/Size: 0x8DC | 0x801F279C | size: 0x8

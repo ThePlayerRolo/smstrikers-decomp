@@ -392,7 +392,6 @@ void CreditScene::UpdateForCopyrightMessage(float dt)
 
 /**
  * Offset/Address/Size: 0x1BC | 0x8010F318 | size: 0x398
- * TODO: 97.87% match - register permutation differences in both string copy loops
  */
 void CreditScene::UpdateForCredits(float dt)
 {
@@ -415,7 +414,7 @@ void CreditScene::UpdateForCredits(float dt)
                 {
                     u32 count = 64;
                     const unsigned char* pSrc = (const unsigned char*)"";
-                    u32 k = 0;
+                    s32 k = 0;
                     while (count-- && (mStrings[i][k] = *pSrc) != 0)
                     {
                         ++pSrc;
@@ -426,8 +425,8 @@ void CreditScene::UpdateForCredits(float dt)
                 else
                 {
                     const unsigned char* pSrc = (const unsigned char*)pToken;
-                    u32 ch = 0;
                     u32 count = 64;
+                    s32 ch = 0;
                     while (count-- && (mStrings[i][ch] = pSrc[ch]) != 0)
                     {
                         ch++;
@@ -453,7 +452,7 @@ void CreditScene::UpdateForCredits(float dt)
         }
         else
         {
-            if (pos.f.y >= -720.0f && mLineOnScreen[i])
+            if (pos.f.y >= -720.0f && mLineOnScreen[i] == true)
             {
                 mLineOnScreen[i] = false;
                 pos.f.y = resetY;
@@ -483,11 +482,9 @@ void CreditScene::UpdateForCredits(float dt)
 
         if (!mAreCreditsOver)
         {
-            f32 time = *(f32*)&mCreditParser.mFileSize;
-            time += dt;
-            *(f32*)&mCreditParser.mFileSize = time;
+            *(f32*)&mCreditParser.mFileSize += dt;
 
-            if (time >= 2.0 && !mFinalMessageDisplayed)
+            if (*(f32*)&mCreditParser.mFileSize >= 2.0 && !mFinalMessageDisplayed)
             {
                 shouldFade = true;
             }

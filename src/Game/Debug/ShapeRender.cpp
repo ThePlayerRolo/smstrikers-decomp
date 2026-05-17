@@ -291,7 +291,7 @@ void ShapeRender::CreateCylinderGeometry(PrimitiveShape& prim)
 
 /**
  * Offset/Address/Size: 0xAC0 | 0x801FBD50 | size: 0x354
- * TODO: 98.85% match - callee-saved register assignment differs in both packet loops.
+ * TODO: 99.95% match - lit-program register assignment in the second packet loop still differs.
  */
 void ShapeRender::DrawSpherePrimitive(const nlMatrix4& mat_world, float radius, const nlColour& colour) const
 {
@@ -314,8 +314,11 @@ void ShapeRender::DrawSpherePrimitive(const nlMatrix4& mat_world, float radius, 
             glSetMatrix(matrix, mat_hemiTop);
         }
 
-        glModel* pModel = glModelDupNoStreams(m_Hemisphere.model, true, false);
+        unsigned long litProgram;
+        void* pLightData;
+        glModelPacket* packet;
         void* pUserData;
+        glModel* pModel = glModelDupNoStreams(m_Hemisphere.model, true, false);
 
         if (g_bLit)
         {
@@ -336,9 +339,9 @@ void ShapeRender::DrawSpherePrimitive(const nlMatrix4& mat_world, float radius, 
             *(unsigned long*)pColourData = *(unsigned long*)&colour;
         }
 
-        glModelPacket* packet = pModel->packets;
-        void* pLightData = m_pLightUserData;
-        unsigned long litProgram = LitProgram;
+        packet = pModel->packets;
+        pLightData = m_pLightUserData;
+        litProgram = LitProgram;
 
         while (packet < &pModel->packets[pModel->numPackets])
         {
@@ -364,8 +367,11 @@ void ShapeRender::DrawSpherePrimitive(const nlMatrix4& mat_world, float radius, 
             glSetMatrix(matrix, mat_hemiBottom);
         }
 
-        glModel* pModel = glModelDupNoStreams(m_Hemisphere.model, true, false);
+        glModelPacket* packet;
+        unsigned long litProgram;
+        void* pLightData;
         void* pUserData;
+        glModel* pModel = glModelDupNoStreams(m_Hemisphere.model, true, false);
 
         if (g_bLit)
         {
@@ -386,9 +392,9 @@ void ShapeRender::DrawSpherePrimitive(const nlMatrix4& mat_world, float radius, 
             *(unsigned long*)pColourData = *(unsigned long*)&colour;
         }
 
-        glModelPacket* packet = pModel->packets;
-        void* pLightData = m_pLightUserData;
-        unsigned long litProgram = LitProgram;
+        packet = pModel->packets;
+        pLightData = m_pLightUserData;
+        litProgram = LitProgram;
 
         while (packet < &pModel->packets[pModel->numPackets])
         {

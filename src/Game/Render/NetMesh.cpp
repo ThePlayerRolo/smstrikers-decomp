@@ -147,15 +147,33 @@ static inline nlVector3* VecAt(nlVector3* arr, int i)
 
 /**
  * Offset/Address/Size: 0xAA8 | 0x8012F8C8 | size: 0x398
- * TODO: 97.19% match - register allocation diffs: upVector instruction scheduling
- * (lwz r0 vs r4, mulli/addi reorder), loop counter/offset r7/r8 swap in loop 1,
- * position/offset r7/r9 swap in loops 2-3. All 24 remaining diffs are register-only.
+ * TODO: 98.17% match - loop 2/3 index-register routing still differs
+ * (r7/r9 and r4/r6 paths), and the temporary ballPosition copy / velocity stack
+ * slots are swapped between r1+0x8 and r1+0x14.
  */
 void NetMesh::Update(float dt, const nlVector3& ballPosition, const nlVector3& ballPrevPosition, bool bExaggerateBallSize, PhysicsSphere* sphere)
 {
     extern float s_fDampening__7NetMesh;
     extern int m_UpVectorStackSize__14cCameraManager;
     extern nlVector3 m_UpVectorStack__14cCameraManager[2];
+
+    struct cAccumForces
+    {
+        static void Run(NetMesh* self, nlVector3& newPos)
+        {
+            nlVector3* upVector = &m_UpVectorStack__14cCameraManager[m_UpVectorStackSize__14cCameraManager];
+            float gravityMagnitude = -NetMesh::s_fNetGravityMagnitude;
+
+            newPos.f.x = gravityMagnitude * upVector->f.x;
+            newPos.f.y = gravityMagnitude * upVector->f.y;
+            newPos.f.z = gravityMagnitude * upVector->f.z;
+
+            for (int i = 0; i < self->m_NumParticles; i++)
+            {
+                self->m_v3Accel[i] = newPos;
+            }
+        }
+    };
 
     nlVector3 newPos;
     nlVector3 oldPos;
@@ -165,19 +183,9 @@ void NetMesh::Update(float dt, const nlVector3& ballPosition, const nlVector3& b
     {
         AddForcesToBall(ballPosition, sphere);
 
-        int upVectorStackSize = m_UpVectorStackSize__14cCameraManager;
-        nlVector3* upVector = &m_UpVectorStack__14cCameraManager[upVectorStackSize];
-        float gravityMagnitude = -s_fNetGravityMagnitude;
-
-        newPos.f.x = gravityMagnitude * upVector->f.x;
-        newPos.f.y = gravityMagnitude * upVector->f.y;
-        newPos.f.z = gravityMagnitude * upVector->f.z;
+        cAccumForces::Run(this, newPos);
 
         int i;
-        for (i = 0; i < m_NumParticles; i++)
-        {
-            m_v3Accel[i] = newPos;
-        }
 
         mfMotion = 0.0f;
 
@@ -203,9 +211,10 @@ void NetMesh::Update(float dt, const nlVector3& ballPosition, const nlVector3& b
             nlVector3* position = &m_v3Position[i];
             nlVector3* prevPosition = VecAt(m_v3PrevPosition, i);
 
-            float motion = (float)fabs(prevPosition->f.y - position->f.y);
-            motion += (float)fabs(prevPosition->f.x - position->f.x);
-            motion += (float)fabs(prevPosition->f.z - position->f.z);
+            float motionY = (float)fabs(prevPosition->f.y - position->f.y);
+            float motionX = (float)fabs(prevPosition->f.x - position->f.x);
+            float motionZ = (float)fabs(prevPosition->f.z - position->f.z);
+            float motion = (motionY + motionX) + motionZ;
 
             if (motion > mfMotion)
             {

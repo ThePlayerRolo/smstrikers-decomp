@@ -415,7 +415,8 @@ extern char __vt__13SlideMenuItem[];
 
 /**
  * Offset/Address/Size: 0xAA8 | 0x800B5AEC | size: 0x438
- * TODO: 88.84% match - one duplicate beq from SlideMenuList placement new (known MWCC quirk)
+ * TODO: 96.11% match - callback temporary stack layout and callback field
+ * assignment offsets still differ in the menu item callback setup path.
  */
 void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstance, int startindex, int skilltoskip)
 {
@@ -423,12 +424,7 @@ void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstanc
     typedef Detail::MemFunImpl<void, void (SlideMenuList::*)()> MemFunImpl_SML;
     typedef BindExp1<void, MemFunImpl_SML, SlideMenuList*> BindExp1_SML;
 
-    SlideMenuList* list = (SlideMenuList*)nlMalloc(sizeof(SlideMenuList), 8, false);
-    if (list != NULL)
-    {
-        new (list) SlideMenuList();
-        list->mComponentInstance = compinstance;
-    }
+    SlideMenuList* list = new ((SlideMenuList*)nlMalloc(sizeof(SlideMenuList), 8, false)) SlideMenuList(compinstance);
     mSlideMenuLists[0] = (MenuList<SlideMenuList>*)list;
 
     char slidename[64] = { 0 };

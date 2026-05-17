@@ -89,12 +89,16 @@
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x0 | 0x80205EF8 | size: 0x58
-//  */
-// void AVLTreeBase<unsigned long, ScreenTransition*, NewAdapter<AVLTreeEntry<unsigned long, ScreenTransition*> >, DefaultKeyCompare<unsigned long> >::DeleteValues()
-// {
-// }
+/**
+ * Offset/Address/Size: 0x0 | 0x80205EF8 | size: 0x58
+ */
+template <>
+void AVLTreeBase<unsigned long, ScreenTransition*, NewAdapter<AVLTreeEntry<unsigned long, ScreenTransition*> >, DefaultKeyCompare<unsigned long> >::DeleteValues()
+{
+    FORCE_DONT_INLINE;
+    DestroyTree(&AVLTreeBase::DeleteValue);
+    m_NumElements = 0;
+}
 
 // /**
 //  * Offset/Address/Size: 0x1C0 | 0x80205D3C | size: 0x1BC
@@ -218,6 +222,7 @@ void ScreenTransitionManager::CancelAllTransitions()
     m_pActiveTransition = nullptr;
 }
 
+#pragma inline_depth(0)
 /**
  * Offset/Address/Size: 0x71C | 0x8020580C | size: 0x70
  */
@@ -236,6 +241,7 @@ void ScreenTransitionManager::DeleteAllTransitions()
     m_pActiveTransition = nullptr;
     m_TransitionMap.DeleteValues();
 }
+#pragma inline_depth(256)
 
 /**
  * Offset/Address/Size: 0x5A4 | 0x80205694 | size: 0x178
@@ -290,18 +296,26 @@ void ScreenTransitionManager::EnableRandomTransition(const char* filter)
  */
 void ScreenTransitionManager::SelectRandomTransition(const char* filter)
 {
-    Vector<BasicString<char, Detail::TempStringAllocator>, DefaultAllocator> matchingTransitions;
+    struct BasicStringVectorRaw
+    {
+        BasicString<char, Detail::TempStringAllocator>* mData;
+        int mSize;
+        int mCapacity;
+    };
+
+    BasicStringVectorRaw matchingTransitions;
     matchingTransitions.mData = nullptr;
     matchingTransitions.mSize = 0;
     matchingTransitions.mCapacity = 0;
-    matchingTransitions.reserve(8);
+    ((Vector<BasicString<char, Detail::TempStringAllocator>, DefaultAllocator>*)&matchingTransitions)->reserve(8);
 
     for (int i = 0; i < m_Transitions.mSize; i++)
     {
         const char* transitionName = m_Transitions.mData[i].c_str();
+
         if (strstr(transitionName, filter) != nullptr)
         {
-            matchingTransitions.push_back(m_Transitions.mData[i]);
+            ((Vector<BasicString<char, Detail::TempStringAllocator>, DefaultAllocator>*)&matchingTransitions)->push_back(m_Transitions.mData[i]);
         }
     }
 
@@ -310,7 +324,9 @@ void ScreenTransitionManager::SelectRandomTransition(const char* filter)
     if (matchingTransitions.mSize > 0)
     {
         int randomIndex = nlRandom(matchingTransitions.mSize, &nlDefaultSeed);
-        unsigned long transitionHash = glHash(matchingTransitions.mData[randomIndex].c_str());
+        const char* selectedName = matchingTransitions.mData[randomIndex].c_str();
+
+        unsigned long transitionHash = glHash(selectedName);
         ScreenTransition** foundTransition = nullptr;
         AVLTreeEntry<unsigned long, ScreenTransition*>* current = m_TransitionMap.m_Root;
         unsigned char found;
@@ -356,6 +372,8 @@ void ScreenTransitionManager::SelectRandomTransition(const char* filter)
             m_SelectedTransition = *foundTransition;
         }
     }
+
+    delete[] matchingTransitions.mData;
 }
 
 /**

@@ -1152,7 +1152,7 @@ void ChooseCupSceneV2::DisplayCup()
 
 /**
  * Offset/Address/Size: 0x438 | 0x800DA6BC | size: 0x374
- * TODO: 96.64% match - InlineHasher temps at sp+0x14 vs target sp+0x1c (8-byte stack shift),
+ * TODO: 97.27% match - InlineHasher temps at sp+0x18 vs target sp+0x1c (4-byte stack shift),
  * r30/r31 swap for locString/data (r30=locString/r31=data vs target r31=locString/r30=data)
  */
 void ChooseCupSceneV2::SetCurrentChamp(eTeamID teamID, bool hasChamp, TLComponentInstance* comp)
@@ -1176,12 +1176,12 @@ void ChooseCupSceneV2::SetCurrentChamp(eTeamID teamID, bool hasChamp, TLComponen
             CopyWideString(data, locString);
         }
 
-        BasicString<unsigned short, Detail::TempStringAllocator> msg(data);
-
         unsigned long charHash = GetLOCCharacterName(teamID, false, false);
         const unsigned short* charName = LookupLocHash(charHash);
 
-        BasicString<unsigned short, Detail::TempStringAllocator> formattedResult = Format(msg, charName);
+        BasicString<unsigned short, Detail::TempStringAllocator> formattedResult = Format(
+            BasicString<unsigned short, Detail::TempStringAllocator>(data),
+            charName);
 
         memcpy(mChampBuffer, formattedResult.c_str(), 0x200);
         text->SetString(mChampBuffer);

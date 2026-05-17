@@ -478,8 +478,8 @@ static inline void UpdateBallInterceptTime(cTeam* pTeam)
 
 /**
  * Offset/Address/Size: 0x132C | 0x800656D8 | size: 0x2CC
- * TODO: 98.77% match - remaining diffs are MWCC register allocation/CSE artifacts:
- *   r3/r4 swap in gameplay gate, stalling 1.0f CSE, r30/r28 loop-counter swap
+ * TODO: 98.94% match - remaining diffs are stalling-threshold 1.0f load reuse and
+ * r30/r28 loop-counter allocation in ball-intercept/update-play loops
  */
 void cTeam::Update(float dt)
 {
@@ -487,13 +487,7 @@ void cTeam::Update(float dt)
 
     g_pCurrentlyUpdatingTeam = this;
 
-    bool gameplayOrOvertime = false;
-    if (g_pGame->m_eGameState == GS_GAMEPLAY || g_pGame->m_eGameState == GS_OVERTIME)
-    {
-        gameplayOrOvertime = true;
-    }
-
-    if (gameplayOrOvertime)
+    if (g_pGame->IsGameplayOrOvertime())
     {
         mfPowerupTimer -= dt;
         if (mfPowerupTimer < 0.0f)
@@ -1071,7 +1065,7 @@ void cTeam::AssignMarks(bool bForceReMark)
 
     if (mpCurrentSituation != SITUATION_OFFENSE)
     {
-        pOpponentTeam = g_pTeams[!m_nSide];
+        pOpponentTeam = g_pTeams[m_nSide ? 0 : 1];
 
         float matrix[4][4];
 
@@ -1089,9 +1083,9 @@ void cTeam::AssignMarks(bool bForceReMark)
                     fDownfieldMax = fInBetween;
                 }
 
-                float dy = pMyFielder->m_v3Position.f.y - pOppFielder->m_v3Position.f.y;
                 float dx = pMyFielder->m_v3Position.f.x - pOppFielder->m_v3Position.f.x;
-                float fDist = nlSqrt(dy * dy + dx * dx, true);
+                float dy = pMyFielder->m_v3Position.f.y - pOppFielder->m_v3Position.f.y;
+                float fDist = nlSqrt(dx * dx + dy * dy, true);
                 float fNormDist = NormalizeVal(fDist, g_vMarkDistanceConfidence);
 
                 float fConfidence = 0.0f;

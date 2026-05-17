@@ -881,16 +881,12 @@ void glx_LoadLight(GLLightUserData* pLight, _GXLightID lightId)
         {
             float recipLength = nlRecipSqrt(worldDir.f.x * worldDir.f.x + worldDir.f.y * worldDir.f.y + worldDir.f.z * worldDir.f.z, true);
 
-            worldDir.f.z = recipLength * worldDir.f.z;
-            worldDir.f.y = recipLength * worldDir.f.y;
-            worldDir.f.x = recipLength * worldDir.f.x;
+            _nlVec3Scale(worldDir, recipLength);
         }
 
         nlMultDirVectorMatrix(viewDir, worldDir, mview);
 
-        viewDir.f.z = -1.0f * viewDir.f.z;
-        viewDir.f.y = -1.0f * viewDir.f.y;
-        viewDir.f.x = -1.0f * viewDir.f.x;
+        _nlVec3Scale(viewDir, -1.0f);
 
         GXInitLightPos(&light, viewDir.f.x, viewDir.f.y, viewDir.f.z);
         GXInitLightAttnA(&light, 1.0f, 0.0f, 0.0f);

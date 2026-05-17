@@ -2,6 +2,7 @@
 #define _CUPTICKERMANAGER_H_
 
 #include "Game/FE/tlTextInstance.h"
+#include "NL/nlBasicString.h"
 
 class FEScrollText;
 
@@ -18,7 +19,7 @@ public:
     void SetTickerTextInstance(TLTextInstance*);
     void CreateNewMessage();
     void Update(float);
-    // void BuildGoalTotalTickerMessage(BasicString<unsigned short, Detail::TempStringAllocator>&, bool);
+    void BuildGoalTotalTickerMessage(BasicString<unsigned short, Detail::TempStringAllocator>&, bool);
 
     /* 0x000 */ FEScrollText* mTicker;
     /* 0x004 */ eCupTickerState mState;

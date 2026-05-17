@@ -269,8 +269,8 @@ void PhysicsGoalie::CollideGoalieWithPost()
                         float fScale = (fMinDist - fJointDist) / fJointDist;
 
                         v3GoaliePos.f.z = v3GoaliePos.f.z + (fScale * fJointDistZ);
-                        v3GoaliePos.f.x = v3GoaliePos.f.x + (fScale * fJointDistX);
                         v3GoaliePos.f.y = v3GoaliePos.f.y + (fScale * fJointDistY);
+                        v3GoaliePos.f.x = v3GoaliePos.f.x + (fScale * fJointDistX);
                         bMoved = 1;
                     }
                 }

@@ -116,13 +116,18 @@ public:
     };
 
     __tree(const Compare& comp, const Allocator& alloc);
-    void alloc();
+    Allocator& alloc();
     std::allocator<node>& node_alloc();
     void clear();
     void destroy(node* n);
 
     template <class Key>
     iterator find(const Key& x);
+
+    template <class Key, class Value>
+    T& find_or_insert(const Key& key);
+
+    node* insert_node_at(node* p, unsigned char leftchild, unsigned char is_leftmost, const T& x);
 
 private:
     Metrowerks::details::compressed_pair_imp<Allocator, unsigned long, 1> alloc_;
@@ -162,6 +167,42 @@ __tree<T, Compare, Allocator>::find(const Key& x)
         return iterator((node*)&node_alloc_.second());
     }
     return iterator(j);
+}
+
+template <class T, class Compare, class Allocator>
+template <class Key, class Value>
+T& __tree<T, Compare, Allocator>::find_or_insert(const Key& key)
+{
+    node* prev = 0;
+    node* p = (node*)&node_alloc_.second();
+    node* n = (node*)node_alloc_.second().left_;
+    unsigned char leftchild = true;
+    unsigned char is_leftmost = true;
+
+    while (n != 0)
+    {
+        p = n;
+        if (key < n->data_.first)
+        {
+            n = (node*)n->left_;
+            leftchild = true;
+        }
+        else
+        {
+            prev = n;
+            n = (node*)n->right_;
+            leftchild = false;
+            is_leftmost = false;
+        }
+    }
+
+    if (prev == 0 || prev->data_.first < key)
+    {
+        T x(key, Value());
+        return insert_node_at(p, leftchild, is_leftmost, x)->data_;
+    }
+
+    return prev->data_;
 }
 
 template <class Key, class Value, class Compare = less<Key>, class Allocator = allocator<pair<const Key, Value> > >

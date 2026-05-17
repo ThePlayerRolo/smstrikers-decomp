@@ -128,8 +128,9 @@ void _TreeT::clear()
 /**
  * Offset/Address/Size: 0x3D0 | 0x8003FFF4 | size: 0x4
  */
-void std::__tree<std::pair<const unsigned long, FuzzyVariant>, std::map<unsigned long, FuzzyVariant, std::less<unsigned long>, std::allocator<std::pair<const unsigned long, FuzzyVariant> > >::value_compare, std::allocator<std::pair<const unsigned long, FuzzyVariant> > >::alloc()
+_PairAllocT& _TreeT::alloc()
 {
+    return alloc_.first();
 }
 
 /**
@@ -137,15 +138,21 @@ void std::__tree<std::pair<const unsigned long, FuzzyVariant>, std::map<unsigned
  */
 _NodeAllocT& _TreeT::node_alloc()
 {
-    return (_NodeAllocT&)node_alloc_;
+    return node_alloc_.first();
 }
 
-// /**
-//  * Offset/Address/Size: 0x0 | 0x8003FC24 | size: 0x3C8
-//  */
-// void std::__tree<std::pair<const unsigned long, FuzzyVariant>, std::map<unsigned long, FuzzyVariant, std::less<unsigned long>, std::allocator<std::pair<const unsigned long, FuzzyVariant> > >::value_compare, std::allocator<std::pair<const unsigned long, FuzzyVariant> > >::destroy(std::__tree<std::pair<const unsigned long, FuzzyVariant>, std::map<unsigned long, FuzzyVariant, std::less<unsigned long>, std::allocator<std::pair<const unsigned long, FuzzyVariant> > >::value_compare, std::allocator<std::pair<const unsigned long, FuzzyVariant> > >::node*)
-// {
-// }
+/**
+ * Offset/Address/Size: 0x0 | 0x8003FC24 | size: 0x3C8
+ */
+void _TreeT::destroy(node* __p)
+{
+    if (__p->left_ != 0)
+        destroy(static_cast<node*>(__p->left_));
+    if (__p->right_ != 0)
+        destroy(static_cast<node*>(__p->right_));
+    alloc().destroy(&__p->data_);
+    node_alloc().deallocate(__p, 1);
+}
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8003FBA8 | size: 0x7C
@@ -652,18 +659,19 @@ void cGame::ResetForKickOff()
     }
     g_pBall->WarpTo(position);
     g_pBall->SetVelocity(velocity, SPINTYPE_NONE, NULL);
-    g_pBall->mbCanDamage = 0;
-    g_pBall->mpDamageTarget = NULL;
+    cBall* pBall = g_pBall;
+    pBall->m_unk_0xA6 = false;
+    pBall->mpDamageTarget = NULL;
     m_bBallInNet = false;
     g_pBall->ClearBallEffects();
     g_pBall->HandleBuzzerBeater(-1.0f);
-    if (g_pTeams[0] != NULL)
+    for (i = 0; i < 2; i++)
     {
-        g_pTeams[0]->mfPowerupMeter = 0.0f;
-    }
-    if (g_pTeams[1] != NULL)
-    {
-        g_pTeams[1]->mfPowerupMeter = 0.0f;
+        cTeam* pTeam = g_pTeams[i];
+        if (pTeam != NULL)
+        {
+            pTeam->mfPowerupMeter = 0.0f;
+        }
     }
     for (i = 0; i < 25; i++)
     {

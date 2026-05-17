@@ -742,5 +742,4 @@ void nlConfig_stub()
  */
 // BasicString<char, Detail::TempStringAllocator>::AppendInPlace<Detail::TempStringAllocator>(const BasicString<char,
 // Detail::TempStringAllocator>&)
-// {
-// }
+// defined inline in nlBasicString.h

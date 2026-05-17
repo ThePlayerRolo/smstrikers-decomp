@@ -1,4 +1,18 @@
 #include "Game/Render/Indicators.h"
+
+#include "Game/AI/AiUtil.h"
+#include "Game/CharacterTemplate.h"
+#include "Game/CharacterTweaks.h"
+#include "Game/Game.h"
+#include "Game/Player.h"
+#include "Game/ReplayManager.h"
+#include "NL/gl/glDraw2.h"
+#include "NL/gl/glState.h"
+#include "NL/gl/glTexture.h"
+#include "NL/gl/glView.h"
+#include "NL/globalpad.h"
+#include "NL/nlColour.h"
+#include "NL/nlMath.h"
 #include "types.h"
 
 static float s_fOverheadSize = 35.0f;
@@ -8,76 +22,6 @@ static float s_fPulseRate = 2.0f;
 static unsigned char s_bPulseGlowTexture = 1;
 static float s_fGlowIntensityScale;
 static unsigned char s_bGlowIsRising;
-
-typedef struct
-{
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-            float z;
-        } f;
-        unsigned long as_u32[3];
-    } u;
-} nlVector3;
-
-typedef struct
-{
-    unsigned char c[4];
-} nlColour;
-
-typedef struct
-{
-    char pad0[0x50];
-    float depth;
-} glPoly2;
-
-typedef struct
-{
-    char pad0[0x44];
-    float fPhysCapsuleHeight;
-} PlayerTweaks;
-
-typedef struct
-{
-    char pad0[0x120];
-    nlVector3 m_v3ScreenPosition;
-    char pad1[0x98];
-    PlayerTweaks* m_pTweaks;
-} cPlayer;
-
-typedef struct
-{
-    void* vtbl;
-    int m_padIndex;
-} cGlobalPad;
-
-typedef struct
-{
-    char pad0[4];
-    nlVector3 mPosition;
-    char pad1[0x48];
-} DrawableCharacter;
-
-typedef struct
-{
-    char pad0[0x4C];
-    DrawableCharacter mCharacters[10];
-} RenderSnapshot;
-
-typedef struct
-{
-    char pad0[0x5048];
-    RenderSnapshot* mRender;
-} ReplayManager;
-
-typedef struct
-{
-    char pad0[0x24];
-    int m_eGameState;
-} cGame;
 
 typedef struct
 {
@@ -112,26 +56,6 @@ typedef struct
     ReplayIndicatorCharacter mCharacters[10];
 } ReplayIndicatorSnapshot;
 
-extern void* g_pCharacters[10];
-extern cGame* g_pGame;
-
-extern ReplayManager* Instance__13ReplayManagerFv(void);
-extern cGlobalPad* GetGlobalPad__7cPlayerFv(cPlayer*);
-extern void glViewProjectPoint__F7eGLViewRC9nlVector3R9nlVector3(int, const nlVector3*, nlVector3*);
-extern float Interpolate(float, float, float);
-extern float InterpolateRangeClamped__Ffffff(float, float, float, float, float);
-extern int glTextureLoad__FUl(unsigned long);
-extern void glSetDefaultState__Fb(int);
-extern unsigned long glSetRasterState__F8eGLStateUl(int, unsigned long);
-extern unsigned long glHandleizeRasterState__Fv(void);
-extern unsigned long glSetCurrentRasterState__FUl(unsigned long);
-extern unsigned long glSetCurrentTexture__FUl14eGLTextureType(unsigned long, int);
-extern unsigned long glTextureGetWidth__Fv(void);
-extern unsigned long glTextureGetHeight__Fv(void);
-extern void SetupRotatedRectangle__7glPoly2Fffffff(glPoly2*, float, float, float, float, float, float);
-extern void SetColour__7glPoly2FRC8nlColour(glPoly2*, const nlColour*);
-extern int Attach__7glPoly2F7eGLViewiPUlUl(glPoly2*, int, int, unsigned long*, unsigned long);
-
 unsigned long uIndicatorTexID[4];
 unsigned long uGlowTexID[4];
 float indicatorInfo[10];
@@ -157,22 +81,22 @@ void UpdateAndRenderOffScreenIndicators(float dt)
         nlVector3 projectedPos;
         ReplayManager* replay;
 
-        replay = Instance__13ReplayManagerFv();
+        replay = ReplayManager::Instance();
         if (replay->mRender != 0)
         {
-            replay = Instance__13ReplayManagerFv();
+            replay = ReplayManager::Instance();
             worldPos = replay->mRender->mCharacters[i].mPosition;
         }
 
         {
             float h = ((cPlayer*)g_pCharacters[i])->m_pTweaks->fPhysCapsuleHeight;
-            worldPos.u.f.z += h * half;
+            worldPos.f.z += h * half;
         }
 
-        glViewProjectPoint__F7eGLViewRC9nlVector3R9nlVector3(7, &worldPos, &projectedPos);
+        glViewProjectPoint((eGLView)7, worldPos, projectedPos);
         ((cPlayer*)g_pCharacters[i])->m_v3ScreenPosition = projectedPos;
 
-        if (GetGlobalPad__7cPlayerFv((cPlayer*)g_pCharacters[i]) != 0)
+        if (((cPlayer*)g_pCharacters[i])->GetGlobalPad() != 0)
         {
             cPlayer* pChar;
             u8 insideXY;
@@ -185,15 +109,15 @@ void UpdateAndRenderOffScreenIndicators(float dt)
             fOne = 1.0f;
             insideXY = insideXYZ;
 
-            if ((float)__fabs(pChar->m_v3ScreenPosition.u.f.x) <= fOne
-                && (float)__fabs(pChar->m_v3ScreenPosition.u.f.y) <= fOne)
+            if ((float)__fabs(pChar->m_v3ScreenPosition.f.x) <= fOne
+                && (float)__fabs(pChar->m_v3ScreenPosition.f.y) <= fOne)
             {
                 insideXY = 1;
             }
 
             if (insideXY)
             {
-                if ((float)__fabs(pChar->m_v3ScreenPosition.u.f.z) <= fOne)
+                if ((float)__fabs(pChar->m_v3ScreenPosition.f.z) <= fOne)
                 {
                     insideXYZ = 1;
                 }
@@ -234,8 +158,8 @@ void UpdateAndRenderOffScreenIndicators(float dt)
                     indicatorInfo[i] = fMaxAlpha;
                 }
 
-                x = 320.0f * projectedPos.u.f.x;
-                y = 240.0f * projectedPos.u.f.y;
+                x = 320.0f * projectedPos.f.x;
+                y = 240.0f * projectedPos.f.y;
 
                 if (x < -288.0f)
                 {
@@ -255,8 +179,8 @@ void UpdateAndRenderOffScreenIndicators(float dt)
                     y = 208.0f;
                 }
 
-                absX = (float)__fabs(projectedPos.u.f.x);
-                absY = (float)__fabs(projectedPos.u.f.y);
+                absX = (float)__fabs(projectedPos.f.x);
+                absY = (float)__fabs(projectedPos.f.y);
 
                 x = x + 320.0f;
                 y = y + 240.0f;
@@ -266,39 +190,42 @@ void UpdateAndRenderOffScreenIndicators(float dt)
                     absX = absY;
                 }
 
-                size = InterpolateRangeClamped__Ffffff(1.0f, 0.5f, 0.0f, 2.0f, (float)__fabs(1.0f - absX));
-                texID = uIndicatorTexID[GetGlobalPad__7cPlayerFv((cPlayer*)g_pCharacters[i])->m_padIndex];
+                size = InterpolateRangeClamped(1.0f, 0.5f, 0.0f, 2.0f, (float)__fabs(1.0f - absX));
+                texID = uIndicatorTexID[((cPlayer*)g_pCharacters[i])->GetGlobalPad()->m_padIndex];
                 yPixels = (int)y;
                 xPixels = (int)x;
 
                 size = 64.0f * size;
-
-                if ((u8)glTextureLoad__FUl(texID))
                 {
-                    static nlColour cInit;
-                    glPoly2 quad;
-                    nlColour c;
+                    float opacity = indicatorInfo[i];
 
-                    glSetDefaultState__Fb(0);
-                    glSetRasterState__F8eGLStateUl(5, 1);
-                    glSetRasterState__F8eGLStateUl(3, 1);
-                    glSetRasterState__F8eGLStateUl(4, 0);
-                    glSetCurrentRasterState__FUl(glHandleizeRasterState__Fv());
-                    glSetCurrentTexture__FUl14eGLTextureType(texID, 0);
-                    glTextureGetWidth__Fv();
-                    glTextureGetHeight__Fv();
+                    if ((u8)glTextureLoad(texID))
+                    {
+                        static nlColour cInit;
+                        glPoly2 quad;
+                        nlColour c;
 
-                    SetupRotatedRectangle__7glPoly2Fffffff(&quad, (float)xPixels, (float)yPixels, size, size, 0.0f, 10000000000.0f);
+                        glSetDefaultState(0);
+                        glSetRasterState(GLS_AlphaBlend, 1);
+                        glSetRasterState(GLS_AlphaTest, 1);
+                        glSetRasterState(GLS_AlphaTestRef, 0);
+                        glSetCurrentRasterState(glHandleizeRasterState());
+                        glSetCurrentTexture(texID, (eGLTextureType)0);
+                        glTextureGetWidth();
+                        glTextureGetHeight();
 
-                    c = cInit;
-                    c.c[0] = 0xFF;
-                    c.c[1] = 0xFF;
-                    c.c[2] = 0xFF;
-                    c.c[3] = (unsigned char)(255.0f * indicatorInfo[i]);
-                    SetColour__7glPoly2FRC8nlColour(&quad, &c);
+                        quad.SetupRotatedRectangle((float)xPixels, (float)yPixels, size, size, 0.0f, 10000000000.0f);
 
-                    quad.depth = -0.5f;
-                    Attach__7glPoly2F7eGLViewiPUlUl(&quad, 27, 0, 0, (unsigned long)-1);
+                        c = cInit;
+                        c.c[0] = 0xFF;
+                        c.c[1] = 0xFF;
+                        c.c[2] = 0xFF;
+                        c.c[3] = (unsigned char)(255.0f * opacity);
+                        quad.SetColour(c);
+
+                        quad.depth = -0.5f;
+                        quad.Attach((eGLView)27, 0, 0, (unsigned long)-1);
+                    }
                 }
             }
         }
@@ -308,32 +235,32 @@ void UpdateAndRenderOffScreenIndicators(float dt)
 static void DrawIndicator(int xCentre, int yCentre, float fPixelWidth, float fPixelHeight, float fOpacity, unsigned long uTexID,
     float rotationAngle, unsigned char additiveBlending)
 {
-    if ((u8)glTextureLoad__FUl(uTexID))
+    if ((u8)glTextureLoad(uTexID))
     {
         static nlColour cInit;
         glPoly2 poly;
         nlColour c;
 
-        glSetDefaultState__Fb(0);
-        glSetRasterState__F8eGLStateUl(5, additiveBlending);
-        glSetRasterState__F8eGLStateUl(3, 1);
-        glSetRasterState__F8eGLStateUl(4, 0);
-        glSetCurrentRasterState__FUl(glHandleizeRasterState__Fv());
-        glSetCurrentTexture__FUl14eGLTextureType(uTexID, 0);
-        glTextureGetWidth__Fv();
-        glTextureGetHeight__Fv();
+        glSetDefaultState(0);
+        glSetRasterState(GLS_AlphaBlend, additiveBlending);
+        glSetRasterState(GLS_AlphaTest, 1);
+        glSetRasterState(GLS_AlphaTestRef, 0);
+        glSetCurrentRasterState(glHandleizeRasterState());
+        glSetCurrentTexture(uTexID, (eGLTextureType)0);
+        glTextureGetWidth();
+        glTextureGetHeight();
 
-        SetupRotatedRectangle__7glPoly2Fffffff(&poly, (float)xCentre, (float)yCentre, fPixelWidth, fPixelHeight, rotationAngle, 10000000000.0f);
+        poly.SetupRotatedRectangle((float)xCentre, (float)yCentre, fPixelWidth, fPixelHeight, rotationAngle, 10000000000.0f);
 
         c = cInit;
         c.c[0] = 0xFF;
         c.c[1] = 0xFF;
         c.c[2] = 0xFF;
         c.c[3] = (unsigned char)(255.0f * fOpacity);
-        SetColour__7glPoly2FRC8nlColour(&poly, &c);
+        poly.SetColour(c);
 
         poly.depth = -0.5f;
-        Attach__7glPoly2F7eGLViewiPUlUl(&poly, 27, 0, 0, (unsigned long)-1);
+        poly.Attach((eGLView)27, 0, 0, (unsigned long)-1);
     }
 }
 
@@ -375,7 +302,7 @@ void UpdateAndRenderPlayerIndicators(float)
         unsigned long indicatorTexID;
         unsigned long glowTexID;
 
-        if (GetGlobalPad__7cPlayerFv(pCharacter) == 0)
+        if (pCharacter->GetGlobalPad() == 0)
         {
             continue;
         }
@@ -386,23 +313,23 @@ void UpdateAndRenderPlayerIndicators(float)
             continue;
         }
 
-        pController = GetGlobalPad__7cPlayerFv(pCharacter);
+        pController = pCharacter->GetGlobalPad();
         indicatorTexID = uIndicatorTexID[pController->m_padIndex];
-        pController = GetGlobalPad__7cPlayerFv(pCharacter);
+        pController = pCharacter->GetGlobalPad();
         glowTexID = uGlowTexID[pController->m_padIndex];
 
-        pReplay = Instance__13ReplayManagerFv();
+        pReplay = ReplayManager::Instance();
         pSnapshot = (ReplayIndicatorSnapshot*)pReplay->mRender;
         v3Position = pSnapshot->mCharacters[i].mPosition;
 
         pTweaks = (GameTweaksOverlay*)((cGameOverlay*)g_pGame)->mGameTweaks;
-        v3Position.u.f.z += pTweaks->mVerticalOffset;
+        v3Position.f.z += pTweaks->mVerticalOffset;
         switchScale = pTweaks->mProjectionYOffset;
 
-        glViewProjectPoint__F7eGLViewRC9nlVector3R9nlVector3(7, &v3Position, &v3ScreenPosition);
+        glViewProjectPoint((eGLView)7, v3Position, v3ScreenPosition);
 
-        fY = 240.0f * v3ScreenPosition.u.f.y + 240.0f;
-        fX = 320.0f * v3ScreenPosition.u.f.x + 320.0f;
+        fY = 240.0f * v3ScreenPosition.f.y + 240.0f;
+        fX = 320.0f * v3ScreenPosition.f.x + 320.0f;
         fY -= switchScale;
 
         pState = (cPlayerIndicatorState*)pCharacter;

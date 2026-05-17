@@ -40,13 +40,16 @@ template <typename KeyType>
 class DefaultKeyCompare
 {
 public:
-    int operator()(const KeyType& key1, const KeyType& key2) const
+    int operator()(const KeyType& key2, const KeyType& key1) const
     {
-        if (key1 < key2)
-            return -1;
-        if (key1 > key2)
-            return 1;
-        return 0;
+        int result;
+        if (key1 == key2)
+            result = 0;
+        else if (key1 < key2)
+            result = -1;
+        else
+            result = 1;
+        return result;
     }
 };
 
@@ -205,7 +208,6 @@ AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::~AVLTreeBase()
 }
 #endif
 
-// Fix DestroyTree method signature to match DeleteEntry
 template <typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
 void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::DestroyTree(void (AVLTreeBase::*deleteFunc)(AVLTreeEntry<KeyType, ValueType>*))
 {
@@ -217,7 +219,6 @@ void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::DestroyTree(vo
     }
 }
 
-// Fix PostorderTraversal method signature to match DeleteEntry
 template <typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
 void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::PostorderTraversal(AVLTreeEntry<KeyType, ValueType>* curr,
     void (AVLTreeBase::*cb)(AVLTreeEntry<KeyType, ValueType>*))
@@ -236,9 +237,9 @@ void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::PostorderTrave
 template <typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
 int AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::CompareNodes(AVLTreeNode* a, AVLTreeNode* b)
 {
+    const KeyType& keyA = ((AVLTreeEntry<KeyType, ValueType>*)a)->key;
+    const KeyType& keyB = ((AVLTreeEntry<KeyType, ValueType>*)b)->key;
     int result;
-    const KeyType& keyA = CastUp(a)->key;
-    const KeyType& keyB = CastUp(b)->key;
     if (keyA == keyB)
         result = 0;
     else if (keyA < keyB)
@@ -251,9 +252,9 @@ int AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::CompareNodes(AV
 template <typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
 int AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::CompareKey(void* key, AVLTreeNode* node)
 {
-    const KeyType& k = *(KeyType*)key;
-    AVLTreeEntry<KeyType, ValueType>* entry = CastUp(node);
     int result;
+    KeyType k = *(KeyType*)key;
+    AVLTreeEntry<KeyType, ValueType>* entry = (AVLTreeEntry<KeyType, ValueType>*)node;
     if (k == entry->key)
         result = 0;
     else if (k < entry->key)
@@ -303,16 +304,16 @@ void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::InorderWalk(AV
 }
 
 template <typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
-void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::DeleteValues()
+void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::Clear()
 {
-    DestroyTree(&AVLTreeBase::DeleteValue);
+    DestroyTree(&AVLTreeBase::DeleteEntry);
     m_NumElements = 0;
 }
 
 template <typename KeyType, typename ValueType, typename AllocatorType, typename CompareType>
-void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::Clear()
+void AVLTreeBase<KeyType, ValueType, AllocatorType, CompareType>::DeleteValues()
 {
-    DestroyTree(&AVLTreeBase::DeleteEntry);
+    DestroyTree(&AVLTreeBase::DeleteValue);
     m_NumElements = 0;
 }
 

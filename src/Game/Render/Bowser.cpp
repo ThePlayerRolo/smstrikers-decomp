@@ -39,9 +39,61 @@ void AnimSoundCallback(unsigned int eventID)
 /**
  * Offset/Address/Size: 0x4638 | 0x8015D3AC | size: 0x584
  */
-Bowser::Bowser(cSHierarchy& pHierarchy, int nModelID, PhysicsNPC& mpPhysObj, cInventory<cSAnim>* pInventorySAnim)
-    : SkinAnimatedMovableNPC(pHierarchy, nModelID, mpPhysObj)
+Bowser::Bowser(cSHierarchy& rSHierarchy, int nTeam, PhysicsNPC& rPhysNPC, cInventory<cSAnim>* pInventorySAnim)
+    : SkinAnimatedMovableNPC(rSHierarchy, nTeam, rPhysNPC)
 {
+    meBowserState = BOWSER_STATE_IDLE;
+    mAttackType = (eBowserAttackType)0;
+    mbAlive = false;
+    mAnimID = -1;
+    mfDesiredSpeed = 0.0f;
+    mtStateTimer.SetSeconds(0.0f);
+
+    const char* animNames[7] = {
+        "bowser_idle",
+        "bowser_drop_and_land",
+        "bowser_exit",
+        "bowser_walk_fwd",
+        "bowser_throw",
+        "bowser_fire_up",
+        "bowser_roll"
+    };
+
+    for (int i = 0; i < 7; i++)
+    {
+        u32 hash = nlStringHash(animNames[i]);
+        cSAnim* foundAnim = NULL;
+        ListEntry<cSAnim*>* animEntry = pInventorySAnim->m_lItemList.m_Head;
+        while (animEntry != NULL)
+        {
+            if (animEntry->data->m_uHashID == hash)
+            {
+                foundAnim = animEntry->data;
+                break;
+            }
+            animEntry = animEntry->next;
+        }
+        mpAnim[i] = foundAnim;
+    }
+
+    mpHeadTrack = new (nlMalloc(sizeof(cHeadTrack), 4, false)) cHeadTrack();
+    mpFeatherBlender = AllocateFeather();
+    if (mpPoseTree != NULL)
+    {
+        mpFeatherBlender->SetChild(0, mpPoseTree);
+    }
+    mpPoseTree = mpFeatherBlender;
+
+    delete mpFeatherBlender->GetChild(1);
+
+    mbIsVisible = false;
+    EmissionManager::Destroy((unsigned long)this, fxGetGroup("bowser_fire"));
+    g_pEventManager->CreateValidEvent(0x65, 0x14);
+    mpFeatherController = NULL;
+    SetPosition(gv3BowserHomePosition);
+    mv3Velocity = v3Zero;
+    maFacingDirection = 0;
+    mpPhysObj->DisableCollisions();
 }
 
 /**

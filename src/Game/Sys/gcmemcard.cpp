@@ -532,9 +532,8 @@ s32 MemCard::BeginCardAccess(const MemCardFunctor& Callback)
 
 /**
  * Offset/Address/Size: 0xF28 | 0x801CA698 | size: 0x3B4
- * TODO: 91.88% match - 13 register diffs in shift-up loop. MWCC reallocates
- * high=low+1 from r6 to r4 after binary search, cascading all loop body
- * registers. Same MWCC re-homing quirk as OpenFile's shift loop.
+ * TODO: 93.80% match - shift-up/shift-down loops still keep r4/r6 swapped,
+ * and sector-alignment emits `not`+`and` where target uses `andc`.
  */
 long MemCard::CreateFile(const char* FileName, unsigned long FileSize, MemCard::ICON_CONFIG* pIconConfig, MemCard::MC_FILE*& pFile, const MemCardFunctor& Callback)
 {
@@ -645,11 +644,11 @@ long MemCard::CreateFile(const char* FileName, unsigned long FileSize, MemCard::
 
     pFile = m_pFileCB;
 
-    pIconConfig->HeaderSize = pIconConfig->BannerFormat * 0xC00
-                            + ((pIconConfig->BannerFormat == 1) ? 0x200 : 0)
-                            + (pIconConfig->IconCount * ((s8)pIconConfig->IconFormat << 10))
-                            + (((s8)pIconConfig->IconFormat == 1) ? 0x200 : 0)
-                            + 0x40;
+    unsigned long headerSize = ((pIconConfig->BannerFormat == 1) ? 0x200 : 0);
+    headerSize = headerSize + (pIconConfig->BannerFormat * 0xC00);
+    headerSize = headerSize + (pIconConfig->IconCount * ((s8)pIconConfig->IconFormat << 10));
+    headerSize = headerSize + (((s8)pIconConfig->IconFormat == 1) ? 0x200 : 0);
+    pIconConfig->HeaderSize = headerSize + 0x40;
 
     MC_FILE* mcFile = m_pFileCB;
     mcFile->IconCfg.BannerFormat = pIconConfig->BannerFormat;
@@ -1251,8 +1250,6 @@ s32 MemCard::FileExists(const char* fileName)
 
 /**
  * Offset/Address/Size: 0x204 | 0x801C9974 | size: 0x3D8
- * TODO: 95.2% match - register allocation differs in GetValidDataInfo inline section
- * (bannerFormat r4 vs r11, cascading to all temporaries). -inline deferred file.
  */
 long MemCard::WriteFileIconData(MemCard::MC_FILE* pFile, void* pData, const MemCardFunctor& functor)
 {
@@ -1268,7 +1265,7 @@ long MemCard::WriteFileIconData(MemCard::MC_FILE* pFile, void* pData, const MemC
     DataInfo.Comment2Offset = 0x20;
     DataInfo.BannerOffset = 0x40;
     DataInfo.BannerCLUTOffset = DataInfo.BannerOffset + ((bannerFormat == 1) ? 0xC00 : 0);
-    DataInfo.IconOffset[0] = DataInfo.BannerOffset + bannerFormat * 0xC00 + ((bannerFormat == 1) ? 0x200 : 0);
+    DataInfo.IconOffset[0] = ((bannerFormat == 1) ? 0x200 : 0) + bannerFormat * 0xC00 + DataInfo.BannerOffset;
 
     for (Icon = 1; Icon < pFile->IconCfg.IconCount; Icon++)
     {
@@ -1299,9 +1296,42 @@ long MemCard::WriteFileIconData(MemCard::MC_FILE* pFile, void* pData, const MemC
         CARDSetIconSpeed(&stat, i, 0);
     }
 
-    CARDSetIconAnim(&stat, pFile->IconCfg.IconAnimType);
+    volatile unsigned char* bannerFmt = (volatile unsigned char*)&stat.bannerFormat;
+    unsigned char fmt = *bannerFmt;
+    *bannerFmt = (unsigned char)((fmt & ~CARD_STAT_ANIM_MASK) | pFile->IconCfg.IconAnimType);
 
-    m_CB[8] = functor;
+    struct FunctorWords
+    {
+        unsigned long w0;
+        unsigned long w1;
+        unsigned long w2;
+        unsigned long w3;
+        unsigned long w4;
+        unsigned long w5;
+    };
+
+    volatile FunctorWords* dst = (volatile FunctorWords*)&m_CB[8];
+    const volatile FunctorWords* src = (const volatile FunctorWords*)&functor;
+    unsigned long b;
+    unsigned long a;
+    unsigned long e;
+    unsigned long d;
+    unsigned long c;
+
+    a = src->w0;
+    b = src->w1;
+    dst->w0 = a;
+    dst->w1 = b;
+
+    d = src->w2;
+    e = src->w3;
+    dst->w2 = d;
+    dst->w3 = e;
+
+    b = src->w4;
+    a = src->w5;
+    dst->w4 = b;
+    dst->w5 = a;
 
     m_State = IS_WRITINGSTATUS;
     m_CardState = CS_WRITING;

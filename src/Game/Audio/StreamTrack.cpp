@@ -669,7 +669,7 @@ extern "C" void sndStreamDeactivate(unsigned long stid);
 
 /**
  * Offset/Address/Size: 0xE20 | 0x80155B78 | size: 0x29C
- * TODO: 96.2% match - volatile counter causes extra li per loop init, ble vs beq, r3/r4 register diffs
+ * TODO: 98.59% match - loop-zero register selection and r3/r4 choice differ in buffer-init/flag-update paths
  */
 void AudioStreamTrack::StreamTrack::ProcessNewHeadStream()
 {
@@ -720,12 +720,13 @@ void AudioStreamTrack::StreamTrack::ProcessNewHeadStream()
     }
 
     GCAudioStreaming::StereoAudioStream* pStream = pEntry->m_data.pStream;
+    unsigned long zero = 0;
 
     if (pStream->m_State >= GCAudioStreaming::SS_Warming)
     {
         GCAudioStreaming::AudioStreamBuffer* buf = NULL;
-        volatile unsigned long bufCounter = (unsigned long)buf;
-        if (pStream->m_BufferCount > 0)
+        volatile unsigned long bufCounter = zero;
+        if (pStream->m_BufferCount > zero)
         {
             buf = pStream->m_Buffers[0];
         }
@@ -747,7 +748,7 @@ void AudioStreamTrack::StreamTrack::ProcessNewHeadStream()
         }
     }
 
-    pStream->m_Volume = 0;
+    pStream->m_Volume = zero;
     GCAudioStreaming::StereoAudioStream* pStreamActive = pEntry->m_data.pStream;
 
     {
@@ -783,8 +784,8 @@ void AudioStreamTrack::StreamTrack::ProcessNewHeadStream()
     case GCAudioStreaming::SS_Warm:
     {
         GCAudioStreaming::AudioStreamBuffer* buf = NULL;
-        volatile unsigned long bufCounter2 = (unsigned long)buf;
-        if (pStreamActive->m_BufferCount > 0)
+        volatile unsigned long bufCounter2 = zero;
+        if (pStreamActive->m_BufferCount > zero)
         {
             buf = pStreamActive->m_Buffers[0];
         }
@@ -966,7 +967,7 @@ void AudioStreamTrack::StreamTrack::StopQStream(QUEUED_STREAM* pQueuedStream)
 
 /**
  * Offset/Address/Size: 0x5B0 | 0x80155308 | size: 0x2D8
- * TODO: 94.08% match - fadeCtrl in callee-saved r25 vs volatile r3, volatile counter init reuse, ble vs beq, second loop r3/r4 swap
+ * TODO: 96.27% match - fadeCtrl in callee-saved r25 vs volatile r3, volatile counter init doesn't reuse buf register, second loop ci/nextCI r3/r4 swap
  */
 void AudioStreamTrack::StreamTrack::StopStream(GCAudioStreaming::StereoAudioStream* pStream, bool TrackOwns)
 {
@@ -974,9 +975,10 @@ void AudioStreamTrack::StreamTrack::StopStream(GCAudioStreaming::StereoAudioStre
 
     if (pStream->m_State == GCAudioStreaming::SS_Playing)
     {
+        unsigned long zero = 0;
         GCAudioStreaming::AudioStreamBuffer* buf = NULL;
-        volatile unsigned long bufCounter = (unsigned long)buf;
-        if (pStream->m_BufferCount > 0)
+        volatile unsigned long bufCounter = zero;
+        if (pStream->m_BufferCount > zero)
             buf = pStream->m_Buffers[0];
 
         while (buf != NULL)
@@ -993,7 +995,7 @@ void AudioStreamTrack::StreamTrack::StopStream(GCAudioStreaming::StereoAudioStre
                 buf = NULL;
         }
 
-        pStream->m_StreamPos = 0;
+        pStream->m_StreamPos = zero;
         pStream->m_State = GCAudioStreaming::SS_Warm;
     }
 
@@ -1007,10 +1009,11 @@ void AudioStreamTrack::StreamTrack::StopStream(GCAudioStreaming::StereoAudioStre
         if (pStream->m_State > GCAudioStreaming::SS_Initd)
         {
             unsigned long fl = pStream->m_Flags;
+            unsigned long zero2 = 0;
             GCAudioStreaming::AudioStreamBuffer* buf = NULL;
             volatile unsigned long bufCounter = (unsigned long)buf;
             pStream->m_Flags = (fl & ~0x10) | 0x10;
-            if (pStream->m_BufferCount > 0)
+            if (pStream->m_BufferCount > zero2)
                 buf = pStream->m_Buffers[0];
 
             while (buf != NULL)

@@ -63,8 +63,9 @@ public:
     template <typename T>
     Variant(eVariantType type, const T& value)
     {
+        T val = value;
         Reset();
-        *(T*)&mData = value;
+        *(T*)&mData = val;
         mType = type;
     }
 

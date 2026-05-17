@@ -1120,10 +1120,11 @@ void PitchBend(float param1, float param2, float param3, float param4)
             }
             if (g_pGame != NULL)
             {
+                int p;
                 for (int t = 0; t < 2; t++)
                 {
                     cTeam* team = g_pTeams[t];
-                    for (int p = 0; p < 5; p++)
+                    for (p = 0; p < 5; p++)
                     {
                         team->GetPlayer(p)->m_pCharacterSFX->SetPitchBendOnAllDialogueSFX(0x2000);
                     }
@@ -1146,10 +1147,11 @@ void PitchBend(float param1, float param2, float param3, float param4)
             }
             if (g_pGame != NULL)
             {
+                int p;
                 for (int t = 0; t < 2; t++)
                 {
                     cTeam* team = g_pTeams[t];
-                    for (int p = 0; p < 5; p++)
+                    for (p = 0; p < 5; p++)
                     {
                         team->GetPlayer(p)->m_pCharacterSFX->SetPitchBendOnAllDialogueSFX(pitchBend);
                     }
@@ -1251,7 +1253,9 @@ foundExisting:
     }
 
     newFade->next = NULL;
+#pragma inline_depth(0)
     nlListAddStart<FadeAudioData>(&g_pFadeList, newFade, NULL);
+#pragma inline_depth
 }
 
 /**

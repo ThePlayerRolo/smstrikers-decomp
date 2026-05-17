@@ -521,8 +521,8 @@ static u8* GetChunkDataPointer(nlChunk* chunk)
 
 /**
  * Offset/Address/Size: 0xC08 | 0x801C0828 | size: 0x2A0
- * TODO: 97.59% match - chunkType volatile register r4 vs target r5 causes cascading register diffs
- * in alignment computation, switch dispatch, and case-local variables (i, count, boneID)
+ * TODO: 98.18% match - register allocation diffs remain in chunk type masking and
+ * case-local loop/morph temporaries
  */
 GLSkinMesh* glx_MakeSkinMesh(nlChunk* outerChunk, glModel* models)
 {
@@ -546,7 +546,10 @@ GLSkinMesh* glx_MakeSkinMesh(nlChunk* outerChunk, glModel* models)
         if (((-alignBits | alignBits) >> 31) != 0)
         {
             u32 align = 1 << (alignBits >> 24);
-            result = (u8*)(((u32)((u8*)chunk + align) + 7) & ~(align - 1));
+            u32 ptr = (u32)chunk + align;
+            ptr += 7;
+            ptr &= ~(align - 1);
+            result = (u8*)ptr;
         }
         else
         {
@@ -554,9 +557,9 @@ GLSkinMesh* glx_MakeSkinMesh(nlChunk* outerChunk, glModel* models)
         }
         data = result;
 
-        switch (chunkType - 0x1B009)
+        switch (chunkType)
         {
-        case 1:
+        case 0x1B00A:
         {
             i = 0;
             u32 count = chunkSize / 0x44;
@@ -573,7 +576,7 @@ GLSkinMesh* glx_MakeSkinMesh(nlChunk* outerChunk, glModel* models)
             }
             break;
         }
-        case 2:
+        case 0x1B00B:
         {
             SkinMeshBoneMapNode* node = new (nlMalloc(sizeof(SkinMeshBoneMapNode), 8, false)) SkinMeshBoneMapNode;
 
@@ -597,13 +600,13 @@ GLSkinMesh* glx_MakeSkinMesh(nlChunk* outerChunk, glModel* models)
             nlRingAddEnd<BoneMapList>(&mesh->boneMaps, (BoneMapList*)node);
             break;
         }
-        case 4:
+        case 0x1B00D:
             mesh->SetSoftwareVertices((int)(chunkSize >> 4), (const SkinVertex*)data);
             break;
-        case 5:
+        case 0x1B00E:
             mesh->AppendSkinPairList((int)(chunkSize >> 2), (const SkinPair*)data);
             break;
-        case 3:
+        case 0x1B00C:
         {
             u32 numMorphs = *(u32*)(data + 0);
             u8* p = data + 8;
@@ -616,7 +619,7 @@ GLSkinMesh* glx_MakeSkinMesh(nlChunk* outerChunk, glModel* models)
             mesh->SetMorphDeltas(*(int*)p, (const MorphDelta*)(p + 4));
             break;
         }
-        case 7:
+        case 0x1B010:
             mesh->AppendStitchingInfo(*(int*)(data + 4), *(int*)(data + 0), (int)chunkSize - 8, data + 8);
             break;
         }

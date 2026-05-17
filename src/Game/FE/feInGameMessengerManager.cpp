@@ -82,8 +82,6 @@ void FEInGameMessengerManager::Update(float fDeltaT)
 #pragma opt_common_subs off
 void FEInGameMessengerManager::EnterNewTimeState(FEInGameMessengerManager::eTimeStates timeState)
 {
-    int i;
-
     switch (timeState)
     {
     case TS_GAME_BEGINNING:
@@ -94,7 +92,7 @@ void FEInGameMessengerManager::EnterNewTimeState(FEInGameMessengerManager::eTime
         ListEntry<eInGameMessages>** pTail = &m_messageQueue.m_Tail;
         ListEntry<eInGameMessages>** pHead = &m_messageQueue.m_Head;
 
-        for (i = 0; i < m_numWatchGames; i++)
+        for (int i = 0; i < m_numWatchGames; i++)
         {
             eInGameMessages msg = (eInGameMessages)i;
             int hasMessage;
@@ -130,7 +128,7 @@ void FEInGameMessengerManager::EnterNewTimeState(FEInGameMessengerManager::eTime
         ListEntry<eInGameMessages>** pTail = &m_messageQueue.m_Tail;
         ListEntry<eInGameMessages>** pHead = &m_messageQueue.m_Head;
 
-        for (i = 0; i < m_numWatchGames; i++)
+        for (int i = 0; i < m_numWatchGames; i++)
         {
             eInGameMessages msg = (eInGameMessages)(i + 2);
             int hasMessage;
@@ -165,7 +163,7 @@ void FEInGameMessengerManager::EnterNewTimeState(FEInGameMessengerManager::eTime
     {
         int sequence[4] = { 0, 1, 2, 3 };
 
-        for (i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             int swapInd = i + nlRandom(4 - i, &nlDefaultSeed);
             int temp = sequence[i];
@@ -177,7 +175,7 @@ void FEInGameMessengerManager::EnterNewTimeState(FEInGameMessengerManager::eTime
         ListEntry<eInGameMessages>** pHead = &m_messageQueue.m_Head;
 
         int numDisplayed = 0;
-        for (i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             eInGameMessages msg;
             int hasMessage;

@@ -22,8 +22,8 @@ cHeadTrack::cHeadTrack()
 
 /**
  * Offset/Address/Size: 0x160 | 0x80056F64 | size: 0x450
- * TODO: 96.02% match - FP register allocation diffs (f0/f3 swap) in matrix copy and normalize
- * sections due to -inline deferred vs -inline auto compiler flag difference
+ * TODO: 97.13% match - remaining diffs are FP register allocation in vector-normalization stores
+ * and signed angle-conversion sequence around head-tilt computation.
  */
 void cHeadTrack::Update(const nlMatrix4& m4HeadMatrix, const nlMatrix4& m4ConstraintMatrix, float fDeltaT, unsigned short aOOIConstraint, int nHeadSpinMax, int nHeadTiltMax, float fSmoothTime)
 {
@@ -37,9 +37,13 @@ void cHeadTrack::Update(const nlMatrix4& m4HeadMatrix, const nlMatrix4& m4Constr
     if (m_bTrackOOI)
     {
         m4Constrain = m4ConstraintMatrix;
-        m4Constrain.f.m41 = m4HeadMatrix.f.m41;
-        m4Constrain.f.m42 = m4HeadMatrix.f.m42;
-        m4Constrain.f.m43 = m4HeadMatrix.f.m43;
+        float headM41 = m4HeadMatrix.f.m41;
+        float headM42 = m4HeadMatrix.f.m42;
+        float headM43 = m4HeadMatrix.f.m43;
+
+        m4Constrain.f.m41 = headM41;
+        m4Constrain.f.m42 = headM42;
+        m4Constrain.f.m43 = headM43;
         m4Constrain.f.m44 = 1.0f;
 
         nlInvertRotTransMatrix(m4WorldSpaceToConstraintSpace, m4Constrain);
@@ -129,19 +133,23 @@ void cHeadTrack::Update(const nlMatrix4& m4HeadMatrix, const nlMatrix4& m4Constr
         m_fDesiredHeadTilt = 0.0f;
     }
 
-    float temp_f8 = 2.0f / fSmoothTime;
-    float temp_f7 = m_fHeadSpinSeekVel;
-    float temp_f6 = temp_f8 * fDeltaT;
-    float temp_f5 = m_fHeadSpin - m_fDesiredHeadSpin;
-    float temp_f2_2 = fDeltaT * ((temp_f8 * temp_f5) + temp_f7);
-    float temp_f3_2 = 1.0f / ((temp_f6 * (0.235f * temp_f6 * temp_f6)) + ((0.48f * temp_f6 * temp_f6) + (1.0f + temp_f6)));
-    m_fHeadSpinSeekVel = temp_f3_2 * -((temp_f8 * temp_f2_2) - temp_f7);
-    m_fHeadSpin = (temp_f3_2 * (temp_f5 + temp_f2_2)) + m_fDesiredHeadSpin;
-    float temp_f4 = m_fHeadTiltSeekVel;
-    float temp_f2_3 = m_fHeadTilt - m_fDesiredHeadTilt;
-    float temp_f1_3 = fDeltaT * ((temp_f8 * temp_f2_3) + temp_f4);
-    m_fHeadTiltSeekVel = temp_f3_2 * -((temp_f8 * temp_f1_3) - temp_f4);
-    m_fHeadTilt = (temp_f3_2 * (temp_f2_3 + temp_f1_3)) + m_fDesiredHeadTilt;
+    float omega = 2.0f / fSmoothTime;
+    float x = omega * fDeltaT;
+    float exp = 1.0f / ((x * (0.235f * x * x)) + ((0.48f * x * x) + (1.0f + x)));
+
+    float spinChange = m_fHeadSpin - m_fDesiredHeadSpin;
+    float spinVel = m_fHeadSpinSeekVel;
+    float spinTemp = fDeltaT * ((spinChange * omega) + spinVel);
+
+    m_fHeadSpinSeekVel = exp * (spinVel - (omega * spinTemp));
+    m_fHeadSpin = (exp * (spinChange + spinTemp)) + m_fDesiredHeadSpin;
+
+    float tiltChange = m_fHeadTilt - m_fDesiredHeadTilt;
+    float tiltVel = m_fHeadTiltSeekVel;
+    float tiltTemp = fDeltaT * ((tiltChange * omega) + tiltVel);
+
+    m_fHeadTiltSeekVel = exp * (tiltVel - (omega * tiltTemp));
+    m_fHeadTilt = (exp * (tiltChange + tiltTemp)) + m_fDesiredHeadTilt;
 }
 
 inline float AngUnitsToRad_fromUnsignedShort(unsigned short sUnits)

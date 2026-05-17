@@ -4,6 +4,7 @@
 #include "Game/Game.h"
 #include "Game/GameInfo.h"
 #include "Game/World/WorldLoader.h"
+#include "NL/nlFormat.h"
 
 // /**
 //  * Offset/Address/Size: 0x2C7C | 0x80189818 | size: 0x144
@@ -26,12 +27,54 @@
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x1038 | 0x80187BD4 | size: 0xD74
-//  */
-// void FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator%<float>(const float&)
-// {
-// }
+typedef FormatImpl<NLString> NLFormatImpl;
+
+/**
+ * Offset/Address/Size: 0x1038 | 0x80187BD4 | size: 0xD74
+ */
+template <>
+NLFormatImpl& NLFormatImpl::operator% <float>(const float& t)
+{
+    NLString insert = LexicalCast<NLString, float>(t);
+
+    for (int i = 0; i < (int)mString.size() - 1; i++)
+    {
+        if (mString[i] != '{')
+            continue;
+
+        if (i + 1 >= (int)mString.size() - 1)
+            continue;
+
+        if (mString[i + 1] - '0' != mCurrentPos)
+            continue;
+
+        if (i + 2 >= (int)mString.size() - 1)
+            continue;
+
+        if (mString[i + 2] != '}')
+            continue;
+
+        mString[0];
+        char* eraseStart = &mString[i];
+        char* eraseEnd = &mString[i + 3];
+        BasicStringData<char>* data = mString.m_data;
+        int size = eraseEnd - eraseStart;
+        char* dst = data->mData + (eraseStart - data->mData);
+        const char* src = eraseEnd;
+        while (src != data->mData + data->mSize)
+        {
+            *dst++ = *src++;
+        }
+        data->mSize -= size;
+
+        char* insertBegin = &insert[0];
+        char* insertEnd = &insert[(int)insert.size() - 1];
+        mString.insert(&mString[i], insertBegin, insertEnd);
+    }
+
+    mCurrentPos++;
+    return *this;
+}
 
 // /**
 //  * Offset/Address/Size: 0xEDC | 0x80187A78 | size: 0x15C
@@ -2426,4 +2469,11 @@ bool StatsTracker::MoveTeamBUp(TeamStats b, TeamStats a)
         return false;
 
     return (s32)a.mTeamIndex < (s32)b.mTeamIndex;
+}
+
+void StatsTracker_stub()
+{
+    BasicString<char, Detail::TempStringAllocator> s;
+    const char* p = "";
+    Format<BasicString<char, Detail::TempStringAllocator>, const char*, const char*, const char*, const char*, const char*>(s, p, p, p, p, p);
 }

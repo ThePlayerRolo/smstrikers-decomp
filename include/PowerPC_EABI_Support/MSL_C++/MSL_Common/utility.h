@@ -1,17 +1,25 @@
 #ifndef MSL_UTILITY_H_
 #define MSL_UTILITY_H_
 
-namespace std {
+namespace std
+{
 template <class T1, class T2>
-struct pair {
+struct pair
+{
     T1 first;
     T2 second;
 
-    pair() {
-        first = T1();
+    pair()
+        : first(T1())
+    {
         second = T2();
     }
+    pair(const T1& f, const T2& s)
+        : first(f)
+        , second(s)
+    {
+    }
 };
-}  // namespace std
+} // namespace std
 
 #endif

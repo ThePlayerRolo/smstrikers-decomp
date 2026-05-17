@@ -10,17 +10,14 @@ class DLListContainerBase
 {
 public:
     DLListContainerBase()
-        : m_Head(NULL)
     {
     }
 
-protected:
     DLListContainerBase(int)
         : m_Head(NULL)
     {
     }
 
-public:
     DLListContainerBase(const int initial, const int delta)
         : m_Allocator(initial, delta)
     {

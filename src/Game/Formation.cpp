@@ -382,9 +382,10 @@ bool FormationManager::CalculateFielderPosition(nlVector3& v3DestPosition, cFiel
         if (pFormation != nullptr && pFormation->m_pFormationSpec != nullptr)
         {
             nlVector3 pos = v3FormationPosition[0][i];
-            v3FutureDesiredPosition.f.z += fWeights[i] * v3FormationPosition[1][i].f.z;
-            v3FutureDesiredPosition.f.y += fWeights[i] * v3FormationPosition[1][i].f.y;
-            v3FutureDesiredPosition.f.x += fWeights[i] * v3FormationPosition[1][i].f.x;
+            float weight = fWeights[i];
+            v3FutureDesiredPosition.f.z += weight * v3FormationPosition[1][i].f.z;
+            v3FutureDesiredPosition.f.y += weight * v3FormationPosition[1][i].f.y;
+            v3FutureDesiredPosition.f.x += weight * v3FormationPosition[1][i].f.x;
             float result = pFormation->IsFielderInPosition(pFielder, pos, bInPosition);
             fFielderInPosition += fWeights[i] * result;
         }
@@ -521,7 +522,6 @@ float FormationEval::GetWeight()
  * diffs around nested permutation loops (MWCC promotes i_pos array loads to
  * callee-saved regs r29/r30/r31 instead of using volatile r0).
  */
-#pragma opt_common_subs off
 void FormationEval::AssignPositionsToFielders(unsigned int* pFielderPosAssignments, float (*fFielderToPositionDistance)[4])
 {
     float fBestDistance = 100000000000.0f;
@@ -643,11 +643,10 @@ void FormationEval::AssignPositionsToFielders(unsigned int* pFielderPosAssignmen
         }
     }
 }
-#pragma opt_common_subs on
 
 /**
  * Offset/Address/Size: 0x1798 | 0x800399E8 | size: 0x27C
- * TODO: 97.30% match - remaining diffs are this/team/pFielder GPR swap, prologue mr order, and center-add float register allocation cascade
+ * TODO: 97.94% match - remaining diffs are this/team/pFielder GPR swap, prologue mr order, and center-add float register allocation cascade
  */
 void FormationEval::SortPlayers(const nlVector2* v2Center)
 {
@@ -676,8 +675,8 @@ void FormationEval::SortPlayers(const nlVector2* v2Center)
         if (pFielder->GetGlobalPad() != NULL)
         {
             f32 fx = 0.4f * pFielder->m_v3Velocity.f.x + pFielder->m_v3Position.f.x;
-            f32 fy = 0.4f * pFielder->m_v3Velocity.f.y + pFielder->m_v3Position.f.y;
             f32 fz = 0.4f * pFielder->m_v3Velocity.f.z + pFielder->m_v3Position.f.z;
+            f32 fy = 0.4f * pFielder->m_v3Velocity.f.y + pFielder->m_v3Position.f.y;
             av3FielderAILocs[i].f.x = fx;
             av3FielderAILocs[i].f.y = fy;
             av3FielderAILocs[i].f.z = fz;
@@ -685,8 +684,8 @@ void FormationEval::SortPlayers(const nlVector2* v2Center)
         else
         {
             f32 fx = 0.15f * pFielder->m_v3Velocity.f.x + pFielder->m_v3Position.f.x;
-            f32 fy = 0.15f * pFielder->m_v3Velocity.f.y + pFielder->m_v3Position.f.y;
             f32 fz = 0.15f * pFielder->m_v3Velocity.f.z + pFielder->m_v3Position.f.z;
+            f32 fy = 0.15f * pFielder->m_v3Velocity.f.y + pFielder->m_v3Position.f.y;
             av3FielderAILocs[i].f.x = fx;
             av3FielderAILocs[i].f.y = fy;
             av3FielderAILocs[i].f.z = fz;
@@ -714,13 +713,12 @@ void FormationEval::SortPlayers(const nlVector2* v2Center)
     }
 
     av2FormationPositions[0].f.y = self->m_pFormationSpec->m_Positions[0].m_Location.f.y + v2CenterOfPlayers.f.y;
-    av2FormationPositions[1].f.y = self->m_pFormationSpec->m_Positions[1].m_Location.f.y + v2CenterOfPlayers.f.y;
-    av2FormationPositions[2].f.y = self->m_pFormationSpec->m_Positions[2].m_Location.f.y + v2CenterOfPlayers.f.y;
-    av2FormationPositions[3].f.y = self->m_pFormationSpec->m_Positions[3].m_Location.f.y + v2CenterOfPlayers.f.y;
-
     av2FormationPositions[0].f.x = self->m_pFormationSpec->m_Positions[0].m_Location.f.x + v2CenterOfPlayers.f.x;
     av2FormationPositions[1].f.x = self->m_pFormationSpec->m_Positions[1].m_Location.f.x + v2CenterOfPlayers.f.x;
+    av2FormationPositions[1].f.y = self->m_pFormationSpec->m_Positions[1].m_Location.f.y + v2CenterOfPlayers.f.y;
     av2FormationPositions[2].f.x = self->m_pFormationSpec->m_Positions[2].m_Location.f.x + v2CenterOfPlayers.f.x;
+    av2FormationPositions[2].f.y = self->m_pFormationSpec->m_Positions[2].m_Location.f.y + v2CenterOfPlayers.f.y;
+    av2FormationPositions[3].f.y = self->m_pFormationSpec->m_Positions[3].m_Location.f.y + v2CenterOfPlayers.f.y;
     av2FormationPositions[3].f.x = self->m_pFormationSpec->m_Positions[3].m_Location.f.x + v2CenterOfPlayers.f.x;
 
     pFormPositions = av2FormationPositions;
@@ -1267,8 +1265,7 @@ void FormationBallPosition::Update(float fDeltaT)
  */
 /**
  * Offset/Address/Size: 0x618 | 0x80038868 | size: 0x318
- * TODO: 98.28% match - 4 register diffs (f1/f2 swap in loop body at offsets 80-8c),
- *       likely -inline deferred vs -inline auto difference
+ * TODO: 99.80% match - 4 register diffs (f1/f2 swap in first distance block at offsets 0x80-0x8C)
  */
 bool FormationBallPosition::SelectClosestBallFormations(const nlVector2& v2AIBallLoc)
 {
@@ -1366,7 +1363,7 @@ bool FormationBallPosition::SelectClosestBallFormations(const nlVector2& v2AIBal
             float dx = v2AIBallLoc.f.x - keyLoc.f.x;
             float dist = nlSqrt(dx * dx + dy * dy, true);
 
-            if (dist > fInDist)
+            if (!(dist <= fInDist))
             {
                 goto done;
             }

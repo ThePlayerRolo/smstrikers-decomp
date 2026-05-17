@@ -250,9 +250,61 @@ void NSNMessengerScene::SetDisplayMessage(const char* locMessage)
 /**
  * Offset/Address/Size: 0x418 | 0x800A1734 | size: 0x220
  */
-// void NSNMessengerScene::SetDisplayMessage(const BasicString<unsigned short, Detail::TempStringAllocator>&)
-// {
-// }
+void NSNMessengerScene::SetDisplayMessage(const BasicString<unsigned short, Detail::TempStringAllocator>& theMessage)
+{
+    m_messageDisplaying = true;
+    m_messageDisplayTime = 0.0f;
+
+    const unsigned short* str = theMessage.c_str();
+    memcpy(m_displayMessage, str, 0x1FE);
+
+    FEPresentation* pres = m_pFEScene->m_pFEPackage->GetPresentation();
+
+    TLTextInstance* textBox;
+
+    textBox = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
+        pres,
+        InlineHasher(nlStringLowerHash("Normal")),
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("Group")),
+        InlineHasher(nlStringLowerHash("Text")),
+        InlineHasher(0),
+        InlineHasher(0));
+    textBox->SetString(m_displayMessage);
+
+    {
+        InlineHasher z1(0);
+        InlineHasher z2(0);
+        textBox = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
+            pres,
+            InlineHasher(nlStringLowerHash("Intro")),
+            InlineHasher(nlStringLowerHash("Layer")),
+            InlineHasher(nlStringLowerHash("Group")),
+            InlineHasher(nlStringLowerHash("Text")),
+            z1,
+            z2);
+        textBox->SetString(m_displayMessage);
+    }
+
+    {
+        InlineHasher z1(0);
+        InlineHasher z2(0);
+        textBox = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
+            pres,
+            InlineHasher(nlStringLowerHash("Outro")),
+            InlineHasher(nlStringLowerHash("Layer")),
+            InlineHasher(nlStringLowerHash("Group")),
+            InlineHasher(nlStringLowerHash("Text")),
+            z1,
+            z2);
+        textBox->SetString(m_displayMessage);
+    }
+
+    if (m_scrollText != NULL)
+    {
+        m_scrollText->SetDisplayMessage(theMessage);
+    }
+}
 
 /**
  * Offset/Address/Size: 0x638 | 0x800A1954 | size: 0x70

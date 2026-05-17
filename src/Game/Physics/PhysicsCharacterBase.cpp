@@ -297,21 +297,22 @@ extern "C" void __ct__14PhysicsCapsuleFP14CollisionSpaceP12PhysicsWorldff(Physic
 
 /**
  * Offset/Address/Size: 0x80 | 0x801FEB7C | size: 0x280
- * TODO: 95.34% match - remaining 100 diffs are register-only (pose->r31 vs target r21),
- * caused by -inline deferred vs -inline auto register allocator difference.
+ * TODO: 97.06% match - remaining diffs are preserved-register allocation shifts in
+ * object/element/bone-volume loop temporaries.
  */
 void PhysicsCharacterBase::AddBoneVolumes(PhysicsWorld* physicsWorld, CollisionSpace* collisionSpace, cPoseAccumulator* pose, const CharacterPhysicsData* physicsData, unsigned long category, unsigned long collideMask)
 {
-    ListEntry<PhysicsBoneVolume*>** pTail = &m_BoneVolumes.m_Tail;
-    ListEntry<PhysicsBoneVolume*>** pHead = &m_BoneVolumes.m_Head;
-    unsigned long i = 0;
-    unsigned long offset = 0;
     u8* elements = *(u8**)((u8*)physicsData + 8);
     unsigned long count = *(u32*)((u8*)physicsData + 4);
+    ListEntry<PhysicsBoneVolume*>** pTail = &m_BoneVolumes.m_Tail;
+    ListEntry<PhysicsBoneVolume*>** pHead = &m_BoneVolumes.m_Head;
+    unsigned int i = 0;
+    unsigned long offset = 0;
+    AddBoneVolumesElement* element;
 
     while (i < count)
     {
-        AddBoneVolumesElement* element = (AddBoneVolumesElement*)(elements + offset);
+        element = (AddBoneVolumesElement*)(elements + offset);
         PhysicsObject* obj = NULL;
 
         switch (element->uPrimitiveType)
@@ -350,7 +351,7 @@ void PhysicsCharacterBase::AddBoneVolumes(PhysicsWorld* physicsWorld, CollisionS
         obj->SetCategory(category);
         obj->SetCollide(collideMask);
 
-        unsigned int boneIndex = pose->m_BaseSHierarchy->GetNodeIndexByID(element->uParentHashID);
+        unsigned long boneIndex = pose->m_BaseSHierarchy->GetNodeIndexByID(element->uParentHashID);
         int transformHandle = AddObject(obj);
         PhysicsBoneID boneID = ResolvePhysicsBoneIDFromName((const char*)element->szName);
 
@@ -364,11 +365,12 @@ void PhysicsCharacterBase::AddBoneVolumes(PhysicsWorld* physicsWorld, CollisionS
             boneVolume->m_ID = boneID;
         }
 
-        ListEntry<PhysicsBoneVolume*>* listNode = (ListEntry<PhysicsBoneVolume*>*)nlMalloc(8, 8, false);
-        if (listNode != NULL)
+        void* p = nlMalloc(8, 8, false);
+        ListEntry<PhysicsBoneVolume*>* listNode = (ListEntry<PhysicsBoneVolume*>*)p;
+        if (p != NULL)
         {
-            listNode->next = NULL;
-            listNode->data = boneVolume;
+            ((ListEntry<PhysicsBoneVolume*>*)p)->next = NULL;
+            ((ListEntry<PhysicsBoneVolume*>*)p)->data = boneVolume;
         }
 
         nlListAddStart<ListEntry<PhysicsBoneVolume*> >(pHead, listNode, pTail);

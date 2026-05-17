@@ -267,9 +267,9 @@ bool Replay::DidOccurInLastNumSeconds(unsigned int events, float seconds) const
 
 /**
  * Offset/Address/Size: 0x38 | 0x802138E4 | size: 0x39C
- * TODO: 96.81% match (repo). Register allocation diffs from -inline deferred:
- * r9/r10 swap (first do-while), r9/r12 swap (inner Next loops), r8/r10
- * (post-valid frame loops). Also bgt- vs ble-+inline-return at size check.
+ * TODO: 97.59% match (repo). Remaining diffs are register allocation in the
+ * first do-while and inner Next(,0) traversals, plus bgt vs ble+return shape
+ * around the size-threshold check.
  */
 bool Replay::LockReel(float numSeconds, int idx, int quality)
 {
@@ -307,27 +307,32 @@ bool Replay::LockReel(float numSeconds, int idx, int quality)
             int reelIdx = frame->mReelIdx;
             if (reelIdx > 0)
             {
-                Frame* r = mReels[0].mBegin;
-
-                while (r != nullptr)
                 {
-                    if (r->mReelIdx == reelIdx)
-                    {
-                        r->mReelIdx = 0;
-                    }
+                    Frame* frame = mReels[0].mBegin;
 
-                    r = Next(r, 0);
+                    while (frame != nullptr)
+                    {
+                        if (frame->mReelIdx == reelIdx)
+                        {
+                            frame->mReelIdx = 0;
+                        }
+
+                        frame = Next(frame, 0);
+                    }
                 }
 
-                r = mFree->mNext;
-                while (r != mFree)
                 {
-                    if (r->mReelIdx == reelIdx)
-                    {
-                        r->mReelIdx = -1;
-                    }
+                    Frame* frame = mFree->mNext;
 
-                    r = r->mNext;
+                    while (frame != mFree)
+                    {
+                        if (frame->mReelIdx == reelIdx)
+                        {
+                            frame->mReelIdx = -1;
+                        }
+
+                        frame = frame->mNext;
+                    }
                 }
 
                 mReels[reelIdx].mBegin = nullptr;
@@ -346,26 +351,32 @@ afterLoops:
         return false;
     }
 
-    frame = mReels[0].mBegin;
-    while (frame != nullptr)
     {
-        if (frame->mReelIdx == idx)
-        {
-            frame->mReelIdx = 0;
-        }
+        Frame* frame = mReels[0].mBegin;
 
-        frame = Next(frame, 0);
+        while (frame != nullptr)
+        {
+            if (frame->mReelIdx == idx)
+            {
+                frame->mReelIdx = 0;
+            }
+
+            frame = Next(frame, 0);
+        }
     }
 
-    frame = mFree->mNext;
-    while (frame != mFree)
     {
-        if (frame->mReelIdx == idx)
-        {
-            frame->mReelIdx = -1;
-        }
+        Frame* frame = mFree->mNext;
 
-        frame = frame->mNext;
+        while (frame != mFree)
+        {
+            if (frame->mReelIdx == idx)
+            {
+                frame->mReelIdx = -1;
+            }
+
+            frame = frame->mNext;
+        }
     }
 
     mReels[idx].mBegin = nullptr;
@@ -373,15 +384,18 @@ afterLoops:
 
     int size = 0;
     beginTime = mReels[mReelIdx].mLast->mTime - numSeconds;
-    frame = mReels[0].mBegin;
-    while (frame != nullptr)
     {
-        if (frame->mTime >= beginTime)
-        {
-            size += frame->mSize;
-        }
+        Frame* frame = mReels[0].mBegin;
 
-        frame = Next(frame, 0);
+        while (frame != nullptr)
+        {
+            if (frame->mTime >= beginTime)
+            {
+                size += frame->mSize;
+            }
+
+            frame = Next(frame, 0);
+        }
     }
 
     if (size > (int)(0.75f * (float)(mMemorySize / 4)))
@@ -390,20 +404,23 @@ afterLoops:
     }
 
     mReels[idx].mAge = quality;
-    frame = mReels[0].mBegin;
-    while (frame != nullptr)
     {
-        if (frame->mTime >= beginTime)
-        {
-            frame->mReelIdx = idx;
-            if (mReels[idx].mBegin == nullptr)
-            {
-                mReels[idx].mBegin = frame;
-            }
-            mReels[idx].mLast = frame;
-        }
+        Frame* frame = mReels[0].mBegin;
 
-        frame = Next(frame, 0);
+        while (frame != nullptr)
+        {
+            if (frame->mTime >= beginTime)
+            {
+                frame->mReelIdx = idx;
+                if (mReels[idx].mBegin == nullptr)
+                {
+                    mReels[idx].mBegin = frame;
+                }
+                mReels[idx].mLast = frame;
+            }
+
+            frame = Next(frame, 0);
+        }
     }
 
     return true;

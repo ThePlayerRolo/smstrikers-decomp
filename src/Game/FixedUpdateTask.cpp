@@ -31,6 +31,7 @@ float FixedUpdateTask::mfFrameLockTime;
 /**
  * Offset/Address/Size: 0x2D8 | 0x8016E608 | size: 0x30
  */
+#pragma inline_depth(255)
 FixedUpdateTask::FixedUpdateTask()
 {
     mAccumulatedDeltaT = g_fFixedUpdateTick;

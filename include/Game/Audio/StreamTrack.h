@@ -208,6 +208,75 @@ void TrackManager<N>::Update(float dT)
     TrackManagerBase::Update(dT);
 }
 
+template <int N>
+void TrackManager<N>::DestroyAllTracks()
+{
+    typedef typename nlSortedSlot<StreamTrack, N>::template EntryLookup<StreamTrack> EL;
+
+    unsigned long trackOffset;
+    unsigned long i;
+    EL* foundSlot;
+    StreamTrack* track;
+
+    StopAllTracks(0);
+
+    while (nlStaticSortedSlot<StreamTrack, N>::m_EntryCount != 0)
+    {
+        track = ((EL*)((char*)nlStaticSortedSlot<StreamTrack, N>::m_pEntryLookup))->pEntry;
+        if (track == NULL)
+        {
+            break;
+        }
+
+        track->m_InFakePause = 0;
+        track->Stop(0);
+
+        if (track->m_IdleCallback.mTag == FUNCTOR)
+        {
+            if (track->m_IdleCallback.mFunctor != NULL)
+            {
+                delete track->m_IdleCallback.mFunctor;
+            }
+        }
+        track->m_IdleCallback.mTag = EMPTY;
+
+        {
+            typedef DLListContainerBase<StreamTrack::QUEUED_STREAM, nlStaticArrayAllocator<DLListEntry<StreamTrack::QUEUED_STREAM>, 4> > QContainer;
+            void (QContainer::*func)(DLListEntry<StreamTrack::QUEUED_STREAM>*) = &QContainer::DeleteEntry;
+            nlWalkDLRing(track->m_QueuedStreams.m_Head, &track->m_QueuedStreams, func);
+            track->m_QueuedStreams.m_Head = NULL;
+        }
+
+        foundSlot = 0;
+        for (i = 0, trackOffset = 0; i < nlStaticSortedSlot<StreamTrack, N>::m_EntryCount; i++, trackOffset += 8)
+        {
+            if (((EL*)((char*)nlStaticSortedSlot<StreamTrack, N>::m_pEntryLookup + trackOffset))->pEntry == track)
+            {
+                foundSlot = (EL*)((char*)nlStaticSortedSlot<StreamTrack, N>::m_pEntryLookup + i * 8);
+                break;
+            }
+        }
+
+        FreeEntry(track);
+
+        {
+            unsigned long entryCount = nlStaticSortedSlot<StreamTrack, N>::m_EntryCount;
+            int idx = foundSlot - nlStaticSortedSlot<StreamTrack, N>::m_pEntryLookup;
+            while ((unsigned long)idx != entryCount)
+            {
+                int next = idx + 1;
+                EL* src = (EL*)((char*)nlStaticSortedSlot<StreamTrack, N>::m_pEntryLookup + next * 8);
+                EL* dst = (EL*)((char*)nlStaticSortedSlot<StreamTrack, N>::m_pEntryLookup + idx * 8);
+                idx = next;
+                dst->pEntry = src->pEntry;
+                dst->hash = src->hash;
+            }
+        }
+
+        nlStaticSortedSlot<StreamTrack, N>::m_EntryCount--;
+    }
+}
+
 } // namespace AudioStreamTrack
 
 // class Function0<void>

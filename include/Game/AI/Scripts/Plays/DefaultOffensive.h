@@ -11,7 +11,7 @@
 class Fuzzy
 {
 public:
-    void AbortOffensivePlay(cDecisionEntity*);
+    static FuzzyVariant AbortOffensivePlay(cDecisionEntity*);
     void DefaultOffensivePlay(cDecisionEntity*);
     void DoPassing(float, cDecisionEntity*);
     void GoodBallCarrier(cFielder*);

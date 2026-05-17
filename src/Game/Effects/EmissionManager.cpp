@@ -22,6 +22,16 @@ void Replayable<0, LoadFrame, EmissionController>(LoadFrame& frame, EmissionCont
     frame.Replayable<0>(controller);
 }
 
+extern "C"
+{
+    void __vt__18AVLTreeUntemplated(void);
+    void vtAVLTreeBaseLingerers(void);
+    void vtNlAVLTreeLingerers(void);
+}
+
+#pragma alias vtAVLTreeBaseLingerers "__vt__106AVLTreeBase<Ul,P13LingerMessage,47NewAdapter<33AVLTreeEntry<Ul,P13LingerMessage>>,21DefaultKeyCompare<Ul>>"
+#pragma alias vtNlAVLTreeLingerers "__vt__54nlAVLTree<Ul,P13LingerMessage,21DefaultKeyCompare<Ul>>"
+
 template <>
 nlAVLTree<unsigned long, LingerMessage*, DefaultKeyCompare<unsigned long> >::~nlAVLTree();
 
@@ -79,8 +89,19 @@ bool EmissionManager::Startup(eGLView view)
     }
     errors = tmp_errors;
 
-    lingerers = new (nlMalloc(sizeof(nlAVLTree<unsigned long, LingerMessage*, DefaultKeyCompare<unsigned long> >), 8, false))
-        nlAVLTree<unsigned long, LingerMessage*, DefaultKeyCompare<unsigned long> >();
+    nlAVLTree<unsigned long, LingerMessage*, DefaultKeyCompare<unsigned long> >* tmp_lingerers = (nlAVLTree<unsigned long, LingerMessage*, DefaultKeyCompare<unsigned long> >*)nlMalloc(
+        sizeof(nlAVLTree<unsigned long, LingerMessage*, DefaultKeyCompare<unsigned long> >), 8, false);
+    if (tmp_lingerers != nullptr)
+    {
+        u32* map = (u32*)tmp_lingerers;
+        map[0] = (u32)__vt__18AVLTreeUntemplated;
+        map[0] = (u32)vtAVLTreeBaseLingerers;
+        map[4] = 0;
+        map[2] = 0;
+        map[3] = 0;
+        map[0] = (u32)vtNlAVLTreeLingerers;
+    }
+    lingerers = tmp_lingerers;
 
     return true;
 }
@@ -124,7 +145,8 @@ bool EmissionManager::Shutdown()
     delete errors;
     errors = nullptr;
 
-    ResetLingerers();
+    void (*resetLingerers)() = &EmissionManager::ResetLingerers;
+    resetLingerers();
 
     delete lingerers;
     lingerers = nullptr;
@@ -200,7 +222,7 @@ void EmissionManager::Update(float dt)
     // Lingerers display
     if (lingerers->m_Root != NULL)
     {
-        nlColour colour = kLingerColour;
+        nlColour colour = { 0xFF, 0xFF, 0xFF, 0xFF };
         nlAVLTreeIter* iter;
         int y = 3;
         glFontBegin(false);
@@ -293,7 +315,6 @@ void EmissionManager::AddEffectsLight(const EffectsLight& light)
     {
         return;
     }
-
     g_EffectsLights[g_nNumLights++] = light;
 }
 
@@ -480,7 +501,6 @@ void EmissionManager::Destroy(unsigned long userData, const EffectsGroup* pEffec
  */
 void EmissionManager::ResetLingerers()
 {
-    FORCE_DONT_INLINE;
     if (lingerers != nullptr)
     {
         lingerers->DeleteValues();
@@ -888,12 +908,16 @@ inline void Replayable<0, LoadFrame, unsigned short>(LoadFrame& frame, unsigned 
 //  {
 //  }
 
-//  /**
-//   * Offset/Address/Size: 0x6C | 0x801F97E4 | size: 0x58
-//   */
-//  void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*>>, DefaultKeyCompare<unsigned long>>::DeleteValues()
-//  {
-//  }
+/**
+ * Offset/Address/Size: 0x6C | 0x801F97E4 | size: 0x58
+ */
+#pragma dont_inline on
+void AVLTreeBase<unsigned long, LingerMessage*, NewAdapter<AVLTreeEntry<unsigned long, LingerMessage*> >, DefaultKeyCompare<unsigned long> >::DeleteValues()
+{
+    DestroyTree(&AVLTreeBase::DeleteValue);
+    m_NumElements = 0;
+}
+#pragma dont_inline reset
 
 //  /**
 //   * Offset/Address/Size: 0x48 | 0x801F97C0 | size: 0x24

@@ -9,26 +9,8 @@
 #include "Game/GameInfo.h"
 #include "Game/GameSceneManager.h"
 #include "NL/nlBSearch.h"
+#include "NL/nlFormat.h"
 #include "NL/nlLocalization.h"
-
-template <typename StringType>
-class FormatImpl
-{
-public:
-    StringType mString;
-    int mCurrentPos;
-
-    FormatImpl(BasicStringData<char>* data)
-        : mString((BasicStringData<unsigned short>*)data)
-        , mCurrentPos(0)
-    {
-    }
-
-    operator StringType() const;
-
-    template <typename T>
-    FormatImpl& operator%(const T& t);
-};
 
 template <typename StringType, typename T1>
 StringType Format(const StringType& format, const T1& value1);
@@ -38,6 +20,8 @@ StringType Format(const StringType& format, const T1& value1, const T2& value2);
 
 template <typename StringType, typename T1, typename T2, typename T3>
 StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3);
+
+typedef BasicString<unsigned short, Detail::TempStringAllocator> WideBasicString;
 
 /**
  * Offset/Address/Size: 0x1058 | 0x800D0DD8 | size: 0x118
@@ -59,10 +43,10 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>, unsigned short[
         data = 0;
     }
 
-    FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> > impl((BasicStringData<char>*)data);
+    FormatImplLayoutWideTemp impl(data);
 
     return BasicString<unsigned short, Detail::TempStringAllocator>(
-        (BasicString<unsigned short, Detail::TempStringAllocator>)(impl % (const unsigned short*)value));
+        (BasicString<unsigned short, Detail::TempStringAllocator>)(((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % (const unsigned short*)value));
 }
 
 /**
@@ -85,10 +69,10 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>, const unsigned 
         data = 0;
     }
 
-    FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> > impl((BasicStringData<char>*)data);
+    FormatImplLayoutWideTemp impl(data);
 
     return BasicString<unsigned short, Detail::TempStringAllocator>(
-        (BasicString<unsigned short, Detail::TempStringAllocator>)(impl % value));
+        (BasicString<unsigned short, Detail::TempStringAllocator>)(((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % value));
 }
 
 /**
@@ -112,18 +96,11 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>, unsigned short[
         data = 0;
     }
 
-    FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> > impl((BasicStringData<char>*)data);
+    FormatImplLayoutWideTemp impl(data);
 
     return BasicString<unsigned short, Detail::TempStringAllocator>(
-        (BasicString<unsigned short, Detail::TempStringAllocator>)((impl % (const unsigned short*)value) % (const unsigned short*)value2));
+        (BasicString<unsigned short, Detail::TempStringAllocator>)((((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % (const unsigned short*)value) % (const unsigned short*)value2));
 }
-
-// /**
-//  * Offset/Address/Size: 0x130 | 0x800CFEB0 | size: 0xCF0
-//  */
-// void FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator>>::operator%<const unsigned short*>(const unsigned short* const&)
-// {
-// }
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x800CFD80 | size: 0x130

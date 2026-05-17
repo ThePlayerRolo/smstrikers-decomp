@@ -306,8 +306,8 @@ void Update3DSFXEmitter(SFXEmitter* pSFXEmitter, const nlVector3& position, cons
 
 /**
  * Offset/Address/Size: 0x588 | 0x801C4D84 | size: 0x2E4
- * TODO: 98.49% match - remaining MWCC f-register scheduling in reverb conversion
- * and pitch/debug-print register allocation (r5 vs r0 and lis/addi register choice).
+ * TODO: 99.57% match - remaining mismatch is pitch-check register allocation
+ * (r5 vs r0) and debug-print address load register ordering.
  */
 void Add3DSFXEmitter(const EmitterStartInfo& info)
 {
@@ -370,7 +370,7 @@ void Add3DSFXEmitter(const EmitterStartInfo& info)
     pParaInfo = NULL;
     pParaArray = NULL;
 
-    if (info.fVolReverb != 0.0f)
+    if (info.fVolReverb != -0.0f)
     {
         numPara = 1;
     }
@@ -403,7 +403,7 @@ void Add3DSFXEmitter(const EmitterStartInfo& info)
         pParaInfo->paraArray = pParaArray;
     }
 
-    if (info.fVolReverb != 0.0f)
+    if (info.fVolReverb != -0.0f)
     {
         float var_f1 = info.fVolReverb;
         float var_f2 = 127.0f;
@@ -704,9 +704,8 @@ bool StopSFX(unsigned long handle)
 
 /**
  * Offset/Address/Size: 0xD18 | 0x801C5514 | size: 0x244
- * TODO: 97.72% match - remaining differences are concentrated in the pitch/filter
- * parameter block: r5/r0 pitch bend compare, Print call lis/li ordering, and
- * r3/r0 plus r4/r5 register swaps during ctrl/freq writes.
+ * TODO: 99.10% match - remaining differences are register allocation in the
+ * pitch/filter parameter writes (r5/r0 compare and r3/r0, r3/r4 swaps).
  */
 #pragma opt_common_subs off
 unsigned long PlaySFX(const SFXStartInfo& info)
@@ -714,11 +713,11 @@ unsigned long PlaySFX(const SFXStartInfo& info)
     const SFXStartInfo* pInfo = &info;
     u8 uVolume;
     u8 uPan;
-    SND_PARAMETER tempParaArray[4];
+    unsigned long numPara;
     int currParaIndex;
     SND_PARAMETER* pParaArray;
     SND_PARAMETER_INFO tempParaInfo;
-    unsigned long numPara;
+    SND_PARAMETER tempParaArray[4];
 
     float f2 = pInfo->fVolume;
     if (0.0f == f2)
@@ -767,9 +766,9 @@ unsigned long PlaySFX(const SFXStartInfo& info)
 
     numPara = 0;
     currParaIndex = 0;
+    pParaArray = NULL;
     tempParaInfo.numPara = 0;
     tempParaInfo.paraArray = NULL;
-    pParaArray = NULL;
 
     if (0.0f != pInfo->fVolReverb)
     {
@@ -793,11 +792,10 @@ unsigned long PlaySFX(const SFXStartInfo& info)
         tempParaInfo.paraArray = pParaArray;
     }
 
-    f2 = pInfo->fVolReverb;
-    if (0.0f != f2)
+    if (0.0f != pInfo->fVolReverb)
     {
         float f0;
-        float f1v = 127.0f * f2;
+        float f1v = 127.0f * pInfo->fVolReverb;
         pParaArray[0].ctrl = 0x5B;
         if (f1v < -0.0f)
         {
@@ -819,15 +817,18 @@ unsigned long PlaySFX(const SFXStartInfo& info)
             tDebugPrintManager::Print(DC_SOUND, "pitch bend should be non-default\n");
         }
 
-        pParaArray[currParaIndex].ctrl = 0x80;
-        pParaArray[currParaIndex].paraData.value14 = pInfo->uPitchBend;
-        currParaIndex += 1;
+        {
+            unsigned long idx = currParaIndex;
+            pParaArray[idx].ctrl = 0x80;
+            pParaArray[idx].paraData.value14 = pInfo->uPitchBend;
+            currParaIndex = idx + 1;
+        }
     }
 
     if (pInfo->bActivateFilter)
     {
-        unsigned long idx = currParaIndex;
-        u16 freq = pInfo->filterFreq;
+        int idx = currParaIndex;
+        unsigned long freq = pInfo->filterFreq;
 
         pParaArray[idx].ctrl = 0x4F;
         pParaArray[idx].paraData.value14 = 0x2000;
@@ -839,7 +840,7 @@ unsigned long PlaySFX(const SFXStartInfo& info)
 
         idx = currParaIndex + 1;
         pParaArray[idx].ctrl = 1;
-        pParaArray[idx].paraData.value14 = freq;
+        pParaArray[idx].paraData.value14 = (u16)freq;
     }
 
     return sndFXStartParaInfo((u16)pInfo->uSFXID, uVolume, uPan, 0, &tempParaInfo);

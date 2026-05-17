@@ -2332,6 +2332,7 @@ World::World(const char* szWorldName)
     , m_Locked(false)
     , m_pModels(NULL)
     , m_uNumModels(0)
+    , m_animControllerList(0)
 {
     m_WorldNameLength = nlStrLen<char>(szWorldName);
     nlStrNCpy<char>(m_WorldNamePrefix, szWorldName, 0x40);

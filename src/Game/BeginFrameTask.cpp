@@ -236,9 +236,8 @@ void SetupMatrices()
 
 /**
  * Offset/Address/Size: 0x1068 | 0x8016F748 | size: 0x450
- * TODO: 97.72% match - r30/r31 register swap in BasicString constructor (MWCC
- * allocates differently for temporary vs named variable), missing lwz r0 reload
- * and r0/r4 register difference after Config::Get return value copy-init.
+ * TODO: 99.09% match - r30/r31 register assignment remains swapped in the
+ * default wait-mode BasicString setup and cleanup sequence.
  */
 void SetupRenderInfo()
 {
@@ -305,7 +304,30 @@ void SetupRenderInfo()
 
     if (!bGotWait)
     {
-        BasicString<char, Detail::TempStringAllocator> waitMode = Config::Global().Get<BasicString<char, Detail::TempStringAllocator> >("wait_vblank", BasicString<char, Detail::TempStringAllocator>("default"));
+        BasicStringInternal* data = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+        if (data != 0)
+        {
+            const char* str = "default";
+            data->mData = 0;
+            const char* s = str;
+            data->mSize = 0;
+            data->mCapacity = 0;
+            while (*s++ != 0)
+            {
+                data->mSize++;
+            }
+            data->mSize++;
+            data->mData = (char*)Detail::TempStringAllocator::allocate(data->mSize + 1);
+            data->mCapacity = data->mSize;
+            for (s32 i = 0; i < data->mSize; i++)
+            {
+                data->mData[i] = *str++;
+            }
+            data->mRefCount = 1;
+        }
+
+        BasicString<char, Detail::TempStringAllocator> waitMode = Config::Global().Get<BasicString<char, Detail::TempStringAllocator> >(
+            "wait_vblank", BasicString<char, Detail::TempStringAllocator>(data));
 
         if (waitMode == "never")
         {

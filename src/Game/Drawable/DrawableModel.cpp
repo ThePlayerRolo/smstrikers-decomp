@@ -266,9 +266,12 @@ extern "C"
 /**
  * Offset/Address/Size: 0x81C | 0x80122730 | size: 0x10
  */
-// void AVLTreeBase<unsigned long, AABBDimensions, BasicSlotPool<AVLTreeEntry<unsigned long, AABBDimensions>>, DefaultKeyCompare<unsigned long>>::DeleteEntry(AVLTreeEntry<unsigned long, AABBDimensions>*)
-// {
-// }
+#pragma inline_depth(8)
+void AVLTreeBase<unsigned long, AABBDimensions, BasicSlotPool<AVLTreeEntry<unsigned long, AABBDimensions> >, DefaultKeyCompare<unsigned long> >::DeleteEntry(AVLTreeEntry<unsigned long, AABBDimensions>* entry)
+{
+    m_Allocator.Free(entry);
+}
+#pragma inline_depth()
 
 /**
  * Offset/Address/Size: 0x8B4 | 0x80122740 | size: 0x12C

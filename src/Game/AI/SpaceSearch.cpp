@@ -410,8 +410,8 @@ float CalcIdealShootingPositionScore(const nlVector3& v3TestPosition, const nlVe
                         fInvDeltaLen = nlRecipSqrt(fDeltaLenSq, true);
                         fInvCandidateLen = nlRecipSqrt(fCandidateLenSq, true);
 
-                        fDot = (fInvDeltaLen * fDy3) * (fInvCandidateLen * fCandidateY2)
-                             + (fInvDeltaLen * fDx3) * (fInvCandidateLen * fCandidateX2);
+                        fDot = (fInvDeltaLen * fDx3) * (fInvCandidateLen * fCandidateX2)
+                             + (fInvDeltaLen * fDy3) * (fInvCandidateLen * fCandidateY2);
                         fScore = fScore * NormalizeVal(fDot, 0.0f, 1.0f);
                     }
                 }

@@ -8,6 +8,7 @@
 #include "Game/SAnim/pnFeather.h"
 #include "Game/SAnim/pnBlender.h"
 #include "Game/SAnim/pnSingleAxisBlender.h"
+#include "Game/SAnim/PoseNodeReplayDispatch.h"
 #include "Game/Render/RenderShadow.h"
 #include "Game/GameObjectLighting.h"
 #include "Game/WorldManager.h"

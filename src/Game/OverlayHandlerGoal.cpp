@@ -894,7 +894,7 @@ void GoalOverlay::UpdateGoalInfo(int homeAway, int playerIndex, bool isCaptainS2
 
 /**
  * Offset/Address/Size: 0x1590 | 0x80101600 | size: 0x418
- * TODO: 92.05% match - systematic register rotation by 1 (r28=this vs r27=this) and +0x0C stack offset shift, likely caused by volatile+union trick for InlineHasher by-ref calling under -inline deferred.
+ * TODO: 97.89% match - +0x0C hasher stack slot offset and localization pointer register swaps remain.
  */
 void GoalOverlay::SetHighlightNumber(int highlightNumber)
 {
@@ -975,46 +975,16 @@ void GoalOverlay::SetHighlightNumber(int highlightNumber)
         }
     }
 
-    BasicStringData<unsigned short>* data = (BasicStringData<unsigned short>*)nlMalloc(0x10, 8, true);
-    if (data)
-    {
-        data->mData = 0;
-        data->mSize = 0;
-        data->mCapacity = 0;
+    BasicString<unsigned short, Detail::TempStringAllocator> unformatted(locString);
 
-        const unsigned short* ptr = locString;
-        while (*ptr++)
-        {
-            data->mSize++;
-        }
-
-        data->mSize++;
-        data->mData = (unsigned short*)nlMalloc((data->mSize + 1) * 2, 8, true);
-        data->mCapacity = data->mSize;
-
-        int i = 0;
-        int j = 0;
-        while (i < data->mSize)
-        {
-            *(unsigned short*)((char*)data->mData + j) = *locString;
-            i++;
-            locString++;
-            j += 2;
-        }
-
-        data->mRefCount = 1;
-    }
-
-    BasicString<unsigned short, Detail::TempStringAllocator> format(data);
-
-    int displayNumber = highlightNumber + 1;
-    BasicString<char, Detail::TempStringAllocator> numberString(
-        LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(displayNumber));
-    unsigned short numberBuffer[16];
-    nlStrToWcs(numberString.c_str(), numberBuffer, 16);
+    int highlight = highlightNumber + 1;
+    BasicString<char, Detail::TempStringAllocator> highlightString(
+        LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(highlight));
+    unsigned short highlightWideString[16];
+    nlStrToWcs(highlightString.c_str(), highlightWideString, 16);
 
     BasicString<unsigned short, Detail::TempStringAllocator> formatted(
-        Format(format, numberBuffer));
+        Format(unformatted, highlightWideString));
 
     memcpy(mDescriptionBuffer, formatted.c_str(), 0x100);
     text->SetString(mDescriptionBuffer);

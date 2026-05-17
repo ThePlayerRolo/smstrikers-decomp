@@ -182,19 +182,19 @@ eGLView ModeledScreenTransition::s_3DView = GLV_Transitions;
 /**
  * Offset/Address/Size: 0x1E60 | 0x80203F24 | size: 0x31C
  */
-int GetNumLeafNodesInHierarchy(cSHierarchy& hierarchy, int nodeIndex, int count)
+int GetNumLeafNodesInHierarchy(cSHierarchy& h, int node, int ret)
 {
-    if (hierarchy.GetNumChildren(nodeIndex) == 0)
+    if (h.GetNumChildren(node) == 0)
     {
-        return count + 1;
+        return ret + 1;
     }
 
-    for (int p = 0; p < hierarchy.GetNumChildren(nodeIndex); p++)
+    for (int i = 0; i < h.GetNumChildren(node); i++)
     {
-        count = GetNumLeafNodesInHierarchy(hierarchy, hierarchy.GetChild(nodeIndex, p), count);
+        ret = GetNumLeafNodesInHierarchy(h, h.GetChild(node, i), ret);
     }
 
-    return count;
+    return ret;
 }
 
 /**

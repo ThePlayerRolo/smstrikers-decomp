@@ -37,9 +37,8 @@ template nlVector3& PositionOf<cFielder*>(cFielder*);
 
 /**
  * Offset/Address/Size: 0x6B9C | 0x80093628 | size: 0x43C
- * TODO: 97.49% match - r29/r30 swap in bool-to-FuzzyVariant branch temporaries.
  */
-void Fuzzy::AbortOffensivePlay(cDecisionEntity*)
+FuzzyVariant Fuzzy::AbortOffensivePlay(cDecisionEntity*)
 {
     extern cTeam* g_pScriptCurrentTeam;
 
@@ -88,10 +87,7 @@ void Fuzzy::AbortOffensivePlay(cDecisionEntity*)
     }
 
     bestValue.Confidence = fBestConfidence;
-
-    FuzzyVariant* pOut = (FuzzyVariant*)this;
-    new (pOut) FuzzyVariant;
-    *pOut = bestValue;
+    return bestValue;
 }
 
 /**

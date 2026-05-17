@@ -200,10 +200,10 @@ void CupTickerManager::SetTickerTextInstance(TLTextInstance* tickerText)
     BasicStringInternal* data = (BasicStringInternal*)nlMalloc(0x10, 8, true);
     if (data)
     {
-        data->mData = 0;
         const unsigned short* src = mMessageBuffer;
-        data->mSize = 0;
+        data->mData = 0;
         const unsigned short* ptr = src;
+        data->mSize = 0;
         data->mCapacity = 0;
 
         while (*ptr++)
@@ -286,9 +286,6 @@ extern "C" unsigned long GetLOCCharacterName__F7eTeamIDbb(int, bool, bool);
 extern "C" int FindWinningTeam__15GameInfoManagerFv(void*);
 extern "C" unsigned long nlStringLowerHash__FPCc(const char*);
 extern "C" void nlStrToWcs__FPCcPUsUl(const char*, unsigned short*, unsigned long);
-
-extern "C" void BuildGoalTotalTickerMessage__16CupTickerManagerFR46BasicString_Us_Q26Detail19TempStringAllocator_b(
-    CupTickerManager*, WideBasicString&, bool);
 
 template <typename StringType, typename T1, typename T2, typename T3, typename T4>
 StringType Format(const StringType& fmt, const T1& v1, const T2& v2, const T3& v3, const T4& v4);
@@ -375,8 +372,7 @@ void CupTickerManager::CreateNewMessage()
                 {
                     continue;
                 }
-                BuildGoalTotalTickerMessage__16CupTickerManagerFR46BasicString_Us_Q26Detail19TempStringAllocator_b(
-                    this, tickerMessage, false);
+                BuildGoalTotalTickerMessage(tickerMessage, false);
                 break;
             }
         }
@@ -419,8 +415,7 @@ void CupTickerManager::CreateNewMessage()
                 && (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) != 0
                     || (*(short*)((char*)GI_CURRENT_CUP(gameInfo) + 0xA) != 0)))
             {
-                BuildGoalTotalTickerMessage__16CupTickerManagerFR46BasicString_Us_Q26Detail19TempStringAllocator_b(
-                    this, tickerMessage, false);
+                BuildGoalTotalTickerMessage(tickerMessage, false);
                 messageDisplayed = true;
             }
             else
@@ -606,9 +601,162 @@ void CupTickerManager_stub()
     WideBasicString s2 = fn(s, s, s);
 }
 
-// /**
-//  * Offset/Address/Size: 0x0 | 0x800F1FC8 | size: 0x654
-//  */
-// void CupTickerManager::BuildGoalTotalTickerMessage(BasicString<unsigned short, Detail::TempStringAllocator>&, bool)
-// {
-// }
+union RECORDTYPE
+{
+    int mCharacterClass;
+    int mTeamID;
+    int mControllerID;
+};
+
+enum eType
+{
+    TYPE_INVALID = -1,
+    TYPE_CHARACTER = 0,
+    TYPE_TEAM = 1,
+    TYPE_USER = 2,
+};
+
+struct PlayerStats
+{
+    unsigned short mNumShotsOnGoal;
+    unsigned short mNumGoalsFor;
+    unsigned short mNumGoalsAgainst;
+    unsigned short mNumAssists;
+    unsigned short mNumFouls;
+    unsigned short mNumGamesPlayed;
+    unsigned short mNumPowerupsUsed;
+    unsigned short mNumPowerupsHit;
+    unsigned short mNumShootToScoreGoals;
+    unsigned short mNumPassesMade;
+    unsigned short mNumPassesReceived;
+    unsigned short mNumPassesIntercepted;
+    unsigned short mNumHitsMade;
+    unsigned short mNumSteals;
+    unsigned short mNumGoalsOneTimers;
+    unsigned short mNumSTSAttempts;
+    unsigned short mNumPerfectPasses;
+    unsigned long mBallPossessionTime;
+    unsigned long mNumButtonPresses;
+    RECORDTYPE mRecordType;
+    eType mType;
+};
+
+enum eTeamID_Local
+{
+    TEAM_CTM_INVALID = -1
+};
+
+struct TeamStats
+{
+    int mTeamIndex;
+    unsigned short mNumWins;
+    unsigned short mNumLosses;
+    unsigned short mNumOTLosses;
+    unsigned short mNumPoints;
+    PlayerStats mPlayerTotalStats;
+
+    TeamStats(const TeamStats& other)
+        : mTeamIndex(other.mTeamIndex)
+        , mNumWins(other.mNumWins)
+        , mNumLosses(other.mNumLosses)
+        , mNumOTLosses(other.mNumOTLosses)
+        , mNumPoints(other.mNumPoints)
+        , mPlayerTotalStats(other.mPlayerTotalStats)
+    {
+    }
+};
+
+class GameInfoManager
+{
+public:
+    int GetNumHumanTeams();
+    unsigned short GetNumPlayingTeams() const;
+    TeamStats GetTeamStatsByIndex(unsigned short index);
+};
+
+class StatsTracker;
+
+extern "C" void GetSortedStats__12StatsTrackerFP11PlayerStatsiPii12ePlayerStats10eSortOrder(
+    void*, PlayerStats*, int, int*, int, int, int);
+
+/**
+ * Offset/Address/Size: 0x3DC | 0x800F23A4 | size: 0x654
+ * TODO: 92.74% match - 20 register-only diffs (r25-r31 allocation)
+ */
+void CupTickerManager::BuildGoalTotalTickerMessage(
+    BasicString<unsigned short, Detail::TempStringAllocator>& result, bool bIsHuman)
+{
+    int numValid = 0;
+    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+
+    int numTeams;
+    if (bIsHuman)
+    {
+        numTeams = gameInfo->GetNumHumanTeams();
+    }
+    else
+    {
+        numTeams = (unsigned short)gameInfo->GetNumPlayingTeams();
+    }
+
+    PlayerStats playerStats[8];
+
+    for (int i = 0; i < (int)gameInfo->GetNumPlayingTeams(); i++)
+    {
+        TeamStats teamStats = gameInfo->GetTeamStatsByIndex((unsigned short)i);
+
+        if ((unsigned char)bIsHuman)
+        {
+            unsigned short humanTeams = *(unsigned short*)((char*)*(void**)((char*)gameInfo + 0x4960) + 0xC);
+            if (humanTeams & (1 << (int)teamStats.mTeamIndex))
+            {
+                playerStats[numValid++] = teamStats.mPlayerTotalStats;
+            }
+        }
+        else
+        {
+            playerStats[numValid++] = teamStats.mPlayerTotalStats;
+        }
+    }
+
+    int sortedIndices[8];
+    GetSortedStats__12StatsTrackerFP11PlayerStatsiPii12ePlayerStats10eSortOrder(
+        nlSingleton<StatsTracker>::s_pInstance, playerStats, numTeams, sortedIndices, numTeams, 1, 1);
+
+    int* pSorted = sortedIndices;
+    PlayerStats* pStats = playerStats;
+
+    for (int j = 0; j < numTeams; j++)
+    {
+        unsigned long teamNameHash = GetLOCTeamName__F7eTeamID(pStats[pSorted[0]].mRecordType.mTeamID);
+
+        unsigned long formatHash;
+        if (j == 0)
+        {
+            formatHash = 0xD517194DUL;
+        }
+        else
+        {
+            formatHash = 0x1DB17A6DUL;
+        }
+
+        int goals = (int)pStats[pSorted[0]].mNumGoalsFor;
+        NLString goalsStr = LexicalCast<NLString, int>(goals);
+
+        unsigned short wideGoals[16];
+        nlStrToWcs__FPCcPUsUl(goalsStr.c_str(), wideGoals, 16);
+
+        unsigned short* fmtLocStr;
+        LOC_LOOKUP(formatHash, fmtLocStr);
+        WideBasicString fmtWBS(fmtLocStr);
+
+        unsigned short* teamNameLocStr;
+        LOC_LOOKUP(teamNameHash, teamNameLocStr);
+
+        WideBasicString formatted = Format<WideBasicString, const unsigned short*, unsigned short[16]>(
+            fmtWBS, teamNameLocStr, wideGoals);
+        result.AppendInPlace(formatted);
+
+        pSorted++;
+    }
+}

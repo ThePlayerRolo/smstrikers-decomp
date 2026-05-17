@@ -376,6 +376,7 @@ UpdateResult IChooseSide::UpdateForPause(float, eFEINPUT_PAD* pad)
                 destPosIndex = temp;
             }
 
+            inst = mInstanceTable[i];
             localPos = inst->GetPosition();
             mTweenManager.clearTweensOnObj(inst);
             mInstanceTable[i]->SetAssetPosition(mControllerDestPos[destPosIndex], localPos.e[1], localPos.e[2]);
@@ -484,9 +485,9 @@ UpdateResult IChooseSide::UpdateForPause(float, eFEINPUT_PAD* pad)
                 *pad = (eFEINPUT_PAD)i;
             }
 
-            for (int j = 0; j < 4; j++)
+            for (int j = 0, *playingSide = mPlayingSides; j < 4; j++, playingSide++)
             {
-                GameInfoManager::Instance()->SetPlayingSide((unsigned short)j, (short)mPlayingSides[j]);
+                GameInfoManager::Instance()->SetPlayingSide((unsigned short)j, (short)*playingSide);
             }
 
             return UPDATE_GO_BACK;
@@ -683,15 +684,13 @@ void IChooseSide::CheckControllers(int disabledSide)
 
 /**
  * Offset/Address/Size: 0x4C0 | 0x800C3904 | size: 0x360
- * TODO: 97.05% match - extra loop base pointer register (r31) for instance-table accesses;
- * -inline deferred merges mPlayingSides/mInstanceTable into single r30, decomp.me -inline auto does not.
- * Also extra `li r4, 0` for allReady loop init (same -inline deferred issue as SetReady).
+ * TODO: 97.88% match - loop index/base register roles remain shifted
+ * (target r29/r30, current r30/r31), causing broad register-only diffs.
+ * Ready-indicator gating still keeps an extra persistent temp register.
  */
 void IChooseSide::ResetAndPositionControllers(bool reset)
 {
-    int* playingSide = mPlayingSides;
-
-    for (int i = 0; i < 4; i++, playingSide++)
+    for (int i = 0; i < 4; i++)
     {
         int side;
 
@@ -701,19 +700,48 @@ void IChooseSide::ResetAndPositionControllers(bool reset)
         TLInstance* readyIndicator = mInstanceTable[16];
         if (readyIndicator != NULL)
         {
-            int allReady = 0;
-            for (int j = 0; j < 4; j++)
+            u8 allReady;
+            if (mPlayerReady[0])
             {
-                if (mPlayerReady[j])
-                    allReady = 1;
-                else if (mPlayingSides[j] != -1)
-                {
-                    allReady = 0;
-                    break;
-                }
+                allReady = 1;
+            }
+            else if (mPlayingSides[0] != -1)
+            {
+                allReady = 0;
+                goto done_ready;
             }
 
-            if ((u8)allReady == 1)
+            if (mPlayerReady[1])
+            {
+                allReady = 1;
+            }
+            else if (mPlayingSides[1] != -1)
+            {
+                allReady = 0;
+                goto done_ready;
+            }
+
+            if (mPlayerReady[2])
+            {
+                allReady = 1;
+            }
+            else if (mPlayingSides[2] != -1)
+            {
+                allReady = 0;
+                goto done_ready;
+            }
+
+            if (mPlayerReady[3])
+            {
+                allReady = 1;
+            }
+            else if (mPlayingSides[3] != -1)
+            {
+                allReady = 0;
+            }
+
+        done_ready:
+            if (allReady == 1)
                 readyIndicator->m_bVisible = true;
             else
                 readyIndicator->m_bVisible = false;
@@ -723,8 +751,8 @@ void IChooseSide::ResetAndPositionControllers(bool reset)
         {
             int destPosIndex;
 
-            *playingSide = -1;
-            side = *playingSide;
+            mPlayingSides[i] = -1;
+            side = mPlayingSides[i];
             if (side == 0)
             {
                 destPosIndex = 0;
@@ -761,8 +789,8 @@ void IChooseSide::ResetAndPositionControllers(bool reset)
         {
             int destPosIndex;
 
-            *playingSide = -1;
-            side = *playingSide;
+            mPlayingSides[i] = -1;
+            side = mPlayingSides[i];
             if (side == 0)
             {
                 destPosIndex = 0;
@@ -789,8 +817,8 @@ void IChooseSide::ResetAndPositionControllers(bool reset)
         {
             int destPosIndex;
 
-            *playingSide = (short)GameInfoManager::Instance()->GetPlayingSide((unsigned short)i);
-            side = *playingSide;
+            mPlayingSides[i] = (short)GameInfoManager::Instance()->GetPlayingSide((unsigned short)i);
+            side = mPlayingSides[i];
             if (side == 0)
             {
                 destPosIndex = 0;

@@ -461,10 +461,9 @@ void NPCManager::UpdateAINPCs(float dt)
 
 /**
  * Offset/Address/Size: 0x0 | 0x80165EC4 | size: 0x3D0
- * TODO: 95.90% match - MWCC scheduling diff: extra mr r0,r3 + mr r25,r0 instead
- * of direct mr r25,r3 at nlLoadEntireFile return sites (hierarchy + else branch).
- * Also r25/r26 swap for animInv/animEnd in virtual/else branches and search loop
- * register differences. Likely inherent scheduler difference on decomp.me.
+ * TODO: 97.21% match - extra move pair (mr r0,r3; mr r25,r0) remains at
+ * nlLoadEntireFile return sites (hierarchy + non-virtual anim branch), plus
+ * register allocation differences in the final hierarchy search loop.
  */
 void NPCManager::CreateNPCTemplate(int templateIndex, bool loadTextures)
 {
@@ -625,7 +624,7 @@ void NPCManager::CreateNPCTemplate(int templateIndex, bool loadTextures)
         }
     }
 
-    mNPCTemplate[templateIndex].modelID = model != NULL ? ((glModelData*)model)->numModels : -1;
+    mNPCTemplate[templateIndex].modelID = model == NULL ? -1 : ((glModelData*)model)->numModels;
 
     cInventory<cSHierarchy>* searchInv = mpInventorySHierarchy;
     u32 hash = nlStringHash(gNPCTemplateInfo[templateIndex].hierarchyName);

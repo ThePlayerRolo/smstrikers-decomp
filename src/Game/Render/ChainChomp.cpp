@@ -14,6 +14,7 @@
 #include "NL/gl/glDraw3.h"
 #include "NL/gl/glState.h"
 #include "NL/glx/glxTexture.h"
+#include "NL/nlString.h"
 
 namespace Audio
 {
@@ -44,9 +45,40 @@ const nlVector3 gv3HomePosition = { 0.0f, 0.0f, 10.0f };
 /**
  * Offset/Address/Size: 0x12BC | 0x8015EFC0 | size: 0x1D8
  */
-ChainChomp::ChainChomp(cSHierarchy& pHierarchy, int nModelID, PhysicsNPC& mpPhysObj, cInventory<cSAnim>* pInventorySAnim)
-    : SkinAnimatedMovableNPC(pHierarchy, nModelID, mpPhysObj)
+ChainChomp::ChainChomp(cSHierarchy& pHierarchy, int nModelID, PhysicsNPC& rPhysObj, cInventory<cSAnim>* pInventorySAnim)
+    : SkinAnimatedMovableNPC(pHierarchy, nModelID, rPhysObj)
 {
+    mpTarget = NULL;
+    meChainChompState = CHAIN_STATE_HIDDEN;
+    mtStateTimer.SetSeconds(0.0f);
+    mpInEffectSFX = NULL;
+    mtStateTimer.SetSeconds(0.0f);
+
+    mpDropAnim = ((AnimationSet*)pInventorySAnim)->FindAnimationByHash(nlStringHash("drop"));
+    mpIdleAnim = ((AnimationSet*)pInventorySAnim)->FindAnimationByHash(nlStringHash("chain_idle"));
+    mpRecoverAnim = ((AnimationSet*)pInventorySAnim)->FindAnimationByHash(nlStringHash("landing"));
+
+    mpPhysObj->mpAINPC = this;
+
+    if (mpInEffectSFX != NULL)
+    {
+        PowerupBase::StopPowerupInEffectSound(mpInEffectSFX);
+        mpInEffectSFX = NULL;
+    }
+
+    EmissionManager::Destroy((unsigned long)this, fxGetGroup("chainchomp_trail"));
+    meChainChompState = CHAIN_STATE_HIDDEN;
+    mfDesiredSpeed = 0.0f;
+    SetAnimState(*mpIdleAnim, 0.0f, PM_CYCLIC);
+
+    SetPosition(gv3HomePosition);
+    mv3Velocity = v3Zero;
+    maDesiredFacingDirection = 0;
+    mpPhysObj->DisableCollisions();
+
+    mpThrower = NULL;
+    mnThrowerPadID = -1;
+    mbIsVisible = false;
 }
 
 /**

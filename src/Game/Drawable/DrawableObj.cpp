@@ -72,9 +72,15 @@ nlMatrix4& DrawableObject::GetWorldMatrix() const
  */
 void DrawableObject::GetAABBDimensions(AABBDimensions& dim, bool param) const
 {
-    nlVec3Set(dim.mMin, 0.f, 0.f, 0.f);
-    nlVec3Set(dim.mMax, 0.f, 0.f, 0.f);
-    nlVec3Set(dim.mDim, 0.f, 0.f, 0.f);
+    dim.mMin.f.x = 0.0f;
+    dim.mMin.f.y = 0.0f;
+    dim.mMin.f.z = 0.0f;
+    dim.mMax.f.x = 0.0f;
+    dim.mMax.f.y = 0.0f;
+    dim.mMax.f.z = 0.0f;
+    dim.mDim.f.x = 0.0f;
+    dim.mDim.f.y = 0.0f;
+    dim.mDim.f.z = 0.0f;
 }
 
 // /**

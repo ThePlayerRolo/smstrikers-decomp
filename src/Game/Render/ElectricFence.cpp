@@ -190,8 +190,8 @@ static inline void RenderElectricFenceFlat(const nlVector3& position, const nlVe
 
 /**
  * Offset/Address/Size: 0x89C | 0x8016B8CC | size: 0x420
- * TODO: 91.5% match - register allocation diffs (ec r28->r29, pElectricFenceData r31->r28),
- *       search loop r4->r31, placement new extra beq; all due to -inline deferred vs -inline auto
+ * TODO: 93.7% match - remaining register allocation and stack-slot ordering diffs
+ *       in inlined flat and non-flat render blocks.
  */
 void RenderElectricFence(EmissionController& ec)
 {
@@ -200,22 +200,23 @@ void RenderElectricFence(EmissionController& ec)
     extern unsigned long UnlitProgram;
     extern unsigned long GridTexture;
 
-    ElectricFenceData* pElectricFenceData = NULL;
+    EmissionController* pController = &ec;
     ElectricFenceData* p = ElectricFenceData::sActiveElectricFences.m_pStart;
-
     while (p != NULL)
     {
-        if (p->mpEmissionController == &ec)
+        if (p->mpEmissionController != pController)
         {
-            pElectricFenceData = p;
+            p = p->next;
+        }
+        else
+        {
             break;
         }
-
-        p = p->next;
     }
+    ElectricFenceData* pElectricFenceData = p;
 
     float intensity = 1.0f;
-    float remainingTime = ec.GetRemainingTime();
+    float remainingTime = pController->GetRemainingTime();
     if (remainingTime < sfFadeOutTime)
     {
         intensity = remainingTime / sfFadeOutTime;
@@ -239,7 +240,7 @@ void RenderElectricFence(EmissionController& ec)
 
         if (data != NULL)
         {
-            data = new (data) ElectricFenceData(&ec);
+            data = new (data) ElectricFenceData(pController);
         }
 
         pElectricFenceData = data;
@@ -319,7 +320,11 @@ void RenderElectricFence(EmissionController& ec)
             pPos++;
         }
 
-        if (meshWriter.End())
+        if (!meshWriter.End())
+        {
+            return;
+        }
+        else
         {
             glViewAttachModel(GLV_ElectricFence, meshWriter.GetModel());
         }

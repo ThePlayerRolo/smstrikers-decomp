@@ -86,7 +86,55 @@ float NDimDistance(float* A, float* B)
 template <typename T>
 static void WarmRandomStream(const RANDOM_STREAMS& RandomStreams, T* pStream)
 {
-    FORCE_DONT_INLINE;
+    if (g_Settings.NoStreaming)
+    {
+        return;
+    }
+
+    if (pStream->m_State == GCAudioStreaming::SS_Initd)
+    {
+        pStream->Purge();
+    }
+
+    unsigned long randomIndex = nlRandom(RandomStreams.Count, &nlDefaultSeed);
+    const char* filename = RandomStreams.Files[randomIndex];
+
+    pStream->m_StreamLength = 0;
+    pStream->m_OldLength = 0;
+    pStream->m_StreamPos = 0;
+
+    unsigned long iVal;
+    unsigned long* i = &iVal;
+    *i = 0;
+    GCAudioStreaming::AudioStreamBuffer* buf = NULL;
+    if (pStream->m_BufferCount > 0)
+    {
+        buf = pStream->m_Buffers[0];
+    }
+
+    while (buf != NULL)
+    {
+        pStream->m_Buffers[*i] = NULL;
+        (*i)++;
+        if (*i < pStream->m_BufferCount)
+        {
+            buf = pStream->m_Buffers[*i];
+        }
+        else
+        {
+            buf = NULL;
+        }
+    }
+
+    pStream->m_LastPlayable = 0;
+    pStream->m_Flags = 0;
+    pStream->m_Volume = 64;
+    pStream->m_LPFOn = 0;
+    pStream->m_LPFFreq = 0x3FFF;
+
+    pStream->m_pFile = nlOpen(filename);
+    pStream->m_State = GCAudioStreaming::SS_Initd;
+    pStream->Warm(true);
 }
 
 static void MoodDefFromBlend(float*, MOOD_DEFINITION&);

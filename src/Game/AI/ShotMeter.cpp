@@ -94,9 +94,9 @@ void ShotMeter::Abort(cFielder* pFielder)
 
 /**
  * Offset/Address/Size: 0x258 | 0x80062378 | size: 0x42C
- * TODO: 97.73% match - remaining allocator diffs are concentrated in the two
- * vector-normalization blocks (f30/f28 swap) and nearby fused multiply-add
- * ordering in the distance/dot-product setup.
+ * TODO: 98.63% match - remaining allocator diffs are concentrated in the two
+ * vector-normalization blocks (f30/f28 swap) and in the inlined score/weight
+ * accumulation register ordering.
  */
 void ShotMeter::CalcOneTimerValue(cFielder* pFielder, bool bWasPerfectPass)
 {
@@ -169,7 +169,7 @@ void ShotMeter::CalcOneTimerValue(cFielder* pFielder, bool bWasPerfectPass)
         float fDistance = nlSqrt((fDistX * fDistX) + (fDistY * fDistY) + (fDistZ * fDistZ), true);
 
         float fDistanceValue = InterpolateRangeClamped(0.0f, 1.0f, 20.0f, 7.5f, fDistance);
-        float fDot = (v3FielderToNet.f.y * v3BallDirection.f.y) + (v3FielderToNet.f.x * v3BallDirection.f.x) + (v3FielderToNet.f.z * v3BallDirection.f.z);
+        float fDot = (v3FielderToNet.f.x * v3BallDirection.f.x) + (v3FielderToNet.f.y * v3BallDirection.f.y) + (v3FielderToNet.f.z * v3BallDirection.f.z);
         float fDirectionValue = InterpolateRangeClamped(0.0f, 1.0f, 1.0f, 0.0f, fDot);
 
         m_fSpeedValue = nlRandomf(0.2f * g_pGame->m_pGameTweaks->unk2EC, &nlDefaultSeed);

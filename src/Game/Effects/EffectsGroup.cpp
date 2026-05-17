@@ -7,6 +7,20 @@
 #include "NL/nlMain.h"
 #include "NL/nlString.h"
 
+extern "C"
+{
+    void __vt__18AVLTreeUntemplated(void);
+    void vtAVLTreeBaseEffectsGroup(void);
+    void vtNlAVLTreeEffectsGroup(void);
+    void vtAVLTreeBaseTerrainSpec(void);
+    void vtNlAVLTreeTerrainSpec(void);
+}
+
+#pragma alias vtAVLTreeBaseEffectsGroup "__vt__104AVLTreeBase<Ul,P12EffectsGroup,46NewAdapter<32AVLTreeEntry<Ul,P12EffectsGroup>>,21DefaultKeyCompare<Ul>>"
+#pragma alias vtNlAVLTreeEffectsGroup "__vt__53nlAVLTree<Ul,P12EffectsGroup,21DefaultKeyCompare<Ul>>"
+#pragma alias vtAVLTreeBaseTerrainSpec "__vt__116AVLTreeBase<Ul,P18EffectsTerrainSpec,52NewAdapter<38AVLTreeEntry<Ul,P18EffectsTerrainSpec>>,21DefaultKeyCompare<Ul>>"
+#pragma alias vtNlAVLTreeTerrainSpec "__vt__59nlAVLTree<Ul,P18EffectsTerrainSpec,21DefaultKeyCompare<Ul>>"
+
 nlAVLTree<unsigned long, EffectsGroup*, DefaultKeyCompare<unsigned long> >* pGroupMap = nullptr;
 nlAVLTree<unsigned long, EffectsTerrainSpec*, DefaultKeyCompare<unsigned long> >* pTerrainSpecMap = nullptr;
 extern "C" int atoi(const char*);
@@ -345,7 +359,7 @@ bool parse_spec(SimpleParser* parser, EffectsSpec& spec)
 
 /**
  * Offset/Address/Size: 0x80C | 0x801F3254 | size: 0x224
- * TODO: 91.9% match - still blocked by MWCC register/induction choices:
+ * TODO: 94.05% match - still blocked by MWCC register/induction choices:
  * parser stays in r31 with pointer walk (`stw` + pointer increment) instead of target's r28 parser + `stwx` with byte offset,
  * plus AVL search keeps hash/cmp/found in r4/r0/r28 with an extra post-loop `node != nullptr` check.
  */
@@ -369,8 +383,9 @@ EffectsTerrainSpec* parse_terrain_spec(SimpleParser* parser)
         offset += 4;
     }
 
-    EffectsTerrainSpec* pSpec = (EffectsTerrainSpec*)nlMalloc(8, 8, false);
-    if (pSpec != nullptr)
+    void* specMem = nlMalloc(8, 8, false);
+    EffectsTerrainSpec* pSpec = (EffectsTerrainSpec*)specMem;
+    if (specMem != nullptr)
     {
         pSpec->m_pTerrainIDs = nullptr;
         pSpec->m_uNumTerrains = 0;
@@ -677,14 +692,38 @@ bool fxLoadGroupBundle(const char* filename)
  */
 bool fxLoadGroupBundle(void* data, unsigned long size)
 {
+    void* raw;
 
     if (data == nullptr)
     {
         return false;
     }
 
-    pGroupMap = new (nlMalloc(0x14, 8, false)) nlAVLTree<unsigned long, EffectsGroup*, DefaultKeyCompare<unsigned long> >();
-    pTerrainSpecMap = new (nlMalloc(0x14, 8, false)) nlAVLTree<unsigned long, EffectsTerrainSpec*, DefaultKeyCompare<unsigned long> >();
+    raw = nlMalloc(0x14, 8, false);
+    if (raw != nullptr)
+    {
+        u32* map = (u32*)raw;
+        map[0] = (u32)__vt__18AVLTreeUntemplated;
+        map[0] = (u32)vtAVLTreeBaseEffectsGroup;
+        map[4] = 0;
+        map[2] = 0;
+        map[3] = 0;
+        map[0] = (u32)vtNlAVLTreeEffectsGroup;
+    }
+    pGroupMap = (nlAVLTree<unsigned long, EffectsGroup*, DefaultKeyCompare<unsigned long> >*)raw;
+
+    raw = nlMalloc(0x14, 8, false);
+    if (raw != nullptr)
+    {
+        u32* map = (u32*)raw;
+        map[0] = (u32)__vt__18AVLTreeUntemplated;
+        map[0] = (u32)vtAVLTreeBaseTerrainSpec;
+        map[4] = 0;
+        map[2] = 0;
+        map[3] = 0;
+        map[0] = (u32)vtNlAVLTreeTerrainSpec;
+    }
+    pTerrainSpecMap = (nlAVLTree<unsigned long, EffectsTerrainSpec*, DefaultKeyCompare<unsigned long> >*)raw;
 
     SimpleParser parser;
     parser.StartParsing((char*)data, size, true);
@@ -787,16 +826,12 @@ struct GroupMapFindHelper
     }
 };
 
-/**
- * Offset/Address/Size: 0x0 | 0x801F2A48 | size: 0xA4
- */
-EffectsGroup* fxGetGroup(const char* name)
+EffectsGroup* fxGetGroup(const char* groupName)
 {
-    EffectsGroup** foundValue;
-    bool found = ((GroupMapFindHelper*)pGroupMap)->FindGet(nlStringHash(name), &foundValue);
-    if (found)
-        return *foundValue;
-    return nullptr;
+    unsigned long hashID = nlStringHash(groupName);
+    EffectsGroup** group;
+    bool found = ((GroupMapFindHelper*)pGroupMap)->FindGet(hashID, &group);
+    return found ? *group : nullptr;
 }
 
 // At the bottom of EffectsGroup.cpp -- REMOVE once real callers exist.
@@ -805,3 +840,16 @@ void EffectsGroup_stub()
     NewAdapter<AVLTreeEntry<unsigned long, EffectsGroup*> > adapter;
     adapter.Delete(0);
 }
+
+#pragma dont_inline on
+void AVLTreeBase<unsigned long, EffectsGroup*, NewAdapter<AVLTreeEntry<unsigned long, EffectsGroup*> >, DefaultKeyCompare<unsigned long> >::DeleteValues()
+{
+    DestroyTree(&AVLTreeBase::DeleteValue);
+    m_NumElements = 0;
+}
+void AVLTreeBase<unsigned long, EffectsTerrainSpec*, NewAdapter<AVLTreeEntry<unsigned long, EffectsTerrainSpec*> >, DefaultKeyCompare<unsigned long> >::DeleteValues()
+{
+    DestroyTree(&AVLTreeBase::DeleteValue);
+    m_NumElements = 0;
+}
+#pragma dont_inline reset

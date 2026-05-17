@@ -330,15 +330,18 @@ bool LexicalCast<bool, int>(const int& v)
 template <>
 bool LexicalCast<bool, float>(const float& v)
 {
-    FORCE_DONT_INLINE;
-    return v != 0.0f;
+    bool result;
+    if (v)
+        result = true;
+    else
+        result = false;
+    return result;
 }
 template <>
 bool LexicalCast<bool, const char*>(const char* const& s)
 {
     FORCE_DONT_INLINE;
-    // TODO: implement parsing if needed
-    return true;
+    return strcmp("true", s) == 0;
 }
 
 #endif // NL_LEXICALCAST_DEFINE_BOOL

@@ -204,14 +204,12 @@ void cSHierarchy::BuildPushPopFlags(int nodeIndex, int currentDepth, int& stackD
 static inline void* nlGetChunkData(nlChunk* chunk)
 {
     u32 alignField = chunk->m_ID & 0x7F000000;
-    u32 isAligned = ((-alignField) | alignField) >> 31;
-    if (isAligned != 0)
+    if (((-alignField) | alignField) >> 31)
     {
-        u32 alignment = 1u << (alignField >> 24);
-        u32 ptr = (u32)chunk + alignment;
-        ptr += 7;
-        ptr &= ~(alignment - 1);
-        return (void*)ptr;
+        alignField = 1u << (alignField >> 24);
+        u32 result = (u32)chunk + alignField;
+        result = (result + 7) & ~(alignField - 1);
+        return (void*)result;
     }
     return (void*)((u8*)chunk + 8);
 }

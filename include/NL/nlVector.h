@@ -8,6 +8,18 @@ template <typename T, typename Allocator = DefaultAllocator>
 class Vector
 {
 public:
+    Vector() { }
+    Vector(int count, const char* name)
+    {
+        mData = new (8, false) T[count];
+        mSize = count;
+        mCapacity = count;
+        for (int i = 0; i < count; i++)
+        {
+            T temp;
+            mData[i] = temp;
+        }
+    }
     ~Vector()
     {
         delete[] mData;
@@ -21,6 +33,21 @@ public:
     /* 0x4 */ int mSize;
     /* 0x8 */ int mCapacity;
 }; // total size: 0xC
+
+template <typename T, typename Allocator>
+void Vector<T, Allocator>::resize(int size)
+{
+    if (size > mSize)
+    {
+        reserve(size);
+        for (int i = mSize; i < size; i++)
+        {
+            T temp;
+            mData[i] = temp;
+        }
+        mSize = size;
+    }
+}
 
 template <typename T, typename Allocator>
 void Vector<T, Allocator>::push_back(const T& value)

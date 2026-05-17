@@ -32,15 +32,13 @@ ContactType FakePhysicsBall::Contact(PhysicsObject* object, dContact* contact, i
 
 /**
  * Offset/Address/Size: 0x98 | 0x80137484 | size: 0x3EC
- * TODO: 90.27% match - remaining diffs are MWCC register allocation:
- *       GPR shift (stmw r23 vs r22, all callee-saved GPRs +2),
- *       FPR swap (f27/f28/f29 assignments for fPlayerReach/fMaxTime/playerPosX),
- *       and pre-loop instruction ordering for bciPool/cacheList address computation.
+ * TODO: 93.18% match - remaining diffs are callee-saved GPR/FPR assignment shifts
+ *       and pre-loop instruction ordering around cache-pool pointer setup.
  */
 bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlayerReach, float fPlayerSpeed, nlVector3& v3InterceptPos, nlVector3& v3InterceptVel, float& fInterceptTime, float& fClosestDist, float fMaxTime)
 {
     fInterceptTime = 0.0f;
-    fClosestDist = 100000.0f;
+    fClosestDist = 10000.0f;
     unsigned char bDone = 0;
 
     float fPlayerDistPerTick = fPlayerSpeed * FixedUpdateTask::GetPhysicsUpdateTick();
@@ -155,6 +153,8 @@ bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlaye
             v3NewBallVel = newInfo->mv3LinearVelocity;
         }
 
+        fPlayerDistanceFromStartingPoint += fPlayerDistPerTick;
+
         float dx = v3NewBallPos.f.x - playerPosX;
         float dy = v3NewBallPos.f.y - playerPosY;
         float dist = nlSqrt(dx * dx + dy * dy, true);
@@ -171,7 +171,6 @@ bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlaye
             fClosestDist = adjustedDist;
         }
 
-        fPlayerDistanceFromStartingPoint += fPlayerDistPerTick;
         fInterceptTime += FixedUpdateTask::GetPhysicsUpdateTick();
 
         if (fInterceptTime >= fMaxTime)

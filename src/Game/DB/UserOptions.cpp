@@ -63,8 +63,8 @@ void AudioSettings::InitializeDefaults()
     BasicStringInternal* data = (BasicStringInternal*)nlMalloc(0x10, 8, true);
     if (data != 0)
     {
-        const char* str = "undefined";
-        const char* p = str;
+        const char* p = "undefined";
+        const char* str = p;
         data->mData = 0;
         data->mSize = 0;
         data->mCapacity = 0;

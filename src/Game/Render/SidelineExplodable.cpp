@@ -23,6 +23,24 @@ SlotPool<SidelineExplodableNode> SidelineExplodableNode::sSidelineExplodableNode
 SlotPool<DrawableFragmentHandleNode> DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool;
 
 /**
+ * Offset/Address/Size: 0x214 | 0x80169954 | size: 0x27C
+ */
+template <>
+void Vector<ExplosionFragment, DefaultAllocator>::resize(int size)
+{
+    if (size > mSize)
+    {
+        reserve(size);
+        for (int i = mSize; i < size; i++)
+        {
+            ExplosionFragment temp;
+            mData[i] = temp;
+        }
+        mSize = size;
+    }
+}
+
+/**
  * Offset/Address/Size: 0x8 | 0x8016974C | size: 0x38
  */
 ExplosionFragment::ExplosionFragment()
@@ -1391,4 +1409,9 @@ void SidelineExplodableManager::UnAssociateEffectWithNearbyFloatingCamera(Emissi
  */
 SidelineExplosionPhysicsObject::~SidelineExplosionPhysicsObject()
 {
+}
+
+void SidelineExplodable_stub()
+{
+    Vector<ExplosionFragment, DefaultAllocator> v(1, "");
 }

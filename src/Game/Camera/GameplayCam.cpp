@@ -270,7 +270,8 @@ void GameplayCamera::Reactivate()
 
 /**
  * Offset/Address/Size: 0x470 | 0x801A9AB0 | size: 0x404
- * TODO: 89.01% match - this in r29 vs r28 (100 diffs), -inline deferred vs -inline auto limitation
+ * TODO: 95.95% match - remaining diffs are register allocation cascades
+ * (this in r29 vs target r28) through interpolation paths.
  */
 void GameplayCameraZoomLevel::CalcDesiredTarget()
 {
@@ -342,15 +343,8 @@ void GameplayCameraZoomLevel::CalcDesiredTarget()
             float fXMin = pFieldKnotsX[0];
             float fXMax = pFieldKnotsX[nNumKnotsX - 1] - 0.001f;
 
-            if (fFieldPosX < fXMin)
-            {
-                fFieldPosX = fXMin;
-            }
-
-            if (fFieldPosX > fXMax)
-            {
-                fFieldPosX = fXMax;
-            }
+            fFieldPosX = (fFieldPosX >= fXMin) ? fFieldPosX : fXMin;
+            fFieldPosX = (fFieldPosX <= fXMax) ? fFieldPosX : fXMax;
 
             int nXKnot = 0;
             for (int n = nNumKnotsX - 1; n > 0; n--)
@@ -382,15 +376,8 @@ void GameplayCameraZoomLevel::CalcDesiredTarget()
             float fYMin = pFieldKnotsY[0];
             float fYMax = pFieldKnotsY[nNumKnotsY - 1] - 0.001f;
 
-            if (fFieldPosY < fYMin)
-            {
-                fFieldPosY = fYMin;
-            }
-
-            if (fFieldPosY > fYMax)
-            {
-                fFieldPosY = fYMax;
-            }
+            fFieldPosY = (fFieldPosY >= fYMin) ? fFieldPosY : fYMin;
+            fFieldPosY = (fFieldPosY <= fYMax) ? fFieldPosY : fYMax;
 
             int nYKnot = 0;
             for (int n = nNumKnotsY - 1; n > 0; n--)

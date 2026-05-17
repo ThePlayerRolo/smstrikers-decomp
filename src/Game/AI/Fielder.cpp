@@ -2154,8 +2154,9 @@ void cFielder::DoClearBall()
 
 /**
  * Offset/Address/Size: 0x8CA8 | 0x80021FE4 | size: 0x2B4
- * TODO: 93.09% match - remaining gap in ACTION_SLIDE_FAIL_REACT jump-table
- * lowering and early ShotMeter register assignment (r4/r3 order).
+ * TODO: 98.29% match - remaining gap is an extra early branch around the
+ * ACTION_SHOOT_TO_SCORE return path and first ShotMeter active-state r4/r3
+ * register ordering.
  */
 void cFielder::DoHandleActiveShotMeter()
 {
@@ -2164,13 +2165,24 @@ void cFielder::DoHandleActiveShotMeter()
         return;
     }
 
-    if ((u32)m_eActionState <= ACTION_SLIDE_FAIL_REACT)
+    switch ((u32)m_eActionState)
     {
-        if (m_eActionState == ACTION_SLIDE_FAIL_REACT)
-        {
-            m_pShotMeter->Abort(this);
-            return;
-        }
+    case ACTION_ELECTROCUTION:
+    case ACTION_HIT_REACT:
+    case ACTION_PASS:
+    case ACTION_SLIDE_ATTACK_REACT:
+    case ACTION_BOMB_REACT:
+    case ACTION_SHELL_REACT:
+    case ACTION_BANANA_REACT:
+    case ACTION_STS_HIT_REACT:
+    case ACTION_SQUISH_REACT:
+    case ACTION_SLIDE_FAIL_REACT:
+        m_pShotMeter->Abort(this);
+        return;
+    case ACTION_SHOOT_TO_SCORE:
+        return;
+    default:
+        break;
     }
 
     if (m_pBall == NULL)
@@ -2258,8 +2270,7 @@ void cFielder::DoHandleActiveShotMeter()
     }
     else
     {
-        eFielderActionState actionState = m_eActionState;
-        if (actionState != ACTION_SHOT && pShotMeter->m_eShotMeterState == SHOT_METER_RELEASED)
+        if (m_eActionState != ACTION_SHOT && pShotMeter->m_eShotMeterState == SHOT_METER_RELEASED)
         {
             mActionShotVars.bIsChipShot = bIsChipShot;
             m_pShotMeter->ShotReleased(this);
@@ -2273,7 +2284,7 @@ void cFielder::DoHandleActiveShotMeter()
                 InitActionShot(false);
             }
         }
-        else if (actionState != ACTION_SHOT && pShotMeter->m_eShotMeterState == SHOT_METER_STS_RELEASED)
+        else if (m_eActionState != ACTION_SHOT && pShotMeter->m_eShotMeterState == SHOT_METER_STS_RELEASED)
         {
             InitActionShootToScore();
         }
@@ -3833,6 +3844,7 @@ eStrafeDirection cFielder::CalculateStrafeDirection(unsigned short aDesiredFacin
         backwardsToStrafeRunDelta = (float)g_pGame->m_pGameTweaks->nBackwardsToStrafeRunOutDirectionDelta;
         break;
 
+    case STRAFE_BACK:
     default:
         strafeToRunDelta = (float)g_pGame->m_pGameTweaks->nStrafeToRunInDirectionDelta;
         backwardsToStrafeRunDelta = (float)g_pGame->m_pGameTweaks->nBackwardsToStrafeRunInDirectionDelta;

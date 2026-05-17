@@ -507,8 +507,8 @@ bool AvoidController::CalcFielderRepulsionVector(nlVector3& v3OutRepulsion)
             float fOutX = v3OutRepulsion.f.x;
             fOutY = fContribution * fDeltaZ + fOutY;
             float fOutZ = v3OutRepulsion.f.z;
-            fOutX = fContribution * fDeltaY + fOutX;
-            fOutZ = fContribution * fDeltaX + fOutZ;
+            fOutX = fContribution * fDeltaX + fOutX;
+            fOutZ = fContribution * fDeltaY + fOutZ;
             v3OutRepulsion.f.x = fOutX;
             v3OutRepulsion.f.y = fOutY;
             v3OutRepulsion.f.z = fOutZ;
@@ -790,10 +790,14 @@ bool AvoidController::CalcDesiredVelocityToAvoidCorner(
                 float ny;
                 ny = fInvDistance * fFielderY;
                 nx = fInvDistance * fFielderX;
-                vSidelineNormal.f.y = v2Zero.f.y - ny;
-                vSidelineNormal.f.x = v2Zero.f.x - nx;
-                vSidelinePos.f.y = corner.fRadius * ny + corner.vCenter.f.y;
-                vSidelinePos.f.x = corner.fRadius * nx + corner.vCenter.f.x;
+                float sidelineNormalY = v2Zero.f.y - ny;
+                float sidelineNormalX = v2Zero.f.x - nx;
+                float sidelinePosY = corner.fRadius * ny + corner.vCenter.f.y;
+                float sidelinePosX = corner.fRadius * nx + corner.vCenter.f.x;
+                vSidelineNormal.f.x = sidelineNormalX;
+                vSidelineNormal.f.y = sidelineNormalY;
+                vSidelinePos.f.x = sidelinePosX;
+                vSidelinePos.f.y = sidelinePosY;
                 bHitSideline = CalcDesiredVelocityToAvoidSideline(
                     vNewDesiredVelDir, vCurrentDesiredVelDir, vCurrentVelDir, vSidelinePos, vSidelineNormal);
             }
@@ -804,14 +808,18 @@ bool AvoidController::CalcDesiredVelocityToAvoidCorner(
                 float ny;
                 ny = fInvDistance * fDeltaY;
                 nx = fInvDistance * fDeltaX;
-                vSidelinePos.f.y = corner.fRadius * ny + corner.vCenter.f.y;
-                vSidelineNormal.f.y = v2Zero.f.y - ny;
-                vSidelinePos.f.x = corner.fRadius * nx + corner.vCenter.f.x;
-                float fCornerDistY = vBallPosition.f.y - vSidelinePos.f.y;
-                vSidelineNormal.f.x = v2Zero.f.x - nx;
-                float fDotNormalVel = vSidelineNormal.f.y * vCurrentDesiredVelDir.f.y;
-                float fCornerDistX = vBallPosition.f.x - vSidelinePos.f.x;
-                fDotNormalVel = vSidelineNormal.f.x * vCurrentDesiredVelDir.f.x + fDotNormalVel;
+                float sidelinePosY = corner.fRadius * ny + corner.vCenter.f.y;
+                float sidelineNormalY = v2Zero.f.y - ny;
+                float sidelinePosX = corner.fRadius * nx + corner.vCenter.f.x;
+                float fCornerDistY = vBallPosition.f.y - sidelinePosY;
+                float sidelineNormalX = v2Zero.f.x - nx;
+                float fDotNormalVel = sidelineNormalY * vCurrentDesiredVelDir.f.y;
+                float fCornerDistX = vBallPosition.f.x - sidelinePosX;
+                fDotNormalVel = sidelineNormalX * vCurrentDesiredVelDir.f.x + fDotNormalVel;
+                vSidelineNormal.f.y = sidelineNormalY;
+                vSidelineNormal.f.x = sidelineNormalX;
+                vSidelinePos.f.x = sidelinePosX;
+                vSidelinePos.f.y = sidelinePosY;
                 float fDistance = nlSqrt(fCornerDistX * fCornerDistX + fCornerDistY * fCornerDistY, true);
                 float fMaxDistance = 5.0f;
                 fDistance -= m_pFTweaks->fPhysCapsuleRadius;

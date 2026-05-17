@@ -118,4 +118,41 @@ public:
 //     void NetMeshVertex, int, BasicSlotPool<AVLTreeEntry<NetMeshModelLoader::NetMeshVertex, int>>, DefaultKeyCompare<NetMeshModelLoader::NetMeshVertex>>::~AVLTreeBase();
 // };
 
+template <>
+inline int AVLTreeBase<NetMeshModelLoader::NetMeshVertex, int, BasicSlotPool<AVLTreeEntry<NetMeshModelLoader::NetMeshVertex, int> >, DefaultKeyCompare<NetMeshModelLoader::NetMeshVertex> >::CompareKey(void* key, AVLTreeNode* node)
+{
+    NetMeshModelLoader::NetMeshVertex* k = (NetMeshModelLoader::NetMeshVertex*)key;
+    AVLTreeEntry<NetMeshModelLoader::NetMeshVertex, int>* entry = (AVLTreeEntry<NetMeshModelLoader::NetMeshVertex, int>*)node;
+    int result;
+    bool equal = (k->mpPacket == entry->key.mpPacket && k->mIndex == entry->key.mIndex);
+    if (equal)
+    {
+        result = 0;
+    }
+    else
+    {
+        bool less = (k->mpPacket < entry->key.mpPacket || (k->mpPacket == entry->key.mpPacket && k->mIndex < entry->key.mIndex));
+        if (less)
+            result = -1;
+        else
+            result = 1;
+    }
+    return result;
+}
+
+template <>
+inline int AVLTreeBase<NetMeshModelLoader::NetMeshEdge, int, BasicSlotPool<AVLTreeEntry<NetMeshModelLoader::NetMeshEdge, int> >, DefaultKeyCompare<NetMeshModelLoader::NetMeshEdge> >::CompareKey(void* key, AVLTreeNode* node)
+{
+    const NetMeshModelLoader::NetMeshEdge& k = *(NetMeshModelLoader::NetMeshEdge*)key;
+    AVLTreeEntry<NetMeshModelLoader::NetMeshEdge, int>* entry = (AVLTreeEntry<NetMeshModelLoader::NetMeshEdge, int>*)node;
+    int result;
+    if (k == entry->key)
+        result = 0;
+    else if (k < entry->key)
+        result = -1;
+    else
+        result = 1;
+    return result;
+}
+
 #endif // _NETMESHMODELLOADER_H_

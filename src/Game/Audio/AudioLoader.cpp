@@ -928,9 +928,15 @@ bool AudioLoader::IsInited()
 
 /**
  * Offset/Address/Size: 0x31D4 | 0x80146FA0 | size: 0x2F0
- * TODO: 97.77% match - `gbStream` guard branch form and one temporary move
- * before hashing `pSoundName` still differ.
+ * TODO: 99.44% match - `gbStream` guard still compares against `1` instead of
+ * the target's non-zero branch form.
  */
+static inline AudioStreamTrack::StreamTrack* GetTrackByName(const char* pTrackName)
+{
+    AudioStreamTrack::TrackManagerBase* pTrackMgr = g_pTrackManager;
+    return pTrackMgr->GetTrack(nlStringLowerHash(pTrackName));
+}
+
 void AudioLoader::StartFEStream(const char* pSoundName, bool bLoop, const char* pTrackName)
 {
     if (gbDisableAudio)
@@ -938,7 +944,7 @@ void AudioLoader::StartFEStream(const char* pSoundName, bool bLoop, const char* 
         return;
     }
 
-    if (gbStream)
+    if (gbStream == 1)
     {
         char var_68[64];
         nlSNPrintf(var_68, 64, "%s/%s", pSoundName, "Volume");
@@ -951,14 +957,12 @@ void AudioLoader::StartFEStream(const char* pSoundName, bool bLoop, const char* 
 
         if (volume > 0.0f)
         {
-            AudioStreamTrack::TrackManagerBase* pTrackMgr = g_pTrackManager;
-            AudioStreamTrack::StreamTrack* track = pTrackMgr->GetTrack(nlStringLowerHash(pTrackName));
+            AudioStreamTrack::StreamTrack* track = GetTrackByName(pTrackName);
             track->PlayStream(nlStringLowerHash(pSoundName), volume, bLoop, fadeIn, interruptFadeOut, "", Audio::MasterVolume::VG_Music);
         }
         else
         {
-            AudioStreamTrack::TrackManagerBase* pTrackMgr = g_pTrackManager;
-            AudioStreamTrack::StreamTrack* track = pTrackMgr->GetTrack(nlStringLowerHash(pTrackName));
+            AudioStreamTrack::StreamTrack* track = GetTrackByName(pTrackName);
             track->Stop(interruptFadeOut);
         }
     }

@@ -721,8 +721,8 @@ void cCharacter::PoseLocalSpace()
 cPN_SAnimController* cCharacter::NewAnimController(int animID, bool bRestartCyclic, bool bForceMirrorSwap, void (*funcPlaybackSpeedCallback)(unsigned int, cPN_SAnimController*), unsigned int nPlaybackSpeedCallbackParam)
 {
     /**
-     * TODO: 98.67% match - remaining mismatch is an extra null-check sequence
-     * around cPN_SAnimController placement construction register flow.
+     * TODO: 99.23% match - remaining mismatch is the constructor-call tail:
+     * playMode moves through r0 and the branch target lands one instruction later.
      */
     bool restartCyclic = bRestartCyclic;
     bool forceMirrorSwap = bForceMirrorSwap;
@@ -834,8 +834,9 @@ cPN_SAnimController* cCharacter::NewAnimController(int animID, bool bRestartCycl
             retarget = m_pAnimRetargetList->GetAnimRetargetWithSignature(anim);
         }
 
+        extern cPN_SAnimController* __ct__19cPN_SAnimControllerFP6cSAnimPC12AnimRetarget9ePlayModePFUiP19cPN_SAnimController_vUib(cPN_SAnimController*, cSAnim*, const AnimRetarget*, ePlayMode, void (*)(unsigned int, cPN_SAnimController*), unsigned int, bool);
         ePlayMode playMode = m_pAnimInventory->GetPlayMode(animID);
-        new (controller) cPN_SAnimController(anim, retarget, playMode, playbackSpeedCallback, playbackSpeedCallbackParam, mirrored);
+        controller = __ct__19cPN_SAnimControllerFP6cSAnimPC12AnimRetarget9ePlayModePFUiP19cPN_SAnimController_vUib(controller, anim, retarget, playMode, playbackSpeedCallback, playbackSpeedCallbackParam, mirrored);
     }
 
     controller->m_fPrevTime = controller->m_fTime;

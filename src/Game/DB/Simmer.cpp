@@ -22,7 +22,7 @@ struct StatsPair
  */
 Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator Tokenizer<BasicString<char, Detail::TempStringAllocator> >::begin() const
 {
-    return iterator(*this, m_source.m_data ? m_source.m_data->mData : NULL);
+    return iterator(*this, m_source.m_data ? m_source.m_data->mData : (char*)0);
 }
 
 /**
@@ -47,32 +47,105 @@ Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator Tokenizer<B
  */
 Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator& Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator::operator++()
 {
-    m_field1 = m_field2;
+    mIter = mEnd;
     FindNextToken();
     return *this;
 }
 
 /**
  * Offset/Address/Size: 0x88 | 0x80191520 | size: 0x310
- * TODO: Stub for FindNextToken - not yet decompiled.
+ * TODO: 70.7% match - MWCC hoists tok->m_source.m_data and tok->m_delimiter.m_data outside loops,
+ *       causing register shifts (r5/r6/r7 vs target r5/r6/r7 allocation)
  */
 void Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator::FindNextToken()
 {
-    FORCE_DONT_INLINE;
+    const char* iter = mIter;
+    const Tokenizer<BasicString<char, Detail::TempStringAllocator> >* tok = mTokenizer;
+
+    while (iter != (tok->m_source.m_data != 0 ? tok->m_source.m_data->mData + (tok->m_source.m_data->mSize - 1) : (char*)0))
+    {
+        int i = 0;
+        while (i < (tok->m_delimiter.m_data != 0 ? tok->m_delimiter.m_data->mSize - 1 : 0))
+        {
+            signed char c = (signed char)*(unsigned char*)iter;
+            signed char sep = (signed char)tok->m_delimiter.m_data->mData[i];
+            if (c == sep)
+            {
+                break;
+            }
+            i++;
+        }
+        if (i == (tok->m_delimiter.m_data != 0 ? tok->m_delimiter.m_data->mSize - 1 : 0))
+        {
+            break;
+        }
+        iter++;
+    }
+
+    mIter = iter;
+    iter = mIter;
+    tok = mTokenizer;
+
+    while (iter != (tok->m_source.m_data != 0 ? tok->m_source.m_data->mData + (tok->m_source.m_data->mSize - 1) : (char*)0))
+    {
+        int i = 0;
+        while (i < (tok->m_delimiter.m_data != 0 ? tok->m_delimiter.m_data->mSize - 1 : 0))
+        {
+            signed char c = (signed char)*(unsigned char*)iter;
+            signed char sep = (signed char)tok->m_delimiter.m_data->mData[i];
+            if (c == sep)
+            {
+                break;
+            }
+            i++;
+        }
+        if (i != (tok->m_delimiter.m_data != 0 ? tok->m_delimiter.m_data->mSize - 1 : 0))
+        {
+            break;
+        }
+        iter++;
+    }
+
+    mEnd = iter;
+
+    const char* end = mEnd;
+    const char* start = mIter;
+    BasicStringData<char>* data = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
+    if (data != 0)
+    {
+        int len = end - start + 1;
+        data->mData = (char*)nlMalloc(len, 8, true);
+        data->mSize = len;
+        data->mCapacity = len;
+        for (int j = 0; j < len; j++)
+        {
+            data->mData[j] = 0;
+        }
+        data->mRefCount = 1;
+        for (int j = 0; j < data->mSize - 1; j++)
+        {
+            data->mData[j] = *start++;
+        }
+    }
+
+    BasicString<char, Detail::TempStringAllocator> temp(data);
+    mToken = temp;
 }
 
+#pragma dont_inline on
 /**
  * Offset/Address/Size: 0x44 | 0x801914DC | size: 0x44
  */
 Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator::iterator(
     const Tokenizer<BasicString<char, Detail::TempStringAllocator> >& tokenizer,
     const char* endPtr)
-    : m_field0((u32)&tokenizer)
-    , m_field1((u32)endPtr)
-    , m_field2(0)
+    : mTokenizer(&tokenizer)
+    , mIter(endPtr)
+    , mEnd(0)
 {
     FindNextToken();
 }
+#pragma dont_inline off
 
 /**
  * Offset/Address/Size: 0xC18 | 0x80191494 | size: 0x4
@@ -177,7 +250,7 @@ void Simulator::InitializeStats()
                     continue;
                 }
 
-                float val = (float)atof(it.m_token.c_str());
+                float val = (float)atof(it.mToken.c_str());
                 if (doMean)
                 {
                     ((StatsPair*)this)[idx].mMean = val;

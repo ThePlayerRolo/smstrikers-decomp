@@ -28,7 +28,7 @@ WorldAnimManager::WorldAnimManager()
 
 /**
  * Offset/Address/Size: 0x14C | 0x8019AF18 | size: 0x41C
- * TODO: 96.88% match - r30/r31 register swap throughout function and cascading stack offset differences
+ * TODO: 99.45% match - remaining stack-slot and literal ordering differences in inventory cleanup blocks
  */
 WorldAnimManager::~WorldAnimManager()
 {
@@ -42,6 +42,7 @@ WorldAnimManager::~WorldAnimManager()
         u32 count;
     };
 
+    AnimationSet* animSet;
     NodeStack* stack;
     TreeEntry* node;
 
@@ -68,7 +69,7 @@ WorldAnimManager::~WorldAnimManager()
     while (stack->count > 0)
     {
         TreeEntry* entry = stack->data[stack->count - 1];
-        AnimationSet* animSet = entry->value;
+        animSet = entry->value;
         if (animSet != NULL)
         {
             if (&animSet->m_animInventory != NULL)

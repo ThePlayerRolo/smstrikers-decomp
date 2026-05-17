@@ -128,13 +128,12 @@ void BlitImage(int arg0, int arg1, float arg2, float arg3, bool arg4)
         int dstRow = (arg1 + yOffset) * 0x500;
         float xSample = 0.0f;
         int xOffset = 0;
-        const u16* selectedRow = selectedBase + (srcRow << 5);
         const u16* imageRow = imageBase + (srcRow << 5);
+        const u16* selectedRow = selectedBase + (srcRow << 5);
         int prev0;
         int older0;
         int prev1;
         int older1;
-
         while (xSample < limit)
         {
             int srcCol = (int)xSample;
@@ -152,7 +151,6 @@ void BlitImage(int arg0, int arg1, float arg2, float arg3, bool arg4)
             int yv = ((pixel >> 12) & 0xF) | (((pixel >> 12) & 0xF) << 4);
             int uv0 = ((pixel >> 8) & 0xF) | (((pixel >> 8) & 0xF) << 4);
             int uv1 = ((pixel >> 4) & 0xF) | (((pixel >> 4) & 0xF) << 4);
-
             if (alpha > 0)
             {
                 int dstX = arg0 + xOffset;
@@ -370,26 +368,6 @@ void glxSwapPre(bool bSend)
     }
 }
 
-static inline void fillStringData(BasicStringInternal* data, const char* str)
-{
-    data->mData = 0;
-    const char* s = str;
-    data->mSize = 0;
-    data->mCapacity = 0;
-    while ((signed char)*s++ != 0)
-    {
-        data->mSize++;
-    }
-    data->mSize++;
-    data->mData = (char*)Detail::TempStringAllocator::allocate(data->mSize + 1);
-    data->mCapacity = data->mSize;
-    for (s32 i = 0; i < data->mSize; i++)
-    {
-        data->mData[i] = *str++;
-    }
-    data->mRefCount = 1;
-}
-
 /**
  * Offset/Address/Size: 0x734 | 0x801BF484 | size: 0x260
  * TODO: 97.99% match - r30/r31 register swap for data and str pointers
@@ -409,7 +387,23 @@ void glxInitSwap(void* arg0, void* arg1)
     data = (BasicStringInternal*)nlMalloc(0x10, 8, true);
     if (data != 0)
     {
-        fillStringData(data, "hitz");
+        const char* str = "hitz";
+        data->mData = 0;
+        const char* s = str;
+        data->mSize = 0;
+        data->mCapacity = 0;
+        while ((signed char)*s++ != 0)
+        {
+            data->mSize++;
+        }
+        data->mSize++;
+        data->mData = (char*)Detail::TempStringAllocator::allocate(data->mSize + 1);
+        data->mCapacity = data->mSize;
+        for (s32 i = 0; i < data->mSize; i++)
+        {
+            data->mData[i] = *str++;
+        }
+        data->mRefCount = 1;
     }
 
     BasicString<char, Detail::TempStringAllocator> mode(

@@ -109,9 +109,9 @@ void MemoryAllocator::Initialize(void* arg0, unsigned int arg1)
 
 /**
  * Offset/Address/Size: 0x1D8 | 0x801CD924 | size: 0x35C
- * TODO: 93.42% match - r23/r24 register swap for size/offset parameters,
- * plus r29/r30 swap for end/cur setup instructions. All 30 remaining diffs
- * are register allocation differences from MWCC graph coloring.
+ * TODO: 94.33% match - remaining diffs are register assignments in both
+ * allocation paths (size/offset and current/start-end iterator registers),
+ * plus paired address-calculation ordering around suffix metadata writes.
  */
 void* MemoryAllocator::Allocate(unsigned long size, unsigned int alignment, bool fromEnd)
 {
@@ -173,9 +173,9 @@ void* MemoryAllocator::Allocate(unsigned long size, unsigned int alignment, bool
             }
 
             u32 suffixBase = offset - alignedSize;
-            void* allocPtr = (char*)(size - alignment) + alignment;
-            u32 header = savedSize;
             u32 suffixGap = suffixBase - 4;
+            u32 header = savedSize;
+            void* allocPtr = (char*)(size - alignment) + alignment;
             if (alignment > 4)
             {
                 header = savedSize | 0x80000000;
@@ -184,10 +184,11 @@ void* MemoryAllocator::Allocate(unsigned long size, unsigned int alignment, bool
             if (suffixGap != 0)
             {
                 header |= 0x40000000;
-                *(u32*)(((u32)((char*)allocPtr + savedSize) + 3) & ~3u) = suffixGap;
+                *(u32*)(((u32)allocPtr + savedSize + 3) & ~3u) = suffixGap;
             }
             *(u32*)((char*)allocPtr - 4) = header;
-            return allocPtr;
+            void* result = allocPtr;
+            return result;
         }
     }
     else
@@ -255,10 +256,11 @@ void* MemoryAllocator::Allocate(unsigned long size, unsigned int alignment, bool
             if (suffixSize != 0)
             {
                 header |= 0x40000000;
-                *(u32*)(((u32)((char*)allocPtr + savedSize) + 3) & ~3u) = suffixSize;
+                *(u32*)(((u32)allocPtr + savedSize + 3) & ~3u) = suffixSize;
             }
             *(u32*)((char*)allocPtr - 4) = header;
-            return allocPtr;
+            void* result = allocPtr;
+            return result;
         }
     }
 }

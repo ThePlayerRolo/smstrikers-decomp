@@ -386,7 +386,8 @@ void FEInput::Update(float dt)
  */
 void FEInput::SetAutoRepeatParams(eFEINPUT_PAD pad, int button, float initialdelay, float repeatrate)
 {
-    u32 buttonIndex = GetButtonIndex(cPadManager::GetRemapArray()[button]);
+    int remappedButton = cPadManager::GetRemapArray()[button];
+    int buttonIndex = GetButtonIndex(remappedButton);
 
     if (pad == FE_ALL_PADS)
     {

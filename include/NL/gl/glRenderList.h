@@ -11,7 +11,35 @@
 #include "Game/GL/GLRenderBuffer.h"
 
 class glModel;
-class TextureTreeCompare;
+
+class TextureTreeCompare
+{
+public:
+    int operator()(const glModelPacket* const& b, const glModelPacket* const& a) const
+    {
+        if (a->state.program < b->state.program)
+            return -1;
+        if (a->state.program > b->state.program)
+            return 1;
+        if (a->state.texconfig < b->state.texconfig)
+            return -1;
+        if (a->state.texconfig > b->state.texconfig)
+            return 1;
+        if (a->state.texture[0] < b->state.texture[0])
+            return -1;
+        if (a->state.texture[0] > b->state.texture[0])
+            return 1;
+        if (a->userData < b->userData)
+            return -1;
+        if (a->userData > b->userData)
+            return 1;
+        if (a < b)
+            return -1;
+        if (a > b)
+            return 1;
+        return 0;
+    }
+};
 
 struct DepthPacketPair
 {
@@ -28,7 +56,59 @@ inline bool operator<(const DepthPacketPair& a, const DepthPacketPair& b)
     return a.sortKey < b.sortKey;
 }
 
-class DepthTreeCompare;
+class DepthTreeCompare
+{
+public:
+    int operator()(const DepthPacketPair& b, const DepthPacketPair& a) const
+    {
+        int result;
+        if (a.sortKey == b.sortKey)
+            result = 0;
+        else if (a.sortKey < b.sortKey)
+            result = -1;
+        else
+            result = 1;
+        return result;
+    }
+};
+
+template <>
+inline int AVLTreeBase<DepthPacketPair, unsigned int, BasicSlotPool<AVLTreeEntry<DepthPacketPair, unsigned int> >, DepthTreeCompare>::CompareKey(void* key, AVLTreeNode* node)
+{
+    int result;
+    DepthPacketPair* k = (DepthPacketPair*)key;
+    AVLTreeEntry<DepthPacketPair, unsigned int>* entry = (AVLTreeEntry<DepthPacketPair, unsigned int>*)node;
+    if (entry->key.sortKey < k->sortKey)
+        result = -1;
+    else if (entry->key.sortKey > k->sortKey)
+        result = 1;
+    else if (k->packet < entry->key.packet)
+        result = -1;
+    else if (k->packet > entry->key.packet)
+        result = 1;
+    else
+        result = 0;
+    return result;
+}
+
+template <>
+inline int AVLTreeBase<DepthPacketPair, unsigned int, BasicSlotPool<AVLTreeEntry<DepthPacketPair, unsigned int> >, DepthTreeCompare>::CompareNodes(AVLTreeNode* a, AVLTreeNode* b)
+{
+    int result;
+    AVLTreeEntry<DepthPacketPair, unsigned int>* entryA = (AVLTreeEntry<DepthPacketPair, unsigned int>*)a;
+    AVLTreeEntry<DepthPacketPair, unsigned int>* entryB = (AVLTreeEntry<DepthPacketPair, unsigned int>*)b;
+    if (entryB->key.sortKey < entryA->key.sortKey)
+        result = -1;
+    else if (entryB->key.sortKey > entryA->key.sortKey)
+        result = 1;
+    else if (entryA->key.packet < entryB->key.packet)
+        result = -1;
+    else if (entryA->key.packet > entryB->key.packet)
+        result = 1;
+    else
+        result = 0;
+    return result;
+}
 
 class GLTexturePacketTree : public nlAVLTreeSlotPool<const glModelPacket*, unsigned int, TextureTreeCompare>
 {

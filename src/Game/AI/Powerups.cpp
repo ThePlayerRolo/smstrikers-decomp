@@ -91,6 +91,7 @@ extern void* __vt__8RedShell[];
 extern void* __vt__10SpinyShell[];
 extern void* __vt__9EventData[];
 extern void* __vt__20PowerupUsedEventData[];
+extern World* s_World__12WorldManager;
 
 // extern Audio::cWorldSFX gPowerupSFX;
 
@@ -917,17 +918,17 @@ PowerupBase* FindPowerUp(unsigned long hashOfDrawable)
 //  */
 /**
  * Offset/Address/Size: 0x4C00 | 0x8005F4EC | size: 0x2B4
- * TODO: 92.6% match - compiler hoists string literal lis/addi outside loop, using one extra callee-saved register (stmw r24 vs r25)
+ * TODO: 93.5% match - extra prologue loop-counter init and callee-saved register shift remain.
  */
 void PowerupModelPool::Initialize(int type, unsigned long objHashName)
 {
-    DrawableObject* obj = WorldManager::s_World->FindDrawableObject(objHashName);
-    int i;
+    int i = 0;
+    DrawableObject* obj = s_World__12WorldManager->FindDrawableObject(objHashName);
 
     obj->m_uObjectFlags &= ~1;
     obj->m_uObjectFlags |= 0x80;
 
-    for (i = 0; i < 25; i++)
+    for (; i < 25; i++)
     {
         mObjs[type][i] = obj->Clone();
 
@@ -936,7 +937,7 @@ void PowerupModelPool::Initialize(int type, unsigned long objHashName)
         mObjs[type][i]->m_uHashID = nlStringLowerHash(name.c_str());
         mObjs[type][i]->m_uObjectFlags &= ~1;
 
-        WorldManager::s_World->AddDrawableObject(mObjs[type][i]->m_uHashID, mObjs[type][i]);
+        s_World__12WorldManager->AddDrawableObject(mObjs[type][i]->m_uHashID, mObjs[type][i]);
 
         mFree[type][i] = 1;
         mNum++;

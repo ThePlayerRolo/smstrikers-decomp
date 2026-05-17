@@ -952,7 +952,7 @@ void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
 
 /**
  * Offset/Address/Size: 0x7E8 | 0x801C7F98 | size: 0x260
- * TODO: 94.87% match - r27/r29 register swap for pBuffer/pCBInfo in warm buffer loop
+ * TODO: 95.82% match - r27/r29 register allocation swap for pBuffer/pCBInfo in warm buffer loop
  */
 void GCAudioStreaming::StereoAudioStream::InterleavedHdrReadCB(nlFile* pFile, void* pData, unsigned int Length)
 {
@@ -1001,8 +1001,12 @@ void GCAudioStreaming::StereoAudioStream::InterleavedHdrReadCB(nlFile* pFile, vo
         unsigned char* pMRAMBuffer = pBuffer->m_MRAMBuffer;
 
         bool enabled = OSDisableInterrupts();
-        READ_CB_INFO* pCBInfo = READ_CB_INFO::s_AllocPool.m_pFree;
-        if (pCBInfo)
+        register READ_CB_INFO* pCBInfo = READ_CB_INFO::s_AllocPool.m_pFree;
+        if (!pCBInfo)
+        {
+            pCBInfo = 0;
+        }
+        else
         {
             READ_CB_INFO::s_AllocPool.m_pFree = pCBInfo->m_next;
         }

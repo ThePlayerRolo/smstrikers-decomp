@@ -1169,25 +1169,24 @@ extern eStadiumID PickStadium__15GameInfoManagerCFb10eStadiumID(const GameInfoMa
 /**
  * Offset/Address/Size: 0x7EF0 | 0x8017D594 | size: 0x2DC
  */
-void GameInfoManager::SetupTournamentKnockout(eTeamID* pTeamIDs, eSidekickID* pSidekickIDs)
+void GameInfoManager::SetupTournamentKnockout(eTeamID* lineup, eSidekickID* sklineup)
 {
-    int zero = 0;
     int numGames;
-    s16 roundParam = mCurrentCup->mRoundNumber;
+    s16 firstRound = mCurrentCup->mRoundNumber;
 
-    if (roundParam == -4)
+    if (firstRound == -4)
     {
         numGames = 4;
     }
-    else if (roundParam == -3)
+    else if (firstRound == -3)
     {
         numGames = 2;
     }
-    else if (roundParam == -2 || roundParam == -1)
+    else if (firstRound == -2 || firstRound == -1)
     {
         numGames = 1;
     }
-    else if (roundParam == -5 && mDoingKnockout)
+    else if (firstRound == -5 && mDoingKnockout)
     {
         numGames = 1;
     }
@@ -1215,81 +1214,78 @@ void GameInfoManager::SetupTournamentKnockout(eTeamID* pTeamIDs, eSidekickID* pS
     }
 
     mCurrentCup->mCupStarted = true;
-    int numGamesCount = numGames;
-    mCurrentCup->mGameNumber = zero;
+    mCurrentCup->mGameNumber = 0;
     mLastHumanStadium = STAD_INVALID;
 
-    int numTeams = (u16)mCurrentCup->GetNumTeams();
+    int numGamesCount = (u16)numGames;
+    int numplayingteams = (u16)mCurrentCup->GetNumTeams();
 
     *mCurrentCup->GetRoundResults(0) = 1;
     *mCurrentCup->GetRoundResults(1) = 1;
     *mCurrentCup->GetRoundResults(2) = 1;
 
-    eSidekickID* pSidekickInfo = pSidekickIDs;
-    eTeamID* pTeamInfo = pTeamIDs;
-    eTeamID* pTeamStatsID = pTeamIDs;
+    eTeamID* pLineup = lineup;
+    eSidekickID* pSkLineup = sklineup;
 
     for (int i = 0; i < numGamesCount; i++)
     {
-        BasicGameInfo* pGameInfo = mCurrentCup->GetGameInfo(0, i);
+        BasicGameInfo* g = mCurrentCup->GetGameInfo(0, i);
 
-        pGameInfo->mTeamIndex[0] = TEAM_MARIO;
-        pGameInfo->mTeamIndex[1] = TEAM_LUIGI;
-        pGameInfo->mSidekickIndex[0] = SK_TOAD;
-        pGameInfo->mSidekickIndex[1] = SK_KOOPA;
-        pGameInfo->mFinalScore[1] = zero;
-        pGameInfo->mFinalScore[0] = zero;
-        pGameInfo->mPadSides[0] = -1;
-        pGameInfo->mPadSides[1] = -1;
-        pGameInfo->mPadSides[2] = -1;
-        pGameInfo->mPadSides[3] = -1;
-        pGameInfo->mStadiumIndex = STAD_MARIO_STADIUM;
+        g->mTeamIndex[0] = TEAM_MARIO;
+        g->mTeamIndex[1] = TEAM_LUIGI;
+        g->mSidekickIndex[0] = SK_TOAD;
+        g->mSidekickIndex[1] = SK_KOOPA;
+        g->mFinalScore[1] = 0;
+        g->mFinalScore[0] = 0;
+        g->mPadSides[0] = -1;
+        g->mPadSides[1] = -1;
+        g->mPadSides[2] = -1;
+        g->mPadSides[3] = -1;
+        g->mStadiumIndex = STAD_MARIO_STADIUM;
 
         {
-            eTeamID team1 = pTeamInfo[1];
-            eSidekickID sidekick0 = pSidekickInfo[0];
-            eSidekickID sidekick1 = pSidekickInfo[1];
-            eTeamID team0 = pTeamInfo[0];
+            eTeamID away = pLineup[1];
+            eSidekickID homeSK = pSkLineup[0];
+            eSidekickID awaySK = pSkLineup[1];
 
-            pGameInfo->mTeamIndex[0] = team0;
-            pGameInfo->mTeamIndex[1] = team1;
-            pGameInfo->mSidekickIndex[0] = sidekick0;
-            pGameInfo->mSidekickIndex[1] = sidekick1;
+            g->mTeamIndex[0] = pLineup[0];
+            g->mTeamIndex[1] = away;
+            g->mSidekickIndex[0] = homeSK;
+            g->mSidekickIndex[1] = awaySK;
         }
 
         {
-            eStadiumID pickedStadium = PickStadium__15GameInfoManagerCFb10eStadiumID(this, false, mLastHumanStadium);
-            pGameInfo->mStadiumIndex = pickedStadium;
+            eStadiumID currentStadium = PickStadium__15GameInfoManagerCFb10eStadiumID(this, false, mLastHumanStadium);
+            g->mStadiumIndex = currentStadium;
 
             u16 humanTeams = mCurrentCup->mHumanTeams;
-            if ((humanTeams & (1 << pGameInfo->mTeamIndex[0])) || (humanTeams & (1 << pGameInfo->mTeamIndex[1])))
+            if ((humanTeams & (1 << g->mTeamIndex[0])) || (humanTeams & (1 << g->mTeamIndex[1])))
             {
-                mLastHumanStadium = pickedStadium;
+                mLastHumanStadium = currentStadium;
             }
         }
 
-        pTeamInfo += 2;
-        pSidekickInfo += 2;
+        pLineup += 2;
+        pSkLineup += 2;
     }
 
-    TeamStats* pStats = mCurrentCup->GetTeamStats(0);
-    pTeamStatsID = pTeamIDs;
+    TeamStats* teamstats = mCurrentCup->GetTeamStats(0);
 
-    for (int i = 0; i < numTeams; i++)
+    for (int i = 0; i < numplayingteams; i++)
     {
-        eTeamID team = *pTeamStatsID;
+        eTeamID team = *lineup;
 
-        memset(&pStats->mPlayerTotalStats, zero, 0x34);
-        pStats->mPlayerTotalStats.mRecordType.mTeamID = team;
-        pStats->mPlayerTotalStats.mType = TYPE_TEAM;
-        pStats->mTeamIndex = team;
-        pStats->mNumWins = zero;
-        pStats->mNumLosses = zero;
-        pStats->mNumOTLosses = zero;
-        pStats->mNumPoints = zero;
+        memset(&teamstats->mPlayerTotalStats, 0, 0x34);
+        teamstats->mPlayerTotalStats.mRecordType.mTeamID = team;
+        teamstats->mPlayerTotalStats.mType = TYPE_TEAM;
+        teamstats->mTeamIndex = team;
+        teamstats->mNumWins = 0;
+        teamstats->mNumLosses = 0;
+        teamstats->mNumOTLosses = 0;
+        teamstats->mNumPoints = 0;
 
-        pTeamStatsID++;
-        pStats++;
+        lineup++;
+        teamstats++;
     }
 }
 
@@ -3681,12 +3677,14 @@ bool GameInfoManager::IsCustomFreezingUnlocked() const
 
 /**
  * Offset/Address/Size: 0x41C | 0x80175AC0 | size: 0x2B4
- * TODO: 98.41% match - still missing the redundant second mode check/load in the
- * prologue, and one inlined GetNumGamesPerRound path still reloads mCurrentCup.
+ * TODO: 99.25% match - remaining diffs are register-only in the
+ * games-per-round tail path (r4 carry chain vs r0 temporaries).
  */
 bool GameInfoManager::HasHumanGameBeenPlayed() const
 {
-    if (mCurrentMode != GM_TOURNAMENT)
+    volatile const eGameModes* modePtr = &mCurrentMode;
+
+    if (*modePtr != GM_TOURNAMENT)
     {
         return true;
     }
@@ -3758,7 +3756,45 @@ bool GameInfoManager::HasHumanGameBeenPlayed() const
 
         game++;
 
-        if (game == GetNumGamesPerRound(round))
+        u16 gamesPerRound;
+
+        if (round == -4)
+        {
+            gamesPerRound = 4;
+        }
+        else if (round == -3)
+        {
+            gamesPerRound = 2;
+        }
+        else if ((round == -2) || (round == -1))
+        {
+            gamesPerRound = 1;
+        }
+        else if ((round == -5) && mDoingKnockout)
+        {
+            gamesPerRound = 1;
+        }
+        else if (mDoingKnockout)
+        {
+            gamesPerRound = mPreviousCup->GetNumTeams() >> 1;
+        }
+        else
+        {
+            u16 temp;
+
+            if ((mCurrentMode == GM_BOWSER_CUP) || (mCurrentMode == GM_SUPER_BOWSER_CUP))
+            {
+                temp = 8;
+            }
+            else
+            {
+                temp = currentCup->GetNumTeams();
+            }
+
+            gamesPerRound = temp >> 1;
+        }
+
+        if (game == gamesPerRound)
         {
             game = 0;
             round = GetNextRoundNumber(round);

@@ -72,15 +72,15 @@ void PlatAudio::InitStreaming()
 
 /**
  * Offset/Address/Size: 0x208 | 0x801C72CC | size: 0x36C
- * TODO: 92.6% match - outer loop induction registers differ in teardown pass
- * and both m_BufferCount > 0 checks still compile as beq instead of ble.
+ * TODO: 94.5% match - teardown-pass induction registers still differ, and
+ * both m_BufferCount guard checks still compile as beq instead of ble.
  */
 void PlatAudio::ShutdownStreaming()
 {
     using namespace GCAudioStreaming;
 
     unsigned long streamIndex = 0;
-    unsigned long lookupOffset = streamIndex;
+    unsigned long lookupOffset = 0;
     AudioStream* stream;
     AudioStreamBuffer* buffer;
 
@@ -92,7 +92,10 @@ void PlatAudio::ShutdownStreaming()
         if (stream->m_State == SS_Playing)
         {
             volatile unsigned long i = (unsigned long)(buffer = NULL);
-            if (stream->m_BufferCount > 0)
+            if (stream->m_BufferCount <= 0)
+            {
+            }
+            else
                 buffer = stream->m_Buffers[0];
 
             while (buffer != NULL)
@@ -129,7 +132,10 @@ void PlatAudio::ShutdownStreaming()
 
                 volatile unsigned long i = 0;
                 buffer = NULL;
-                if (stream->m_BufferCount > 0)
+                if (stream->m_BufferCount <= 0)
+                {
+                }
+                else
                     buffer = stream->m_Buffers[0];
 
                 while (buffer != NULL)
@@ -167,11 +173,10 @@ void PlatAudio::ShutdownStreaming()
         unsigned long count;
 
         stream = *g_Streams.m_pEntryLookup[lookupOffset >> 3].pEntry;
-        stream->Stop();
+        stream->SafeToPurge();
 
         pStream = g_Streams.m_pEntryLookup[lookupOffset >> 3].pEntry;
-        if (*pStream != NULL)
-            delete *pStream;
+        delete *pStream;
 
         if (pStream != NULL)
         {

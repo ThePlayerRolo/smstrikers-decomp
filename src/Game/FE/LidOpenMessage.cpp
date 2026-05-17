@@ -58,12 +58,14 @@ static inline void UncompressLidMessage(const unsigned char* compressed, int com
 
     while (i < (compressedSize - 1))
     {
-        unsigned char value = compressed[i];
+        const unsigned char* src = compressed + i;
+        unsigned char value = src[0];
         if (value == 0)
         {
+            const unsigned char* runSrc = src + 1;
             int run = 0;
             unsigned char* dst = uncompressed + index;
-            while (run < compressed[i + 1])
+            while (run < runSrc[0])
             {
                 *dst = (unsigned char)k;
                 index++;
@@ -85,9 +87,9 @@ static inline void UncompressLidMessage(const unsigned char* compressed, int com
 
 /**
  * Offset/Address/Size: 0x624 | 0x80094540 | size: 0x26C
- * TODO: 96.81% match - arg0 register r18 vs r21, expanded r20 vs r26,
- * pass/xStart/xEnd shifted by 7 registers, missing addi r10,r4,1 and mr r19,r5.
- * Likely -inline deferred register allocation difference.
+ * TODO: 96.87% match - arg0 register r18 vs r21, decompression counters/base
+ * remain on r20/r10 instead of r26/r9, and xStart does not preserve through
+ * mr r19,r5 before x-loop setup.
  */
 void DisplayMessage(int arg0, int arg1, const unsigned char* arg2, int arg3, unsigned long arg4, bool arg5)
 {

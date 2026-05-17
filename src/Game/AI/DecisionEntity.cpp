@@ -165,9 +165,6 @@ extern "C" ScriptAction* __ct__12ScriptActionF17eScriptActionTypef(ScriptAction*
 
 /**
  * Offset/Address/Size: 0x9D4 | 0x80018930 | size: 0x3E0
- * TODO: 92.04% match - FuzzyVariant operator= scheduling differs from target
- *       (2-register rotation vs target's 3-register rotation in opt1/opt2 copy,
- *       prev register r4 vs target r5)
  */
 ScriptAction* cDecisionEntity::QueueActionSetDesire(int eDesireType, float fConfidence, float fDuration, FuzzyVariant param1, FuzzyVariant param2)
 {
@@ -210,8 +207,8 @@ ScriptAction* cDecisionEntity::QueueActionSetDesire(int eDesireType, float fConf
         pNewAction->m_fConfidence = fConfidence;
         ScriptAction* prev = NULL;
         pNewAction->m_sDesireParams.eDesireType = (eFielderDesireState)eDesireType;
-        pNewAction->m_sDesireParams.opt1 = param1;
         pNewAction->m_sDesireParams.fDuration = fDuration;
+        pNewAction->m_sDesireParams.opt1 = param1;
         pNewAction->m_sDesireParams.opt2 = param2;
 
         ScriptAction* cur = m_lQueuedActions.m_pStart;
