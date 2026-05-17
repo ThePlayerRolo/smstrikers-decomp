@@ -208,28 +208,29 @@ void ReplayablePolymorphic<1, LoadFrame, cPoseNode>(LoadFrame& frame, cPoseNode*
 
 /**
  * Offset/Address/Size: 0x438 | 0x8011C764 | size: 0x45C
- * TODO: 96.2% match - r7/r8 register swap for loop counter and byte offset in first two nlMatrix4 copy loops
+ * TODO: 97.0% match - first nlMatrix4 copy loop initializes byte offset with li r8,0 instead of mr r8,r7
  */
 cPoseAccumulator::cPoseAccumulator(const cPoseAccumulator& other)
 {
     m_BaseSHierarchy = other.m_BaseSHierarchy;
 
     int i;
+    int byteOffset;
 
     m_NodeMatrices.mData = (nlMatrix4*)nlMalloc(other.m_NodeMatrices.mSize * sizeof(nlMatrix4), 8, 0);
     m_NodeMatrices.mSize = other.m_NodeMatrices.mSize;
     m_NodeMatrices.mCapacity = other.m_NodeMatrices.mSize;
-    for (i = 0; i < m_NodeMatrices.mSize; i++)
+    for (i = 0, byteOffset = i; i < m_NodeMatrices.mSize; i++, byteOffset += sizeof(nlMatrix4))
     {
-        m_NodeMatrices.mData[i] = other.m_NodeMatrices.mData[i];
+        *(nlMatrix4*)((char*)m_NodeMatrices.mData + byteOffset) = *(nlMatrix4*)((char*)other.m_NodeMatrices.mData + byteOffset);
     }
 
     m_PrevNodeMatrices.mData = (nlMatrix4*)nlMalloc(other.m_PrevNodeMatrices.mSize * sizeof(nlMatrix4), 8, 0);
     m_PrevNodeMatrices.mSize = other.m_PrevNodeMatrices.mSize;
     m_PrevNodeMatrices.mCapacity = other.m_PrevNodeMatrices.mSize;
-    for (i = 0; i < m_PrevNodeMatrices.mSize; i++)
+    for (i = 0, byteOffset = i; i < m_PrevNodeMatrices.mSize; i++, byteOffset += sizeof(nlMatrix4))
     {
-        m_PrevNodeMatrices.mData[i] = other.m_PrevNodeMatrices.mData[i];
+        *(nlMatrix4*)((char*)m_PrevNodeMatrices.mData + byteOffset) = *(nlMatrix4*)((char*)other.m_PrevNodeMatrices.mData + byteOffset);
     }
 
     m_rot.mData = (RotAccum*)nlMalloc(other.m_rot.mSize * sizeof(RotAccum), 8, 0);

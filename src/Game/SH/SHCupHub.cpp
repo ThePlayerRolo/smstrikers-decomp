@@ -34,11 +34,8 @@ public:
 extern cWorldSFX gWorldSFX;
 } // namespace Audio
 
-extern "C" eTeamID FindWinningTeam__15GameInfoManagerFv(GameInfoManager*);
-extern "C" BasicGameInfo* GetMatchupInfo__15GameInfoManagerCFsUs(const GameInfoManager*, short, unsigned short);
 extern "C" unsigned char UpdateKnockout4__11CupHubSceneFf(CupHubScene*, float);
 extern "C" unsigned char UpdateKnockout2__11CupHubSceneFf(CupHubScene*, float);
-extern "C" void UpdateRoundMessage__11CupHubSceneFb(CupHubScene*, bool);
 
 struct LOCHeader
 {
@@ -689,7 +686,7 @@ void CupHubScene::Update(float fDeltaT)
         mDoAnimations = true;
         mHubState = HUB_KNOCKOUT2;
 
-        game = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -2, 0);
+        game = gameInfo->GetMatchupInfo(-2, 0);
 
         if (!mSuperTeamAnimation
             && game->mTeamIndex[0] == TEAM_MYSTERY
@@ -2453,7 +2450,7 @@ void CupHubScene::CreateKnockout()
         round = -4;
         numTeams = 8;
 
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -4, 2);
+        pGame = gameInfo->GetMatchupInfo(-4, 2);
         knockoutTeams[4] = pGame->mTeamIndex[0];
         knockoutTeams[5] = pGame->mTeamIndex[1];
         if (pGame->mFinalScore[0] > pGame->mFinalScore[1])
@@ -2465,7 +2462,7 @@ void CupHubScene::CreateKnockout()
             loserTeams[2] = pGame->mTeamIndex[0];
         }
 
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -4, 3);
+        pGame = gameInfo->GetMatchupInfo(-4, 3);
         knockoutTeams[6] = pGame->mTeamIndex[0];
         knockoutTeams[7] = pGame->mTeamIndex[1];
         if (pGame->mFinalScore[0] > pGame->mFinalScore[1])
@@ -2532,7 +2529,7 @@ void CupHubScene::CreateKnockout()
 
     if (mHubState == HUB_KNOCKOUT8 || mHubState == HUB_KNOCKOUT4)
     {
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, round, 1);
+        pGame = gameInfo->GetMatchupInfo(round, 1);
         knockoutTeams[2] = pGame->mTeamIndex[0];
         knockoutTeams[3] = pGame->mTeamIndex[1];
         if (pGame->mFinalScore[0] > pGame->mFinalScore[1])
@@ -2555,7 +2552,7 @@ void CupHubScene::CreateKnockout()
     }
     else
     {
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, round, 0);
+        pGame = gameInfo->GetMatchupInfo(round, 0);
     }
 
     knockoutTeams[0] = pGame->mTeamIndex[0];
@@ -2889,16 +2886,16 @@ void CupHubScene::CreateKnockout()
     {
         if (mHubState == HUB_KNOCKOUT8)
         {
-            pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, round, 2);
+            pGame = gameInfo->GetMatchupInfo(round, 2);
             mAnimatingKnockoutTeams[2] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 4 : 5;
 
-            pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, round, 3);
+            pGame = gameInfo->GetMatchupInfo(round, 3);
             mAnimatingKnockoutTeams[3] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 6 : 7;
         }
 
         if (mHubState == HUB_KNOCKOUT8 || mHubState == HUB_KNOCKOUT4)
         {
-            pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, round, 1);
+            pGame = gameInfo->GetMatchupInfo(round, 1);
             mAnimatingKnockoutTeams[1] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 2 : 3;
         }
 
@@ -2912,7 +2909,7 @@ void CupHubScene::CreateKnockout()
         }
         else
         {
-            pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, round, 0);
+            pGame = gameInfo->GetMatchupInfo(round, 0);
         }
 
         mAnimatingKnockoutTeams[0] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 0 : 1;
@@ -3335,22 +3332,22 @@ unsigned char CupHubScene::UpdateKnockout8(float fDeltaT)
 
     if (mKnockoutLoserAnimations)
     {
-        BasicGameInfo* pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -4, 0);
+        BasicGameInfo* pGame = gameInfo->GetMatchupInfo(-4, 0);
         mAnimatingKnockoutTeams[0] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 0 : 1;
         mAnimComponents[mAnimatingKnockoutTeams[0]]->SetActiveSlide("Move");
         mAnimComponents[mAnimatingKnockoutTeams[0]]->GetActiveSlide()->Update(0.0f);
 
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -4, 1);
+        pGame = gameInfo->GetMatchupInfo(-4, 1);
         mAnimatingKnockoutTeams[1] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 2 : 3;
         mAnimComponents[mAnimatingKnockoutTeams[1]]->SetActiveSlide("Move");
         mAnimComponents[mAnimatingKnockoutTeams[1]]->GetActiveSlide()->Update(0.0f);
 
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -4, 2);
+        pGame = gameInfo->GetMatchupInfo(-4, 2);
         mAnimatingKnockoutTeams[2] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 4 : 5;
         mAnimComponents[mAnimatingKnockoutTeams[2]]->SetActiveSlide("Move");
         mAnimComponents[mAnimatingKnockoutTeams[2]]->GetActiveSlide()->Update(0.0f);
 
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -4, 3);
+        pGame = gameInfo->GetMatchupInfo(-4, 3);
         mAnimatingKnockoutTeams[3] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 6 : 7;
         mAnimComponents[mAnimatingKnockoutTeams[3]]->SetActiveSlide("Move");
         mAnimComponents[mAnimatingKnockoutTeams[3]]->GetActiveSlide()->Update(0.0f);
@@ -3540,12 +3537,12 @@ s32 CupHubScene::UpdateKnockout4(float fDeltaT)
 
     if (mKnockoutLoserAnimations)
     {
-        BasicGameInfo* pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -3, 0);
+        BasicGameInfo* pGame = gameInfo->GetMatchupInfo(-3, 0);
         mAnimatingKnockoutTeams[0] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 0 : 1;
         mAnimComponents[mAnimatingKnockoutTeams[0]]->SetActiveSlide("Move");
         mAnimComponents[mAnimatingKnockoutTeams[0]]->GetActiveSlide()->Update(0.0f);
 
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -3, 1);
+        pGame = gameInfo->GetMatchupInfo(-3, 1);
         mAnimatingKnockoutTeams[1] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 2 : 3;
         mAnimComponents[mAnimatingKnockoutTeams[1]]->SetActiveSlide("Move");
         mAnimComponents[mAnimatingKnockoutTeams[1]]->GetActiveSlide()->Update(0.0f);
@@ -3739,7 +3736,7 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
     }
     else
     {
-        pGame = GetMatchupInfo__15GameInfoManagerCFsUs(gameInfo, -2, 0);
+        pGame = gameInfo->GetMatchupInfo(-2, 0);
     }
 
     mAnimatingKnockoutTeams[0] = (pGame->mFinalScore[0] > pGame->mFinalScore[1]) ? 0 : 1;
@@ -4016,12 +4013,12 @@ void CupHubScene::UpdateProgressIndicator()
     {
         round = gameInfo->GetPreviousRoundNumber(-7);
         gameInfo->mDidRoundJustEnd = false;
-        UpdateRoundMessage__11CupHubSceneFb(this, true);
+        UpdateRoundMessage(true);
     }
     else
     {
         round = gameInfo->GetCurrentRoundNumber();
-        UpdateRoundMessage__11CupHubSceneFb(this, false);
+        UpdateRoundMessage(false);
     }
 
     currentRound = round;
@@ -4988,7 +4985,7 @@ void CupHubScene::LoadCaptainImage()
         }
         else
         {
-            teamId = FindWinningTeam__15GameInfoManagerFv(gameInfoMgr);
+            teamId = gameInfoMgr->FindWinningTeam();
         }
     }
 

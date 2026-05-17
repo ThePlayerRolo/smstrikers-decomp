@@ -117,7 +117,7 @@ public:
     TeamStats* pGetTeamStatsByIndex(unsigned short index);
     void SetPreviousTeamStats();
     eStadiumID GetStadium() const;
-    void GetMatchupInfo(short, unsigned short) const;
+    BasicGameInfo* GetMatchupInfo(short, unsigned short) const;
     void SetUserSelectedCupTeam(eTeamID);
     void SetUserSelectedCupSidekick(eSidekickID);
     eUserGameResult GetResultsOfLastUserGame() const;

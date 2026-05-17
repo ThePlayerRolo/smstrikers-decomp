@@ -300,7 +300,7 @@ eStadiumID GameInfoManager::GetStadium() const
 /**
  * Offset/Address/Size: 0x9574 | 0x8017EC18 | size: 0x128
  */
-void GameInfoManager::GetMatchupInfo(short round, unsigned short matchup) const
+BasicGameInfo* GameInfoManager::GetMatchupInfo(short round, unsigned short matchup) const
 {
     BaseCup* pCup;
     eGameModes mode;
@@ -341,7 +341,7 @@ void GameInfoManager::GetMatchupInfo(short round, unsigned short matchup) const
         }
     }
 
-    pCup->GetGameInfo(round, matchup);
+    return pCup->GetGameInfo(round, matchup);
 }
 
 /**
