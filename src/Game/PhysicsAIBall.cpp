@@ -501,9 +501,9 @@ void PhysicsAIBall::PreUpdate()
 
 /**
  * Offset/Address/Size: 0xD84 | 0x801347B8 | size: 0x47C
- * TODO: 93.27% match - all 100 diffs are register-only (r-type).
- *       this=r27 vs r26, obj/info/numContacts shifted +1, pFielder=r26 vs r30.
- *       MWCC register allocator assigns pFielder before parameters, shifting all.
+ * TODO: 95.70% match - remaining diffs are mostly register assignment shifts
+ *       across this/obj/info/numContacts/pFielder, plus wall-event position/
+ *       normal stores at +0x10/+0x1C instead of +0x0C/+0x18.
  */
 ContactType PhysicsAIBall::Contact(PhysicsObject* obj, dContact* info, int numContacts)
 {
@@ -679,9 +679,10 @@ ContactType PhysicsAIBall::Contact(PhysicsObject* obj, dContact* info, int numCo
 
                     *(u8*)((u8*)pEventData + 0x8) = bIsShot;
 
-                    float speedSq = velY * velY + ballVelocity.f.x * ballVelocity.f.x + ballVelocity.f.z * ballVelocity.f.z;
+                    float speedSq = (ballVelocity.f.z * ballVelocity.f.z) + ((ballVelocity.f.x * ballVelocity.f.x) + (velY * velY));
 
-                    *(u8*)((u8*)pEventData + 0x9) = (m_pAIBall->m_tShotTimer.m_uPackedTime != 0);
+                    u32 shotTimer = m_pAIBall->m_tShotTimer.m_uPackedTime;
+                    *(u8*)((u8*)pEventData + 0x9) = (shotTimer != 0);
 
                     *(float*)((u8*)pEventData + 0x0C) = info->geom.pos[0];
                     *(float*)((u8*)pEventData + 0x10) = info->geom.pos[1];

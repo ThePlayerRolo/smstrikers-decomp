@@ -24,6 +24,16 @@ public:
 class ExplodableCategoryData
 {
 public:
+    ExplodableCategoryData() { }
+    ExplodableCategoryData(const char* base, const char* frag, const char* unexp)
+    {
+        mBaseModelName = base;
+        mFragmentModelName = frag;
+        mUnexplodedModelName = unexp;
+        mNumFragmentModels = 0;
+        mUnexplodedModel = 0;
+        mNumStationaryFragments = 0;
+    }
     bool LoadGeometry();
 
     /* 0x00 */ const char* mBaseModelName;

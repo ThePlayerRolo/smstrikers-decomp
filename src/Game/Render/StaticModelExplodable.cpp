@@ -1,13 +1,22 @@
 #include "Game/Render/StaticModelExplodable.h"
+
 #include "Game/Drawable/DrawableObj.h"
+#include "Game/WorldManager.h"
 #include "NL/nlBasicString.h"
 
+nlList<SidelineExplodableNode> StaticModelExplodable::sStaticModelExplodableList(
+    (SidelineExplodableNode*)NULL, (SidelineExplodableNode*)NULL);
 u8 StaticModelExplodable::bIsModelLoaded[2];
-nlList<SidelineExplodableNode> StaticModelExplodable::sStaticModelExplodableList;
-ExplodableCategoryData StaticModelExplodable::sCategoryData[NUM_STATIC_MODEL_EXPLODABLE_CATEGORIES];
-
-class World;
-extern World* s_World__12WorldManager;
+ExplodableCategoryData StaticModelExplodable::sCategoryData[NUM_STATIC_MODEL_EXPLODABLE_CATEGORIES] = {
+    ExplodableCategoryData(
+        "environment/Sideline_Objects/bench1_base",
+        "environment/Sideline_Objects/bench1_d",
+        "environment/Sideline_Objects/bench1"),
+    ExplodableCategoryData(
+        "environment/Sideline_Objects/bench2_base",
+        "environment/Sideline_Objects/bench2_d",
+        "environment/Sideline_Objects/bench2"),
+};
 
 extern "C" StaticModelExplodable* __ct__21StaticModelExplodableF29StaticModelExplodableCategoryRC9nlMatrix4(
     StaticModelExplodable*, StaticModelExplodableCategory, const nlMatrix4&);
@@ -42,7 +51,7 @@ void StaticModelExplodable::CreateExplodablesFromHelperObjects()
     World* pWorld;
     void* pNode;
 
-    pWorld = s_World__12WorldManager;
+    pWorld = WorldManager::s_World;
     pWalkData = (StaticModelExplodableHelperTreeWalkData*)nlMalloc(8, 8, false);
 
     if (pWalkData != NULL)
@@ -201,7 +210,7 @@ StaticModelExplodable::StaticModelExplodable(StaticModelExplodableCategory categ
 
     Initialize(GetCategoryData().mNumFragmentModels);
 
-    DrawableObject* drawable = s_World__12WorldManager->FindDrawableObject(GetCategoryData().mUnexplodedModel);
+    DrawableObject* drawable = WorldManager::s_World->FindDrawableObject(GetCategoryData().mUnexplodedModel);
     drawable->m_uObjectFlags &= ~1u;
     m_pUnexplodedModel = drawable->Clone();
 
@@ -210,7 +219,7 @@ StaticModelExplodable::StaticModelExplodable(StaticModelExplodableCategory categ
     BasicString<char, Detail::TempStringAllocator> name = Format(BasicString<char, Detail::TempStringAllocator>("UndestroyedModelClone_{0}"), cloneCount);
 
     unsigned long hash = nlStringHash(name.c_str());
-    s_World__12WorldManager->AddDrawableObject(hash, m_pUnexplodedModel);
+    WorldManager::s_World->AddDrawableObject(hash, m_pUnexplodedModel);
 
     const nlMatrix4& wm = GetWorldMatrix();
     m_pUnexplodedModel->m_worldMatrix = wm;

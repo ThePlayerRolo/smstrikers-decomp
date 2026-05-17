@@ -4,8 +4,6 @@
 #include "NL/gl/glMatrix.h"
 #include "NL/nlMemory.h"
 
-extern gl_StateBitfield packed_texture[]; // 8 bytes per entry
-
 static glStateBundle _bundle;
 
 static unsigned long defaultRasterState = 0;
@@ -14,7 +12,8 @@ static glRasterState _state;
 static unsigned long long defaultTextureState = 0;
 static glTextureState _textureState;
 
-static gl_StateBitfield packed_raster[GLS_Num];
+static gl_StateBitfield packed_raster[GLS_Num + 1] = { 0, 1, 0, 1, 0, 2, 0, 1, 0, 8, 0, 3, 0, 2, 0, 2, 0, 1, 0, 1, 0, 0 };
+static gl_StateBitfield packed_texture[19] = { 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 6, 0, 6, 0, 6, 0, 6, 0, 6, 0, 6, 0, 0 };
 
 enum eGLMaterialState
 {
@@ -22,7 +21,7 @@ enum eGLMaterialState
     GLMS_Num = 1
 };
 
-static gl_StateBitfield packed_materials[GLMS_Num + 1];
+static gl_StateBitfield packed_materials[GLMS_Num + 1] = { 0, 7, 0, 0 };
 static glMaterialState _materialState;
 static unsigned long defaultMaterialState = 0;
 
