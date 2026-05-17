@@ -18,9 +18,6 @@ ExplodableCategoryData StaticModelExplodable::sCategoryData[NUM_STATIC_MODEL_EXP
         "environment/Sideline_Objects/bench2"),
 };
 
-extern "C" StaticModelExplodable* __ct__21StaticModelExplodableF29StaticModelExplodableCategoryRC9nlMatrix4(
-    StaticModelExplodable*, StaticModelExplodableCategory, const nlMatrix4&);
-
 struct StaticModelExplodableHelperTreeWalkData
 {
     AVLTreeEntry<unsigned long, HelperObject*>** mStack;
@@ -102,12 +99,8 @@ void StaticModelExplodable::CreateExplodablesFromHelperObjects()
                 ((SidelineExplodableNode*)pNode)->next = NULL;
             }
 
-            StaticModelExplodable* pExplodable = (StaticModelExplodable*)nlMalloc(0x74, 8, false);
-            if (pExplodable != NULL)
-            {
-                pExplodable = __ct__21StaticModelExplodableF29StaticModelExplodableCategoryRC9nlMatrix4(
-                    pExplodable, EXPLODABLE_BENCH1, helper->m_worldMatrix);
-            }
+            StaticModelExplodable* pExplodable = new ((StaticModelExplodable*)nlMalloc(sizeof(StaticModelExplodable), 8, false))
+                StaticModelExplodable(EXPLODABLE_BENCH1, helper->m_worldMatrix);
 
             ((SidelineExplodableNode*)pNode)->mpExplodable = pExplodable;
             nlListAddEnd<SidelineExplodableNode>(&sStaticModelExplodableList.m_pStart, pTail, (SidelineExplodableNode*)pNode);
@@ -134,12 +127,8 @@ void StaticModelExplodable::CreateExplodablesFromHelperObjects()
                 ((SidelineExplodableNode*)pNode)->next = NULL;
             }
 
-            StaticModelExplodable* pExplodable = (StaticModelExplodable*)nlMalloc(0x74, 8, false);
-            if (pExplodable != NULL)
-            {
-                pExplodable = __ct__21StaticModelExplodableF29StaticModelExplodableCategoryRC9nlMatrix4(
-                    pExplodable, EXPLODABLE_BENCH2, helper->m_worldMatrix);
-            }
+            StaticModelExplodable* pExplodable = new ((StaticModelExplodable*)nlMalloc(sizeof(StaticModelExplodable), 8, false))
+                StaticModelExplodable(EXPLODABLE_BENCH2, helper->m_worldMatrix);
 
             ((SidelineExplodableNode*)pNode)->mpExplodable = pExplodable;
             nlListAddEnd<SidelineExplodableNode>(&sStaticModelExplodableList.m_pStart, pTail, (SidelineExplodableNode*)pNode);
