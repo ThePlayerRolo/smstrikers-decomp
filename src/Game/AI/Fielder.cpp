@@ -161,7 +161,7 @@ u32 PlayerAttackData::GetID()
 
 /**
  * Offset/Address/Size: 0xD2E8 | 0x80026624 | size: 0x474
- * TODO: 92.6% match - 5 extra auto-construction SetSeconds from Timer non-trivial default ctor
+ * TODO: 94.04% match - extra Timer auto-construction SetSeconds calls and duplicate null-check branches in placement-new paths
  */
 cFielder::cFielder(int nPlayerID, int nTeamID, eCharacterClass cc, const int* nModelID,
     cSHierarchy* pHierarchy, cAnimInventory* pAnimInventory,
@@ -203,8 +203,10 @@ cFielder::cFielder(int nPlayerID, int nTeamID, eCharacterClass cc, const int* nM
     m_v3DesiredPosition.f.y = 0.0f;
     m_v3DesiredPosition.f.z = 0.0f;
 
-    void* pAIPlayMem = nlMalloc(0x10, 8, false);
-    m_pCurrentPlay = pAIPlayMem ? new (pAIPlayMem) AIPlay(this, AIPLAY_NULL, -1.0f) : NULL;
+    AIPlay* pAIPlayMem = (AIPlay*)nlMalloc(0x10, 8, false);
+    if (pAIPlayMem != NULL)
+        pAIPlayMem = new (pAIPlayMem) AIPlay(this, AIPLAY_NULL, -1.0f);
+    m_pCurrentPlay = pAIPlayMem;
 
     ShotMeter* pShotMeter = (ShotMeter*)nlMalloc(sizeof(ShotMeter), 8, false);
     if (pShotMeter != NULL)
@@ -218,8 +220,10 @@ cFielder::cFielder(int nPlayerID, int nTeamID, eCharacterClass cc, const int* nM
     }
     m_pShotMeter = pShotMeter;
 
-    void* pAvoidMem = nlMalloc(sizeof(AvoidController), 8, false);
-    m_pAvoidance = pAvoidMem ? new (pAvoidMem) AvoidController(this) : NULL;
+    AvoidController* pAvoidMem = (AvoidController*)nlMalloc(sizeof(AvoidController), 8, false);
+    if (pAvoidMem != NULL)
+        pAvoidMem = new (pAvoidMem) AvoidController(this);
+    m_pAvoidance = pAvoidMem;
 
     m_DesireCommonVars.tAge.m_uPackedTime = 0;
     m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;

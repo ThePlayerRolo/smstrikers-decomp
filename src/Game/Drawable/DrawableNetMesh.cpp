@@ -210,11 +210,15 @@ DisplayList* dlMakeDisplayList(const glModelPacket*, bool);
 void nlZeroMemory(void*, unsigned long);
 void DCFlushRange(void*, unsigned long);
 
+static const int gl_stream_stride[15] = {
+    12, 3, 4, 4, 4, 4, 4, 4, 4, 12, 12, 12, 1, 16, 16
+};
+
 /**
  * Offset/Address/Size: 0x3DC | 0x80114414 | size: 0x464
- * TODO: 90.66% match - bne+b vs beq branch pattern (2x, -inline deferred quirk),
- * vtable scheduling after constructor, lwzu vs lwz+addi for streams,
- * f30/f31 and r25/r27 loop register allocation diffs (all -inline deferred scheduling)
+ * TODO: 92.86% match - one early-return branch shape, vtable setup ordering
+ * after GLMeshWriterCore construction, stream stride load sequence, and
+ * r25/r27 plus f30/f31 loop register allocation differences remain.
  */
 void DrawableNetMesh::Render() const
 {
@@ -225,18 +229,7 @@ void DrawableNetMesh::Render() const
     extern unsigned char sbUseDisplayLists;
     extern unsigned char sbShowPositiveXNetDuringHyperStrike__5World;
 
-    if (!sbRenderAnimatedNetMesh)
-    {
-        return;
-    }
-    if (!mbInitialized)
-    {
-        return;
-    }
-    if (NetMesh::s_bAnimatedNetMeshEnabled)
-    {
-    }
-    else
+    if (!sbRenderAnimatedNetMesh || !mbInitialized || !NetMesh::s_bAnimatedNetMeshEnabled)
     {
         return;
     }
@@ -244,14 +237,7 @@ void DrawableNetMesh::Render() const
     if (World::sbIsHyperShootToScoreRenderingEnabled)
     {
         int netIndex = miNetIndex;
-        if (netIndex == 1)
-        {
-            if (sbShowPositiveXNetDuringHyperStrike__5World)
-            {
-                return;
-            }
-        }
-        if (netIndex == 0 && !sbShowPositiveXNetDuringHyperStrike__5World)
+        if ((netIndex == 1 && sbShowPositiveXNetDuringHyperStrike__5World) || (netIndex == 0 && !sbShowPositiveXNetDuringHyperStrike__5World))
         {
             return;
         }
@@ -320,17 +306,20 @@ void DrawableNetMesh::Render() const
 
         pStreams[0].id = GLStream_Position;
         pStreams[0].address = (u32)pPosition;
-        pStreams[0].stride = 0x0C;
+        pStreams[0].stride = (u8)gl_stream_stride[0];
         pStreams[1].id = GLStream_Colour;
         pStreams[1].address = (u32)spColour[miNetIndex];
-        pStreams[1].stride = 4;
+        pStreams[1].stride = (u8)gl_stream_stride[2];
         pStreams[2].id = GLStream_Diffuse;
         pStreams[2].address = (u32)pTexcoord;
-        pStreams[2].stride = 4;
+        pStreams[2].stride = (u8)gl_stream_stride[3];
 
         void* pUserDataHandle = glUserAlloc(GLUD_ConstantColour, 4, false);
         u8* pColourData = (u8*)glUserGetData(pUserDataHandle);
-        u8 dark = (u8)(int)(255.0f * (1.0f - Instance__14WorldDarkeningFv()->mPos));
+        WorldDarkening& wd = (*Instance__14WorldDarkeningFv());
+        float darkScale = 255.0f;
+        float darkBase = 1.0f - wd.mPos;
+        u8 dark = (u8)(int)(darkScale * darkBase);
         pColourData[0] = dark;
         pColourData[1] = dark;
         pColourData[2] = dark;
@@ -346,8 +335,7 @@ void DrawableNetMesh::Render() const
             for (int i = 0; i < m_unk18; i++, pIndex++)
             {
                 unsigned short index = *pIndex;
-                float fDark = 1.0f - Instance__14WorldDarkeningFv()->mPos;
-                u8 dark = (u8)(int)(255.0 * fDark);
+                u8 dark = (u8)(int)((1.0f - (*Instance__14WorldDarkeningFv()).mPos) * 255.0);
                 shortVector2* pUV = &pTexcoord[index];
                 meshWriter.Texcoord(pUV->e[0], pUV->e[1]);
                 nlColour c;

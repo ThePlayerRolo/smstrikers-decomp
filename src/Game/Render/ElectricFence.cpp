@@ -28,8 +28,16 @@ static int sNumRevolutionsToDisplay = 2;
 static float sfAngleRandomOffset = 10.0f;
 static bool sbUseSparksDuringElectricFenceFlyBy = true;
 
-SlotPool<ElectricFenceData> ElectricFenceData::sElectricFenceDataPool;
-SlotPool<ElectricFenceGeometry> ElectricFenceGeometry::sElectricFenceGeometryPool;
+const unsigned long UnlitProgram = glGetProgram("3d unlit");
+const unsigned long LitProgram = glGetProgram("3d pointlit");
+const unsigned long LightTexture = glGetTexture("global/lightramp");
+const unsigned long BlackTexture = glGetTexture("global/black");
+const unsigned long WhiteTexture = glGetTexture("global/white");
+const unsigned long GridTexture = glGetTexture("global/grid");
+
+nlList<ElectricFenceData> ElectricFenceData::sActiveElectricFences = { NULL, NULL };
+SlotPool<ElectricFenceData> ElectricFenceData::sElectricFenceDataPool(16, 16);
+SlotPool<ElectricFenceGeometry> ElectricFenceGeometry::sElectricFenceGeometryPool(4, 4);
 
 // /**
 //  * Offset/Address/Size: 0x9C | 0x8016C6EC | size: 0x2C
@@ -165,7 +173,7 @@ void ElectricFenceFinished(EmissionController& controller)
 static inline void RenderElectricFenceFlat(const nlVector3& position, const nlVector3& normal, float intensity)
 {
     extern float sfGridTextureSize;
-    extern unsigned long GridTexture;
+    extern const unsigned long GridTexture;
 
     nlMatrix4 matrix;
     nlMakeRotationMatrixX(matrix, 1.5707964f);
@@ -197,8 +205,8 @@ void RenderElectricFence(EmissionController& ec)
 {
     extern float sfFadeOutTime;
     extern float sfGridTextureSize;
-    extern unsigned long UnlitProgram;
-    extern unsigned long GridTexture;
+    extern const unsigned long UnlitProgram;
+    extern const unsigned long GridTexture;
 
     EmissionController* pController = &ec;
     ElectricFenceData* p = ElectricFenceData::sActiveElectricFences.m_pStart;

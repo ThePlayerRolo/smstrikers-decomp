@@ -46,8 +46,9 @@ inline unsigned long PriorityStream::GetNextStreamId(unsigned long SimpleStreamI
 
 /**
  * Offset/Address/Size: 0xA34 | 0x801584E8 | size: 0x474
- * TODO: 97.96% match - register allocation drift: pSlot r5->r9, volGroup r6->r7,
- *   queue r7->r8, streamHash r3<->r4 swap, causing 3 extra instructions (11 diffs)
+ * TODO: 99.07% match - register allocation drift remains in PLAY_RECORD setup
+ *   (pSlot r5->r9, volGroup r6->r7, queue r7->r8) and inlined crowd-id path
+ *   (counter pointer and looping-byte loads use shifted registers).
  */
 enum Type
 {
@@ -94,8 +95,6 @@ extern cGame* g_pGame;
 
 void PriorityStream::PlayStream(unsigned long StreamId, float Volume, bool Looping, unsigned long FadeIn, unsigned long ExistingFadeOut, const char* StreamParam)
 {
-    char StreamName[64];
-
     Config& cfg = Config::Global();
     Config::TagValuePair& tvp = cfg.FindTvp("no_stream");
     bool noStream;
@@ -234,34 +233,7 @@ void PriorityStream::PlayStream(unsigned long StreamId, float Volume, bool Loopi
     }
     else if (m_HasCrowdStream)
     {
-        unsigned long streamHash = m_PStream.m_StreamId;
-        unsigned char* pCounter;
-        const char* Format;
-
-        switch (streamHash)
-        {
-        case 0x436E3953:
-            pCounter = &PLAY_RECORD::s_BowserAttackNext;
-            Format = "STAD_Bowser_Attack_%02d";
-            break;
-        case 0x57CB5A12:
-            pCounter = &PLAY_RECORD::s_SuddenDeathNext;
-            Format = "STAD_Sudden_Death_%02d";
-            break;
-        default:
-            m_HasCrowdStream = streamHash;
-            goto skip_format;
-        }
-
-        nlSNPrintf(StreamName, 64, Format, *pCounter);
-        *pCounter = *pCounter + 1;
-        if (*pCounter == 4)
-        {
-            *pCounter = 1;
-        }
-        m_HasCrowdStream = nlStringLowerHash(StreamName);
-
-    skip_format:
+        m_HasCrowdStream = GetNextStreamId(m_PStream.m_StreamId);
 
         if (m_PStream.m_Queue)
         {

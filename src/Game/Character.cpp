@@ -1392,9 +1392,14 @@ cCharacter::cCharacter(eCharacterClass cc, const int* nModelID, cSHierarchy* pHi
 
     m_pHeadTrack = new (nlMalloc(sizeof(cHeadTrack), 8, false)) cHeadTrack();
 
-    m_nHeadJointIndex = m_pPoseAccumulator->m_BaseSHierarchy->GetNodeIndexByID(nlStringLowerHash("bip01 head"));
-    m_nBip01JointIndex_0xA4 = m_pPoseAccumulator->m_BaseSHierarchy->GetNodeIndexByID(nlStringLowerHash("bip01"));
-    m_nSpine1JointIndex = m_pPoseAccumulator->m_BaseSHierarchy->GetNodeIndexByID(nlStringLowerHash("bip01 spine1"));
+    cSHierarchy* hierarchy0 = m_pPoseAccumulator->m_BaseSHierarchy;
+    m_nHeadJointIndex = hierarchy0->GetNodeIndexByID(nlStringLowerHash("bip01 head"));
+
+    cSHierarchy* hierarchy1 = m_pPoseAccumulator->m_BaseSHierarchy;
+    m_nBip01JointIndex_0xA4 = hierarchy1->GetNodeIndexByID(nlStringLowerHash("bip01"));
+
+    cSHierarchy* hierarchy2 = m_pPoseAccumulator->m_BaseSHierarchy;
+    m_nSpine1JointIndex = hierarchy2->GetNodeIndexByID(nlStringLowerHash("bip01 spine1"));
 
     m_pCharacterSFX = new (nlMalloc(sizeof(Audio::cCharacterSFX), 8, false)) Audio::cCharacterSFX();
 

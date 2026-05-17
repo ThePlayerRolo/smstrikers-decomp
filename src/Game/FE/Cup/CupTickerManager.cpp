@@ -1,43 +1,21 @@
 #include "Game/FE/Cup/CupTickerManager.h"
+
+#include "Game/DB/StatsTracker.h"
+#include "Game/FE/feHelpFuncs.h"
 #include "Game/FE/feScrollText.h"
+#include "Game/GameInfo.h"
+
+#include "NL/gl/glStruct.h"
+#include "NL/nlBSearch.h"
 #include "NL/nlFormat.h"
-
-template <typename T, typename R>
-Detail::MemFunImpl<R, void (T::*)()> MemFun(void (T::*)());
-
-template <typename R, typename F, typename A>
-BindExp1<R, F, A> Bind(F fn, const A& arg);
+#include "NL/nlLexicalCast.h"
+#include "NL/nlLocalization.h"
+#include "NL/nlSingleton.h"
+#include "NL/nlString.h"
 
 typedef Detail::MemFunImpl<void, void (CupTickerManager::*)()> MemFunImpl_CupTickerManager_v;
 typedef BindExp1<void, MemFunImpl_CupTickerManager_v, CupTickerManager*> BindExp1_vfmfcp;
 typedef Function0<void>::FunctorImpl<BindExp1_vfmfcp> FunctorImpl_vfmfcp;
-
-struct gl_ScreenInfo
-{
-    int ScreenWidth;
-};
-
-extern gl_ScreenInfo* glGetScreenInfo();
-
-class GameInfoManager;
-
-template <typename T>
-class nlSingleton
-{
-public:
-    static T* s_pInstance;
-};
-
-extern "C" bool IsInTournamentMode__15GameInfoManagerCFv(void*);
-extern "C" short GetCurrentRoundNumber__15GameInfoManagerCFv(void*);
-extern "C" short GetFirstRoundNumber__15GameInfoManagerCFv(void*);
-extern "C" short GetPreviousRoundNumber__15GameInfoManagerCFs(void*, short);
-extern "C" unsigned short GetNumGamesPerRound__15GameInfoManagerCFi(void*, int);
-extern "C" void* GetMatchupInfo__15GameInfoManagerCFsUs(void*, short, unsigned short);
-extern "C" int GetTeam__15GameInfoManagerCFs(void*, short);
-extern "C" bool IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(void*, int);
-extern "C" bool IsInCupMode__15GameInfoManagerCFv(void*);
-extern "C" unsigned long GetLOCTeamName__F7eTeamID(int);
 
 struct GameInfoAccessor_CupTicker
 {
@@ -56,6 +34,13 @@ struct BaseCupAccessor_CupTicker
     char _padA[0xA];
     short mGameNumber;
 };
+
+extern nlLocalization* g_pLocalization;
+extern unsigned short LocalizationTableNotFound[];
+extern unsigned short MissingLocString[];
+
+template <typename StringType, typename T1, typename T2, typename T3, typename T4>
+StringType Format(const StringType& fmt, const T1& v1, const T2& v2, const T3& v3, const T4& v4);
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x800F5EBC | size: 0x38
@@ -251,50 +236,6 @@ void CupTickerManager::SetTickerTextInstance(TLTextInstance* tickerText)
     }
 }
 
-struct LOCHeader
-{
-    char Thumbprint[4];
-    unsigned long Version;
-    unsigned long Language;
-    unsigned long StringCount;
-    unsigned long Flags;
-};
-
-class nlLocalization
-{
-public:
-    struct StringLookup
-    {
-        unsigned long hash;
-        unsigned long StringOffset;
-        operator unsigned long() const { return hash; }
-    };
-    LOCHeader* m_pFile;
-    StringLookup* m_LookupTable;
-    unsigned short* m_FirstString;
-};
-
-extern nlLocalization* g_pLocalization;
-extern unsigned short LocalizationTableNotFound[];
-extern unsigned short MissingLocString[];
-
-template <typename T, typename K>
-T* nlBSearch(const K& key, T* table, int count);
-
-extern "C" unsigned long GetLOCModeName__FQ215GameInfoManager10eGameModes(int);
-extern "C" unsigned long GetLOCCharacterName__F7eTeamIDbb(int, bool, bool);
-extern "C" int FindWinningTeam__15GameInfoManagerFv(void*);
-extern "C" unsigned long nlStringLowerHash__FPCc(const char*);
-extern "C" void nlStrToWcs__FPCcPUsUl(const char*, unsigned short*, unsigned long);
-
-template <typename StringType, typename T1, typename T2, typename T3, typename T4>
-StringType Format(const StringType& fmt, const T1& v1, const T2& v2, const T3& v3, const T4& v4);
-
-#define GI_TOURNAMENT_MODE(gi) (*(int*)((char*)(gi) + 0x4948))
-#define GI_CURRENT_MODE(gi)    (*(int*)((char*)(gi) + 0x4954))
-#define GI_DOING_KNOCKOUT(gi)  (*(unsigned char*)((char*)(gi) + 0x6C))
-#define GI_CURRENT_CUP(gi)     (*(void**)((char*)(gi) + 0x4960))
-
 #define LOC_LOOKUP(_hashExpr, _locVar)                                                                                     \
     {                                                                                                                      \
         unsigned long _hash = (_hashExpr);                                                                                 \
@@ -331,7 +272,7 @@ void CupTickerManager::CreateNewMessage()
     bool messageDisplayed = false;
     unsigned short* locString = 0;
 
-    if (IsInTournamentMode__15GameInfoManagerCFv(gameInfo) && gameInfoMem->mTournamentMode == 0)
+    if (gameInfo->IsInTournamentMode() && gameInfoMem->mTournamentMode == 0)
     {
         tournamentLeague = true;
     }
@@ -343,18 +284,18 @@ void CupTickerManager::CreateNewMessage()
 
     do
     {
-        if (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) == -5)
+        if (gameInfo->GetCurrentRoundNumber() == -5)
         {
             if (mState != 5)
             {
                 mState = (eCupTickerState)5;
 
-                unsigned long modeHash = GetLOCModeName__FQ215GameInfoManager10eGameModes(GI_CURRENT_MODE(gameInfo));
+                unsigned long modeHash = GetLOCModeName((GameInfoManager::eGameModes)gameInfoMem->mCurrentMode);
                 LOC_LOOKUP(modeHash, locString);
                 WideBasicString modeWBS(locString);
 
-                unsigned long charHash = GetLOCCharacterName__F7eTeamIDbb(
-                    FindWinningTeam__15GameInfoManagerFv(gameInfo), false, false);
+                unsigned long charHash = GetLOCCharacterName(
+                    gameInfo->FindWinningTeam(), false, false);
                 LOC_LOOKUP(charHash, locString);
                 WideBasicString charWBS(locString);
 
@@ -412,8 +353,8 @@ void CupTickerManager::CreateNewMessage()
         if (mState == 2)
         {
             if (tournamentLeague
-                && (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) != 0
-                    || (*(short*)((char*)GI_CURRENT_CUP(gameInfo) + 0xA) != 0)))
+                && (gameInfo->GetCurrentRoundNumber() != 0
+                    || (((BaseCupAccessor_CupTicker*)gameInfoMem->mCurrentCup)->mGameNumber != 0)))
             {
                 BuildGoalTotalTickerMessage(tickerMessage, false);
                 messageDisplayed = true;
@@ -426,18 +367,16 @@ void CupTickerManager::CreateNewMessage()
 
         if (mState == 3)
         {
-            if (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) == -5)
+            if (gameInfo->GetCurrentRoundNumber() == -5)
             {
                 mState = (eCupTickerState)4;
             }
             else
             {
-                unsigned long team0LOC = GetLOCTeamName__F7eTeamID(
-                    GetTeam__15GameInfoManagerCFs(gameInfo, 0));
-                unsigned long team1LOC = GetLOCTeamName__F7eTeamID(
-                    GetTeam__15GameInfoManagerCFs(gameInfo, 1));
+                unsigned long team0LOC = GetLOCTeamName(gameInfo->GetTeam(0));
+                unsigned long team1LOC = GetLOCTeamName(gameInfo->GetTeam(1));
 
-                unsigned long fmtHash = nlStringLowerHash__FPCc("CUPHUB_TICKER_NEXT_MATCH");
+                unsigned long fmtHash = nlStringLowerHash("CUPHUB_TICKER_NEXT_MATCH");
                 unsigned short* locString;
                 LOC_LOOKUP(fmtHash, locString);
                 WideBasicString fmtWBS(locString);
@@ -454,21 +393,21 @@ void CupTickerManager::CreateNewMessage()
 
         if (mState == 4)
         {
-            int mode = GI_CURRENT_MODE(gameInfo);
+            int mode = gameInfoMem->mCurrentMode;
             if ((mode == 1
-                    && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 2))
+                    && !gameInfo->IsUserQualified((GameInfoManager::eGameModes)2))
                 || (mode == 2
-                    && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 3)))
+                    && !gameInfo->IsUserQualified((GameInfoManager::eGameModes)3)))
             {
                 LOC_LOOKUP(0x751FA62FUL, locString);
                 WideBasicString msg(locString);
                 tickerMessage = msg;
                 messageDisplayed = true;
             }
-            else if (IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 2)
-                     && IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 3)
-                     && !IsUserQualified__15GameInfoManagerCFQ215GameInfoManager10eGameModes(gameInfo, 4)
-                     && IsInCupMode__15GameInfoManagerCFv(gameInfo))
+            else if (gameInfo->IsUserQualified((GameInfoManager::eGameModes)2)
+                     && gameInfo->IsUserQualified((GameInfoManager::eGameModes)3)
+                     && !gameInfo->IsUserQualified((GameInfoManager::eGameModes)4)
+                     && gameInfo->IsInCupMode())
             {
                 LOC_LOOKUP(0xEEC22902UL, locString);
                 WideBasicString msg(locString);
@@ -490,32 +429,31 @@ void CupTickerManager::CreateNewMessage()
 
         if (mState == 5)
         {
-            short firstRound = GetFirstRoundNumber__15GameInfoManagerCFv(gameInfo);
-            short currentRound = GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo);
+            short firstRound = gameInfo->GetFirstRoundNumber();
+            short currentRound = gameInfo->GetCurrentRoundNumber();
             if (currentRound == firstRound)
             {
                 mState = CUP_TICKER_STATE_0;
             }
             else
             {
-                short round = GetPreviousRoundNumber__15GameInfoManagerCFs(gameInfo, -7);
-                unsigned short numGames = GetNumGamesPerRound__15GameInfoManagerCFi(gameInfo, round);
+                short round = gameInfo->GetPreviousRoundNumber(-7);
+                unsigned short numGames = gameInfo->GetNumGamesPerRound(round);
                 int i = 0;
                 while (i < (int)numGames)
                 {
                     int* game;
-                    if (GetCurrentRoundNumber__15GameInfoManagerCFv(gameInfo) == -1)
+                    if (gameInfo->GetCurrentRoundNumber() == -1)
                     {
                         game = (int*)((char*)gameInfo + 0x3FF0);
                     }
                     else
                     {
-                        game = (int*)GetMatchupInfo__15GameInfoManagerCFsUs(
-                            gameInfo, round, (unsigned short)i);
+                        game = (int*)gameInfo->GetMatchupInfo(round, (unsigned short)i);
                     }
 
-                    unsigned long team0Name = GetLOCTeamName__F7eTeamID(game[0]);
-                    unsigned long team1Name = GetLOCTeamName__F7eTeamID(game[1]);
+                    unsigned long team0Name = GetLOCTeamName((eTeamID)game[0]);
+                    unsigned long team1Name = GetLOCTeamName((eTeamID)game[1]);
 
                     unsigned long formatHash;
                     if (i == 0)
@@ -531,10 +469,10 @@ void CupTickerManager::CreateNewMessage()
                     NLString score1Str = LexicalCast<NLString, int>((int)*(short*)((char*)game + 0x1E));
 
                     unsigned short wideScore0[16];
-                    nlStrToWcs__FPCcPUsUl(score0Str.c_str(), wideScore0, 16);
+                    nlStrToWcs(score0Str.c_str(), wideScore0, 16);
 
                     unsigned short wideScore1[16];
-                    nlStrToWcs__FPCcPUsUl(score1Str.c_str(), wideScore1, 16);
+                    nlStrToWcs(score1Str.c_str(), wideScore1, 16);
 
                     if (*(short*)((char*)game + 0x1C) > *(short*)((char*)game + 0x1E))
                     {
@@ -601,84 +539,6 @@ void CupTickerManager_stub()
     WideBasicString s2 = fn(s, s, s);
 }
 
-union RECORDTYPE
-{
-    int mCharacterClass;
-    int mTeamID;
-    int mControllerID;
-};
-
-enum eType
-{
-    TYPE_INVALID = -1,
-    TYPE_CHARACTER = 0,
-    TYPE_TEAM = 1,
-    TYPE_USER = 2,
-};
-
-struct PlayerStats
-{
-    unsigned short mNumShotsOnGoal;
-    unsigned short mNumGoalsFor;
-    unsigned short mNumGoalsAgainst;
-    unsigned short mNumAssists;
-    unsigned short mNumFouls;
-    unsigned short mNumGamesPlayed;
-    unsigned short mNumPowerupsUsed;
-    unsigned short mNumPowerupsHit;
-    unsigned short mNumShootToScoreGoals;
-    unsigned short mNumPassesMade;
-    unsigned short mNumPassesReceived;
-    unsigned short mNumPassesIntercepted;
-    unsigned short mNumHitsMade;
-    unsigned short mNumSteals;
-    unsigned short mNumGoalsOneTimers;
-    unsigned short mNumSTSAttempts;
-    unsigned short mNumPerfectPasses;
-    unsigned long mBallPossessionTime;
-    unsigned long mNumButtonPresses;
-    RECORDTYPE mRecordType;
-    eType mType;
-};
-
-enum eTeamID_Local
-{
-    TEAM_CTM_INVALID = -1
-};
-
-struct TeamStats
-{
-    int mTeamIndex;
-    unsigned short mNumWins;
-    unsigned short mNumLosses;
-    unsigned short mNumOTLosses;
-    unsigned short mNumPoints;
-    PlayerStats mPlayerTotalStats;
-
-    TeamStats(const TeamStats& other)
-        : mTeamIndex(other.mTeamIndex)
-        , mNumWins(other.mNumWins)
-        , mNumLosses(other.mNumLosses)
-        , mNumOTLosses(other.mNumOTLosses)
-        , mNumPoints(other.mNumPoints)
-        , mPlayerTotalStats(other.mPlayerTotalStats)
-    {
-    }
-};
-
-class GameInfoManager
-{
-public:
-    int GetNumHumanTeams();
-    unsigned short GetNumPlayingTeams() const;
-    TeamStats GetTeamStatsByIndex(unsigned short index);
-};
-
-class StatsTracker;
-
-extern "C" void GetSortedStats__12StatsTrackerFP11PlayerStatsiPii12ePlayerStats10eSortOrder(
-    void*, PlayerStats*, int, int*, int, int, int);
-
 /**
  * Offset/Address/Size: 0x3DC | 0x800F23A4 | size: 0x654
  * TODO: 92.74% match - 20 register-only diffs (r25-r31 allocation)
@@ -707,7 +567,7 @@ void CupTickerManager::BuildGoalTotalTickerMessage(
 
         if ((unsigned char)bIsHuman)
         {
-            unsigned short humanTeams = *(unsigned short*)((char*)*(void**)((char*)gameInfo + 0x4960) + 0xC);
+            unsigned short humanTeams = gameInfo->mCurrentCup->mHumanTeams;
             if (humanTeams & (1 << (int)teamStats.mTeamIndex))
             {
                 playerStats[numValid++] = teamStats.mPlayerTotalStats;
@@ -720,15 +580,15 @@ void CupTickerManager::BuildGoalTotalTickerMessage(
     }
 
     int sortedIndices[8];
-    GetSortedStats__12StatsTrackerFP11PlayerStatsiPii12ePlayerStats10eSortOrder(
-        nlSingleton<StatsTracker>::s_pInstance, playerStats, numTeams, sortedIndices, numTeams, 1, 1);
+    nlSingleton<StatsTracker>::s_pInstance->GetSortedStats(
+        playerStats, numTeams, sortedIndices, numTeams, (ePlayerStats)1, (eSortOrder)1);
 
     int* pSorted = sortedIndices;
     PlayerStats* pStats = playerStats;
 
     for (int j = 0; j < numTeams; j++)
     {
-        unsigned long teamNameHash = GetLOCTeamName__F7eTeamID(pStats[pSorted[0]].mRecordType.mTeamID);
+        unsigned long teamNameHash = GetLOCTeamName(pStats[pSorted[0]].mRecordType.mTeamID);
 
         unsigned long formatHash;
         if (j == 0)
@@ -744,7 +604,7 @@ void CupTickerManager::BuildGoalTotalTickerMessage(
         NLString goalsStr = LexicalCast<NLString, int>(goals);
 
         unsigned short wideGoals[16];
-        nlStrToWcs__FPCcPUsUl(goalsStr.c_str(), wideGoals, 16);
+        nlStrToWcs(goalsStr.c_str(), wideGoals, 16);
 
         unsigned short* fmtLocStr;
         LOC_LOOKUP(formatHash, fmtLocStr);
