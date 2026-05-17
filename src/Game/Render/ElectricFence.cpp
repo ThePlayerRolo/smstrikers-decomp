@@ -35,7 +35,7 @@ const unsigned long BlackTexture = glGetTexture("global/black");
 const unsigned long WhiteTexture = glGetTexture("global/white");
 const unsigned long GridTexture = glGetTexture("global/grid");
 
-nlList<ElectricFenceData> ElectricFenceData::sActiveElectricFences = { NULL, NULL };
+nlList<ElectricFenceData> ElectricFenceData::sActiveElectricFences((ElectricFenceData*)NULL, (ElectricFenceData*)NULL);
 SlotPool<ElectricFenceData> ElectricFenceData::sElectricFenceDataPool(16, 16);
 SlotPool<ElectricFenceGeometry> ElectricFenceGeometry::sElectricFenceGeometryPool(4, 4);
 

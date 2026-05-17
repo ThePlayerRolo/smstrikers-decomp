@@ -161,6 +161,12 @@ template <typename T>
 class nlList
 {
 public:
+    nlList(T* start, T* end)
+    {
+        m_pEnd = end;
+        m_pStart = start;
+    }
+    nlList() { }
     T* m_pStart; // offset 0x0, size 0x4
     T* m_pEnd;   // offset 0x4, size 0x4
 }; // total size: 0x8
