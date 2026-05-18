@@ -1004,7 +1004,7 @@ config.libs = [
             Object(NonMatching, "Game/AI/Scripts/Plays/DefaultDefensive.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/AI/Scripts/Plays/DefaultOffensive.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/AI/Scripts/Plays/DefaultLoose.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
-            Object(NonMatching, "Game/AI/Scripts/RootScript.cpp", extra_cflags=["-inline deferred"]),
+            Object(Matching, "Game/AI/Scripts/RootScript.cpp", extra_cflags=["-inline deferred"]),
             Object(Matching, "Game/AI/Scripts/ScriptDefines.cpp", extra_cflags=["-inline auto", "-inline deferred"]),            
 
             # Frontend / Scenes

@@ -14,22 +14,6 @@ FuzzyVariant::FuzzyVariant(const float& var)
     SelectionChance = 1.0f;
 }
 
-class SaveConfidence
-{
-public:
-    SaveConfidence(float* pFloat);
-    ~SaveConfidence();
-
-    float m_savedValue;
-    float* m_pFloat;
-};
-
-SaveConfidence::SaveConfidence(float* pFloat)
-    : m_savedValue(*pFloat)
-    , m_pFloat(pFloat)
-{
-}
-
 class Fuzzy
 {
 public:
