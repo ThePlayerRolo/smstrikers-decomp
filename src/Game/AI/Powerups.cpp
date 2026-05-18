@@ -22,10 +22,13 @@
 #include "NL/nlMath.h"
 #include "NL/nlFormat.h"
 #include "NL/nlSlotPool.h"
+#include "NL/nlString.h"
 #include "NL/nlDebug.h"
+#include "math.h"
 
 int gBobombAnticipationVoiceID = -1;
 unsigned long uPowerupTexID[NUM_POWER_UPS] = { 0 };
+static f32 CANT_COLLIDE = *(f32*)__float_max;
 static PowerupSounds powerupSounds[9] = {
     // POWER_UP_GREEN_SHELL
     { 0x60, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x8A, 0x5F },
@@ -58,8 +61,54 @@ struct Pair
 
 struct PowerupRegistry
 {
+    PowerupRegistry()
+    {
+        registry[0].hashId = 0;
+        registry[1].hashId = 0;
+        registry[2].hashId = 0;
+        registry[3].hashId = 0;
+        registry[4].hashId = 0;
+        registry[5].hashId = 0;
+        registry[6].hashId = 0;
+        registry[7].hashId = 0;
+        registry[8].hashId = 0;
+        registry[9].hashId = 0;
+        registry[10].hashId = 0;
+        registry[11].hashId = 0;
+        registry[12].hashId = 0;
+        registry[13].hashId = 0;
+        registry[14].hashId = 0;
+        registry[15].hashId = 0;
+        registry[16].hashId = 0;
+        registry[17].hashId = 0;
+        registry[18].hashId = 0;
+        registry[19].hashId = 0;
+        registry[20].hashId = 0;
+        registry[21].hashId = 0;
+        registry[22].hashId = 0;
+        registry[23].hashId = 0;
+        registry[24].hashId = 0;
+    }
+
     /* 0x0 */ Pair registry[25];
 }; // total size: 0xC8
+
+struct PowerupTexInit
+{
+    PowerupTexInit()
+    {
+        uPowerupTexID[0] = nlStringLowerHash("fe/shell_green");
+        uPowerupTexID[1] = nlStringLowerHash("fe/shell_red");
+        uPowerupTexID[2] = nlStringLowerHash("fe/shell_spike");
+        uPowerupTexID[3] = nlStringLowerHash("fe/shell_blue");
+        uPowerupTexID[4] = nlStringLowerHash("fe/banana");
+        uPowerupTexID[5] = nlStringLowerHash("fe/babomb");
+        uPowerupTexID[6] = nlStringLowerHash("fe/chomp");
+        uPowerupTexID[7] = nlStringLowerHash("fe/mushroom");
+        uPowerupTexID[8] = nlStringLowerHash("fe/star");
+    }
+};
+PowerupTexInit s_powerupTexInit;
 
 PowerupModelPool powerupModelPool;
 PowerupRegistry powerupRegistry;
@@ -95,12 +144,29 @@ extern World* s_World__12WorldManager;
 
 // extern Audio::cWorldSFX gPowerupSFX;
 
-SlotPool<FreezeShell> FreezeShell::m_FreezeShellSlotPool;
-SlotPool<GreenShell> GreenShell::m_GreenShellSlotPool;
-SlotPool<SpinyShell> SpinyShell::m_SpinyShellSlotPool;
-SlotPool<RedShell> RedShell::m_RedShellSlotPool;
-SlotPool<Banana> Banana::m_BananaSlotPool;
-SlotPool<Bobomb> Bobomb::m_BobombSlotPool;
+SlotPool<FreezeShell> FreezeShell::m_FreezeShellSlotPool(16, 16);
+SlotPool<GreenShell> GreenShell::m_GreenShellSlotPool(16, 16);
+SlotPool<SpinyShell> SpinyShell::m_SpinyShellSlotPool(16, 16);
+SlotPool<RedShell> RedShell::m_RedShellSlotPool(16, 16);
+SlotPool<Banana> Banana::m_BananaSlotPool(16, 16);
+SlotPool<Bobomb> Bobomb::m_BobombSlotPool(16, 16);
+
+namespace
+{
+struct PowerupMasterInit
+{
+    PowerupMasterInit()
+    {
+        uFREEZE_SHELL_MASTER_OBJECT = nlStringLowerHash("gameplay/blueshell");
+        uSPINY_SHELL_MASTER_OBJECT = nlStringLowerHash("gameplay/spikeshell");
+        uGREEN_SHELL_MASTER_OBJECT = nlStringLowerHash("gameplay/greenshell");
+        uRED_SHELL_MASTER_OBJECT = nlStringLowerHash("gameplay/redshell");
+        uBANANA_MASTER_OBJECT = nlStringLowerHash("gameplay/banana");
+        uBOBOMB_MASTER_OBJECT = nlStringLowerHash("gameplay/bobomb");
+    }
+};
+PowerupMasterInit s_powerupMasterInit;
+} // namespace
 
 void FreezeShell::operator delete(void* ptr)
 {

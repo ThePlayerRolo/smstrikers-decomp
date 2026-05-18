@@ -77,9 +77,105 @@ public:
 
 class GameSceneManager;
 
-nlAVLTreeSlotPool<int, SoundStrToIDNode*, DefaultKeyCompare<int> > AudioLoader::gMusyXSoundDefineMap;
-nlAVLTreeSlotPool<int, SoundStrToIDNode*, DefaultKeyCompare<int> > AudioLoader::gCharSoundDefineMap;
-nlAVLTreeSlotPool<int, SoundStrToIDNode*, DefaultKeyCompare<int> > AudioLoader::gWorldSoundDefineMap;
+// Definitions for AudioLoader globals that drive __sinit_AudioLoader_cpp.
+// Order matters: TheAudioLoader must be emitted first (only a 4-byte vtable
+// store), then g_FEStreamConfig (Config ctor), then surfaceSoundPropTables
+// (filled at runtime from gp*SoundPropAccessor globals via a dummy-ctor
+// struct), then the three AVL maps with explicit (initial, delta) ctors.
+AudioLoader TheAudioLoader;
+Config g_FEStreamConfig(Config::ALLOCATE_HIGH);
+
+extern SoundPropAccessor* gpBIRDOGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpBIRDOMETALSoundPropAccessor;
+extern SoundPropAccessor* gpBIRDOCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpBIRDORUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpBIRDOWOODSoundPropAccessor;
+extern SoundPropAccessor* gpDAISYGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpDAISYMETALSoundPropAccessor;
+extern SoundPropAccessor* gpDAISYCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpDAISYRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpDAISYWOODSoundPropAccessor;
+extern SoundPropAccessor* gpDKGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpDKMETALSoundPropAccessor;
+extern SoundPropAccessor* gpDKCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpDKRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpDKWOODSoundPropAccessor;
+extern SoundPropAccessor* gpHAMBROSGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpHAMBROSMETALSoundPropAccessor;
+extern SoundPropAccessor* gpHAMBROSCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpHAMBROSRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpHAMBROSWOODSoundPropAccessor;
+extern SoundPropAccessor* gpKOOPAGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpKOOPAMETALSoundPropAccessor;
+extern SoundPropAccessor* gpKOOPACONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpKOOPARUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpKOOPAWOODSoundPropAccessor;
+extern SoundPropAccessor* gpLUIGIGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpLUIGIMETALSoundPropAccessor;
+extern SoundPropAccessor* gpLUIGICONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpLUIGIRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpLUIGIWOODSoundPropAccessor;
+extern SoundPropAccessor* gpMARIOGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpMARIOMETALSoundPropAccessor;
+extern SoundPropAccessor* gpMARIOCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpMARIORUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpMARIOWOODSoundPropAccessor;
+extern SoundPropAccessor* gpPEACHGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpPEACHMETALSoundPropAccessor;
+extern SoundPropAccessor* gpPEACHCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpPEACHRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpPEACHWOODSoundPropAccessor;
+extern SoundPropAccessor* gpTOADGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpTOADMETALSoundPropAccessor;
+extern SoundPropAccessor* gpTOADCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpTOADRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpTOADWOODSoundPropAccessor;
+extern SoundPropAccessor* gpWALUIGIGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpWALUIGIMETALSoundPropAccessor;
+extern SoundPropAccessor* gpWALUIGICONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpWALUIGIRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpWALUIGIWOODSoundPropAccessor;
+extern SoundPropAccessor* gpWARIOGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpWARIOMETALSoundPropAccessor;
+extern SoundPropAccessor* gpWARIOCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpWARIORUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpWARIOWOODSoundPropAccessor;
+extern SoundPropAccessor* gpYOSHIGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpYOSHIMETALSoundPropAccessor;
+extern SoundPropAccessor* gpYOSHICONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpYOSHIRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpYOSHIWOODSoundPropAccessor;
+extern SoundPropAccessor* gpSUPERGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpSUPERMETALSoundPropAccessor;
+extern SoundPropAccessor* gpSUPERCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpSUPERRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpSUPERWOODSoundPropAccessor;
+extern SoundPropAccessor* gpBOWSERGRASSSoundPropAccessor;
+extern SoundPropAccessor* gpBOWSERMETALSoundPropAccessor;
+extern SoundPropAccessor* gpBOWSERCONCRETESoundPropAccessor;
+extern SoundPropAccessor* gpBOWSERRUBBERSoundPropAccessor;
+extern SoundPropAccessor* gpBOWSERWOODSoundPropAccessor;
+
+SoundPropAccessor* surfaceSoundPropTables[14][5] = {
+    { gpBIRDOGRASSSoundPropAccessor, gpBIRDOMETALSoundPropAccessor, gpBIRDOCONCRETESoundPropAccessor, gpBIRDORUBBERSoundPropAccessor, gpBIRDOWOODSoundPropAccessor },
+    { gpDAISYGRASSSoundPropAccessor, gpDAISYMETALSoundPropAccessor, gpDAISYCONCRETESoundPropAccessor, gpDAISYRUBBERSoundPropAccessor, gpDAISYWOODSoundPropAccessor },
+    { gpDKGRASSSoundPropAccessor, gpDKMETALSoundPropAccessor, gpDKCONCRETESoundPropAccessor, gpDKRUBBERSoundPropAccessor, gpDKWOODSoundPropAccessor },
+    { gpHAMBROSGRASSSoundPropAccessor, gpHAMBROSMETALSoundPropAccessor, gpHAMBROSCONCRETESoundPropAccessor, gpHAMBROSRUBBERSoundPropAccessor, gpHAMBROSWOODSoundPropAccessor },
+    { gpKOOPAGRASSSoundPropAccessor, gpKOOPAMETALSoundPropAccessor, gpKOOPACONCRETESoundPropAccessor, gpKOOPARUBBERSoundPropAccessor, gpKOOPAWOODSoundPropAccessor },
+    { gpLUIGIGRASSSoundPropAccessor, gpLUIGIMETALSoundPropAccessor, gpLUIGICONCRETESoundPropAccessor, gpLUIGIRUBBERSoundPropAccessor, gpLUIGIWOODSoundPropAccessor },
+    { gpMARIOGRASSSoundPropAccessor, gpMARIOMETALSoundPropAccessor, gpMARIOCONCRETESoundPropAccessor, gpMARIORUBBERSoundPropAccessor, gpMARIOWOODSoundPropAccessor },
+    { gpPEACHGRASSSoundPropAccessor, gpPEACHMETALSoundPropAccessor, gpPEACHCONCRETESoundPropAccessor, gpPEACHRUBBERSoundPropAccessor, gpPEACHWOODSoundPropAccessor },
+    { gpTOADGRASSSoundPropAccessor, gpTOADMETALSoundPropAccessor, gpTOADCONCRETESoundPropAccessor, gpTOADRUBBERSoundPropAccessor, gpTOADWOODSoundPropAccessor },
+    { gpWALUIGIGRASSSoundPropAccessor, gpWALUIGIMETALSoundPropAccessor, gpWALUIGICONCRETESoundPropAccessor, gpWALUIGIRUBBERSoundPropAccessor, gpWALUIGIWOODSoundPropAccessor },
+    { gpWARIOGRASSSoundPropAccessor, gpWARIOMETALSoundPropAccessor, gpWARIOCONCRETESoundPropAccessor, gpWARIORUBBERSoundPropAccessor, gpWARIOWOODSoundPropAccessor },
+    { gpYOSHIGRASSSoundPropAccessor, gpYOSHIMETALSoundPropAccessor, gpYOSHICONCRETESoundPropAccessor, gpYOSHIRUBBERSoundPropAccessor, gpYOSHIWOODSoundPropAccessor },
+    { gpSUPERGRASSSoundPropAccessor, gpSUPERMETALSoundPropAccessor, gpSUPERCONCRETESoundPropAccessor, gpSUPERRUBBERSoundPropAccessor, gpSUPERWOODSoundPropAccessor },
+    { gpBOWSERGRASSSoundPropAccessor, gpBOWSERMETALSoundPropAccessor, gpBOWSERCONCRETESoundPropAccessor, gpBOWSERRUBBERSoundPropAccessor, gpBOWSERWOODSoundPropAccessor },
+};
+
+nlAVLTreeSlotPool<int, SoundStrToIDNode*, DefaultKeyCompare<int> > AudioLoader::gMusyXSoundDefineMap(0x438, 0);
+nlAVLTreeSlotPool<int, SoundStrToIDNode*, DefaultKeyCompare<int> > AudioLoader::gCharSoundDefineMap(0xAF, 0);
+nlAVLTreeSlotPool<int, SoundStrToIDNode*, DefaultKeyCompare<int> > AudioLoader::gWorldSoundDefineMap(0xDC, 0);
 
 //  /**
 //   * Offset/Address/Size: 0x38 | 0x801490B0 | size: 0x44
@@ -1828,7 +1924,6 @@ setupCharStadiumSoundTable:
     ((void (*)())AudioLoader::SetupCharStadiumSoundTable)();
 }
 
-extern SoundPropAccessor* surfaceSoundPropTables[14][5];
 extern SoundPropAccessor* gpCRITTERWOODSoundPropAccessor;
 extern SoundPropAccessor* gpBOWSERWOODSoundPropAccessor;
 extern SoundPropAccessor* gpCRITTERCONCRETESoundPropAccessor;

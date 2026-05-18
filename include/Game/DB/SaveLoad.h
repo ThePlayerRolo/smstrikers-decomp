@@ -80,6 +80,7 @@ public:
 class LoadCallbacks
 {
 public:
+    LoadCallbacks();
     unsigned long LoadIconDataDoneCB(unsigned long, long, void*);
     unsigned long ReadDoneCB(unsigned long, long, void*);
     unsigned long CardMountCB(unsigned long, long, void*);
@@ -99,6 +100,7 @@ public:
 class SaveCallbacks
 {
 public:
+    SaveCallbacks();
     unsigned long FileWriteCB(unsigned long, long, void*);
     long DoSave(unsigned long);
     unsigned long FileWriteIconCB(unsigned long, long, void*);
@@ -114,6 +116,7 @@ public:
 
 struct IconDataCache
 {
+    IconDataCache();
     ~IconDataCache();
 
     /* 0x00 */ MemCard::ICON_CONFIG mIconConfig;

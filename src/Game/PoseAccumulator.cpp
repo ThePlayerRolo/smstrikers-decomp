@@ -118,9 +118,7 @@ cPoseAccumulator::cPoseAccumulator(cSHierarchy* pSHierarchy, bool bStorePrevNode
         if (m_BaseSHierarchy->PreserveBoneLength(i))
         {
             const nlVector3* t = m_BaseSHierarchy->GetTranslationOffset(i);
-            m_trans.mData[i].t.f.x = t->f.x;
-            m_trans.mData[i].t.f.y = t->f.y;
-            m_trans.mData[i].t.f.z = t->f.z;
+            m_trans.mData[i].t = *t;
             m_trans.mData[i].fAccumulatedWeight = 1.0f;
             m_trans.mData[i].bIdentity = false;
         }

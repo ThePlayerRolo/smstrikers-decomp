@@ -348,12 +348,12 @@ u64 __strtoull(int base, int max_width, int (*ReadProc)(void*, int, int), void* 
 
     if (!success(scan_state))
     {
-        value = 0;
-        *chars_scanned = 0;
+        value = *chars_scanned = 0;
     }
     else
     {
-        *chars_scanned = count + spaces - 1;
+        count--;
+        *chars_scanned = count + spaces;
     }
 
     unfetch(c);

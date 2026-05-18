@@ -25,6 +25,27 @@ nlArrayAllocator<AudioStream::READ_CB_INFO> AudioStream::READ_CB_INFO::s_AllocPo
 
 }
 
+GCAudioStreaming::AudioStream::READ_CB_INFO ARRAY_ALLOCATOR_MEMORY_class_name_s_AllocPool[32];
+
+namespace
+{
+struct GCStreamAllocPoolInit
+{
+    GCStreamAllocPoolInit()
+    {
+        typedef GCAudioStreaming::AudioStream::READ_CB_INFO Slot;
+        Slot* mem = ARRAY_ALLOCATOR_MEMORY_class_name_s_AllocPool;
+        for (int i = 0; i < 31; i++)
+        {
+            mem[i].m_next = &mem[i + 1];
+        }
+        GCAudioStreaming::AudioStream::READ_CB_INFO::s_AllocPool.m_pFree = &mem[0];
+        mem[31].m_next = 0;
+    }
+};
+GCStreamAllocPoolInit s_GCStreamAllocPoolInit;
+} // namespace
+
 // /**
 //  * Offset/Address/Size: 0x4AC | 0x801C9630 | size: 0x140
 //  */

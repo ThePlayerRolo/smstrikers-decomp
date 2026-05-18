@@ -336,7 +336,7 @@ void LessonSelectScene::Update(float fDeltaT)
     if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL))
     {
         int tag = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_APPLY].mTag;
-        if (tag)
+        if (((unsigned int)((-tag) | tag)) >> 31)
         {
             if (!mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mDisabled)
             {
@@ -400,7 +400,7 @@ void LessonSelectScene::Update(float fDeltaT)
 
             {
                 int tag = mMenuItems.mMenuItems[currentIndex].mCallbacks[ON_UNHIGHLIGHT].mTag;
-                if (tag)
+                if (((unsigned int)((-tag) | tag)) >> 31)
                 {
                     TLComponentInstance* type = mMenuItems.mMenuItems[currentIndex].mType;
                     if (tag == FREE_FUNCTION)
@@ -418,7 +418,7 @@ void LessonSelectScene::Update(float fDeltaT)
 
             {
                 int tag = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT].mTag;
-                if (tag)
+                if (((unsigned int)((-tag) | tag)) >> 31)
                 {
                     TLComponentInstance* type = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType;
                     if (tag == FREE_FUNCTION)
@@ -447,7 +447,7 @@ void LessonSelectScene::Update(float fDeltaT)
             sCurrentRow = sRowOffset + mMenuItems.mCurrentIndex;
 
             int tag = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT].mTag;
-            if (tag)
+            if (((unsigned int)((-tag) | tag)) >> 31)
             {
                 TLComponentInstance* type = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType;
                 if (tag == FREE_FUNCTION)
@@ -470,7 +470,7 @@ void LessonSelectScene::Update(float fDeltaT)
             else if (result == RES_OK)
             {
                 int tag = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT].mTag;
-                if (tag)
+                if (((unsigned int)((-tag) | tag)) >> 31)
                 {
                     TLComponentInstance* type = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType;
                     if (tag == FREE_FUNCTION)
@@ -530,7 +530,7 @@ void LessonSelectScene::Update(float fDeltaT)
 
             {
                 int tag = mMenuItems.mMenuItems[currentIndex].mCallbacks[ON_UNHIGHLIGHT].mTag;
-                if (tag)
+                if (((unsigned int)((-tag) | tag)) >> 31)
                 {
                     TLComponentInstance* type = mMenuItems.mMenuItems[currentIndex].mType;
                     if (tag == FREE_FUNCTION)
@@ -548,7 +548,7 @@ void LessonSelectScene::Update(float fDeltaT)
 
             {
                 int tag = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT].mTag;
-                if (tag)
+                if (((unsigned int)((-tag) | tag)) >> 31)
                 {
                     TLComponentInstance* type = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType;
                     if (tag == FREE_FUNCTION)
@@ -577,7 +577,7 @@ void LessonSelectScene::Update(float fDeltaT)
             sCurrentRow = sRowOffset + mMenuItems.mCurrentIndex;
 
             int tag = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT].mTag;
-            if (tag)
+            if (((unsigned int)((-tag) | tag)) >> 31)
             {
                 TLComponentInstance* type = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType;
                 if (tag == FREE_FUNCTION)
@@ -600,7 +600,7 @@ void LessonSelectScene::Update(float fDeltaT)
             else if (result == RES_OK)
             {
                 int tag = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT].mTag;
-                if (tag)
+                if (((unsigned int)((-tag) | tag)) >> 31)
                 {
                     TLComponentInstance* type = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType;
                     if (tag == FREE_FUNCTION)

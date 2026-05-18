@@ -136,17 +136,51 @@ struct NIS_EVENT_LOOKUP
     operator unsigned long() const { return hash; }
 };
 
-extern NIS_EVENT_LOOKUP g_NisEventLookup[4];
+// Helper to pack an AUDIO_EVENT_RECORD literal (Event in high 16 bits, Team in low 16 bits)
+// into the .4byte slot at offset 0x8 of NIS_EVENT_LOOKUP.
+#define NIS_EVENT_PACK(event, team) \
+    { (AudioScriptEventMgr::AUDIO_EVENT)(event), (AudioScriptEventMgr::AUDIO_EVENT_TEAM)(team) }
+
+NIS_EVENT_LOOKUP g_NisEventLookup[4] = {
+    { 0, "Flyby", NIS_EVENT_PACK(AudioScriptEventMgr::AE_Flyby, AudioScriptEventMgr::AET_Neutral) },
+    { 0, "PreKickOff", NIS_EVENT_PACK(AudioScriptEventMgr::AE_PreKickOff, AudioScriptEventMgr::AET_Neutral) },
+    { 0, "EnterStadiumHome", NIS_EVENT_PACK(AudioScriptEventMgr::AE_TeamIntro, AudioScriptEventMgr::AET_Home) },
+    { 0, "EnterStadiumAway", NIS_EVENT_PACK(AudioScriptEventMgr::AE_TeamIntro, AudioScriptEventMgr::AET_Away) },
+};
 
 extern char* AUDIO_EVENT_FUNC_NAMES[];
 
 typedef ListContainerBase<AUDIO_EVENT_RECORD, BasicSlotPool<ListEntry<AUDIO_EVENT_RECORD> > > AudioEventList;
 
 template class ListContainerBase<AUDIO_EVENT_RECORD, BasicSlotPool<ListEntry<AUDIO_EVENT_RECORD> > >;
+template class nlListSlotPool<AUDIO_EVENT_RECORD>;
 
-extern AudioEventList g_PendingEvents;
 extern EventHandler* g_pAudioEventHandler;
 extern _AudioEventRaiser g_AudioEventRaiser;
+
+namespace
+{
+// Dummy ctor: precompute hashes for g_NisEventLookup, then sort the table.
+// Declared BEFORE g_PendingEvents so MWCC emits the hash/qsort sequence at the
+// start of __sinit_AudioScriptEventMgr_cpp.
+struct AudioScriptEventMgrLookupInit
+{
+    AudioScriptEventMgrLookupInit()
+    {
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            g_NisEventLookup[i].hash = nlStringLowerHash(g_NisEventLookup[i].Name);
+        }
+        nlQSort<NIS_EVENT_LOOKUP>(g_NisEventLookup, 4, &nlDefaultQSortComparer<NIS_EVENT_LOOKUP>);
+    }
+};
+AudioScriptEventMgrLookupInit s_audioScriptEventMgrLookupInit;
+} // namespace
+
+// g_PendingEvents uses the (initial, delta) ctor which inlines:
+//   __ct__12SlotPoolBaseFv, m_Head/m_Tail=0, m_Initial=16, BaseAddNewBlock, m_Delta=16.
+// MWCC also automatically emits a __register_global_object call for the dtor.
+nlListSlotPool<AUDIO_EVENT_RECORD> g_PendingEvents(0x10, 0x10);
 
 class AudioLoader
 {
@@ -292,7 +326,7 @@ void AudioScriptEventMgr::Init()
  */
 void AudioScriptEventMgr::Purge()
 {
-    nlWalkList(g_PendingEvents.m_Head, &g_PendingEvents, &AudioEventList::DeleteEntry);
+    nlWalkList(g_PendingEvents.m_Head, static_cast<AudioEventList*>(&g_PendingEvents), &AudioEventList::DeleteEntry);
     g_PendingEvents.m_Head = NULL;
     g_PendingEvents.m_Tail = NULL;
     SlotPoolBase::BaseFreeBlocks(&g_PendingEvents.m_Allocator, sizeof(ListEntry<AUDIO_EVENT_RECORD>));
@@ -317,7 +351,7 @@ void AudioScriptEventMgr::Update()
     helper.m_CB = &_AudioEventRaiser::RaiseEvent;
 
     nlWalkList(g_PendingEvents.m_Head, &helper, &AudioEventWalkHelper::Callback);
-    nlWalkList(g_PendingEvents.m_Head, &g_PendingEvents, &AudioEventList::DeleteEntry);
+    nlWalkList(g_PendingEvents.m_Head, static_cast<AudioEventList*>(&g_PendingEvents), &AudioEventList::DeleteEntry);
     g_PendingEvents.m_Head = NULL;
     g_PendingEvents.m_Tail = NULL;
 }
@@ -603,12 +637,11 @@ static void AudioScriptEventHandler(Event* pEvent, void*)
     }
 }
 
-// REMOVE once real callers exist.
+// Force instantiation of the bsearch template (used by the lookup table at runtime).
+// The qsort/sort and nlListSlotPool template instantiations are now driven by the
+// real lookup table init and g_PendingEvents definition above.
 void AudioScriptEventMgr_stub()
 {
     unsigned long k = 0;
     nlBSearch<NIS_EVENT_LOOKUP, unsigned long>(k, g_NisEventLookup, 4);
-    nlQSort<NIS_EVENT_LOOKUP>(g_NisEventLookup, 4, &nlDefaultQSortComparer<NIS_EVENT_LOOKUP>);
-
-    static nlListSlotPool<AUDIO_EVENT_RECORD> s_inst;
 }

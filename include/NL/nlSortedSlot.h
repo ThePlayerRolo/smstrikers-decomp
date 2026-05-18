@@ -16,6 +16,13 @@ public:
         operator unsigned long() const { return hash; }
     }; // total size: 0x8
 
+    nlSortedSlot()
+        : m_pEntryLookup(0)
+        , m_EntryCount(0)
+        , m_LookupAllocated(0)
+    {
+    }
+
     virtual T* GetNewEntry() = 0;
     virtual void FreeEntry(T*) = 0;
     virtual void ExpandLookup() = 0;
@@ -30,6 +37,21 @@ template <typename T, int N>
 class nlStaticSortedSlot : public nlSortedSlot<T, N>
 {
 public:
+    nlStaticSortedSlot()
+    {
+        T** p = reinterpret_cast<T**>(m_EntryData);
+        T** q = p + 1;
+        this->m_ArrayAllocator.m_pFree = reinterpret_cast<T*>(p);
+        p[0] = reinterpret_cast<T*>(q);
+        ++q;
+        p[1] = reinterpret_cast<T*>(q);
+        for (int i = 2; i < N - 1; ++i)
+        {
+            p[i] = reinterpret_cast<T*>(&p[i + 1]);
+        }
+        p[N - 1] = 0;
+    }
+
     virtual T* GetNewEntry();
     virtual void FreeEntry(T*);
     virtual void ExpandLookup();

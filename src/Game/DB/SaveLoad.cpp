@@ -19,11 +19,10 @@ SaveCallbacks SaveSystem;
 DeleteCallbacks DeleteSystem;
 FormatCallbacks FormatSystem;
 
-static MemCard* s_MemCardStorage[2] = { nullptr, nullptr };
 void (*g_Callback)(long);
 FileExistsCallbacks FileExistsSystem;
 MemoryCardIDCallbacks MemoryCardIDSystem;
-MemCard** g_MemCards = s_MemCardStorage;
+MemCard** g_MemCards = MemCards;
 struct MemCardIDInfo
 {
     s64 serialID;
@@ -87,6 +86,35 @@ void MemCardFunctor::MCMemberFunctor<FileExistsCallbacks>::Call(unsigned long Sl
 void MemCardFunctor::MCMemberFunctor<MemoryCardIDCallbacks>::Call(unsigned long Slot, long Result)
 {
     (m_pObject->*(*(MemberCB*)&m_pFunc))(Slot, Result, m_pData);
+}
+
+IconDataCache::IconDataCache()
+{
+    gIconCRC = 0;
+    mIconConfig.BannerFormat = 0;
+    mIconConfig.IconCount = 0;
+    mIconConfig.IconFormat = 0;
+    mIconConfig.IconAnimType = 0;
+    memset(mIconConfig.IconSpeeds, 0, 8);
+    mIconHdrBuffer = NULL;
+    mIconBuffer = NULL;
+    mBannerBuffer = NULL;
+}
+
+LoadCallbacks::LoadCallbacks()
+    : m_pReadBuffer(NULL)
+    , m_pIconReadBuffer(NULL)
+    , m_pLoadFile(NULL)
+    , m_MustFreeBuffers(false)
+    , m_IconLoadedCRC(0)
+{
+}
+
+SaveCallbacks::SaveCallbacks()
+    : m_pSaveFile(NULL)
+    , m_pSaveGameBuffer(NULL)
+    , m_IconCRC(0)
+{
 }
 
 /**

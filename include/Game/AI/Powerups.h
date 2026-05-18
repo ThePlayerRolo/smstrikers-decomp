@@ -29,6 +29,7 @@ struct PowerupSounds
 
 struct PowerupModelPool
 {
+    PowerupModelPool() { mNum = 0; }
     void Initialize(int type, unsigned long objHashName);
 
     /* 0x000 */ int mNum;

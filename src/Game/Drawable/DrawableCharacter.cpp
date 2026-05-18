@@ -34,6 +34,11 @@ unsigned char sSTSLighting__17DrawableCharacter;
 const u32 GLTT_BumpLocal_bit = 1 << (int)GLTT_BumpLocal;
 static unsigned long GLTT_Detail_bit = 1UL << (int)GLTT_Detail;
 
+static unsigned long UnlitProgram = glGetProgram("3d unlit");
+static unsigned long LitProgram = glGetProgram("3d pointlit");
+static unsigned long LightTexture = glGetTexture("global/lightramp");
+static unsigned long BlackTexture = glGetTexture("global/black");
+static unsigned long WhiteTexture = glGetTexture("global/white");
 static unsigned long CharacterDirtProgram = glGetProgram("3d pointlit dirt");
 static unsigned long CharacterProgram = glGetProgram("3d pointlit");
 

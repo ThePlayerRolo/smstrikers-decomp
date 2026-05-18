@@ -133,6 +133,8 @@ public:
         /* 0x24 */ unsigned long TotalHeaderSize;
     }; // total size: 0x28
 
+    MemCard(unsigned long slot);
+
     static void CardRemovedCB(long channel, long result);
     static void MountDoneCB(long channel, long result);
     static void CreateFileDoneCB(long channel, long result);
@@ -178,6 +180,7 @@ public:
 }; // total size: 0xA620
 
 extern MemCard** g_MemCards;
+extern MemCard* MemCards[2];
 
 // class nlBSearch < nlSortedSlot < MemCard
 // {

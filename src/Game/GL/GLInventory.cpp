@@ -1,6 +1,22 @@
 #include "Game/GL/GLInventory.h"
 #include "NL/glx/glxLoadModel.h"
 
+GLInventory::GLInventory()
+{
+    m_bCreated = false;
+    for (int i = 0; i < 16; i++)
+    {
+        m_pFileData[i] = NULL;
+        m_pModels[i] = NULL;
+        m_pSkinData[i] = NULL;
+        m_pShadowVolumes[i] = NULL;
+        m_pTextureAnims[i] = NULL;
+        m_pVertexAnims[i] = NULL;
+        m_pMaterialLists[i] = NULL;
+    }
+    m_nLevel = 0;
+}
+
 GLInventory glInventory;
 
 void GLInventoryModelsDtor(clearing_GLInventory<glModel>*, int);

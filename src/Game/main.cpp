@@ -226,16 +226,26 @@ static void SetupViews()
 static void Initialize()
 {
     {
-        Function<void(int)> dvdMsgCB;
+        Function1<void, int> dvdMsgCB;
         dvdMsgCB.mTag = FREE_FUNCTION;
         dvdMsgCB.mFreeFunction = DisplayDVDMessageSebring;
-        nlRegHandleDVDMessageCB(dvdMsgCB);
+        nlRegHandleDVDMessageCB(*(Function<void(int)>*)&dvdMsgCB);
+        if (dvdMsgCB.mTag == FUNCTOR)
+        {
+            delete dvdMsgCB.mFunctor;
+        }
+        dvdMsgCB.mTag = EMPTY;
     }
     {
-        Function<void(int)> dvdClrCB;
+        Function1<void, int> dvdClrCB;
         dvdClrCB.mTag = FREE_FUNCTION;
         dvdClrCB.mFreeFunction = DVDAllClearSebring;
-        nlRegHandleDVDAllClearCB(dvdClrCB);
+        nlRegHandleDVDAllClearCB(*(Function<void(int)>*)&dvdClrCB);
+        if (dvdClrCB.mTag == FUNCTOR)
+        {
+            delete dvdClrCB.mFunctor;
+        }
+        dvdClrCB.mTag = EMPTY;
     }
     {
         Function<FnVoidVoid> resetCB(Bind<void>(MemFun<ResetTask, void>(&ResetTask::FSCheckForReset), &resetTask));

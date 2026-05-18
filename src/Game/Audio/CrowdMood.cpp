@@ -1807,15 +1807,11 @@ void CrowdMood::ActivateLPF(bool Activate)
 
 /**
  * Offset/Address/Size: 0x2D4 | 0x8014D9E8 | size: 0x1BC
- * TODO: 97.9% match (build) - `cmplwi m_BufferCount, 0` emits `beq` (target `ble`) in both
- *       buffer-start checks; likely GC/2.0 vs GC/1.3.2 compiler version difference.
+ * TODO: 98.38% match - register allocation differs for frequency/state/audio stream pointers across both stream loops.
  */
 void CrowdMood::SetLPF(unsigned short Frequency)
 {
-    GCAudioStreaming::StereoAudioStream* pChant;
-    GCAudioStreaming::MonoAudioStream* pHeckle;
-    GCAudioStreaming::AudioStreamBuffer* buf;
-    unsigned long maskedFreq;
+    unsigned long zero = 0;
 
     if (g_CrowdState.LPFFreq == Frequency)
         return;
@@ -1824,13 +1820,14 @@ void CrowdMood::SetLPF(unsigned short Frequency)
     Audio::SetFilterFreqOnSFX(g_CrowdAudio.PositiveVoiceId, Frequency);
     Audio::SetFilterFreqOnSFX(g_CrowdAudio.NegativeVoiceId, Frequency);
 
-    pChant = g_CrowdAudio.pChantStream;
+    GCAudioStreaming::StereoAudioStream* pChant = g_CrowdAudio.pChantStream;
     if (pChant != NULL && g_CrowdAudio.pHeckleStream != NULL && !g_CrowdState.StreamLocked)
     {
         if (pChant->m_State >= GCAudioStreaming::SS_Warming)
         {
+            GCAudioStreaming::AudioStreamBuffer* buf;
             volatile unsigned long i = (unsigned long)(buf = NULL);
-            unsigned long zero = 0;
+
             if (pChant->m_BufferCount <= zero)
             {
             }
@@ -1838,7 +1835,8 @@ void CrowdMood::SetLPF(unsigned short Frequency)
             {
                 buf = pChant->m_Buffers[0];
             }
-            maskedFreq = Frequency;
+
+            unsigned long maskedFreq = Frequency;
             while (buf != NULL)
             {
                 if (buf->m_bLPFOn)
@@ -1846,6 +1844,7 @@ void CrowdMood::SetLPF(unsigned short Frequency)
                     sndStreamLPFParameter(buf->m_StreamId, buf->m_bLPFOn, maskedFreq);
                 }
                 buf->m_LPFFreq = Frequency;
+
                 unsigned long ci = i + 1;
                 i = ci;
                 if (ci < pChant->m_BufferCount)
@@ -1860,11 +1859,12 @@ void CrowdMood::SetLPF(unsigned short Frequency)
         }
         pChant->m_LPFFreq = Frequency;
 
-        pHeckle = g_CrowdAudio.pHeckleStream;
+        GCAudioStreaming::MonoAudioStream* pHeckle = g_CrowdAudio.pHeckleStream;
         if (pHeckle->m_State >= GCAudioStreaming::SS_Warming)
         {
+            GCAudioStreaming::AudioStreamBuffer* buf;
             volatile unsigned long i = (unsigned long)(buf = NULL);
-            unsigned long zero = 0;
+
             if (pHeckle->m_BufferCount <= zero)
             {
             }
@@ -1872,7 +1872,8 @@ void CrowdMood::SetLPF(unsigned short Frequency)
             {
                 buf = pHeckle->m_Buffers[0];
             }
-            maskedFreq = Frequency;
+
+            unsigned long maskedFreq = Frequency;
             while (buf != NULL)
             {
                 if (buf->m_bLPFOn)
@@ -1880,6 +1881,7 @@ void CrowdMood::SetLPF(unsigned short Frequency)
                     sndStreamLPFParameter(buf->m_StreamId, buf->m_bLPFOn, maskedFreq);
                 }
                 buf->m_LPFFreq = Frequency;
+
                 unsigned long ci = i + 1;
                 i = ci;
                 if (ci < pHeckle->m_BufferCount)

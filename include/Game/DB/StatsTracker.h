@@ -107,15 +107,6 @@ struct PlayerStats
 struct TeamStats
 {
     TeamStats();
-    TeamStats(const TeamStats& other)
-        : mTeamIndex(other.mTeamIndex)
-        , mNumWins(other.mNumWins)
-        , mNumLosses(other.mNumLosses)
-        , mNumOTLosses(other.mNumOTLosses)
-        , mNumPoints(other.mNumPoints)
-        , mPlayerTotalStats(other.mPlayerTotalStats)
-    {
-    }
     /* 0x0 */ eTeamID mTeamIndex;
     /* 0x4 */ unsigned short mNumWins;
     /* 0x6 */ unsigned short mNumLosses;

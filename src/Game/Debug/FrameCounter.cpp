@@ -10,8 +10,11 @@
 #include "NL/nlPrint.h"
 #include "NL/nlTicker.h"
 
-extern const u32 WhiteTexture;
-extern const u32 UnlitProgram;
+static u32 UnlitProgram = glGetProgram("3d unlit");
+static u32 LitProgram = glGetProgram("3d pointlit");
+static u32 LightTexture = glGetTexture("global/lightramp");
+static u32 BlackTexture = glGetTexture("global/black");
+static u32 WhiteTexture = glGetTexture("global/white");
 
 int FrameCounter::NUM_FRAMES_TO_AVERAGE_OVER = 0x1E;
 

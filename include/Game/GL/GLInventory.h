@@ -187,6 +187,7 @@ public:
 class GLInventory
 {
 public:
+    GLInventory();
     ~GLInventory();
     void Create();
     void Delete();

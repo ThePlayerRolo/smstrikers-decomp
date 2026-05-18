@@ -58,6 +58,26 @@ typedef struct
 
 unsigned long uIndicatorTexID[4];
 unsigned long uGlowTexID[4];
+
+namespace
+{
+struct IndicatorsInit
+{
+    IndicatorsInit()
+    {
+        uIndicatorTexID[0] = nlStringLowerHash("fe/controller_1_indicator");
+        uIndicatorTexID[1] = nlStringLowerHash("fe/controller_2_indicator");
+        uIndicatorTexID[2] = nlStringLowerHash("fe/controller_3_indicator");
+        uIndicatorTexID[3] = nlStringLowerHash("fe/controller_4_indicator");
+        uGlowTexID[0] = nlStringLowerHash("fe/controller_1_indicator_E");
+        uGlowTexID[1] = nlStringLowerHash("fe/controller_2_indicator_E");
+        uGlowTexID[2] = nlStringLowerHash("fe/controller_3_indicator_E");
+        uGlowTexID[3] = nlStringLowerHash("fe/controller_4_indicator_E");
+    }
+};
+IndicatorsInit s_indicatorsInit;
+} // namespace
+
 float indicatorInfo[10];
 float fMaxAlpha = 0.9f;
 float fOpacityFadePerSecond = 1.2f;

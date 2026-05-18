@@ -105,8 +105,8 @@ WinnerOverlay::~WinnerOverlay()
 
 /**
  * Offset/Address/Size: 0x304 | 0x80105970 | size: 0xCE0
- * TODO: 75.07% match - stack layout/register allocation still diverges in
- * localization string construction and UI setup paths.
+ * TODO: 92.66% match - stack/register differences remain in localization
+ * lookup/result wiring and final image lookup call-site setup.
  */
 
 template <typename StringType, typename ValueType>
@@ -266,7 +266,7 @@ void WinnerOverlay::SceneCreated()
     presentation->SetActiveSlide("MENU IN2");
 
     GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
-    short winnerSide = (short)((scoreRight >> 31) + ((unsigned int)scoreLeft >> 31) + ((unsigned int)scoreRight >= (unsigned int)scoreLeft));
+    short winnerSide = (scoreLeft > scoreRight) ? 0 : 1;
     mWinningTeam = (eTeamID)gameInfo->GetTeam(winnerSide);
 
     unsigned long winnerLocID = GetLOCTeamName((eTeamID)mWinningTeam);
@@ -376,9 +376,7 @@ void WinnerOverlay::SceneCreated()
     }
 
     BasicString<unsigned short, Detail::TempStringAllocator> unformattedName(winnerFormatData);
-    BasicString<unsigned short, Detail::TempStringAllocator> formattedName;
-
-    formattedName = Format(unformattedName, winnerNameWideString.c_str());
+    BasicString<unsigned short, Detail::TempStringAllocator> formattedName(Format(unformattedName, winnerNameWideString.c_str()));
 
     memcpy(mWinnerBuffer, formattedName.c_str(), 0x40);
 
@@ -492,7 +490,7 @@ void WinnerOverlay::SceneCreated()
     gA.m_Hash = hash;
     gB.m_Hash = hash;
 
-    pImage = findImage.byRef(
+    pImage = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
         m_pFEPresentation->m_currentSlide,
         (InlineHasher&)gB,
         (InlineHasher&)g5,
@@ -522,7 +520,7 @@ void WinnerOverlay::SceneCreated()
     fA.m_Hash = hash;
     fB.m_Hash = hash;
 
-    pImage = findImage.byRef(
+    pImage = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
         m_pFEPresentation->m_currentSlide,
         (InlineHasher&)fB,
         (InlineHasher&)f5,

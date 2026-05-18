@@ -473,6 +473,7 @@ void FERender::RenderSlide(const TLSlide* slide)
 
         if (instance->IsValidAtTime(time) && instance->m_bVisible)
         {
+            nlFloatColour oldChildColour;
             nlMatrix4 rotationMatrix;
             nlMatrix4 scaleMatrix;
             nlMatrix4 combinedMatrix;
@@ -551,7 +552,10 @@ void FERender::RenderSlide(const TLSlide* slide)
 
                 while (true)
                 {
-                    nlFloatColour oldChildColour = s_currentAssetColour;
+                    *(u32*)&oldChildColour.c[0] = *(u32*)&s_currentAssetColour.c[0];
+                    *(u32*)&oldChildColour.c[1] = *(u32*)&s_currentAssetColour.c[1];
+                    *(u32*)&oldChildColour.c[2] = *(u32*)&s_currentAssetColour.c[2];
+                    *(u32*)&oldChildColour.c[3] = *(u32*)&s_currentAssetColour.c[3];
                     TLInstance* nextChild = child->m_next;
 
                     if (child->IsValidAtTime(time) && child->IsVisible())
@@ -599,10 +603,12 @@ void FERender::RenderSlide(const TLSlide* slide)
                         PopTransformMatrix();
                     }
 
-                    *(u32*)&s_currentAssetColour.c[0] = *(u32*)&oldChildColour.c[0];
-                    *(u32*)&s_currentAssetColour.c[1] = *(u32*)&oldChildColour.c[1];
-                    *(u32*)&s_currentAssetColour.c[2] = *(u32*)&oldChildColour.c[2];
-                    *(u32*)&s_currentAssetColour.c[3] = *(u32*)&oldChildColour.c[3];
+                    u32* childDst = (u32*)&s_currentAssetColour;
+                    u32* childSrc = (u32*)&oldChildColour;
+                    childDst[0] = childSrc[0];
+                    childDst[1] = childSrc[1];
+                    childDst[2] = childSrc[2];
+                    childDst[3] = childSrc[3];
 
                     if (child == instance->pChildren)
                     {

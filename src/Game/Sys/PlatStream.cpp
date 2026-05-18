@@ -9,10 +9,17 @@ extern "C"
     void sndStreamDeactivate(unsigned long stid);
 }
 
-extern GCAudioStreaming::AudioBufferMgr g_BufferMgr;
+GCAudioStreaming::AudioBufferMgr g_BufferMgr;
 
-static nlStaticSortedSlot<GCAudioStreaming::AudioStream*, 7> g_Streams;
+nlStaticSortedSlot<GCAudioStreaming::AudioStream*, 7> g_Streams;
 static bool g_StreamingInitd;
+
+GCAudioStreaming::AudioBufferMgr::AudioBufferMgr()
+    : m_MRAMBuffer(NULL)
+{
+    m_BuffersFree = 0;
+    m_BufferCount = 0;
+}
 
 // /**
 //  * Offset/Address/Size: 0x30 | 0x801C778C | size: 0x24

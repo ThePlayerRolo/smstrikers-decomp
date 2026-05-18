@@ -19,8 +19,11 @@ extern PhysicsWorld* g_PhysicsWorld;
 float ExplosionFragment::sfFadeOutTime = 1.0f;
 
 ExplosionFragment** SidelineExplodableManager::sFragmentLookupTable = NULL;
-SlotPool<SidelineExplodableNode> SidelineExplodableNode::sSidelineExplodableNodeSlotPool;
-SlotPool<DrawableFragmentHandleNode> DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool;
+nlList<SidelineExplodableNode> SidelineExplodableManager::sSidelineExplodableList(NULL, NULL);
+nlList<DrawableFragmentHandleNode> SidelineExplodableManager::sUnusedDrawableFragments(NULL, NULL);
+SlotPool<SidelineExplodableNode> SidelineExplodableNode::sSidelineExplodableNodeSlotPool(16, 16);
+SlotPool<DrawableFragmentHandleNode> DrawableFragmentHandleNode::sDrawableFragmentHandleNodePool(16, 16);
+bool SidelineExplodableManager::sbIsInitialized;
 
 /**
  * Offset/Address/Size: 0x214 | 0x80169954 | size: 0x27C

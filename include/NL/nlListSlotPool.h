@@ -12,7 +12,18 @@ template <typename T>
 class nlListSlotPool : public ListContainerBase<T, BasicSlotPool<ListEntry<T> > >
 {
 public:
-    nlListSlotPool() : ListContainerBase<T, BasicSlotPool<ListEntry<T> > >() {}
+    nlListSlotPool()
+        : ListContainerBase<T, BasicSlotPool<ListEntry<T> > >()
+    {
+    }
+
+    nlListSlotPool(int initial, int delta)
+        : ListContainerBase<T, BasicSlotPool<ListEntry<T> > >()
+    {
+        this->m_Allocator.m_Initial = initial;
+        SlotPoolBase::BaseAddNewBlock(&this->m_Allocator, sizeof(ListEntry<T>));
+        this->m_Allocator.m_Delta = delta;
+    }
 
     ~nlListSlotPool()
     {

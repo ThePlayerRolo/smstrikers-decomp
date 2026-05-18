@@ -4313,22 +4313,19 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
     cTeam* pTeam = (TheFielder != NULL) ? TheFielder->m_pTeam : NULL;
     float fNotUserControlled = 1.0f - UserControlledT(pTeam);
 
-    cPlayer* pOtherGoalie;
+    cPlayer* pOtherGoalie = NULL;
     if (TheFielder != NULL)
     {
         if (TheFielder != NULL)
         {
-            pOtherGoalie = TheFielder->m_pTeam->GetOtherTeam()->GetGoalie();
+            cTeam* pOtherTeam = TheFielder->m_pTeam->GetOtherTeam();
+            pOtherGoalie = pOtherTeam->GetGoalie();
         }
-    }
-    else
-    {
-        pOtherGoalie = NULL;
     }
 
     float fNotOtherGoaliePickup = 1.0f - Fuzzy::GoalieAndGonnaPickupBall(pOtherGoalie).Confidence;
 
-    cPlayer* pGoalie;
+    cPlayer* pGoalie = NULL;
     if (TheFielder != NULL)
     {
         if (TheFielder != NULL)
@@ -4336,27 +4333,12 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
             pGoalie = TheFielder->m_pTeam->GetGoalie();
         }
     }
-    else
-    {
-        pGoalie = NULL;
-    }
 
     float fNotGoaliePickup = 1.0f - Fuzzy::GoalieAndGonnaPickupBall(pGoalie).Confidence;
 
-    if (fNotUserControlled > fTrueConfidence)
-    {
-        fNotUserControlled = fTrueConfidence;
-    }
-
-    if (fNotOtherGoaliePickup > fNotUserControlled)
-    {
-        fNotOtherGoaliePickup = fNotUserControlled;
-    }
-
-    if (fNotGoaliePickup > fNotOtherGoaliePickup)
-    {
-        fNotGoaliePickup = fNotOtherGoaliePickup;
-    }
+    fNotUserControlled = (fNotUserControlled <= fTrueConfidence) ? fNotUserControlled : fTrueConfidence;
+    fNotOtherGoaliePickup = (fNotOtherGoaliePickup <= fNotUserControlled) ? fNotOtherGoaliePickup : fNotUserControlled;
+    fNotGoaliePickup = (fNotGoaliePickup <= fNotOtherGoaliePickup) ? fNotGoaliePickup : fNotOtherGoaliePickup;
 
     fTrueConfidence = fNotGoaliePickup;
 
@@ -4373,7 +4355,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
         {
-            fConfidence = (float)fConfidence * fBranchRatio;
+            double d = fConfidence;
+            fConfidence = (float)d * fBranchRatio;
         }
 
         float fLikelyConfidence = LikelyToUsePowerup(TheFielder, 0);
@@ -4390,7 +4373,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fLikelyBranchRatio;
             }
 
             if (fConfidence > fBestConfidence)
@@ -4415,7 +4399,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fLikelyBranchRatio;
             }
 
             if (fConfidence > fBestConfidence)
@@ -4440,7 +4425,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fLikelyBranchRatio;
             }
 
             if (fConfidence > fBestConfidence)
@@ -4465,7 +4451,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fLikelyBranchRatio;
             }
 
             if (fConfidence > fBestConfidence)
@@ -4490,7 +4477,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fLikelyBranchRatio;
             }
 
             if (fConfidence > fBestConfidence)
@@ -4515,7 +4503,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fLikelyBranchRatio;
             }
 
             if (fConfidence > fBestConfidence)
@@ -4530,14 +4519,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
         float fNotNearBall = 1.0f - NearToBall((cPlayer*)TheFielder);
         float fChasingBall = ChasingBall((cPlayer*)TheFielder);
 
-        if (fNotNearBall > fTrueConfidence)
-        {
-            fNotNearBall = fTrueConfidence;
-        }
-        if (fChasingBall > fNotNearBall)
-        {
-            fChasingBall = fNotNearBall;
-        }
+        fNotNearBall = (fNotNearBall <= fTrueConfidence) ? fNotNearBall : fTrueConfidence;
+        fChasingBall = (fChasingBall <= fNotNearBall) ? fChasingBall : fNotNearBall;
 
         fTrueConfidence = fChasingBall;
 
@@ -4554,7 +4537,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fBranchRatio;
             }
 
             fTrueConfidence = 1.0f - OnMushrooms(g_pScriptCurrentFielder);
@@ -4571,7 +4555,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
                 if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                 {
-                    fConfidence = (float)fConfidence * fBranchRatio;
+                    double d = fConfidence;
+                    fConfidence = (float)d * fBranchRatio;
                 }
 
                 fLikelyConfidence = LikelyToUsePowerup(TheFielder, 7);
@@ -4588,7 +4573,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
                     if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
                     {
-                        fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                        double d = fConfidence;
+                        fConfidence = (float)d * fLikelyBranchRatio;
                     }
 
                     if (fConfidence > fBestConfidence)
@@ -4606,20 +4592,9 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
         float fReceivingPass = ReceivingPass(TheFielder);
         float fBallOwner = BallOwner((cPlayer*)TheFielder);
 
-        if (fBallOwner < fReceivingPass)
-        {
-            fBallOwner = fReceivingPass;
-        }
-
-        if (fCaptain > fNotInDefensiveZone)
-        {
-            fCaptain = fNotInDefensiveZone;
-        }
-
-        if (fBallOwner > fCaptain)
-        {
-            fBallOwner = fCaptain;
-        }
+        fBallOwner = (fBallOwner >= fReceivingPass) ? fBallOwner : fReceivingPass;
+        fCaptain = (fCaptain <= fNotInDefensiveZone) ? fCaptain : fNotInDefensiveZone;
+        fBallOwner = (fBallOwner <= fCaptain) ? fBallOwner : fCaptain;
 
         fTrueConfidence = fBallOwner;
 
@@ -4636,7 +4611,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
             if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fBranchRatio;
             }
 
             fLikelyConfidence = LikelyToUsePowerup(TheFielder, 8);
@@ -4653,7 +4629,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
 
                 if (fConfidence < fLikelyConfidence && fLikelyConfidence < 0.5f)
                 {
-                    fConfidence = (float)fConfidence * fLikelyBranchRatio;
+                    double d = fConfidence;
+                    fConfidence = (float)d * fLikelyBranchRatio;
                 }
 
                 if (fConfidence > fBestConfidence)

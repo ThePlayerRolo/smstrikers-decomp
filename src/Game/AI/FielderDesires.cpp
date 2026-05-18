@@ -43,7 +43,37 @@ public:
     void CalcOneTimerValue(cFielder* pFielder, bool bWasPerfectPass);
 };
 
-CommonDesireData g_vDesireCommonData[NUM_FIELDERDESIRES];
+CommonDesireData g_vDesireCommonData[NUM_FIELDERDESIRES] = {
+    CommonDesireData(FIELDERDESIRE_NEED_DESIRE, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_CUT_AND_BREAK, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_DEKE, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_GET_IN_POSITION, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_GET_OPEN, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_HIT, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_INTERCEPT_BALL, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_MARK, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_PROTECT_BALL, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_RUN_TO_NET, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_RUN_UPFIELD, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_RUN_DOWNFIELD, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_RUN_TO_LOCATION, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_PASS, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_SHOOT, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_SLIDE_ATTACK, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_SUPPORT_BALL_DEFENSIVE, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_SUPPORT_BALL_OFFENSIVE, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_USE_POWERUP, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_WINDUP_PASS, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_WINDUP_SHOT, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_WAIT_FOR_THOUGHT_CAP, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_USER_CONTROLLED, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_FINISH_ACTION, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_ONETIMER, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_POST_WHISTLE, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_RECEIVE_PASS_FROM_IDLE, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_RECEIVE_PASS_FROM_RUN, 1.0f, 0.0f),
+    CommonDesireData(FIELDERDESIRE_WAIT, 1.0f, 0.0f),
+};
 
 struct SupportBallAILocation
 {
@@ -2315,14 +2345,16 @@ void cFielder::DesireReceivePassFromRun(float fDeltaT)
     float normY = invDist * yDiff;
     float normX = invDist * xDiff;
 
+    cBall* pBall = g_pBall;
+
     float invBallVel = nlRecipSqrt(
-        (g_pBall->m_v3Velocity.f.x * g_pBall->m_v3Velocity.f.x) + (g_pBall->m_v3Velocity.f.y * g_pBall->m_v3Velocity.f.y),
+        (pBall->m_v3Velocity.f.x * pBall->m_v3Velocity.f.x) + (pBall->m_v3Velocity.f.y * pBall->m_v3Velocity.f.y),
         true);
 
-    float ballVelNormY = invBallVel * g_pBall->m_v3Velocity.f.y;
-    float ballVelNormX = invBallVel * g_pBall->m_v3Velocity.f.x;
+    float ballVelNormY = invBallVel * pBall->m_v3Velocity.f.y;
+    float ballVelNormX = invBallVel * pBall->m_v3Velocity.f.x;
 
-    if (GetGlobalPad() == NULL && m_eDesireSubState != 1)
+    if (m_pBall == NULL && m_eDesireSubState != 1)
     {
         float fDot = (normY * ballVelNormY) + (normX * ballVelNormX);
         if (fDot < 0.98f || g_pBall->m_pOwner != NULL)

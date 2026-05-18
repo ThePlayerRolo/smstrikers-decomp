@@ -38,6 +38,20 @@
 #include "NL/plat/plataudio.h"
 #include "types.h"
 
+u16 g_IdleTurnCompletionDelta;
+
+namespace
+{
+struct FielderActionsGlobalsInit
+{
+    FielderActionsGlobalsInit()
+    {
+        g_IdleTurnCompletionDelta = 0xB6;
+    }
+};
+FielderActionsGlobalsInit s_fielderActionsGlobalsInit;
+} // namespace
+
 f32 CANT_COLLIDE = *(f32*)__float_max;
 
 extern unsigned int nlDefaultSeed;
@@ -108,8 +122,6 @@ extern void Flash__10PhotoFlashFv();
 
 template <typename StringType, typename ValueType>
 StringType Format(const StringType&, const ValueType&);
-
-static u16 g_IdleTurnCompletionDelta = 0x00;
 
 int SlideAttackReactAnims[4] = {
     0x66,

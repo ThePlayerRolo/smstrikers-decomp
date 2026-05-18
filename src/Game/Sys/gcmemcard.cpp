@@ -1,8 +1,24 @@
 #include "Game/Sys/gcmemcard.h"
 #include "NL/nlString.h"
 #include "NL/nlBSearch.h"
+#include "NL/nlMemory.h"
+#include <dolphin/dvd.h>
 
 extern "C" void* memset(void*, int, unsigned long);
+
+MemCard::MemCard(unsigned long slot)
+{
+    m_State = IS_IDLE;
+    m_Slot = slot;
+    m_CardState = CS_IDLE;
+    m_LastTransferSize = 0;
+    m_SerialID = 0;
+    DVDDiskID* id = DVDGetCurrentDiskID();
+    memcpy(&m_GameId, id, 4);
+    memcpy(&m_CompanyId, ((char*)id) + 4, 2);
+}
+
+MemCard* MemCards[2] = { new MemCard(0), new MemCard(1) };
 
 // /**
 //  * Offset/Address/Size: 0x30 | 0x801CB798 | size: 0x24

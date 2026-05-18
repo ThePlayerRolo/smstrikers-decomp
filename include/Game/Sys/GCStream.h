@@ -57,6 +57,7 @@ public:
 class AudioBufferMgr
 {
 public:
+    AudioBufferMgr();
     void Init(unsigned long);
     void CreateBuffers(unsigned long);
     void DeleteBuffers();
