@@ -4,36 +4,8 @@
 #include "Game/AI/Scripts/RootScript.h"
 #include "Game/AI/Scripts/ScriptDefines.h"
 
-cFielder* g_pScriptCurrentFielder = NULL;
+extern cFielder* g_pScriptCurrentFielder;
 extern cDecisionEntity g_pDecisionEntities[44]; // defined in Game/AI/Scripts/RootScript.cpp
-
-// /**
-//  * Offset/Address/Size: 0x10C | 0x800190BC | size: 0x28
-//  */
-// void nlListAddStart<ScriptAction>(ScriptAction**, ScriptAction*, ScriptAction**)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0xE0 | 0x80019090 | size: 0x2C
-//  */
-// void nlListAddEnd<ScriptAction>(ScriptAction**, ScriptAction**, ScriptAction*)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x9C | 0x8001904C | size: 0x44
-//  */
-// void nlListRemoveStart<ScriptAction>(ScriptAction**, ScriptAction**)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x0 | 0x80018FB0 | size: 0x9C
-//  */
-// void nlListRemoveElement<ScriptAction>(ScriptAction**, ScriptAction*, ScriptAction**)
-// {
-// }
 
 /**
  * Offset/Address/Size: 0xF98 | 0x80018EF4 | size: 0xBC

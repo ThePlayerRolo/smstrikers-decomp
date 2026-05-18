@@ -80,6 +80,7 @@ public:
 template <typename T>
 ListEntry<T>* nlListRemoveStart(ListEntry<T>** head, ListEntry<T>** tail)
 {
+    FORCE_DONT_INLINE;
     ListEntry<T>* first = *head;
     if (first == 0)
         return 0;
@@ -126,23 +127,6 @@ void nlDeleteList(T** head)
 }
 
 template <typename T>
-T* nlListRemoveStart(T** head, T** tail)
-{
-    T* current_node = *head;
-    if (current_node == NULL)
-    {
-        return NULL;
-    }
-    if ((tail != NULL) && (*tail == current_node))
-    {
-        *tail = NULL;
-    }
-    T* node_to_remove = *head;
-    *head = node_to_remove->next;
-    return node_to_remove;
-}
-
-template <typename T>
 void nlListAddEnd(T** head, T** tail, T* node)
 {
     node->next = NULL;
@@ -155,6 +139,24 @@ void nlListAddEnd(T** head, T** tail, T* node)
     }
     *tail = node;
     *head = node;
+}
+
+template <typename T>
+T* nlListRemoveStart(T** head, T** tail)
+{
+    FORCE_DONT_INLINE;
+    T* current_node = *head;
+    if (current_node == NULL)
+    {
+        return NULL;
+    }
+    if ((tail != NULL) && (*tail == current_node))
+    {
+        *tail = NULL;
+    }
+    T* node_to_remove = *head;
+    *head = node_to_remove->next;
+    return node_to_remove;
 }
 
 template <typename T>
