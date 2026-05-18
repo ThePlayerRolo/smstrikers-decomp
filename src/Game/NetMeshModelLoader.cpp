@@ -642,7 +642,7 @@ void NetMeshModelLoader::ProcessEdges(const glModelPacket& packet, int maxVertex
 
 /**
  * Offset/Address/Size: 0x0 | 0x80130158 | size: 0x780
- * TODO: 97.91% match - register allocation still differs in iterator/counter
+ * TODO: 98.83% match - register allocation still differs in iterator/counter
  * locals across the AVL traversals and vertex writeback block.
  */
 void NetMeshModelLoader::CreateNetMeshFromVertexList()
@@ -836,6 +836,7 @@ void NetMeshModelLoader::CreateNetMeshFromVertexList()
         pNetMesh->m_v3Position[particle] = position;
         pNetMesh->m_v3Normal[particle] = normal;
         pNetMesh->m_v2TextureCoords[particle] = shortCoord;
+        particle = pNetMesh->m_NumParticles;
         pNetMesh->m_NumParticles = particle + 1;
 
         if (vertex->mbIsConstrained != 0)

@@ -273,10 +273,21 @@ static void DrawIndicator(int xCentre, int yCentre, float fPixelWidth, float fPi
         poly.SetupRotatedRectangle((float)xCentre, (float)yCentre, fPixelWidth, fPixelHeight, rotationAngle, 10000000000.0f);
 
         c = cInit;
-        c.c[0] = 0xFF;
-        c.c[1] = 0xFF;
-        c.c[2] = 0xFF;
-        c.c[3] = (unsigned char)(255.0f * fOpacity);
+        if (additiveBlending == 2)
+        {
+            unsigned char intensity = (unsigned char)(255.0f * fOpacity);
+            c.c[0] = intensity;
+            c.c[1] = intensity;
+            c.c[2] = intensity;
+            c.c[3] = 0xFF;
+        }
+        else
+        {
+            c.c[0] = 0xFF;
+            c.c[1] = 0xFF;
+            c.c[2] = 0xFF;
+            c.c[3] = (unsigned char)(255.0f * fOpacity);
+        }
         poly.SetColour(c);
 
         poly.depth = -0.5f;

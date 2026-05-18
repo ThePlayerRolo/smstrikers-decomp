@@ -551,17 +551,9 @@ void Presentation::Update(float deltaT)
                     }
                 }
 
-                bool duringEndPresentation = false;
-                if (nlStrCmp<char>("ImplGameEnd", mCurrentFunction) == 0
-                    || nlStrCmp<char>("GameEndNoSuddenDeath", mCurrentFunction) == 0
-                    || nlStrCmp<char>("GoalSuddenDeath", mCurrentFunction) == 0
-                    || nlStrCmp<char>("PlayHighlight", mCurrentFunction) == 0
-                    || nlStrCmp<char>("PlayCupThrophy", mCurrentFunction) == 0)
-                {
-                    duringEndPresentation = true;
-                }
+                bool duringEndPresentation = DuringEndOfGamePresentation();
 
-                if (duringEndPresentation && mTimeInFunction >= 1.2f)
+                if (duringEndPresentation & (mTimeInFunction >= 1.2f))
                 {
                     pressedSkip = false;
                 }
@@ -610,17 +602,7 @@ void Presentation::Update(float deltaT)
             mUseInterruptWipe = mInterruptWipe;
             mInterruptWipe = 0;
 
-            bool duringEndPresentation = false;
-            if (nlStrCmp<char>("ImplGameEnd", mCurrentFunction) == 0
-                || nlStrCmp<char>("GameEndNoSuddenDeath", mCurrentFunction) == 0
-                || nlStrCmp<char>("GoalSuddenDeath", mCurrentFunction) == 0
-                || nlStrCmp<char>("PlayHighlight", mCurrentFunction) == 0
-                || nlStrCmp<char>("PlayCupThrophy", mCurrentFunction) == 0)
-            {
-                duringEndPresentation = true;
-            }
-
-            if (duringEndPresentation)
+            if (DuringEndOfGamePresentation())
             {
                 mTimeInFunction = 0.0f;
             }
@@ -673,7 +655,13 @@ void Presentation::Update(float deltaT)
         }
     }
 
+    bool pauseOverlay = false;
     if (!m_bGameOver__8FrontEnd && nlTaskManager::m_pInstance->m_CurrState == 1)
+    {
+        pauseOverlay = true;
+    }
+
+    if (pauseOverlay)
     {
         return;
     }

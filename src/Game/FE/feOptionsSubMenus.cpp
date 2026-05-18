@@ -29,6 +29,7 @@ void TempDisableSound();
 
 static const char* MAIN_MENU_SLIDE = "Slide1";
 static const char* VISUAL_MENU_SLIDE = "Slide6";
+static const char* GAMEPLAY_MENU_SLIDE = "Slide3";
 static const char* SAVE_LOAD_SLIDE = "Slide_SaveLoad";
 static const char* CHEATS_MENU_SLIDE = "Slide5";
 static char* MENU_ITEMS_OSL[] = { "Item_Save", "Item_Load" };
@@ -483,8 +484,8 @@ void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstanc
 
 /**
  * Offset/Address/Size: 0xEE0 | 0x800B5F24 | size: 0x850
- * TODO: 74.19% match - constructor prologue register/stack layout differs and
- * hash temporary setup around FEFinder calls still mismatches.
+ * TODO: 93.49% match - constructor prologue register/stack layout differs and
+ * FEFinder hash temporary stack placement still mismatches.
  */
 OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, ButtonComponent::ButtonState buttonstate, GameplaySettings& settings, int skilltoskip)
     : mSettings(settings)
@@ -510,7 +511,7 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
     mSlideMenuLists[6] = NULL;
     mSlideMenuLists[7] = NULL;
 
-    presentation->SetActiveSlide("Slide3");
+    presentation->SetActiveSlide(GAMEPLAY_MENU_SLIDE);
     presentation->Update(0.0f);
 
     SetButtonState(buttonstate);
@@ -520,9 +521,6 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
     }
 
     TLSlide* currentSlide = presentation->m_currentSlide;
-    void (*openItem)(TLComponentInstance*) = SingleHighlite::OpenItem;
-    void (*closeItem)(TLComponentInstance*) = SingleHighlite::CloseItem;
-
     for (i = 0; i < 6; i++)
     {
         nlSNPrintf(menuname, 64, "MENU ITEM%d", i + 1);
@@ -537,32 +535,33 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
             InlineHasher(0));
 
         MenuItem<TLComponentInstance>* menuItem = &mMenuItems.mMenuItems[mMenuItems.mNumItemsAdded];
-        menuItem->mType = (TLComponentInstance*)instance;
+        TLComponentInstance* componentinstance = (TLComponentInstance*)instance;
+        menuItem->mType = componentinstance;
         mMenuItems.mNumItemsAdded++;
 
         {
             Function<FnTLComponentInstanceCb> openFunc;
             openFunc.mTag = FREE_FUNCTION;
-            openFunc.mFreeFunction = openItem;
+            openFunc.mFreeFunction = SingleHighlite::OpenItem;
             menuItem->mCallbacks[1] = openFunc;
         }
 
         {
             Function<FnTLComponentInstanceCb> closeFunc;
             closeFunc.mTag = FREE_FUNCTION;
-            closeFunc.mFreeFunction = closeItem;
+            closeFunc.mFreeFunction = SingleHighlite::CloseItem;
             menuItem->mCallbacks[2] = closeFunc;
         }
 
         if (i == 0)
         {
             SingleHighlite::TempDisableSound();
-            menuItem->mCallbacks[1](menuItem->mType);
+            menuItem->mCallbacks[1](componentinstance);
             menuItem->mDisabled = false;
         }
         else
         {
-            CloseItem(menuItem->mType);
+            CloseItem(componentinstance);
         }
 
         mSlideMenuLists[i] = NULL;
@@ -578,7 +577,7 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    BuildSkillLevelMenu(compinstance, mSettings.SkillLevel, skilltoskip);
+    BuildSkillLevelMenu(compinstance, settings.SkillLevel, skilltoskip);
 
     compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,
@@ -590,7 +589,7 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
         InlineHasher(0));
 
     gtindex = 0;
-    switch (mSettings.GameTime)
+    switch (settings.GameTime)
     {
     case 120:
         gtindex = 0;
@@ -621,7 +620,7 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    BuildSubMenuList(2, compinstance, true, mSettings.PowerUps ? 0 : 1);
+    BuildSubMenuList(2, compinstance, true, settings.PowerUps ? 0 : 1);
 
     compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,
@@ -631,7 +630,7 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    BuildSubMenuList(3, compinstance, true, mSettings.Shoot2Score ? 0 : 1);
+    BuildSubMenuList(3, compinstance, true, settings.Shoot2Score ? 0 : 1);
 
     compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,
@@ -641,7 +640,7 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    BuildSubMenuList(4, compinstance, true, mSettings.RumbleEnabled ? 0 : 1);
+    BuildSubMenuList(4, compinstance, true, settings.RumbleEnabled ? 0 : 1);
 
     compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,
@@ -651,7 +650,7 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    BuildSubMenuList(5, compinstance, true, mSettings.BowserAttackEnabled ? 0 : 1);
+    BuildSubMenuList(5, compinstance, true, settings.BowserAttackEnabled ? 0 : 1);
 
     SlideMenuList* slideMenuList = (SlideMenuList*)mSlideMenuLists[mMenuItems.mCurrentIndex];
     if (slideMenuList != NULL)
@@ -827,12 +826,20 @@ static char* MENU_ITEMS_VISUAL[] = {
  * Offset/Address/Size: 0x19E0 | 0x800B6A24 | size: 0x6E8
  */
 OptionsVisualMenuV2::OptionsVisualMenuV2(FEPresentation* pres, ButtonComponent::ButtonState btnState, VisualSettings& settings)
-    : mSettings(settings)
+    : mSettings((m_pres = pres,
+          m_buttons = NULL,
+          m_currentButtonState = btnState,
+          mSettingsCRC = 0,
+          mSlideMenuLists[0] = NULL,
+          mSlideMenuLists[1] = NULL,
+          mSlideMenuLists[2] = NULL,
+          mSlideMenuLists[3] = NULL,
+          mSlideMenuLists[4] = NULL,
+          mSlideMenuLists[5] = NULL,
+          mSlideMenuLists[6] = NULL,
+          mSlideMenuLists[7] = NULL,
+          settings))
 {
-    int i;
-    TLInstance* instance;
-    TLComponentInstance* compinstance;
-
     if (nlTaskManager::m_pInstance->m_CurrState == 1)
     {
         pres->SetActiveSlide("Slide2");
@@ -855,9 +862,9 @@ OptionsVisualMenuV2::OptionsVisualMenuV2(FEPresentation* pres, ButtonComponent::
     void (*closeItem)(TLComponentInstance*) = SingleHighlite::CloseItem;
     char** menuItems = MENU_ITEMS_VISUAL;
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        instance = FEFinder<TLInstance, 4>::Find<TLSlide>(
+        TLInstance* instance = FEFinder<TLInstance, 4>::Find<TLSlide>(
             currentSlide,
             InlineHasher(nlStringLowerHash("Layer")),
             InlineHasher(nlStringLowerHash(*menuItems)),
@@ -899,6 +906,8 @@ OptionsVisualMenuV2::OptionsVisualMenuV2(FEPresentation* pres, ButtonComponent::
     }
 
     mMenuItems.mFlags = 3;
+
+    TLComponentInstance* compinstance;
 
     compinstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         currentSlide,
@@ -989,12 +998,13 @@ OptionsVisualMenuV2::OptionsVisualMenuV2(FEPresentation* pres, ButtonComponent::
 
 /**
  * Offset/Address/Size: 0x20C8 | 0x800B710C | size: 0xA3C
- * TODO: 87.69% match - register usage differs in slide traversal/callback paths
- * and left/right submenu callback field access still emits different offsets.
+ * TODO: 91.53% match - remaining diffs are register assignment drift in
+ * menu traversal/callback paths and unresolved string-label references.
  */
 void OptionsAudioMenuV2::Update(float)
 {
-    int ischaractervol = (mMenuItems.mCurrentIndex == 2);
+    bool ischaractervol = (mMenuItems.mCurrentIndex == 2);
+    FEAudio* audio = (FEAudio*)this;
     mButtons.CentreButtons();
 
     if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0xD, true, NULL))
@@ -1281,12 +1291,13 @@ void OptionsAudioMenuV2::Update(float)
                     }
                 }
 
-                slideMenuList->mMenuItems[oldIndex].mCallbacks[2](slideMenuList->mMenuItems[oldIndex].mType);
+                MenuItem<SlideMenuItem>* oldSlideItem = &slideMenuList->mMenuItems[oldIndex];
+                oldSlideItem->mCallbacks[2](oldSlideItem->mType);
 
                 slideMenuList->mCurrentIndex = newIndex;
 
-                slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mCallbacks[1](
-                    slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mType);
+                MenuItem<SlideMenuItem>* curSlideItem = &slideMenuList->mMenuItems[slideMenuList->mCurrentIndex];
+                curSlideItem->mCallbacks[1](curSlideItem->mType);
 
                 res = RES_OK;
                 break;
@@ -1296,7 +1307,7 @@ void OptionsAudioMenuV2::Update(float)
             {
                 if (ischaractervol)
                 {
-                    ((FEAudio*)this)->PlayRandomVoiceToggleSFX();
+                    audio->PlayRandomVoiceToggleSFX();
                 }
                 else
                 {
@@ -1305,7 +1316,7 @@ void OptionsAudioMenuV2::Update(float)
 
                 if (mMenuItems.mCurrentIndex != 3)
                 {
-                    unsigned char bModeChanged = mbUpdateMode;
+                    bool bModeChanged = mbUpdateMode;
                     mbUpdateMode = false;
                     Save();
                     mbUpdateMode = bModeChanged;
@@ -1375,12 +1386,13 @@ void OptionsAudioMenuV2::Update(float)
                     }
                 }
 
-                slideMenuList->mMenuItems[oldIndex].mCallbacks[2](slideMenuList->mMenuItems[oldIndex].mType);
+                MenuItem<SlideMenuItem>* oldSlideItem = &slideMenuList->mMenuItems[oldIndex];
+                oldSlideItem->mCallbacks[2](oldSlideItem->mType);
 
                 slideMenuList->mCurrentIndex = newIndex;
 
-                slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mCallbacks[1](
-                    slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mType);
+                MenuItem<SlideMenuItem>* curSlideItem = &slideMenuList->mMenuItems[slideMenuList->mCurrentIndex];
+                curSlideItem->mCallbacks[1](curSlideItem->mType);
 
                 res = RES_OK;
                 break;
@@ -1390,7 +1402,7 @@ void OptionsAudioMenuV2::Update(float)
             {
                 if (ischaractervol)
                 {
-                    ((FEAudio*)this)->PlayRandomVoiceToggleSFX();
+                    audio->PlayRandomVoiceToggleSFX();
                 }
                 else
                 {
@@ -1399,7 +1411,7 @@ void OptionsAudioMenuV2::Update(float)
 
                 if (mMenuItems.mCurrentIndex != 3)
                 {
-                    unsigned char bModeChanged = mbUpdateMode;
+                    bool bModeChanged = mbUpdateMode;
                     mbUpdateMode = false;
                     Save();
                     mbUpdateMode = bModeChanged;

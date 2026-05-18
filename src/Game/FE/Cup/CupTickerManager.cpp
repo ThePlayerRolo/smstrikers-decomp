@@ -532,10 +532,12 @@ void CupTickerManager_stub()
     typedef BasicString<unsigned short, Detail::TempStringAllocator> WideBasicString;
     typedef WideBasicString (*FmtFn)(const WideBasicString&, const WideBasicString&, const WideBasicString&);
     typedef WideBasicString (*FmtFnPCUs)(const WideBasicString&, const unsigned short* const&, const unsigned short* const&);
+    typedef WideBasicString (*FmtFn4)(const WideBasicString&, const unsigned short* const&, const unsigned short* const&, const unsigned short (&)[16], const unsigned short (&)[16]);
 
     WideBasicString s;
     volatile FmtFn fn = &Format<WideBasicString, WideBasicString, WideBasicString>;
     volatile FmtFnPCUs fn2 = &Format<WideBasicString, const unsigned short*, const unsigned short*>;
+    volatile FmtFn4 fn3 = &Format<WideBasicString, const unsigned short*, const unsigned short*, unsigned short[16], unsigned short[16]>;
     WideBasicString s2 = fn(s, s, s);
 }
 

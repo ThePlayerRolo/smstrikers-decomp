@@ -53,7 +53,7 @@ struct nlAVLTreeIter
     unsigned int m_NumStackEntries;
 };
 
-static const nlColour kLingerColour = { 0xFF, 0xFF, 0xFF, 0xFF };
+static const nlColour kLingerColour = { 0xFF, 0xFF, 0x40, 0xFF };
 
 /**
  * Offset/Address/Size: 0xE38 | 0x801F9758 | size: 0x20
@@ -156,7 +156,6 @@ bool EmissionManager::Shutdown()
 
 /**
  * Offset/Address/Size: 0x930 | 0x801F9250 | size: 0x2EC
- * TODO: 99.97% match - remaining immediate relocation mismatch on linger colour load
  */
 void EmissionManager::Update(float dt)
 {
@@ -222,7 +221,7 @@ void EmissionManager::Update(float dt)
     // Lingerers display
     if (lingerers->m_Root != NULL)
     {
-        nlColour colour = { 0xFF, 0xFF, 0xFF, 0xFF };
+        nlColour colour = { 0xFF, 0xFF, 0x40, 0xFF };
         nlAVLTreeIter* iter;
         int y = 3;
         glFontBegin(false);
@@ -499,6 +498,7 @@ void EmissionManager::Destroy(unsigned long userData, const EffectsGroup* pEffec
 /**
  * Offset/Address/Size: 0x520 | 0x801F8E40 | size: 0x2C
  */
+#pragma dont_inline on
 void EmissionManager::ResetLingerers()
 {
     if (lingerers != nullptr)
@@ -506,6 +506,7 @@ void EmissionManager::ResetLingerers()
         lingerers->DeleteValues();
     }
 }
+#pragma dont_inline reset
 
 /**
  * Offset/Address/Size: 0x4D0 | 0x801F8DF0 | size: 0x50

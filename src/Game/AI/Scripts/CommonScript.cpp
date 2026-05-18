@@ -1724,8 +1724,8 @@ FuzzyVariant Fuzzy::GoodPassTargetFrom(cFielder* TheTargetFielder, cFielder* The
 
 /**
  * Offset/Address/Size: 0x95A0 | 0x80073770 | size: 0xB98
- * TODO: 84.14% match - stack layout/hash scheduling and std::map cache lookup
- *       symbol/inlining differences in the cache path.
+ * TODO: 92.97% match - remaining diffs are register allocation drift in cache
+ *       lookup/add paths and confidence-branch temporaries.
  */
 FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
 {
@@ -1742,24 +1742,23 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
 
     FuzzyVariant fvFielder(TheFielder);
     unsigned long funcAddr = (unsigned long)GetBestHitTarget;
-    unsigned long hash = ((Variant*)&fvFielder)->GetHash() + funcAddr;
+    unsigned long hash = ((Variant*)&fvFielder)->GetHash();
+    hash += funcAddr;
     FuzzyVariant fvFielder2(TheFielder);
 
-    ScriptQuestionCache* cache = ScriptQuestionCache::Instance();
+    ScriptQuestionCache* cache = nlSingleton<ScriptQuestionCache>::s_pInstance;
     cache->mTotalLookups++;
 
-    unsigned char lookupFound = 0;
+    unsigned char lookupFound;
     FuzzyVariant* pValue;
 
     if (g_bScriptQuestionCachingUseSTD)
     {
-        StdMapNode* stdNode;
-        __find(&stdNode, &cache->mQuestionCacheMapSTD, &hash);
-        StdMapNode* stdFound = stdNode;
-        if ((StdMapNodeBase*)stdFound != &((StdMapTree*)&cache->mQuestionCacheMapSTD)->x4)
+        std::map<unsigned long, FuzzyVariant>::iterator stdIt = cache->mQuestionCacheMapSTD.find(hash);
+        if (*(StdMapNodeBase**)&stdIt != &((StdMapTree*)&cache->mQuestionCacheMapSTD)->x4)
         {
             cache->mCacheHits++;
-            bestValue = stdFound->value;
+            bestValue = (*(StdMapNode**)&stdIt)->value;
             lookupFound = 1;
         }
     }
@@ -1842,10 +1841,7 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
 
         float fTrueConfidence = 1.0f - Invincible(theOpponent);
         float fNotFallen = 1.0f - FallenDown(theOpponent);
-        if (fNotFallen < fTrueConfidence)
-        {
-            fTrueConfidence = fNotFallen;
-        }
+        fTrueConfidence = (fNotFallen <= fTrueConfidence) ? fNotFallen : fTrueConfidence;
 
         float fFalseConfidence = 1.0f - fTrueConfidence;
         float fMinVal = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
@@ -1855,8 +1851,7 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
         if (fTrueConfidence > 0.0f)
         {
             SaveConfidence PushDOM(&fConfidence);
-            if (fConfidence > fTrueConfidence)
-                fConfidence = fTrueConfidence;
+            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
             if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                 fConfidence = (float)fConfidence * fBranchRatio;
 
@@ -1864,14 +1859,8 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
             float fReceivingPass = ReceivingPass(theOpponent);
             float fBallOwner = BallOwner((cPlayer*)theOpponent);
 
-            if (fChasingBall > fReceivingPass)
-            {
-                fReceivingPass = fChasingBall;
-            }
-            if (fReceivingPass > fBallOwner)
-            {
-                fBallOwner = fReceivingPass;
-            }
+            fReceivingPass = (fReceivingPass >= fChasingBall) ? fReceivingPass : fChasingBall;
+            fBallOwner = (fBallOwner >= fReceivingPass) ? fBallOwner : fReceivingPass;
 
             fTrueConfidence = 1.0f - fBallOwner;
             fFalseConfidence = 1.0f - fTrueConfidence;
@@ -1882,8 +1871,7 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
             if (fTrueConfidence > 0.0f)
             {
                 SaveConfidence PushDOM2(&fConfidence);
-                if (fConfidence > fTrueConfidence)
-                    fConfidence = fTrueConfidence;
+                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
                 if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                     fConfidence = (float)fConfidence * fBranchRatio2;
 
@@ -1896,8 +1884,7 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
                 if (fTrueConfidence2 > 0.0f)
                 {
                     SaveConfidence PushDOM3(&fConfidence);
-                    if (fConfidence > fTrueConfidence2)
-                        fConfidence = fTrueConfidence2;
+                    fConfidence = (fConfidence <= fTrueConfidence2) ? fConfidence : fTrueConfidence2;
                     if (fConfidence < fTrueConfidence2 && fTrueConfidence2 < 0.5f)
                         fConfidence = (float)fConfidence * fBranchRatio2;
                     if (fConfidence > fBestConfidence)
@@ -1911,8 +1898,7 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
             if (fTrueConfidence > 0.0f)
             {
                 SaveConfidence PushDOM4(&fConfidence);
-                if (fConfidence > fTrueConfidence)
-                    fConfidence = fTrueConfidence;
+                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
                 if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                     fConfidence = (float)fConfidence * fBranchRatio2;
 
@@ -1927,8 +1913,7 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
                 if (fTrueConfidence3 > 0.0f)
                 {
                     SaveConfidence PushDOM5(&fConfidence);
-                    if (fConfidence > fTrueConfidence3)
-                        fConfidence = fTrueConfidence3;
+                    fConfidence = (fConfidence <= fTrueConfidence3) ? fConfidence : fTrueConfidence3;
                     if (fConfidence < fTrueConfidence3 && fTrueConfidence3 < 0.5f)
                         fConfidence = (float)fConfidence * fBranchRatio3;
                     if (fConfidence > fBestConfidence)
@@ -1962,7 +1947,6 @@ FuzzyVariant Fuzzy::GetBestHitTarget(cFielder* TheFielder)
 
     return bestValue;
 }
-
 /**
  * Offset/Address/Size: 0x8D80 | 0x80072F50 | size: 0x820
  */
@@ -4882,25 +4866,24 @@ FuzzyVariant Fuzzy::InDangerDelayed(cFielder* TheFielder)
     float fBestConfidence = 0.0f;
 
     FuzzyVariant fvFielder((cPlayer*)TheFielder);
-    unsigned long hash = (unsigned long)InDangerDelayed + ((Variant*)&fvFielder)->GetHash();
+    unsigned long funcAddr = (unsigned long)InDangerDelayed;
+    unsigned long hash = ((Variant*)&fvFielder)->GetHash();
+    hash += funcAddr;
     FuzzyVariant fvFielder2((cPlayer*)TheFielder);
 
-    ScriptQuestionCache* cache = ScriptQuestionCache::Instance();
+    ScriptQuestionCache* cache = nlSingleton<ScriptQuestionCache>::s_pInstance;
     cache->mTotalLookups++;
 
-    unsigned char lookupFound = 0;
+    unsigned char lookupFound;
     FuzzyVariant* pValue;
 
     if (g_bScriptQuestionCachingUseSTD)
     {
-        StdMapNode* stdNode;
-        __find(&stdNode, &cache->mQuestionCacheMapSTD, &hash);
-
-        StdMapNode* stdFound = stdNode;
-        if ((StdMapNodeBase*)stdFound != &((StdMapTree*)&cache->mQuestionCacheMapSTD)->x4)
+        std::map<unsigned long, FuzzyVariant>::iterator stdIt = cache->mQuestionCacheMapSTD.find(hash);
+        if (*(StdMapNodeBase**)&stdIt != &((StdMapTree*)&cache->mQuestionCacheMapSTD)->x4)
         {
             cache->mCacheHits++;
-            bestValue = stdFound->value;
+            bestValue = (*(StdMapNode**)&stdIt)->value;
             lookupFound = 1;
         }
     }
@@ -4965,8 +4948,8 @@ FuzzyVariant Fuzzy::InDangerDelayed(cFielder* TheFielder)
         {
             if (g_bScriptQuestionCachingUseSTD)
             {
-                FuzzyMapPair* pair = __find_or_insert(&cache->mQuestionCacheMapSTD, &hashCopy1);
-                pair->value = bestValue;
+                std::pair<const unsigned long, FuzzyVariant>& pair = cache->mQuestionCacheMapSTD.tree_.find_or_insert<unsigned long, FuzzyVariant>(hashCopy1);
+                pair.second = bestValue;
             }
             else
             {
@@ -4984,10 +4967,11 @@ FuzzyVariant Fuzzy::InDangerDelayed(cFielder* TheFielder)
 
     float fTrueConfidence = AvoidingPowerups(TheFielder);
     float fOther = StuckOnSidelines(TheFielder);
-    if (fTrueConfidence < fOther)
+    if (fOther < fTrueConfidence)
     {
-        fTrueConfidence = fOther;
+        fOther = fTrueConfidence;
     }
+    fTrueConfidence = fOther;
 
     float fFalseConfidence = 1.0f - fTrueConfidence;
     float fMinVal = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
@@ -5002,7 +4986,8 @@ FuzzyVariant Fuzzy::InDangerDelayed(cFielder* TheFielder)
 
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
         {
-            fConfidence = (float)fConfidence * fBranchRatio;
+            double d = fConfidence;
+            fConfidence = (float)d * fBranchRatio;
         }
 
         if (fConfidence > 0.0f)
@@ -5021,7 +5006,8 @@ FuzzyVariant Fuzzy::InDangerDelayed(cFielder* TheFielder)
 
         if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
         {
-            fConfidence = (float)fConfidence * fBranchRatio;
+            double d = fConfidence;
+            fConfidence = (float)d * fBranchRatio;
         }
 
         fTrueConfidence = FGREATER(1.0f - Open(TheFielder), 0.2f);
@@ -5045,13 +5031,15 @@ FuzzyVariant Fuzzy::InDangerDelayed(cFielder* TheFielder)
 
             if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             {
-                fConfidence = (float)fConfidence * fBranchRatio;
+                double d = fConfidence;
+                fConfidence = (float)d * fBranchRatio;
             }
-
+            static nlVector2 g_vInDangerDelayedMin = { 0.8f, 0.2f };
+            static nlVector2 g_vInDangerDelayedMax = { 1.0f, 1.0f };
             SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-            float fMin = Interpolate(0.8f, 0.2f, pSkillTweaks->Off_Reaction);
+            float fMin = Interpolate(g_vInDangerDelayedMin.f.x, g_vInDangerDelayedMin.f.y, pSkillTweaks->Off_Reaction);
             pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-            float fMax = Interpolate(1.0f, 1.0f, pSkillTweaks->Off_Reaction);
+            float fMax = Interpolate(g_vInDangerDelayedMax.f.x, g_vInDangerDelayedMax.f.y, pSkillTweaks->Off_Reaction);
 
             cTeam* pTeam = TheFielder ? TheFielder->m_pTeam : NULL;
             if (Difficult(pTeam) == 0.0f)
@@ -5078,8 +5066,8 @@ FuzzyVariant Fuzzy::InDangerDelayed(cFielder* TheFielder)
     {
         if (g_bScriptQuestionCachingUseSTD)
         {
-            FuzzyMapPair* pair = __find_or_insert(&cache->mQuestionCacheMapSTD, &hashCopy2);
-            pair->value = bestValue;
+            std::pair<const unsigned long, FuzzyVariant>& pair = cache->mQuestionCacheMapSTD.tree_.find_or_insert<unsigned long, FuzzyVariant>(hashCopy2);
+            pair.second = bestValue;
         }
         else
         {

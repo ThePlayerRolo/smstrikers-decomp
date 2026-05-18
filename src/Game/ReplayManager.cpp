@@ -50,12 +50,80 @@ void Replayable<0, SaveFrame, RenderSnapshot>(SaveFrame& frame, RenderSnapshot& 
     current.Replay<SaveFrame>(frame);
 }
 
-// /**
-//  * Offset/Address/Size: 0x1A4 | 0x80112AB4 | size: 0x1B8
-//  */
-// void Replay::Play<RenderSnapshot>(float, RenderSnapshot&, RenderSnapshot&, float*) const
-// {
-// }
+#pragma inline_max_size(0)
+#pragma inline_max_total_size(0)
+
+/**
+ * Offset/Address/Size: 0x1A4 | 0x80112AB4 | size: 0x1B8
+ */
+template <typename T>
+void Replay::Play(float time, T& previous, T& current, float* blend) const
+{
+    if (time < BeginTime())
+    {
+        time = BeginTime();
+    }
+    if (time > EndTime())
+    {
+        time = EndTime();
+    }
+
+    int interval;
+    Frame* rhs;
+    Frame* lhs;
+    Frame* tryLhs;
+    LoadFrame previousLoadFrame;
+    LoadFrame currentLoadFrame;
+
+    for (interval = 1; interval <= 3; interval++)
+    {
+        rhs = mReels[mReelIdx].mBegin;
+        while (rhs != NULL)
+        {
+            if (rhs->mInterval == interval && rhs->mTime > time)
+            {
+                lhs = NULL;
+                tryLhs = mReels[mReelIdx].mBegin;
+                while (tryLhs != NULL)
+                {
+                    if (tryLhs->mInterval == interval && tryLhs->mTime <= time)
+                    {
+                        lhs = tryLhs;
+                    }
+                    tryLhs = Next(tryLhs, mReelIdx);
+                }
+
+                if (lhs != NULL && rhs != NULL)
+                {
+                    blend[interval - 1] = (time - lhs->mTime) / (rhs->mTime - lhs->mTime);
+
+                    float aheadOfFrame = time - lhs->mTime;
+                    char* lhsBegin = lhs->mBegin;
+                    previousLoadFrame.mInterval = interval;
+                    previousLoadFrame.mStream.mCount = 0;
+                    previousLoadFrame.mStream.mStorage = lhsBegin;
+                    previousLoadFrame.mReplayNonBlendables = REPLAY_NON_BLENDABLES;
+                    previousLoadFrame.mNonBlendableAheadOfFrame = aheadOfFrame;
+                    Replayable<0>(previousLoadFrame, previous);
+
+                    char* rhsBegin = rhs->mBegin;
+                    currentLoadFrame.mInterval = interval;
+                    currentLoadFrame.mStream.mCount = 0;
+                    currentLoadFrame.mStream.mStorage = rhsBegin;
+                    currentLoadFrame.mReplayNonBlendables = DO_NOT_REPLAY_NON_BLENDABLES;
+                    currentLoadFrame.mNonBlendableAheadOfFrame = 0.0f;
+                    Replayable<0>(currentLoadFrame, current);
+
+                    break;
+                }
+            }
+            rhs = Next(rhs, mReelIdx);
+        }
+    }
+}
+
+#pragma inline_max_size(256)
+#pragma inline_max_total_size(10000)
 
 // /**
 //  * Offset/Address/Size: 0x3C | 0x8011294C | size: 0x168

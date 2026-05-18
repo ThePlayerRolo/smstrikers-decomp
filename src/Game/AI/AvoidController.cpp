@@ -106,7 +106,15 @@ void AvoidController::Update(float)
     m_SidelineUnavoidable = false;
     m_VeryCloseToSideline = false;
 
-    if ((m_ThingsToAvoid & AVOID_SIDELINES) && (Incapacitated(m_pFielder) == 0.0f))
+    bool bCanAvoid = false;
+    if (m_ThingsToAvoid & AVOID_SIDELINES)
+    {
+        if (Incapacitated(m_pFielder) == 0.0f)
+        {
+            bCanAvoid = true;
+        }
+    }
+    if (bCanAvoid)
     {
         AvoidSidelines();
     }
@@ -122,7 +130,18 @@ void AvoidController::Update(float)
         bAverageWithLastRepulsion = false;
     }
 
-    if ((m_ThingsToAvoid & AVOID_FIELDERS) && (Invincible(m_pFielder) == 0.0f) && (Incapacitated(m_pFielder) == 0.0f))
+    bCanAvoid = false;
+    if (m_ThingsToAvoid & AVOID_FIELDERS)
+    {
+        if (Invincible(m_pFielder) == 0.0f)
+        {
+            if (Incapacitated(m_pFielder) == 0.0f)
+            {
+                bCanAvoid = true;
+            }
+        }
+    }
+    if (bCanAvoid)
     {
         nlVector3 v3Repulsion = v3Zero;
         bool bAvoidedSomething = CalcFielderRepulsionVector(v3Repulsion);
@@ -130,9 +149,9 @@ void AvoidController::Update(float)
         if (bAvoidedSomething)
         {
             float fWeight = 1.0f;
-            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
-            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
             vAccumulated_v3.f.z = fWeight * v3Repulsion.f.z + vAccumulated_v3.f.z;
+            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
+            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
             fTotalWeight_v3 += fWeight;
 
             m_CurrentlyAvoiding |= AVOID_FIELDERS;
@@ -145,7 +164,15 @@ void AvoidController::Update(float)
         }
     }
 
-    if ((m_ThingsToAvoid & AVOID_POWERUPS) && (Incapacitated(m_pFielder) == 0.0f))
+    bCanAvoid = false;
+    if (m_ThingsToAvoid & AVOID_POWERUPS)
+    {
+        if (Incapacitated(m_pFielder) == 0.0f)
+        {
+            bCanAvoid = true;
+        }
+    }
+    if (bCanAvoid)
     {
         nlVector3 v3Repulsion = v3Zero;
         bool bAvoidedSomething = CalcPowerupRepulsionVector(v3Repulsion);
@@ -153,9 +180,9 @@ void AvoidController::Update(float)
         if (bAvoidedSomething)
         {
             float fWeight = 1.0f;
-            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
-            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
             vAccumulated_v3.f.z = fWeight * v3Repulsion.f.z + vAccumulated_v3.f.z;
+            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
+            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
             fTotalWeight_v3 += fWeight;
 
             m_CurrentlyAvoiding |= AVOID_POWERUPS;
@@ -168,9 +195,20 @@ void AvoidController::Update(float)
         }
     }
 
-    if ((m_ThingsToAvoid & AVOID_GOALIES) && (Incapacitated(m_pFielder) == 0.0f))
+    bCanAvoid = false;
+    if (m_ThingsToAvoid & AVOID_GOALIES)
+    {
+        if (Incapacitated(m_pFielder) == 0.0f)
+        {
+            bCanAvoid = true;
+        }
+    }
+    if (bCanAvoid)
     {
         nlVector3 v3Repulsion = v3Zero;
+        v3Repulsion.f.x = 0.0f;
+        v3Repulsion.f.y = 0.0f;
+        v3Repulsion.f.z = 0.0f;
         bool bAvoidedSomething = false;
 
         for (int i_team = 0; i_team < 2; i_team++)
@@ -223,35 +261,32 @@ void AvoidController::Update(float)
                 fMagnitude *= 0.3f;
             }
 
-            if (fMagnitude <= 0.0f)
+            if (fMagnitude > 0.0f)
             {
-                continue;
-            }
+                if (!(fMagnitude <= 10.0f))
+                {
+                    fMagnitude = 10.0f;
+                }
 
-            float fContribution = 10.0f;
-            if (fMagnitude <= fContribution)
-            {
-                fContribution = fMagnitude;
+                float fOutY = v3Repulsion.f.y;
+                float fOutX = v3Repulsion.f.x;
+                fOutY = fMagnitude * fDeltaY + fOutY;
+                float fOutZ = v3Repulsion.f.z;
+                fOutX = fMagnitude * fDeltaX + fOutX;
+                fOutZ = fMagnitude * fDeltaZ + fOutZ;
+                v3Repulsion.f.z = fOutZ;
+                v3Repulsion.f.x = fOutX;
+                v3Repulsion.f.y = fOutY;
+                bAvoidedSomething = true;
             }
-
-            float fOutY = v3Repulsion.f.y;
-            float fOutX = v3Repulsion.f.x;
-            fOutY = fContribution * fDeltaY + fOutY;
-            float fOutZ = v3Repulsion.f.z;
-            fOutX = fContribution * fDeltaX + fOutX;
-            fOutZ = fContribution * fDeltaZ + fOutZ;
-            v3Repulsion.f.x = fOutX;
-            v3Repulsion.f.y = fOutY;
-            v3Repulsion.f.z = fOutZ;
-            bAvoidedSomething = true;
         }
 
         if (bAvoidedSomething)
         {
             float fWeight = 1.0f;
-            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
-            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
             vAccumulated_v3.f.z = fWeight * v3Repulsion.f.z + vAccumulated_v3.f.z;
+            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
+            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
             fTotalWeight_v3 += fWeight;
 
             m_CurrentlyAvoiding |= AVOID_GOALIES;
@@ -264,7 +299,15 @@ void AvoidController::Update(float)
         }
     }
 
-    if ((m_ThingsToAvoid & AVOID_BOWSER) && (Incapacitated(m_pFielder) == 0.0f))
+    bCanAvoid = false;
+    if (m_ThingsToAvoid & AVOID_BOWSER)
+    {
+        if (Incapacitated(m_pFielder) == 0.0f)
+        {
+            bCanAvoid = true;
+        }
+    }
+    if (bCanAvoid)
     {
         nlVector3 v3Repulsion = v3Zero;
         bool bAvoidedSomething = false;
@@ -307,21 +350,20 @@ void AvoidController::Update(float)
 
                 if (fMagnitude > 0.0f)
                 {
-                    float fContribution = 10.0f;
-                    if (fMagnitude <= fContribution)
+                    if (!(fMagnitude <= 10.0f))
                     {
-                        fContribution = fMagnitude;
+                        fMagnitude = 10.0f;
                     }
 
                     float fOutY = v3Repulsion.f.y;
                     float fOutX = v3Repulsion.f.x;
-                    fOutY = fContribution * fDeltaY + fOutY;
+                    fOutY = fMagnitude * fDeltaY + fOutY;
                     float fOutZ = v3Repulsion.f.z;
-                    fOutX = fContribution * fDeltaX + fOutX;
-                    fOutZ = fContribution * fDeltaZ + fOutZ;
+                    fOutX = fMagnitude * fDeltaX + fOutX;
+                    fOutZ = fMagnitude * fDeltaZ + fOutZ;
+                    v3Repulsion.f.z = fOutZ;
                     v3Repulsion.f.x = fOutX;
                     v3Repulsion.f.y = fOutY;
-                    v3Repulsion.f.z = fOutZ;
 
                     bAvoidedSomething = true;
                 }
@@ -331,9 +373,9 @@ void AvoidController::Update(float)
         if (bAvoidedSomething)
         {
             float fWeight = 1.0f;
-            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
-            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
             vAccumulated_v3.f.z = fWeight * v3Repulsion.f.z + vAccumulated_v3.f.z;
+            vAccumulated_v3.f.y = fWeight * v3Repulsion.f.y + vAccumulated_v3.f.y;
+            vAccumulated_v3.f.x = fWeight * v3Repulsion.f.x + vAccumulated_v3.f.x;
             fTotalWeight_v3 += fWeight;
 
             m_CurrentlyAvoiding |= AVOID_BOWSER;

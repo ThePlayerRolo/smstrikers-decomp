@@ -290,52 +290,6 @@ void Replayable(FrameType& frame, const T& proxy)
 }
 
 template <>
-inline void Replayable<1, LoadFrame, FloatCompressor<-512, 512, 8> >(LoadFrame& frame, const FloatCompressor<-512, 512, 8>& proxy)
-{
-    if (frame.mInterval == 1)
-    {
-        unsigned int value = 0;
-        if (frame.mInterval == 1)
-        {
-            const char* cursor = frame.mStream.mStorage;
-            unsigned char mid = (unsigned char)cursor[1];
-            unsigned char hi = (unsigned char)cursor[2];
-            unsigned char lo = (unsigned char)cursor[0];
-            unsigned int hiShift = (unsigned int)hi << 16;
-            value = (unsigned int)mid << 8;
-            value |= (unsigned int)lo;
-            frame.mStream.mStorage = cursor + 3;
-            value |= hiShift;
-        }
-        proxy.mF = (float)value / (float)(1 << 8);
-        proxy.mF += (float)-512;
-    }
-}
-
-template <>
-inline void Replayable<1, LoadFrame, FloatCompressor<-128, 128, 8> >(LoadFrame& frame, const FloatCompressor<-128, 128, 8>& proxy)
-{
-    if (frame.mInterval == 1)
-    {
-        unsigned int value = 0;
-        if (frame.mInterval == 1)
-        {
-            const char* cursor = frame.mStream.mStorage;
-            unsigned char mid = (unsigned char)cursor[1];
-            unsigned char hi = (unsigned char)cursor[2];
-            unsigned char lo = (unsigned char)cursor[0];
-            unsigned int hiShift = (unsigned int)hi << 16;
-            value = (unsigned int)mid << 8;
-            value |= (unsigned int)lo;
-            frame.mStream.mStorage = cursor + 3;
-            value |= hiShift;
-        }
-        proxy.mF = (float)value / (float)(1 << 8);
-        proxy.mF += (float)-128;
-    }
-}
-
-template <>
 void Replayable<1, LoadFrame, CrowdManager>(LoadFrame& frame, CrowdManager& manager);
 
 template <>

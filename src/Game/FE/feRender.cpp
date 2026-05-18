@@ -447,7 +447,7 @@ void FERender::RenderComponentInstance(TLComponentInstance* componentInstance)
  * nextInstance r29 vs target r27, child r28 vs target r29, nextChild r27 vs
  * target r30, grandchild r23/r22 swapped. Stack: v3Pos at 0x2c vs target 0x1c,
  * oldChildColour at 0x1c vs target 0x28 (v3Pos and oldChildColour swapped in
- * frame). No opcode or control-flow diffs — purely allocator choices.
+ * frame). No opcode or control-flow diffs -- purely allocator choices.
  * ConvertColour kept as a real call via #pragma inline_depth(0)/() around the
  * TLAT_TEXT call site (call-site-local rather than body-level FDI).
  */

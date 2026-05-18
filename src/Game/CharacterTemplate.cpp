@@ -127,7 +127,7 @@ s32 GetCharacterIndex(const cCharacter* character)
 
 /**
  * Offset/Address/Size: 0x294 | 0x8001257C | size: 0x6C0
- * TODO: 96.47% match - register allocation differences and callback literal-pool/address diffs
+ * TODO: 98.28% match - register allocation differences and callback literal-pool/address diffs
  * across inventory cleanup paths.
  */
 void DestroyCharacters()
@@ -136,27 +136,18 @@ void DestroyCharacters()
     typedef ListContainerBase<char*, NewAdapter<ListEntry<char*> > > FileListBase;
     typedef ListContainerBase<AnimRetargetList*, NewAdapter<ListEntry<AnimRetargetList*> > > RetargetListBase;
 
-    int i;
-
-    if (g_pAnimScriptInterp != NULL)
-    {
-        delete g_pAnimScriptInterp;
-    }
+    delete g_pAnimScriptInterp;
     g_pAnimScriptInterp = NULL;
 
-    cCharacter** pCharacter = g_pCharacters;
-    for (i = 0; i < 10; i++, pCharacter++)
+    for (s32 charIndex = 0; charIndex < 10; charIndex++)
     {
-        if (*pCharacter != NULL)
-        {
-            delete *pCharacter;
-        }
-        *pCharacter = NULL;
+        delete g_pCharacters[charIndex];
+        g_pCharacters[charIndex] = NULL;
     }
 
-    tCharacterTemplate** ppCharacterTemplate = g_aCharacterTemplates;
-    for (i = 0; i < 13; i++, ppCharacterTemplate++)
+    for (int i = 0; i < 13; i++)
     {
+        tCharacterTemplate** ppCharacterTemplate = &g_aCharacterTemplates[i];
         if (*ppCharacterTemplate != NULL)
         {
             cInventory<cSHierarchy>* pHierInv = (*ppCharacterTemplate)->pHierarchyInventory;
@@ -199,10 +190,7 @@ void DestroyCharacters()
                 __dt__14cAnimInventoryFv((*ppCharacterTemplate)->pAnimInventory, 1);
             }
 
-            if ((*ppCharacterTemplate)->pPhysicsData != NULL)
-            {
-                delete (*ppCharacterTemplate)->pPhysicsData;
-            }
+            delete (*ppCharacterTemplate)->pPhysicsData;
 
             cInventory<AnimRetargetList>* pRetInv = (*ppCharacterTemplate)->pAnimRetargetListInventory;
             if (pRetInv != NULL)
@@ -286,10 +274,7 @@ void DestroyCharacters()
             __dt__14cAnimInventoryFv(g_GoalieTemplate->pAnimInventory, 1);
         }
 
-        if (g_GoalieTemplate->pPhysicsData != NULL)
-        {
-            delete g_GoalieTemplate->pPhysicsData;
-        }
+        delete g_GoalieTemplate->pPhysicsData;
 
         cInventory<AnimRetargetList>* pRetInv = g_GoalieTemplate->pAnimRetargetListInventory;
         if (pRetInv != NULL)

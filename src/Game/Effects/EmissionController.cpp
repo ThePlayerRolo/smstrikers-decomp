@@ -231,6 +231,24 @@ EmissionController::~EmissionController()
     {
         numLingeringSystems--;
     }
+
+    if (&mFinishedCallback)
+    {
+        if (mFinishedCallback.mTag == FUNCTOR)
+        {
+            delete mFinishedCallback.mFunctor;
+        }
+        mFinishedCallback.mTag = EMPTY;
+    }
+
+    if (&mUpdateCallback)
+    {
+        if (mUpdateCallback.mTag == FUNCTOR)
+        {
+            delete mUpdateCallback.mFunctor;
+        }
+        mUpdateCallback.mTag = EMPTY;
+    }
 }
 
 /**

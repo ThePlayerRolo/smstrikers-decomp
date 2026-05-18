@@ -23,8 +23,35 @@ public:
     void UpdateUntilRelaxed();
 };
 
-template <typename StringType, typename Arg0, typename Arg1, typename Arg2, typename Arg3>
-void Format(StringType&, const StringType&, const Arg0&, const Arg1&, const Arg2&, const Arg3&);
+template <typename StringType>
+class FormatImpl
+{
+public:
+    StringType mString;
+    int mCurrentPos;
+
+    FormatImpl()
+        : mCurrentPos(0)
+    {
+    }
+
+    FormatImpl(BasicStringData<char>* data)
+        : mString(data)
+        , mCurrentPos(0)
+    {
+    }
+
+    operator StringType() const
+    {
+        return mString;
+    }
+
+    template <typename T>
+    FormatImpl& operator%(const T& t);
+};
+
+template <typename StringType, typename T1, typename T2, typename T3, typename T4>
+inline StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3, const T4& value4);
 
 unsigned int nlRandom(unsigned int range, unsigned int* seed);
 extern unsigned int nlDefaultSeed;
@@ -55,12 +82,33 @@ extern "C" void CalcAutoReplayScriptName__12ReplayChoreoCF10ReplayType(BasicStri
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x0 | 0x80128B74 | size: 0x150
-//  */
-// void Format<BasicString<char, Detail::TempStringAllocator>, const char*, const char*, const char*, int>(const BasicString<char, Detail::TempStringAllocator>&, const char* const&, const char* const&, const char* const&, const int&)
-// {
-// }
+/**
+ * Offset/Address/Size: 0x0 | 0x80128B74 | size: 0x150
+ */
+template <>
+inline BasicString<char, Detail::TempStringAllocator>
+Format<BasicString<char, Detail::TempStringAllocator>, const char*, const char*, const char*, int>(
+    const BasicString<char, Detail::TempStringAllocator>& format,
+    const char* const& value1,
+    const char* const& value2,
+    const char* const& value3,
+    const int& value4)
+{
+    BasicStringData<char>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImpl<BasicString<char, Detail::TempStringAllocator> > impl(data);
+
+    return BasicString<char, Detail::TempStringAllocator>(
+        (BasicString<char, Detail::TempStringAllocator>)((((impl % value1) % value2) % value3) % value4));
+}
 
 ReplayChoreo& ReplayChoreo::Instance()
 {
@@ -302,7 +350,7 @@ void ReplayChoreo::LoadScript()
 
                         BasicString<char, Detail::TempStringAllocator> temp;
                         void* nameData;
-                        Format(temp,
+                        temp = Format<BasicString<char, Detail::TempStringAllocator>, const char*, const char*, const char*, int>(
                             format,
                             zoneDepthNames[d],
                             zoneInWidthNames[w],
@@ -547,7 +595,8 @@ extern "C" void CalcAutoReplayScriptName__12ReplayChoreoCF10ReplayType(
     {
         pick = cameraPick % __this->mNumScripts[zoneDepth][zoneInWidth][goalType];
     }
-    Format(*__return, format, zoneDepthNames[zoneDepth], zoneInWidthNames[zoneInWidth], replayTypeNames[goalType], pick);
+    *__return = Format<BasicString<char, Detail::TempStringAllocator>, const char*, const char*, const char*, int>(
+        format, zoneDepthNames[zoneDepth], zoneInWidthNames[zoneInWidth], replayTypeNames[goalType], pick);
 }
 
 /**

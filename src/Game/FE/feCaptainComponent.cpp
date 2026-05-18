@@ -117,14 +117,7 @@ void IChooseCaptain::ComponentState::GotoNextPhase()
         captaingrid->RebindHighliteComponent("HIGHLIGHT");
         captaingrid->mHighliteComponent->m_bVisible = false;
 
-        {
-            const char* eventName = "sfx_character_group_right_exit";
-            if (mHomeAway == 0)
-            {
-                eventName = "sfx_character_group_left_exit";
-            }
-            FEAudio::PlayAnimAudioEvent(eventName, false);
-        }
+        FEAudio::PlayAnimAudioEvent((mHomeAway == 0) ? "sfx_character_group_left_exit" : "sfx_character_group_right_exit", false);
 
         mParent->mHomeAwayTeam[mHomeAway] = captaingrid->GetSelectedItem();
 
@@ -148,14 +141,7 @@ void IChooseCaptain::ComponentState::GotoNextPhase()
             sidekickgrid->mParentComponent->m_bVisible = true;
             mCurrentPhase = PHASE_CHOOSING_SIDEKICK;
 
-            {
-                const char* eventName = "sfx_character_group_right_enter";
-                if (mHomeAway == 0)
-                {
-                    eventName = "sfx_character_group_left_enter";
-                }
-                FEAudio::PlayAnimAudioEvent(eventName, false);
-            }
+            FEAudio::PlayAnimAudioEvent((mHomeAway == 0) ? "sfx_character_group_left_enter" : "sfx_character_group_right_enter", false);
 
             mParent->mNameComponents[mHomeAway].mComponent->SetActiveSlide("Slide2");
             mParent->mNameComponents[mHomeAway].mComponent->Update(0.0f);
@@ -202,14 +188,7 @@ void IChooseCaptain::ComponentState::GotoNextPhase()
         sidekickgrid2->RebindHighliteComponent("HIGHLIGHT");
         sidekickgrid2->mHighliteComponent->m_bVisible = false;
 
-        {
-            const char* eventName = "sfx_character_group_right_exit";
-            if (mHomeAway == 0)
-            {
-                eventName = "sfx_character_group_left_exit";
-            }
-            FEAudio::PlayAnimAudioEvent(eventName, false);
-        }
+        FEAudio::PlayAnimAudioEvent((mHomeAway == 0) ? "sfx_character_group_left_exit" : "sfx_character_group_right_exit", false);
 
         if (g_e3_Build)
         {

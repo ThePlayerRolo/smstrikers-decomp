@@ -95,6 +95,9 @@ inline StringType Format(const StringType& format, const T1& value1, const T2& v
 template <typename StringType, typename T1, typename T2, typename T3>
 inline StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3);
 
+template <typename StringType, typename T1, typename T2, typename T3, typename T4>
+inline StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3, const T4& value4);
+
 template <typename StringType, typename T1, typename T2, typename T3, typename T4, typename T5>
 inline StringType Format(const StringType& format, const T1& value1, const T2& value2, const T3& value3, const T4& value4, const T5& value5);
 
@@ -212,6 +215,37 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>, const unsigned 
 
     return BasicString<unsigned short, Detail::TempStringAllocator>(
         (BasicString<unsigned short, Detail::TempStringAllocator>)((((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % value1) % value2));
+}
+
+/**
+ * Offset/Address/Size: 0x0 | 0x800F414C | size: 0x140
+ * TODO: 98.62% match - return copy path stores null/data via r4 instead of
+ * stack reload into r0 (same systemic issue as all Format specializations).
+ */
+template <>
+inline BasicString<unsigned short, Detail::TempStringAllocator>
+Format<BasicString<unsigned short, Detail::TempStringAllocator>,
+    const unsigned short*, const unsigned short*, unsigned short[16], unsigned short[16]>(
+    const BasicString<unsigned short, Detail::TempStringAllocator>& format,
+    const unsigned short* const& value1,
+    const unsigned short* const& value2,
+    const unsigned short (&value3)[16],
+    const unsigned short (&value4)[16])
+{
+    BasicStringData<unsigned short>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImplLayoutWideTemp impl(data);
+
+    return BasicString<unsigned short, Detail::TempStringAllocator>(
+        (BasicString<unsigned short, Detail::TempStringAllocator>)((((((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % value1) % value2) % (const unsigned short*)value3) % (const unsigned short*)value4));
 }
 
 /**

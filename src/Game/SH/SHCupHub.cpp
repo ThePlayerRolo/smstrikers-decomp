@@ -3700,7 +3700,7 @@ s32 CupHubScene::UpdateKnockout4(float fDeltaT)
 /**
  * Offset/Address/Size: 0x1F6C | 0x800EBCC8 | size: 0x694
  */
-void CupHubScene::UpdateKnockout2(float fDeltaT)
+unsigned char CupHubScene::UpdateKnockout2(float fDeltaT)
 {
     typedef TLComponentInstance* (*FindCompByValue)(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher);
     typedef TLComponentInstance* (*FindCompByRef)(TLSlide*, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&);
@@ -3720,13 +3720,13 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
         if (mSlideSwitchDelay <= 0.0f)
             FEAudio::PlayAnimAudioEvent("sfx_hub_knockout_elimination", false);
 
-        return;
+        return 0;
     }
 
     mSlideSwitchDelay = 0.0f;
 
     if (pSlide1->m_time < (pSlide1->m_start + pSlide1->m_duration))
-        return;
+        return 0;
 
     BasicGameInfo* pGame;
 
@@ -3796,12 +3796,15 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
             }
 
             gHubKnockoutMovementSoundIsPlaying = true;
-            return;
+            return 0;
         }
+    }
 
+    if (mSuperTeamAnimation)
+    {
         mDoAnimations = false;
         mKnockoutLoserAnimations = false;
-        return;
+        return 0;
     }
 
     mDoAnimations = false;
@@ -3885,9 +3888,10 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
         (InlineHasher&)h3,
         (InlineHasher&)h1);
 
-    eTeamID winnerTeam = pGame->mTeamIndex[mAnimatingKnockoutTeams[0]];
-    unsigned long locHash = nlStringLowerHash("STANDINGS_WINNER");
     nlLocalization* loc = g_pLocalization;
+    s16 winnerIndex = (s16)mAnimatingKnockoutTeams[0];
+    eTeamID winnerTeam = pGame->mTeamIndex[winnerIndex];
+    unsigned long locHash = nlStringLowerHash("STANDINGS_WINNER");
     const unsigned short* locString;
 
     if (loc->m_LookupTable == 0)
@@ -3897,14 +3901,7 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
     else
     {
         nlLocalization::StringLookup* entry = nlBSearch(locHash, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
-        if (entry != 0)
-        {
-            locString = loc->m_FirstString + entry->StringOffset;
-        }
-        else
-        {
-            locString = MissingLocString;
-        }
+        locString = (entry != 0) ? (loc->m_FirstString + entry->StringOffset) : MissingLocString;
     }
 
     BasicStringData<unsigned short>* data = (BasicStringData<unsigned short>*)nlMalloc(0x10, 8, true);
@@ -3925,13 +3922,11 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
         data->mCapacity = data->mSize;
 
         int i = 0;
-        int j = i;
         while (i < data->mSize)
         {
-            *(unsigned short*)((char*)data->mData + j) = *locString;
+            data->mData[i] = *locString;
             i++;
             locString++;
-            j += 2;
         }
 
         data->mRefCount = 1;
@@ -3948,14 +3943,7 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
     else
     {
         nlLocalization::StringLookup* entry = nlBSearch(charHash, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
-        if (entry != 0)
-        {
-            charName = loc->m_FirstString + entry->StringOffset;
-        }
-        else
-        {
-            charName = MissingLocString;
-        }
+        charName = (entry != 0) ? (loc->m_FirstString + entry->StringOffset) : MissingLocString;
     }
 
     BasicString<unsigned short, Detail::TempStringAllocator> winnerString = Format(BasicString<unsigned short, Detail::TempStringAllocator>(data), charName);
@@ -3972,6 +3960,7 @@ void CupHubScene::UpdateKnockout2(float fDeltaT)
     }
 
     gHubKnockoutMovementSoundIsPlaying = false;
+    return 1;
 }
 
 /**

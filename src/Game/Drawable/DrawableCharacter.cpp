@@ -105,6 +105,9 @@ FloatCompressor<0, 1, 7>::FloatCompressor(float& f)
 template <>
 void ReplayablePolymorphic<1, LoadFrame, cPoseNode>(LoadFrame& frame, cPoseNode*& ptr);
 
+template <>
+void ReplayablePolymorphic<1, SaveFrame, cPoseNode>(SaveFrame& frame, cPoseNode*& ptr);
+
 /**
  * Offset/Address/Size: 0x2C0 | 0x8011C5EC | size: 0x178
  */
@@ -208,6 +211,7 @@ void ReplayablePolymorphic<0, LoadFrame, cPoseNode>(LoadFrame& frame, cPoseNode*
 template <>
 void ReplayablePolymorphic<1, LoadFrame, cPoseNode>(LoadFrame& frame, cPoseNode*& ptr)
 {
+    FORCE_DONT_INLINE;
     frame.ReplayablePolymorphicPtr<1, cPoseNode>(ptr);
 }
 
@@ -1277,6 +1281,7 @@ void Replayable<1, LoadFrame, unsigned short>(LoadFrame& frame, unsigned short& 
 template <>
 void Replayable<1, LoadFrame, unsigned long>(LoadFrame& frame, unsigned long& value)
 {
+    FORCE_DONT_INLINE;
     if (frame.mInterval == 1)
     {
         if (frame.mInterval == 1)
@@ -1302,12 +1307,14 @@ void Replayable<0, LoadFrame, unsigned int>(LoadFrame& frame, unsigned int& valu
 /**
  * Offset/Address/Size: 0x4538 | 0x8011D238 | size: 0x40
  */
+#pragma dont_inline on
 template <>
 void Replayable<0, SaveFrame, unsigned int>(SaveFrame& frame, unsigned int& value)
 {
     memcpy(frame.mStream.mStorage, &value, sizeof(unsigned int));
     frame.mStream.mStorage += sizeof(unsigned int);
 }
+#pragma dont_inline reset
 
 /**
  * Offset/Address/Size: 0x4564 | 0x8011D414 | size: 0x44
@@ -1499,6 +1506,55 @@ void cPN_Blender::Replay<SaveFrame>(SaveFrame& frame)
     FloatCompressor<0, 1, 7> blendProxy(m_fBlendTime);
     blendProxy.Replay(frame);
 }
+
+#pragma dont_inline on
+template <>
+void ReplayablePolymorphic<1, SaveFrame, cPoseNode>(SaveFrame& frame, cPoseNode*& ptr)
+{
+    char typeId;
+    cPoseNode* current = ptr;
+    if (frame.mInterval == 1)
+    {
+        unsigned char notNull = (current != 0);
+        memcpy(frame.mStream.mStorage, &notNull, 1);
+        frame.mStream.mStorage++;
+
+        if (notNull)
+        {
+            typeId = (char)current->GetType();
+            if (typeId < 0 || typeId > 4)
+                nlBreak();
+
+            memcpy(frame.mStream.mStorage, &typeId, 1);
+            frame.mStream.mStorage++;
+
+            Replayable<1>(frame, typeId, current);
+        }
+    }
+}
+
+template <>
+void ReplayablePolymorphic<0, SaveFrame, cPoseNode>(SaveFrame& frame, cPoseNode*& ptr)
+{
+    char typeId;
+    cPoseNode* current = ptr;
+    unsigned char notNull = (current != 0);
+    memcpy(frame.mStream.mStorage, &notNull, 1);
+    frame.mStream.mStorage++;
+
+    if (notNull)
+    {
+        typeId = (char)current->GetType();
+        if (typeId < 0 || typeId > 4)
+            nlBreak();
+
+        memcpy(frame.mStream.mStorage, &typeId, 1);
+        frame.mStream.mStorage++;
+
+        Replayable<0>(frame, typeId, current);
+    }
+}
+#pragma dont_inline reset
 
 #pragma force_active on
 void DrawableCharacter_stub()

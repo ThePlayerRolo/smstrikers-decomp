@@ -1177,7 +1177,7 @@ static unsigned char UpdateReadState(AsyncEntry* pEntry)
                     char message[0x100];
 
                     nStatus = pFile->GetReadStatus();
-                    if ((nStatus >= 0) && (nStatus < 3))
+                    if ((nStatus < 3) && (nStatus >= 0))
                     {
                         break;
                     }
@@ -1247,6 +1247,8 @@ static unsigned char UpdateReadState(AsyncEntry* pEntry)
 
             {
                 u8 loadedSaveState = 0;
+                Function<void(int)>* handleDVDMessageCallback = &g_HandleDVDMessageCallback;
+                Function<FnVoidVoid>* checkForResetCB = &g_CheckForResetCB;
 
                 while (true)
                 {
@@ -1269,11 +1271,11 @@ static unsigned char UpdateReadState(AsyncEntry* pEntry)
 
                             if (g_HandleDVDMessageCallback.mTag == 1)
                             {
-                                g_HandleDVDMessageCallback.mFreeFunction(driveStatus);
+                                handleDVDMessageCallback->mFreeFunction(driveStatus);
                             }
                             else
                             {
-                                (*g_HandleDVDMessageCallback.mFunctor)(driveStatus);
+                                (*handleDVDMessageCallback->mFunctor)(driveStatus);
                             }
 
                             loadedSaveState = 1;
@@ -1286,11 +1288,11 @@ static unsigned char UpdateReadState(AsyncEntry* pEntry)
                                 {
                                     if (g_CheckForResetCB.mTag == 1)
                                     {
-                                        g_CheckForResetCB.mFreeFunction();
+                                        checkForResetCB->mFreeFunction();
                                     }
                                     else
                                     {
-                                        g_CheckForResetCB.mFunctor->operator()();
+                                        checkForResetCB->mFunctor->operator()();
                                     }
                                 }
                             }
@@ -1319,11 +1321,11 @@ static unsigned char UpdateReadState(AsyncEntry* pEntry)
                                     {
                                         if (g_CheckForResetCB.mTag == 1)
                                         {
-                                            g_CheckForResetCB.mFreeFunction();
+                                            checkForResetCB->mFreeFunction();
                                         }
                                         else
                                         {
-                                            g_CheckForResetCB.mFunctor->operator()();
+                                            checkForResetCB->mFunctor->operator()();
                                         }
                                     }
                                 }
@@ -1351,7 +1353,7 @@ static unsigned char UpdateReadState(AsyncEntry* pEntry)
                     char message[0x100];
 
                     nStatus = pFile->GetReadStatus();
-                    if ((nStatus >= 0) && (nStatus < 3))
+                    if ((nStatus < 3) && (nStatus >= 0))
                     {
                         break;
                     }
@@ -1364,11 +1366,11 @@ static unsigned char UpdateReadState(AsyncEntry* pEntry)
                     {
                         if (g_CheckForResetCB.mTag == 1)
                         {
-                            g_CheckForResetCB.mFreeFunction();
+                            checkForResetCB->mFreeFunction();
                         }
                         else
                         {
-                            g_CheckForResetCB.mFunctor->operator()();
+                            checkForResetCB->mFunctor->operator()();
                         }
                     }
 

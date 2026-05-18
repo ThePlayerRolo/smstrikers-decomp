@@ -1050,8 +1050,8 @@ void Fuzzy::CutAndBreak(cFielder* TheFielder)
 
 /**
  * Offset/Address/Size: 0x22A0 | 0x8008ED2C | size: 0x88C
- * TODO: 95.60% match - register allocation differences in GoodToChipShot and
- * InDanger/FurthestBack confidence branches.
+ * TODO: 98.59% match - CROR condition encoding differences in GoodToChipShot
+ * and InDanger/FurthestBack confidence branches.
  */
 void Fuzzy::DoShooting(float fConfidence, cDecisionEntity* pDecision)
 {
@@ -1080,10 +1080,11 @@ void Fuzzy::DoShooting(float fConfidence, cDecisionEntity* pDecision)
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             fConfidence = fConfidence * fBranchRatio;
 
-        if (0.0f >= fConfidence)
+        float fCurrentConfidence = fConfidence;
+        if (0.0f >= fCurrentConfidence)
             fBestConfidence = 0.0f;
         else
-            fBestConfidence = fConfidence;
+            fBestConfidence = fCurrentConfidence;
 
         pDecision->QueueActionSetDesire(20, fConfidence, -1.0f, fvNotSet, fvNotSet);
 
@@ -1108,7 +1109,7 @@ void Fuzzy::DoShooting(float fConfidence, cDecisionEntity* pDecision)
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             fConfidence = fConfidence * fBranchRatio;
 
-        if (fBestConfidence < fConfidence)
+        if (fBestConfidence <= fConfidence)
             fBestConfidence = fConfidence;
 
         pDecision->QueueActionSetDesire(14, fConfidence, 0.0f, FuzzyVariant(sFalse), FuzzyVariant(sTrue));
@@ -1148,7 +1149,7 @@ void Fuzzy::DoShooting(float fConfidence, cDecisionEntity* pDecision)
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             fConfidence = fConfidence * fBranchRatio;
 
-        if (fBestConfidence < fConfidence)
+        if (fBestConfidence <= fConfidence)
             fBestConfidence = fConfidence;
 
         pDecision->QueueActionSetDesire(14, fConfidence, -1.0f, fvNotSet, fvNotSet);

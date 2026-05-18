@@ -869,18 +869,12 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
 
 /**
  * Offset/Address/Size: 0xA01C | 0x8004CB18 | size: 0x15C
- * TODO: 97.47% match - r3/r4 register swap for jump table base address (MWCC allocator quirk),
- * causes extra mr r3, r31 before CleanGoalieAction and InitiatePickup calls
  */
-bool Goalie::PreCollideWithBallCallback(const dContact& contact)
+bool Goalie::PreCollideWithBallCallback(const dContact&)
 {
     switch (mGoalieActionState)
     {
-    case GOALIEACTION_SAVE_SETUP:
-    case GOALIEACTION_SAVE_REPOSITION:
-    case GOALIEACTION_SAVE:
-    case GOALIEACTION_MISS_CHIP_SHOT:
-    case GOALIEACTION_DIVE_RECOVER:
+    case GOALIEACTION_STS:
         if (m_eAnimID == 0x6d)
         {
             return false;
@@ -891,13 +885,7 @@ bool Goalie::PreCollideWithBallCallback(const dContact& contact)
         }
         break;
 
-    case GOALIEACTION_LOOSEBALL_SETUP:
-    case GOALIEACTION_LOOSEBALL_CATCH:
-    case GOALIEACTION_LOOSEBALL_PICKUP:
-    case GOALIEACTION_LOOSEBALL_PURSUE_BOUNCING:
     case GOALIEACTION_LOOSEBALL_PURSUE_ROLLING:
-    case GOALIEACTION_LOOSEBALL_DESPERATE:
-    case GOALIEACTION_GRAB_BALL:
     {
         CleanGoalieAction();
 
@@ -913,35 +901,53 @@ bool Goalie::PreCollideWithBallCallback(const dContact& contact)
         mfWaitTime = 0.5f;
         mbPickedUp = false;
 
+        const LooseBallInfo* pInfo = mpLooseBallInfo;
+        f32 pickupDist = pInfo->mfPickupDistance;
+        if (0.3f < pickupDist)
         {
-            const LooseBallInfo* pInfo = mpLooseBallInfo;
-            f32 pickupDist = pInfo->mfPickupDistance;
-            if (0.3f < pickupDist)
-            {
-                f32 pickupTime = pInfo->mfPickupTime;
-                mfTargetTime = (pickupDist - 0.3f) * pickupTime / pickupDist;
+            f32 pickupTime = pInfo->mfPickupTime;
+            mfTargetTime = (pickupDist - 0.3f) * pickupTime / pickupDist;
 
-                cPN_SAnimController* pAnim = m_pCurrentAnimController;
-                f32 targetTime = mfTargetTime;
-                f32 curTime = pAnim->m_fTime;
-                pAnim->m_fPrevTime = curTime;
-                pAnim->m_fTime = targetTime;
-            }
+            cPN_SAnimController* pAnim = m_pCurrentAnimController;
+            f32 targetTime = mfTargetTime;
+            pAnim->m_fPrevTime = pAnim->m_fTime;
+            pAnim->m_fTime = targetTime;
         }
 
         InitiatePickup();
         return false;
     }
 
-    case GOALIEACTION_MOVE:
-    case GOALIEACTION_MOVE_WB:
-    case GOALIEACTION_PRE_CROUCH:
-    case GOALIEACTION_OFFPLAY:
-    case GOALIEACTION_SNAP_BALL:
+    case GOALIEACTION_LOOSEBALL_PICKUP:
         if (InitiatePickup())
         {
             return false;
         }
+        break;
+
+    case GOALIEACTION_MOVE:
+    case GOALIEACTION_MOVE_WB:
+    case GOALIEACTION_SAVE_SETUP:
+    case GOALIEACTION_SAVE_REPOSITION:
+    case GOALIEACTION_SAVE:
+    case GOALIEACTION_MISS_CHIP_SHOT:
+    case GOALIEACTION_DIVE_RECOVER:
+    case GOALIEACTION_STS_SETUP:
+    case GOALIEACTION_STS_RECOVER:
+    case GOALIEACTION_STS_ATTACK_SETUP:
+    case GOALIEACTION_STS_ATTACK:
+    case GOALIEACTION_PASS:
+    case GOALIEACTION_PASS_INTERCEPT:
+    case GOALIEACTION_PRE_CROUCH:
+    case GOALIEACTION_PURSUE_BALL_CARRIER:
+    case GOALIEACTION_PURSUE_BALL_POUNCE:
+    case GOALIEACTION_LOOSEBALL_SETUP:
+    case GOALIEACTION_LOOSEBALL_CATCH:
+    case GOALIEACTION_LOOSEBALL_PURSUE_BOUNCING:
+    case GOALIEACTION_LOOSEBALL_DESPERATE:
+    case GOALIEACTION_OFFPLAY:
+    case GOALIEACTION_SNAP_BALL:
+    case GOALIEACTION_GRAB_BALL:
         break;
     }
 

@@ -76,12 +76,62 @@ NLFormatImpl& NLFormatImpl::operator% <float>(const float& t)
     return *this;
 }
 
-// /**
-//  * Offset/Address/Size: 0xEDC | 0x80187A78 | size: 0x15C
-//  */
-// void Format<BasicString<char, Detail::TempStringAllocator>, const char*, const char*, const char*, const char*, const char*, float, float>(const BasicString<char, Detail::TempStringAllocator>&, const char* const&, const char* const&, const char* const&, const char* const&, const char* const&, const float&, const float&)
-// {
-// }
+/**
+ * Offset/Address/Size: 0xEDC | 0x80187A78 | size: 0x15C
+ */
+template <typename StringType, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+inline StringType Format(
+    const StringType& format,
+    const T1& value1,
+    const T2& value2,
+    const T3& value3,
+    const T4& value4,
+    const T5& value5,
+    const T6& value6,
+    const T7& value7);
+
+template <>
+inline BasicString<char, Detail::TempStringAllocator>
+Format<BasicString<char, Detail::TempStringAllocator>,
+    const char*,
+    const char*,
+    const char*,
+    const char*,
+    const char*,
+    float,
+    float>(
+    const BasicString<char, Detail::TempStringAllocator>& format,
+    const char* const& value1,
+    const char* const& value2,
+    const char* const& value3,
+    const char* const& value4,
+    const char* const& value5,
+    const float& value6,
+    const float& value7)
+{
+    BasicStringData<char>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImpl<BasicString<char, Detail::TempStringAllocator> > impl(data);
+
+    return BasicString<char, Detail::TempStringAllocator>(
+        (BasicString<char, Detail::TempStringAllocator>)(((((((impl % value1) % value2) % value3) % value4) % value5) % value6) % value7));
+}
+
+void StatsTracker_Format7_stub()
+{
+    BasicString<char, Detail::TempStringAllocator> s;
+    const char* p = "";
+    float f = 0.0f;
+    Format(s, p, p, p, p, p, f, f);
+}
 
 // /**
 //  * Offset/Address/Size: 0x168 | 0x80186D04 | size: 0xD74
@@ -90,12 +140,111 @@ NLFormatImpl& NLFormatImpl::operator% <float>(const float& t)
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x0 | 0x80186B9C | size: 0x168
-//  */
-// void Format<BasicString<char, Detail::TempStringAllocator>, int, int, int, int, int, int, int, int>(const BasicString<char, Detail::TempStringAllocator>&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const int&)
-// {
-// }
+/**
+ * Offset/Address/Size: 0x0 | 0x80186B9C | size: 0x168
+ */
+template <typename StringType, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+inline StringType Format(
+    const StringType& format,
+    const T1& value1,
+    const T2& value2,
+    const T3& value3,
+    const T4& value4,
+    const T5& value5,
+    const T6& value6,
+    const T7& value7,
+    const T8& value8);
+
+template <>
+inline BasicString<char, Detail::TempStringAllocator>
+Format<BasicString<char, Detail::TempStringAllocator>, int, int, int, int, int, int, int, int>(
+    const BasicString<char, Detail::TempStringAllocator>& format,
+    const int& value1,
+    const int& value2,
+    const int& value3,
+    const int& value4,
+    const int& value5,
+    const int& value6,
+    const int& value7,
+    const int& value8)
+{
+    BasicStringData<char>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImpl<BasicString<char, Detail::TempStringAllocator> > impl(data);
+
+    return BasicString<char, Detail::TempStringAllocator>(
+        (BasicString<char, Detail::TempStringAllocator>)((((((((impl % value1) % value2) % value3) % value4) % value5) % value6) % value7) % value8));
+}
+
+void StatsTracker_Format8_stub()
+{
+    typedef BasicString<char, Detail::TempStringAllocator> (*FmtFnI8)(
+        const BasicString<char, Detail::TempStringAllocator>&,
+        const int&,
+        const int&,
+        const int&,
+        const int&,
+        const int&,
+        const int&,
+        const int&,
+        const int&);
+    volatile FmtFnI8 fn = &Format<BasicString<char, Detail::TempStringAllocator>, int, int, int, int, int, int, int, int>;
+    (void)fn;
+}
+
+/**
+ * Offset/Address/Size: 0x2B20 | 0x801896BC | size: 0x15C
+ */
+template <>
+inline BasicString<char, Detail::TempStringAllocator>
+Format<BasicString<char, Detail::TempStringAllocator>, int, int, int, int, int, int, int>(
+    const BasicString<char, Detail::TempStringAllocator>& format,
+    const int& value1,
+    const int& value2,
+    const int& value3,
+    const int& value4,
+    const int& value5,
+    const int& value6,
+    const int& value7)
+{
+    BasicStringData<char>* data = format.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+
+    FormatImpl<BasicString<char, Detail::TempStringAllocator> > impl(data);
+
+    return BasicString<char, Detail::TempStringAllocator>(
+        (BasicString<char, Detail::TempStringAllocator>)(((((((impl % value1) % value2) % value3) % value4) % value5) % value6) % value7));
+}
+
+void StatsTracker_Format7i_stub()
+{
+    typedef BasicString<char, Detail::TempStringAllocator> (*FmtFnI7)(
+        const BasicString<char, Detail::TempStringAllocator>&,
+        const int&,
+        const int&,
+        const int&,
+        const int&,
+        const int&,
+        const int&,
+        const int&);
+    volatile FmtFnI7 fn = &Format<BasicString<char, Detail::TempStringAllocator>, int, int, int, int, int, int, int>;
+    (void)fn;
+}
 
 // /**
 //  * Offset/Address/Size: 0xBC | 0x801869B8 | size: 0x1E4

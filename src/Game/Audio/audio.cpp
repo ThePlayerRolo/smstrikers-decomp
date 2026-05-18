@@ -1864,12 +1864,15 @@ void Update3DSFXEmitters()
 
 /**
  * Offset/Address/Size: 0x159C | 0x8013DAB0 | size: 0xA34
- * TODO: 91.91% match - fade-type dispatch control flow and several register allocations differ.
+ * TODO: 94.61% match - remaining register allocation differences in emitter updates and team-loop blocks.
  */
 void UpdateFades(float fDeltaT)
 {
     FadeAudioData* pFadeData;
     float newVol;
+    int t;
+    int p;
+    cTeam* team;
 
     pFadeData = g_pFadeList;
     while (pFadeData != NULL)
@@ -1905,9 +1908,10 @@ void UpdateFades(float fDeltaT)
             }
 
             bool isPlaying;
+            u32 sfxID = *(u32*)((char*)pFadeData + 0x4);
             if (g_bAudioInitialized)
             {
-                isPlaying = PlatAudio::IsSFXPlaying(*(u32*)((char*)pFadeData + 0x4));
+                isPlaying = PlatAudio::IsSFXPlaying(sfxID);
             }
             else
             {
@@ -1932,8 +1936,8 @@ void UpdateFades(float fDeltaT)
                 }
 
                 float deltaVol = fDeltaT * *(float*)((char*)pFadeData + 0x8);
-                newVol = *(float*)*(u32*)((char*)pFadeData + 0x18);
-                newVol = newVol + deltaVol;
+                float currentVol = *(float*)*(u32*)((char*)pFadeData + 0x18);
+                newVol = currentVol + deltaVol;
 
                 if (*(u8*)((char*)pFadeData + 0x1D) != 0)
                 {
@@ -2039,10 +2043,10 @@ void UpdateFades(float fDeltaT)
 
                     if (g_pGame != NULL)
                     {
-                        for (int t = 0; t < 2; t++)
+                        for (t = 0; t < 2; t++)
                         {
-                            cTeam* team = g_pTeams[t];
-                            for (int p = 0; p < 5; p++)
+                            team = g_pTeams[t];
+                            for (p = 0; p < 5; p++)
                             {
                                 team->GetPlayer(p)->m_pCharacterSFX->ActivateFilterOnAllTrackedSFX(true);
                             }
@@ -2096,10 +2100,10 @@ void UpdateFades(float fDeltaT)
 
                 if (g_pGame != NULL)
                 {
-                    for (int t = 0; t < 2; t++)
+                    for (t = 0; t < 2; t++)
                     {
-                        cTeam* team = g_pTeams[t];
-                        for (int p = 0; p < 5; p++)
+                        team = g_pTeams[t];
+                        for (p = 0; p < 5; p++)
                         {
                             team->GetPlayer(p)->m_pCharacterSFX->SetFilterFreqOnAllTrackedSFX(targetFreq);
                         }
@@ -2137,10 +2141,10 @@ void UpdateFades(float fDeltaT)
 
                 if (g_pGame != NULL)
                 {
-                    for (int t = 0; t < 2; t++)
+                    for (t = 0; t < 2; t++)
                     {
-                        cTeam* team = g_pTeams[t];
-                        for (int p = 0; p < 5; p++)
+                        team = g_pTeams[t];
+                        for (p = 0; p < 5; p++)
                         {
                             team->GetPlayer(p)->m_pCharacterSFX->SetFilterFreqOnAllTrackedSFX(targetFreq);
                         }
@@ -2160,10 +2164,10 @@ void UpdateFades(float fDeltaT)
 
                     if (g_pGame != NULL)
                     {
-                        for (int t = 0; t < 2; t++)
+                        for (t = 0; t < 2; t++)
                         {
-                            cTeam* team = g_pTeams[t];
-                            for (int p = 0; p < 5; p++)
+                            team = g_pTeams[t];
+                            for (p = 0; p < 5; p++)
                             {
                                 team->GetPlayer(p)->m_pCharacterSFX->ActivateFilterOnAllTrackedSFX(false);
                             }
@@ -2230,10 +2234,10 @@ void UpdateFades(float fDeltaT)
 
                 if (g_pGame != NULL)
                 {
-                    for (int t = 0; t < 2; t++)
+                    for (t = 0; t < 2; t++)
                     {
-                        cTeam* team = g_pTeams[t];
-                        for (int p = 0; p < 5; p++)
+                        team = g_pTeams[t];
+                        for (p = 0; p < 5; p++)
                         {
                             team->GetPlayer(p)->m_pCharacterSFX->SetPitchBendOnAllDialogueSFX(targetFreq);
                         }
@@ -2253,10 +2257,10 @@ void UpdateFades(float fDeltaT)
                 {
                     if (g_pGame != NULL)
                     {
-                        for (int t = 0; t < 2; t++)
+                        for (t = 0; t < 2; t++)
                         {
-                            cTeam* team = g_pTeams[t];
-                            for (int p = 0; p < 5; p++)
+                            team = g_pTeams[t];
+                            for (p = 0; p < 5; p++)
                             {
                                 team->GetPlayer(p)->m_pCharacterSFX->SetPitchBendOnAllDialogueSFX(0x2000);
                             }
@@ -2277,6 +2281,8 @@ void UpdateFades(float fDeltaT)
             }
             break;
         }
+        case 4:
+            break;
         }
 
         pFadeData = pFadeData->next;

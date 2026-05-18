@@ -443,7 +443,6 @@ void SHMainMenu::SceneCreated()
     TLTextInstance* scrollText;
     const gl_ScreenInfo* screenInfo;
     char menuname[64];
-    int i;
     TLInstance* instance;
     TLComponentInstance* compinstance;
     TLComponentInstance* buttons;
@@ -474,6 +473,7 @@ void SHMainMenu::SceneCreated()
     m_itemDescriptions = feST;
     BackgroundScene* scene = (BackgroundScene*)nlSingleton<GameSceneManager>::s_pInstance->GetScene(SCENE_MARIO_BACKGROUND);
     scene->SetVisible(false);
+    int i;
     for (i = 0; i < 7; i++)
     {
         nlSNPrintf(menuname, 64, "MENU ITEM%d", i + 1);
