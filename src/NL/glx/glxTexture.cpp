@@ -729,10 +729,7 @@ PlatTexture* glx_GetGridTexture(int width, int height)
 PlatTexture* glx_MakeGridTexture(int w, int h)
 {
     PlatTexture* pTex;
-    u8 bits[4];
-
-    // Store default bits
-    *(u32*)bits = *(u32*)kDefaultBits;
+    u8 bits[4] = { 5, 6, 5, 0 };
 
     // Allocate PlatTexture
     pTex = (PlatTexture*)nlMalloc(sizeof(PlatTexture), 8, false);
@@ -804,7 +801,7 @@ PlatTexture* glx_MakeGridTexture(int w, int h)
     }
 
     // Update grid memory counter - includes sizeof(PlatTexture)
-    nGridMemory += w * h * 2 + 0x50;
+    nGridMemory += (w << 1) * h + 0x50;
     tDebugPrintManager::Print(DC_GL, "grid [%d %d] now using %uKB\n", w, h, nGridMemory / 1024);
 
     // Swizzle and prepare texture

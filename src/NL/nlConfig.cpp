@@ -69,16 +69,25 @@ void Config::Set(const char* key, const BasicString<char, Detail::TempStringAllo
 
 static bool IsIntValue(const char* str, int& out)
 {
+    bool ok = true;
     const char* s = str;
     while (*s != 0)
     {
-        if (isdigit(*s) || *s == '-')
-            s++;
-        else
-            return false;
+        char c = *s;
+        if (!isdigit(c) && c != '-')
+        {
+            ok = false;
+            break;
+        }
+        s++;
     }
-    out = LexicalCast<int, const char*>(str);
-    return true;
+
+    if (ok)
+    {
+        out = LexicalCast<int, const char*>(str);
+    }
+
+    return ok;
 }
 
 static bool IsFloatValue(const char* str, float& out)
@@ -89,14 +98,22 @@ static bool IsFloatValue(const char* str, float& out)
     {
         char c = *s;
         if (c == '.' || c == ',')
+        {
             seenPeriod = true;
-        else if (isdigit(c) || c == '-')
-            ;
-        else
-            return false;
+        }
+        else if (!isdigit(c) && c != '-')
+        {
+            seenPeriod = false;
+            break;
+        }
         s++;
     }
-    out = LexicalCast<float, const char*>(str);
+
+    if (*s == 0)
+    {
+        out = LexicalCast<float, const char*>(str);
+    }
+
     return seenPeriod;
 }
 
@@ -143,18 +160,16 @@ void Config::Set(const char* tag, const char* value)
         if (tvp->tag == NULL)
         {
             char* dest = mStringEnd;
-            while (*tag != 0)
+            char c;
+            while ((c = *tag) != 0)
             {
-                if (mStringEnd - mStringMemory < 0x27FF)
-                {
-                    *mStringEnd = nlToUpper(*tag);
-                    tag++;
-                    mStringEnd++;
-                }
-                else
+                if (mStringEnd - mStringMemory >= 0x27FF)
                 {
                     break;
                 }
+                *mStringEnd = nlToUpper(c);
+                tag++;
+                mStringEnd++;
             }
             *mStringEnd = 0;
             mStringEnd++;
@@ -191,18 +206,16 @@ void Config::Set(const char* tag, const char* value)
         if (tvp->tag == NULL)
         {
             char* dest = mStringEnd;
-            while (*tag != 0)
+            char c;
+            while ((c = *tag) != 0)
             {
-                if (mStringEnd - mStringMemory < 0x27FF)
-                {
-                    *mStringEnd = nlToUpper(*tag);
-                    tag++;
-                    mStringEnd++;
-                }
-                else
+                if (mStringEnd - mStringMemory >= 0x27FF)
                 {
                     break;
                 }
+                *mStringEnd = nlToUpper(c);
+                tag++;
+                mStringEnd++;
             }
             *mStringEnd = 0;
             mStringEnd++;
@@ -239,18 +252,16 @@ void Config::Set(const char* tag, const char* value)
         if (tvp->tag == NULL)
         {
             char* dest = mStringEnd;
-            while (*tag != 0)
+            char c;
+            while ((c = *tag) != 0)
             {
-                if (mStringEnd - mStringMemory < 0x27FF)
-                {
-                    *mStringEnd = nlToUpper(*tag);
-                    tag++;
-                    mStringEnd++;
-                }
-                else
+                if (mStringEnd - mStringMemory >= 0x27FF)
                 {
                     break;
                 }
+                *mStringEnd = nlToUpper(c);
+                tag++;
+                mStringEnd++;
             }
             *mStringEnd = 0;
             mStringEnd++;
@@ -304,18 +315,16 @@ void Config::Set(const char* tag, const char* value)
         if (tvp->tag == NULL)
         {
             char* dest = mStringEnd;
-            while (*tag != 0)
+            char c;
+            while ((c = *tag) != 0)
             {
-                if (mStringEnd - mStringMemory < 0x27FF)
-                {
-                    *mStringEnd = nlToUpper(*tag);
-                    tag++;
-                    mStringEnd++;
-                }
-                else
+                if (mStringEnd - mStringMemory >= 0x27FF)
                 {
                     break;
                 }
+                *mStringEnd = nlToUpper(c);
+                tag++;
+                mStringEnd++;
             }
             *mStringEnd = 0;
             mStringEnd++;

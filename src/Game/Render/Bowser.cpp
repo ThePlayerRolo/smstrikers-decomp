@@ -353,8 +353,9 @@ void Bowser::CollisionCallback(PhysicsObject* pObjA, PhysicsObject*, const nlVec
 
 /**
  * Offset/Address/Size: 0x2B64 | 0x8015B8D8 | size: 0x4F0
- * TODO: 94.79% match - beq/b vs bne branch pattern, ResetBowserTimer code placement,
- *       and lfd constant propagation vs lfs reload for fabsf(mfYAxisTilt). All -inline deferred artifacts.
+ * TODO: 98.80% match - remaining diffs are the beq/b vs bne branch pattern in
+ *       the Strikers101 gate and lfd constant propagation vs lfs reload for
+ *       fabsf(mfYAxisTilt).
  */
 void Bowser::ActionInit()
 {
@@ -397,45 +398,45 @@ void Bowser::ActionInit()
             mv3Velocity = v3Zero;
             maFacingDirection = 0;
             mpPhysObj->DisableCollisions();
-            if (mAttackType == BOWSER_ATTACK_STOMP && mStompStage != 2)
+            if (mAttackType != BOWSER_ATTACK_STOMP || mStompStage == 2)
             {
-                g_pGame->ResetBowserTimer(g_pGame->m_pGameTweaks->unk31C);
-                return;
-            }
-            savedAttackType = mAttackType;
-            mfYAxisTilt = 0.0f;
-            cCameraManager::SetWorldUpVectorTilt(0.0f, 0.0f);
-            if (g_pBall != NULL)
-            {
-                PhysicsAIBall* pPhys = g_pBall->m_pPhysicsBall;
-                if (pPhys != NULL)
+                savedAttackType = mAttackType;
+                mfYAxisTilt = 0.0f;
+                cCameraManager::SetWorldUpVectorTilt(0.0f, 0.0f);
+                if (g_pBall != NULL)
                 {
-                    if (fabsf(mfYAxisTilt) > 0.01f)
+                    PhysicsAIBall* pPhys = g_pBall->m_pPhysicsBall;
+                    if (pPhys != NULL)
                     {
-                        nlVector3 tiltForce = { 0.0f, 0.0f, 0.0f };
-                        tiltForce.f.x = -mfYAxisTilt * g_pGame->m_pGameTweaks->unk338;
-                        pPhys->m_v3TiltForce = tiltForce;
-                        g_pBall->m_pPhysicsBall->m_bUseTiltForce = true;
-                    }
-                    else
-                    {
-                        pPhys->m_bUseTiltForce = false;
+                        if (fabsf(mfYAxisTilt) > 0.01f)
+                        {
+                            nlVector3 tiltForce = { 0.0f, 0.0f, 0.0f };
+                            tiltForce.f.x = -mfYAxisTilt * g_pGame->m_pGameTweaks->unk338;
+                            pPhys->m_v3TiltForce = tiltForce;
+                            g_pBall->m_pPhysicsBall->m_bUseTiltForce = true;
+                        }
+                        else
+                        {
+                            pPhys->m_bUseTiltForce = false;
+                        }
                     }
                 }
+                mAttackType = BOWSER_ATTACK_ROLL;
+                if (g_pGame->m_pGameTweaks->unk310 < 0.0f)
+                    g_pGame->ResetBowser();
+                if (!mbAlive)
+                    return;
+                mbAlive = false;
+                if (!nlSingleton<GameInfoManager>::s_pInstance->IsBowserAttackEnabled())
+                    return;
+                if (savedAttackType == BOWSER_ATTACK_STOMP)
+                    return;
+                if (savedVisible == 0)
+                    return;
+                g_pEventManager->CreateValidEvent(0x37, 0x14);
+                return;
             }
-            mAttackType = BOWSER_ATTACK_ROLL;
-            if (g_pGame->m_pGameTweaks->unk310 < 0.0f)
-                g_pGame->ResetBowser();
-            if (!mbAlive)
-                return;
-            mbAlive = false;
-            if (!nlSingleton<GameInfoManager>::s_pInstance->IsBowserAttackEnabled())
-                return;
-            if (savedAttackType == BOWSER_ATTACK_STOMP)
-                return;
-            if (savedVisible == 0)
-                return;
-            g_pEventManager->CreateValidEvent(0x37, 0x14);
+            g_pGame->ResetBowserTimer(g_pGame->m_pGameTweaks->unk31C);
             return;
         }
     }

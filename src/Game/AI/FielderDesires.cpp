@@ -2761,7 +2761,6 @@ void cFielder::DesireSlideAttack(float fDeltaT)
 
 /**
  * Offset/Address/Size: 0x794 | 0x80031518 | size: 0x514
- * TODO: 96.57% match - mr r0,r3 intermediate at a0 instead of direct mr r30,r3
  */
 void cFielder::DesireUserControlled(float fDeltaT)
 {
@@ -2783,8 +2782,7 @@ void cFielder::DesireUserControlled(float fDeltaT)
 
             if (GetGlobalPad()->JustPressed(PAD_PASS, true))
             {
-                bWasActionTaken = GetGlobalPad()->JustPressed(PAD_AIM, true);
-                InitActionPass(DoFindBestPassTarget(GetGlobalPad()->JustPressed(PAD_AIM, true), false), bWasActionTaken, true);
+                InitActionPass(DoFindBestPassTarget(GetGlobalPad()->JustPressed(PAD_AIM, true), false), (bWasActionTaken = GetGlobalPad()->JustPressed(PAD_AIM, true)), true);
                 bWasActionTaken = true;
             }
             else if (GetGlobalPad()->JustPressed(PAD_DEKE, true) || m_pController->GetCStickMovementStickMagnitude() > 0.0f)
@@ -2905,10 +2903,15 @@ void cFielder::DesireUserControlled(float fDeltaT)
         p.a = m_aDesiredMovementDirection;
         p.r = m_fDesiredSpeed;
         nlPolarToCartesian(v3Velocity, p);
+        float fScale = 0.25f;
         v3Velocity.f.z = 0.0f;
-        m_v3DesiredPosition.f.x = 0.25f * v3Velocity.f.x + m_v3Position.f.x;
-        m_v3DesiredPosition.f.y = 0.25f * v3Velocity.f.y + m_v3Position.f.y;
-        m_v3DesiredPosition.f.z = 0.25f * v3Velocity.f.z + m_v3Position.f.z;
+        float fZero = v3Velocity.f.z;
+        float fDesiredX = fScale * v3Velocity.f.x + m_v3Position.f.x;
+        float fDesiredZ = fScale * fZero + m_v3Position.f.z;
+        float fDesiredY = fScale * v3Velocity.f.y + m_v3Position.f.y;
+        m_v3DesiredPosition.f.x = fDesiredX;
+        m_v3DesiredPosition.f.y = fDesiredY;
+        m_v3DesiredPosition.f.z = fDesiredZ;
 
         if (m_pTeam->mpCurrentSituation != SITUATION_LOOSE)
             ShouldIStrafe();

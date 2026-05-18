@@ -3759,8 +3759,7 @@ float UserControlledT(cTeam* pTeam)
 
 /**
  * Offset/Address/Size: 0x744 | 0x8007F1CC | size: 0x494
- * TODO: 93.46% match - f0/f1 register swap for fScore after fdivs (MWCC allocator quirk),
- *       bne+b vs beq for USER_CONTROLLED null check (MWCC branch pattern)
+ * TODO: 99.71% match - first-team classification path still emits f0/f1 score-register mismatches
  */
 float GonnaGetBall(cTeam* team)
 {
@@ -3770,7 +3769,7 @@ float GonnaGetBall(cTeam* team)
     }
 
     cFielder* pOpponent;
-    float fClosing, fDist, fAvg;
+    float fDist, fClosing, fAvg;
     cFielder* pPlayer = team->m_pBallInterceptOrderedFielders[0];
     cTeam* pOtherTeam = team->GetOtherTeam();
     float score[2] = { 0.0f, 0.0f };
@@ -3818,10 +3817,9 @@ float GonnaGetBall(cTeam* team)
                 fScore = 1.0f;
             else if (pPlayer->m_eFielderDesireState == FIELDERDESIRE_USER_CONTROLLED)
             {
-                float fScore_;
                 if (pPlayer == NULL)
                 {
-                    fScore_ = 0.0f;
+                    fScore = 0.0f;
                 }
                 else
                 {
@@ -3835,9 +3833,8 @@ float GonnaGetBall(cTeam* team)
                         nIndex = 2;
                     else if (pTeam->m_pBallInterceptOrderedFielders[3] == pPlayer)
                         nIndex = 3;
-                    fScore_ = (float)(3 - nIndex) / 3.0f;
+                    fScore = (float)(3 - nIndex) / 3.0f;
                 }
-                fScore = fScore_;
             }
             else if (pPlayer->m_eFielderDesireState == FIELDERDESIRE_MARK)
             {
@@ -3857,34 +3854,36 @@ float GonnaGetBall(cTeam* team)
     else
         fHasBall = 0.0f;
 
-    fHasBall = max_float(fHasBall, fScore);
+    fHasBall = max_float(fScore, fHasBall);
     score[0] = fHasBall;
 
     // === OPPONENT SECTION ===
+    float fDist2;
     if (pOpponent == NULL)
     {
-        fDist = 0.0f;
+        fDist2 = 0.0f;
     }
     else
     {
         float dx = g_pScriptBall->m_v3Position.f.x - pOpponent->m_v3Position.f.x;
         float dy = g_pScriptBall->m_v3Position.f.y - pOpponent->m_v3Position.f.y;
-        fDist = NormalizeVal(nlSqrt(dx * dx + dy * dy, true), g_pGame->m_pFuzzyTweaks->vNearBallConfidenceDistance);
+        fDist2 = NormalizeVal(nlSqrt(dx * dx + dy * dy, true), g_pGame->m_pFuzzyTweaks->vNearBallConfidenceDistance);
     }
 
     pBall = g_pBall;
+    float fClosing2;
     if (pOpponent == NULL)
-        fClosing = 0.0f;
+        fClosing2 = 0.0f;
     else if (pBall == NULL)
-        fClosing = 0.0f;
+        fClosing2 = 0.0f;
     else
     {
-        fClosing = NormalizeVal(GetClosingSpeed2D(pOpponent->m_v3Position, pOpponent->m_v3Velocity, pBall->m_v3Position, pBall->m_v3Velocity), 0.0f, g_pGame->m_pFuzzyTweaks->fClosingSpeedMax);
+        fClosing2 = NormalizeVal(GetClosingSpeed2D(pOpponent->m_v3Position, pOpponent->m_v3Velocity, pBall->m_v3Position, pBall->m_v3Velocity), 0.0f, g_pGame->m_pFuzzyTweaks->fClosingSpeedMax);
     }
 
     fScore = AbleToInterceptBall(pOpponent);
-    fScore += fClosing;
-    fScore = fDist + fScore;
+    fScore += fClosing2;
+    fScore = fDist2 + fScore;
     fAvg = fScore / 3.0f;
 
     if (pOpponent == NULL)
@@ -3903,10 +3902,9 @@ float GonnaGetBall(cTeam* team)
                 fScore = 1.0f;
             else if (pOpponent->m_eFielderDesireState == FIELDERDESIRE_USER_CONTROLLED)
             {
-                float fScore_;
                 if (pOpponent == NULL)
                 {
-                    fScore_ = 0.0f;
+                    fScore = 0.0f;
                 }
                 else
                 {
@@ -3920,9 +3918,8 @@ float GonnaGetBall(cTeam* team)
                         nIndex = 2;
                     else if (pTeam->m_pBallInterceptOrderedFielders[3] == pOpponent)
                         nIndex = 3;
-                    fScore_ = (float)(3 - nIndex) / 3.0f;
+                    fScore = (float)(3 - nIndex) / 3.0f;
                 }
-                fScore = fScore_;
             }
             else if (pOpponent->m_eFielderDesireState == FIELDERDESIRE_MARK)
             {
@@ -3932,7 +3929,7 @@ float GonnaGetBall(cTeam* team)
         }
     }
 
-    fScore = min_float(fScore, fAvg);
+    fScore = min_float(fAvg, fScore);
 
     float fHasBall2;
     if (pOpponent == NULL)
@@ -3942,7 +3939,7 @@ float GonnaGetBall(cTeam* team)
     else
         fHasBall2 = 0.0f;
 
-    fHasBall2 = max_float(fHasBall2, fScore);
+    fHasBall2 = max_float(fScore, fHasBall2);
     score[1] = fHasBall2;
 
     float total = score[0] + score[1];

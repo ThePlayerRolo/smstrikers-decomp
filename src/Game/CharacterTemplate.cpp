@@ -388,7 +388,7 @@ struct GoaliePosBlock
 
 /**
  * Offset/Address/Size: 0x3DC | 0x80012C3C | size: 0x51C
- * TODO: 97.26% match - register allocation diffs in both loops, 2 instruction
+ * TODO: 97.39% match - register allocation diffs in both loops, 2 instruction
  * size difference from CSE of comparison values in inner loop
  */
 void CreateCharacters()
@@ -409,7 +409,35 @@ void CreateCharacters()
     goalie[0] = GetGoalieFromCaptain(captain[0]);
     goalie[1] = GetGoalieFromCaptain(captain[1]);
 
-    bool allcaptains = GetConfigBool(Config::Global(), "allcaptains", false);
+    Config& cfg = Config::Global();
+    TagValuePair& tvp = cfg.FindTvp("allcaptains");
+    bool allcaptains;
+    if (tvp.tag == NULL)
+    {
+        cfg.Set("allcaptains", false);
+        allcaptains = false;
+    }
+    else if (tvp.type == _BOOL)
+    {
+        allcaptains = LexicalCast<bool, bool>(tvp.value.b);
+    }
+    else if (tvp.type == _INT)
+    {
+        allcaptains = LexicalCast<bool, int>(tvp.value.i);
+    }
+    else if (tvp.type == _FLOAT)
+    {
+        bool (*castFloat)(const float&) = LexicalCast<bool, float>;
+        allcaptains = castFloat(tvp.value.f);
+    }
+    else if (tvp.type == _STRING)
+    {
+        allcaptains = LexicalCast<bool, const char*>(tvp.value.s);
+    }
+    else
+    {
+        allcaptains = 0;
+    }
     if (allcaptains)
     {
         sidekick[0] = captain[0];

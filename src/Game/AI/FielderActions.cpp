@@ -4007,14 +4007,16 @@ void cFielder::ActionSlideAttack(float fDeltaTime)
                         {
                             PlayerAttackData* pData = new (&g_pEventManager->CreateValidEvent(0x19, 0x28)->m_data) PlayerAttackData();
                             pData->pAttacker = this;
-                            pData->nAttackerPadID = GetGlobalPad() ? GetGlobalPad()->m_padIndex : -1;
+                            bool hasPad = (bool)GetGlobalPad();
+                            pData->nAttackerPadID = hasPad ? GetGlobalPad()->m_padIndex : -1;
                             pData->pTarget = NULL;
                         }
                         else if (g_pBall->m_pPassTarget != NULL)
                         {
                             PlayerAttackData* pData = new (&g_pEventManager->CreateValidEvent(0x19, 0x28)->m_data) PlayerAttackData();
                             pData->pAttacker = this;
-                            pData->nAttackerPadID = GetGlobalPad() ? GetGlobalPad()->m_padIndex : -1;
+                            bool hasPad = (bool)GetGlobalPad();
+                            pData->nAttackerPadID = hasPad ? GetGlobalPad()->m_padIndex : -1;
                             pData->pTarget = NULL;
                         }
                     }

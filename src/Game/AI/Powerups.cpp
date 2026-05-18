@@ -1189,7 +1189,7 @@ void PowerupBase::Update(float dt)
 
 /**
  * Offset/Address/Size: 0x3DFC | 0x8005E6E8 | size: 0x608
- * TODO: 95.0% match - register-only diffs (30 r-diffs), code structure 100% correct
+ * TODO: 96.4% match - remaining register allocation diffs in nonvolatile register assignment
  */
 int PowerupBase::AwardPowerup(cTeam* pTeam)
 {
@@ -1305,18 +1305,18 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
         nChanceForChainChomp = 0;
         powerUpType = POWER_UP_FREEZE_SHELL;
         break;
+    case CP_GIANT:
+        nChanceForBanana = 0;
+        nChanceForMushroom = 0;
+        nChanceForStar = 0;
+        powerUpType = POWER_UP_GREEN_SHELL;
+        break;
     case CP_SHELLS:
         nChanceForMushroom = 0;
         nChanceForBoBomb = 0;
         nChanceForBanana = 0;
         nChanceForStar = 0;
         nChanceForChainChomp = 0;
-        powerUpType = POWER_UP_GREEN_SHELL;
-        break;
-    case CP_GIANT:
-        nChanceForBanana = 0;
-        nChanceForMushroom = 0;
-        nChanceForStar = 0;
         powerUpType = POWER_UP_GREEN_SHELL;
         break;
     case CP_ENCHANCEMENT:
@@ -1411,18 +1411,6 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
             nNumOfPowerups = 3;
         }
         break;
-    case POWER_UP_BANANA:
-        fFiveChance = fMultiplesBonus + g_pGame->m_pGameTweaks->fBananaFiveChance;
-        fThreeChance = fMultiplesBonus + fFiveChance + g_pGame->m_pGameTweaks->fBananaThreeChance;
-        if (fThreeChance > fRandom)
-        {
-            nNumOfPowerups = 3;
-        }
-        else
-        {
-            nNumOfPowerups = 5;
-        }
-        break;
     case POWER_UP_BOBOMB:
         fFiveChance = fMultiplesBonus + g_pGame->m_pGameTweaks->fBobombFiveChance;
         fThreeChance = fMultiplesBonus + fFiveChance + g_pGame->m_pGameTweaks->fBobombThreeChance;
@@ -1431,6 +1419,18 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
             nNumOfPowerups = 3;
         }
         else if (fFiveChance > fRandom)
+        {
+            nNumOfPowerups = 5;
+        }
+        break;
+    case POWER_UP_BANANA:
+        fFiveChance = fMultiplesBonus + g_pGame->m_pGameTweaks->fBananaFiveChance;
+        fThreeChance = fMultiplesBonus + fFiveChance + g_pGame->m_pGameTweaks->fBananaThreeChance;
+        if (fThreeChance > fRandom)
+        {
+            nNumOfPowerups = 3;
+        }
+        else
         {
             nNumOfPowerups = 5;
         }

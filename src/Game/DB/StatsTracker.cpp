@@ -1230,10 +1230,9 @@ void StatsTracker::GetSortedTeamStats(TeamStats* source, int numsource, int* des
  * Offset/Address/Size: 0x2E00 | 0x80184360 | size: 0x540
  */
 /**
- * TODO: 92.4% match - MWCC strength-reduces mFinalScore[homeaway] index
- * into a persistent register accumulator (extra callee-saved register r24-r31
- * instead of r25-r31), causing all register assignments to shift by 1.
- * Target computes mFinalScore index inline (extsh+slwi+addi) each iteration.
+ * TODO: 94.1% match - mFinalScore[homeaway] still compiles to a persistent
+ * index accumulator instead of per-iteration index calculation, which shifts
+ * register allocation in the main team loop.
  */
 void StatsTracker::CompileEndOfGameStats()
 {
@@ -1241,7 +1240,7 @@ void StatsTracker::CompileEndOfGameStats()
     eTeamID homeid = mBasicGameInfo->mTeamIndex[0];
     eTeamID awayid = mBasicGameInfo->mTeamIndex[1];
     GameInfoManager* gameInfoMgr = nlSingleton<GameInfoManager>::s_pInstance;
-    int numTeams = gameInfoMgr->GetNumPlayingTeams();
+    u16 numTeams = gameInfoMgr->GetNumPlayingTeams();
 
     for (int i = 0; i < numTeams; i++)
     {
@@ -1304,9 +1303,11 @@ void StatsTracker::CompileEndOfGameStats()
             tempStat = mCurrentTeamStats[homeaway].mPlayerTotalStats.mNumGoalsOneTimers;
             gameInfoMgr->pGetTeamStatsByIndex(team)->mPlayerTotalStats.mNumGoalsOneTimers += tempStat;
 
-            gameInfoMgr->pGetTeamStatsByIndex(team)->mPlayerTotalStats.mBallPossessionTime += mCurrentTeamStats[homeaway].mPlayerTotalStats.mBallPossessionTime;
+            tempStat = mCurrentTeamStats[homeaway].mPlayerTotalStats.mBallPossessionTime;
+            gameInfoMgr->pGetTeamStatsByIndex(team)->mPlayerTotalStats.mBallPossessionTime += tempStat;
 
-            gameInfoMgr->pGetTeamStatsByIndex(team)->mPlayerTotalStats.mNumButtonPresses += mCurrentTeamStats[homeaway].mPlayerTotalStats.mNumButtonPresses;
+            tempStat = mCurrentTeamStats[homeaway].mPlayerTotalStats.mNumButtonPresses;
+            gameInfoMgr->pGetTeamStatsByIndex(team)->mPlayerTotalStats.mNumButtonPresses += tempStat;
 
             tempStat = mCurrentTeamStats[homeaway].mPlayerTotalStats.mNumSTSAttempts;
             gameInfoMgr->pGetTeamStatsByIndex(team)->mPlayerTotalStats.mNumSTSAttempts += tempStat;

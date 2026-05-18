@@ -19,6 +19,24 @@ namespace
 {
 PadStatus padCategories[2];
 PadStatus* padStatus = &padCategories[0];
+
+static inline void UpdateButtonStateTime(PadStatus* pPadStatus, int padIdx)
+{
+    float delta = 1.0f / (float)glx_GetTargetFPS();
+    int button = 1;
+
+    for (int buttonIndex = 0; buttonIndex < 12; buttonIndex++)
+    {
+        if (PadStatus::s_Current[padIdx].button & button)
+            pPadStatus->m_GameCubePads[padIdx].fButtonStateTime[buttonIndex] += delta;
+        else
+        {
+            pPadStatus->m_GameCubePads[padIdx].fButtonStateTime[buttonIndex] = 0.0f;
+            pPadStatus->m_GameCubePads[padIdx].fButtonTimeSinceLastRepeat[buttonIndex] = 0.0f;
+        }
+        button <<= 1;
+    }
+}
 } // namespace
 
 /**
@@ -30,8 +48,8 @@ cPlatPad::~cPlatPad()
 
 /**
  * Offset/Address/Size: 0x5C | 0x801C300C | size: 0x524
- * TODO: 95.14% match - beq vs bne+b deadzone (MWCC version diff), r4/r6 timer loop register swap,
- * setup scheduling diffs, division r0/r3 swap
+ * TODO: 98.18% match - deadzone branch-shape mismatch and setup scheduling around
+ * pad category initialization remain
  */
 void VBlankPadUpdate()
 {
@@ -81,7 +99,8 @@ void VBlankPadUpdate()
                 float angle = nlATan2f(normalizedY, normalizedX);
                 u16 angleU16 = (u16)(int)(angle * 10430.378f);
                 float degrees = (float)angleU16 * 0.005493164f;
-                int roundedDeg = ((int)degrees / 45) * 45;
+                int roundedDeg = (int)degrees;
+                roundedDeg = (roundedDeg / 45) * 45;
 
                 switch (roundedDeg)
                 {
@@ -113,36 +132,8 @@ void VBlankPadUpdate()
             }
         }
 
-        {
-            float frameTime = 1.0f / (float)glx_GetTargetFPS();
-            int buttonMask = 1;
-            for (int j = 0; j < 12; j++)
-            {
-                if (PadStatus::s_Current[controllerIndex].button & buttonMask)
-                    padCategories[0].m_GameCubePads[controllerIndex].fButtonStateTime[j] += frameTime;
-                else
-                {
-                    padCategories[0].m_GameCubePads[controllerIndex].fButtonStateTime[j] = 0.0f;
-                    padCategories[0].m_GameCubePads[controllerIndex].fButtonTimeSinceLastRepeat[j] = 0.0f;
-                }
-                buttonMask <<= 1;
-            }
-        }
-        {
-            float frameTime = 1.0f / (float)glx_GetTargetFPS();
-            int buttonMask = 1;
-            for (int j = 0; j < 12; j++)
-            {
-                if (PadStatus::s_Current[controllerIndex].button & buttonMask)
-                    padCategories[1].m_GameCubePads[controllerIndex].fButtonStateTime[j] += frameTime;
-                else
-                {
-                    padCategories[1].m_GameCubePads[controllerIndex].fButtonStateTime[j] = 0.0f;
-                    padCategories[1].m_GameCubePads[controllerIndex].fButtonTimeSinceLastRepeat[j] = 0.0f;
-                }
-                buttonMask <<= 1;
-            }
-        }
+        UpdateButtonStateTime(&padCategories[0], controllerIndex);
+        UpdateButtonStateTime(&padCategories[1], controllerIndex);
     }
 }
 

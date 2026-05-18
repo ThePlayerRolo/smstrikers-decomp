@@ -511,6 +511,13 @@ void virt_cb(unsigned long, unsigned long, unsigned long, unsigned long, int);
  */
 bool glplatStartup(gl_ScreenInfo* screenInfo)
 {
+    u32 fbSize;
+    u32 totalSize;
+    void* fbMem;
+    u32* ptr;
+    s32 i;
+    void* buf1;
+    s32 j;
     GXRenderModeObj* rmode;
 
     if (!glxInitMemory())
@@ -592,18 +599,18 @@ bool glplatStartup(gl_ScreenInfo* screenInfo)
     }
     glx_FIFO = GXInit(glx_FIFOMem, glx_FIFOSize);
 
-    u32 fbSize = ((glx_rmode.fbWidth + 15) & 0xFFF0) * glx_rmode.xfbHeight * 2;
+    fbSize = ((glx_rmode.fbWidth + 15) & 0xFFF0) * glx_rmode.xfbHeight * 2;
     if (fbSize < 0x9F600u)
     {
         fbSize = 0x9F600u;
     }
-    u32 totalSize = fbSize * 2;
-    void* fbMem = nlMalloc(totalSize, 32, false);
+    totalSize = fbSize * 2;
+    fbMem = nlMalloc(totalSize, 32, false);
     glx_FrameBuffer.unk4 = (void*)((u8*)fbMem + fbSize);
-    u32* ptr = (u32*)fbMem;
     glx_FrameBuffer.unk0 = fbMem;
-    s32 i = 0;
     glx_FBSize = fbSize;
+    ptr = (u32*)fbMem;
+    i = 0;
     while (i < glx_FBSize)
     {
         *ptr++ = 0x10801080;
@@ -611,7 +618,7 @@ bool glplatStartup(gl_ScreenInfo* screenInfo)
     }
     DCFlushRange(fbMem, glx_FBSize);
 
-    void* buf1 = glx_FrameBuffer.unk4;
+    buf1 = glx_FrameBuffer.unk4;
     ptr = (u32*)buf1;
     i = 0;
     while (i < glx_FBSize)
@@ -639,7 +646,7 @@ bool glplatStartup(gl_ScreenInfo* screenInfo)
     GXSetCopyClear(sp8, 0xFFFFFF);
     GXSetDispCopyGamma(GX_GM_1_0);
 
-    s32 j = 0;
+    j = 0;
     do
     {
         gxSetTevColourOp(j, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);

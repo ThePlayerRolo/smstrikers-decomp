@@ -46,9 +46,9 @@ static inline nlChunk* nlGetNextChunk(nlChunk* chunk)
 
 /**
  * Offset/Address/Size: 0xCA4 | 0x801A5898 | size: 0x498
- * TODO: 96.07% match - register allocation diffs in nlGetChunkData inline
- * expansion for vector/quaternion copy cases (andc destination r3 vs r5,
- * li initialization order r6/r7 swap)
+ * TODO: 98.72% match - nlGetChunkData inline expansion still keeps chunk-data
+ * pointers in r3 for vector/quaternion and float fallback cases where target
+ * uses r5/r0 directly
  */
 bool LoadAnimCameraData(nlChunk* outerChunk, nlChunk* outerEnd, cCameraData* pAnimCameraData, bool ownsKeyData)
 {
@@ -83,8 +83,10 @@ bool LoadAnimCameraData(nlChunk* outerChunk, nlChunk* outerEnd, cCameraData* pAn
             nlVector3* v3Pos = (nlVector3*)nlGetChunkData(outerChunk);
             if (ownsKeyData)
             {
-                unsigned long offset = 0;
-                unsigned long i = 0;
+                unsigned long offset;
+                unsigned long i;
+                i = 0;
+                offset = 0;
                 while (i < pAnimCameraData->m_uKeyCount)
                 {
                     *(nlVector3*)((u8*)pAnimCameraData->cameraPos + offset) = *v3Pos;
@@ -102,8 +104,10 @@ bool LoadAnimCameraData(nlChunk* outerChunk, nlChunk* outerEnd, cCameraData* pAn
             nlVector3* v3Pos = (nlVector3*)nlGetChunkData(outerChunk);
             if (ownsKeyData)
             {
-                unsigned long offset = 0;
-                unsigned long i = 0;
+                unsigned long offset;
+                unsigned long i;
+                i = 0;
+                offset = 0;
                 while (i < pAnimCameraData->m_uKeyCount)
                 {
                     *(nlVector3*)((u8*)pAnimCameraData->targetPos + offset) = *v3Pos;
@@ -121,8 +125,10 @@ bool LoadAnimCameraData(nlChunk* outerChunk, nlChunk* outerEnd, cCameraData* pAn
             nlQuaternion* rot = (nlQuaternion*)nlGetChunkData(outerChunk);
             if (ownsKeyData)
             {
-                unsigned long offset = 0;
-                unsigned long i = 0;
+                unsigned long offset;
+                unsigned long i;
+                i = 0;
+                offset = 0;
                 while (i < pAnimCameraData->m_uKeyCount)
                 {
                     *(nlQuaternion*)((u8*)pAnimCameraData->cameraRot + offset) = *rot;
@@ -138,11 +144,29 @@ bool LoadAnimCameraData(nlChunk* outerChunk, nlChunk* outerEnd, cCameraData* pAn
         case 0x1550F:
             if (ownsKeyData)
             {
-                unsigned long i = 0;
+                unsigned long offset;
+                u8* chunkData = (u8*)outerChunk + 8;
+                unsigned long i;
+                u32 one = 1;
+                i = 0;
+                offset = 0;
                 while (i < pAnimCameraData->m_uKeyCount)
                 {
-                    pAnimCameraData->fFOV[i] = ((float*)nlGetChunkData(outerChunk))[i];
+                    u32 alignField = outerChunk->m_ID & 0x7F000000;
+                    u32 isAligned = ((-alignField) | alignField) >> 31;
+                    float* src;
+                    if (isAligned != 0)
+                    {
+                        u32 mask = (one << (alignField >> 24)) - 1;
+                        src = (float*)(((u32)chunkData + mask) & ~mask);
+                    }
+                    else
+                    {
+                        src = (float*)chunkData;
+                    }
+                    *(float*)((u8*)pAnimCameraData->fFOV + offset) = *(float*)((u8*)src + offset);
                     i++;
+                    offset += sizeof(float);
                 }
             }
             else
@@ -151,11 +175,29 @@ bool LoadAnimCameraData(nlChunk* outerChunk, nlChunk* outerEnd, cCameraData* pAn
         case 0x15510:
             if (ownsKeyData)
             {
-                unsigned long i = 0;
+                unsigned long offset;
+                u8* chunkData = (u8*)outerChunk + 8;
+                unsigned long i;
+                u32 one = 1;
+                i = 0;
+                offset = 0;
                 while (i < pAnimCameraData->m_uKeyCount)
                 {
-                    pAnimCameraData->fFocalLength[i] = ((float*)nlGetChunkData(outerChunk))[i];
+                    u32 alignField = outerChunk->m_ID & 0x7F000000;
+                    u32 isAligned = ((-alignField) | alignField) >> 31;
+                    float* src;
+                    if (isAligned != 0)
+                    {
+                        u32 mask = (one << (alignField >> 24)) - 1;
+                        src = (float*)(((u32)chunkData + mask) & ~mask);
+                    }
+                    else
+                    {
+                        src = (float*)chunkData;
+                    }
+                    *(float*)((u8*)pAnimCameraData->fFocalLength + offset) = *(float*)((u8*)src + offset);
                     i++;
+                    offset += sizeof(float);
                 }
             }
             else

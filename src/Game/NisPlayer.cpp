@@ -409,7 +409,7 @@ static void SkipLine(const char*& data)
 
 /**
  * Offset/Address/Size: 0x3408 | 0x801180E4 | size: 0x588
- * TODO: 63.62% match - stmw r16 vs r15: data spilled to stack, compiler version difference
+ * TODO: 94.47% match - prologue register-save/stack-slot mismatches and small offset diffs near the trailing camera flag stores
  */
 NisPlayer::NisPlayer()
     : InterpreterCore(10)
@@ -468,7 +468,8 @@ NisPlayer::NisPlayer()
                 break;
             SkipLine(d);
 
-            nlToLower(header.name);
+            char* (*volatile toLower)(char*) = nlToLower<char>;
+            toLower(header.name);
 
             nlVector3 beginPos = { { 0, 0, 0 } };
             for (int i = 0; i < header.numAnimations; i++)

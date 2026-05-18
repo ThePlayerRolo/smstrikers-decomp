@@ -841,8 +841,8 @@ bool AvoidController::CalcDesiredVelocityToAvoidCorner(
 
 /**
  * Offset/Address/Size: 0x41C | 0x80007A70 | size: 0x4AC
- * TODO: 93.98% match - 4 register-only diffs: r26/r27/r28 3-way rotation for
- * loop counter, base pointer, and byte offset variables in both loops.
+ * TODO: 95.91% match - remaining differences are register allocation and
+ * control-flow alignment in sideline/corner loops and tail update path.
  */
 bool AvoidController::AvoidSidelines()
 {
@@ -851,7 +851,6 @@ bool AvoidController::AvoidSidelines()
     nlVector2 vCurrentVelDir;
     nlVector2 vCurrentDesiredVelDir;
     nlVector2 vNewDesiredVelDir;
-    int i;
     sCornerSegment corner;
 
     if (m_pFielder->GetDistanceToDesiredPos() <= 0.25f)
@@ -871,7 +870,7 @@ bool AvoidController::AvoidSidelines()
     {
         u8* pBase = (u8*)cField::mCorners;
         int byteOffset = 0;
-        for (i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             u32* pSrc = (u32*)(pBase + byteOffset);
             ((u32*)&corner)[0] = pSrc[0];
@@ -889,14 +888,13 @@ bool AvoidController::AvoidSidelines()
     {
         u8* pBase = (u8*)cField::mSidelines;
         int byteOffset = 0;
-        for (i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             sSideLinePlane* pSide = (sSideLinePlane*)(pBase + byteOffset);
-            nlVector2 vSidelineNormal;
-            vSidelineNormal.f.x = v2Zero.f.x - pSide->vNormal.f.x;
-            vSidelineNormal.f.y = v2Zero.f.y - pSide->vNormal.f.y;
-
             nlVector2 vSidelinePos = *(nlVector2*)&m_pFielder->m_v3Position;
+            nlVector2 vSidelineNormal;
+            vSidelineNormal.f.y = v2Zero.f.y - pSide->vNormal.f.y;
+            vSidelineNormal.f.x = v2Zero.f.x - pSide->vNormal.f.x;
 
             if (vSidelineNormal.f.x == 0.0f)
             {
@@ -941,10 +939,7 @@ bool AvoidController::AvoidSidelines()
             if (m_pFielder->m_pBall != NULL)
             {
                 f32 fDesiredSpeed = m_pFielder->m_fDesiredSpeed;
-                if (fDesiredSpeed <= m_pFTweaks->fRunningWBSpeed)
-                {
-                }
-                else
+                if (fDesiredSpeed > m_pFTweaks->fRunningWBSpeed)
                 {
                     fDesiredSpeed = m_pFTweaks->fRunningWBSpeed;
                 }
@@ -965,10 +960,12 @@ bool AvoidController::AvoidSidelines()
         }
     }
 
+    int currentlyAvoiding = m_CurrentlyAvoiding;
     if (bHitSideline)
-        m_CurrentlyAvoiding |= AVOID_SIDELINES;
+        currentlyAvoiding |= AVOID_SIDELINES;
     else
-        m_CurrentlyAvoiding &= ~AVOID_SIDELINES;
+        currentlyAvoiding &= ~AVOID_SIDELINES;
+    m_CurrentlyAvoiding = currentlyAvoiding;
     m_LastRepulsionVector[AvoidableEnumToIndex(AVOID_SIDELINES)] = v3Zero;
     return bHitSideline;
 }

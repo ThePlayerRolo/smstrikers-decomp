@@ -3265,8 +3265,10 @@ void cFielder::DoRegularShooting()
         v3AngVel.f.z = 10.0f + nlRandomf(15.0f, &nlDefaultSeed);
 
         bool bNegZSpin = false;
-        f32 fDeltaY = v3Target.f.y - g_pBall->m_v3Position.f.y;
-        f32 fDeltaX = v3Target.f.x - g_pBall->m_v3Position.f.x;
+        f32 fDeltaY = v3Target.f.y;
+        f32 fDeltaX = v3Target.f.x;
+        fDeltaY -= g_pBall->m_v3Position.f.y;
+        fDeltaX -= g_pBall->m_v3Position.f.x;
 
         if (fabsf(fDeltaX) < fabsf(fDeltaY))
         {
@@ -3286,9 +3288,7 @@ void cFielder::DoRegularShooting()
 
         if (m_eActionState == ACTION_ONETIMER)
         {
-            v3AngVel.f.z = 0.4f * v3AngVel.f.z;
-            v3AngVel.f.y = 0.4f * v3AngVel.f.y;
-            v3AngVel.f.x = 0.4f * v3AngVel.f.x;
+            _nlVec3Scale(v3AngVel, 0.4f);
         }
     }
 
@@ -5678,7 +5678,15 @@ void cFielder::Update(float fDeltaT)
         bool bHoldTime = false;
         ShotMeter* pMeter = m_pShotMeter;
 
-        bool bCheckState = (eAction == ACTION_RUNNING_WB_TURBO && m_pCurrentAnimController->m_fTime > 0.2f && m_pCurrentAnimController->m_fTime < 0.975f);
+        bool bCheckState;
+        if (eAction == ACTION_RUNNING_WB_TURBO && m_pCurrentAnimController->m_fTime > 0.2f && m_pCurrentAnimController->m_fTime < 0.975f)
+        {
+            bCheckState = true;
+        }
+        else
+        {
+            bCheckState = false;
+        }
 
         if (bCheckState || eAction == ACTION_DEKE || eAction == ACTION_SLIDE_ATTACK)
         {
@@ -5694,7 +5702,15 @@ void cFielder::Update(float fDeltaT)
 
     if (m_tFrozenTimer.m_uPackedTime == 0)
     {
-        bool bNeedDesire = (m_eFielderDesireState == FIELDERDESIRE_NEED_DESIRE || m_tDesireDuration.m_uPackedTime == 0);
+        bool bNeedDesire;
+        if (m_eFielderDesireState == FIELDERDESIRE_NEED_DESIRE || m_tDesireDuration.m_uPackedTime == 0)
+        {
+            bNeedDesire = true;
+        }
+        else
+        {
+            bNeedDesire = false;
+        }
         if (bNeedDesire)
         {
             CalculateNewDesire();
@@ -5712,15 +5728,13 @@ void cFielder::Update(float fDeltaT)
         Audio::cCharacterSFX* pSFX = m_pCharacterSFX;
         bool bIsActive = false;
 
-        switch (eAction)
+        if (eAction == ACTION_RUNNING_WB)
         {
-        case ACTION_RUNNING_WB:
-        case ACTION_RUNNING_WB_TURBO:
-        case ACTION_RUNNING_WB_TURBO_TURN:
             bIsActive = true;
-            break;
-        default:
-            break;
+        }
+        else if (eAction == ACTION_RUNNING_WB_TURBO || eAction == ACTION_RUNNING_WB_TURBO_TURN)
+        {
+            bIsActive = true;
         }
 
         if (bIsActive || eAction == ACTION_DEKE || (eAction == ACTION_NEED_ACTION && GetGlobalPad() != NULL))

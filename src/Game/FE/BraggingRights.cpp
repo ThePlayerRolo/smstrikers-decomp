@@ -4,6 +4,7 @@
 #include "Game/FE/feFinder.h"
 #include "Game/FE/feHelpFuncs.h"
 #include "Game/FE/feInput.h"
+#include "Game/FE/feManager.h"
 #include "Game/FE/feMusic.h"
 #include "Game/FE/feScrollText.h"
 #include "Game/FE/tlTextInstance.h"
@@ -288,19 +289,17 @@ void BraggingRightsOverlay::SceneCreated()
 
 /**
  * Offset/Address/Size: 0x29A8 | 0x800D49A4 | size: 0x494
- * TODO: 88.11% match - stack frame 0x200 vs 0x1E0 and register shift by 1
- *       due to explicit PlayerStats temp needed for word-load copy pattern
- *       (-inline deferred vs -inline auto difference)
+ * TODO: 98.60% match - stack frame is 0x200 vs 0x1E0 and remaining
+ *       callee-saved register assignment drift is in the award/user stat loop
  */
 void BraggingRightsOverlay::IngameSceneCreated()
 {
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
 
-    StatsTracker* tracker = nlSingleton<StatsTracker>::s_pInstance;
     PlayerStats userStats[4];
     for (int i = 0; i < 4; i++)
     {
-        PlayerStats temp = tracker->mCumulativeUserStats[i];
+        PlayerStats temp = nlSingleton<StatsTracker>::s_pInstance->mCumulativeUserStats[i];
         userStats[i] = temp;
     }
 
@@ -310,29 +309,30 @@ void BraggingRightsOverlay::IngameSceneCreated()
     {
         mHighestStats[award] = -1;
         highestTieBreaker[award] = -1;
+        int tieBreaker;
+        int mainStat;
 
         for (int user = 0; user < 4; user++)
         {
-            short side = nlSingleton<GameInfoManager>::s_pInstance->GetPlayingSide((unsigned short)user);
-            if (side == -1)
+            if ((short)nlSingleton<GameInfoManager>::s_pInstance->GetPlayingSide((unsigned short)user) == -1)
                 continue;
-
-            int mainStat;
-            int tieBreaker;
 
             switch (award)
             {
             case 0:
-                mainStat = userStats[user].mNumShotsOnGoal;
-                if (mainStat == 0)
+            {
+                unsigned short shotsOnGoal = userStats[user].mNumShotsOnGoal;
+                mainStat = shotsOnGoal;
+                if (shotsOnGoal == 0)
                 {
                     tieBreaker = 0;
                 }
                 else
                 {
-                    tieBreaker = (int)(100.0f * (float)userStats[user].mNumGoalsFor / (float)mainStat);
+                    tieBreaker = (int)(100.0f * (float)userStats[user].mNumGoalsFor / (float)shotsOnGoal);
                 }
                 break;
+            }
             case 1:
                 mainStat = userStats[user].mNumHitsMade;
                 tieBreaker = userStats[user].mNumFouls;
@@ -377,9 +377,10 @@ void BraggingRightsOverlay::IngameSceneCreated()
             pText->m_OverloadFlags |= 0x8;
 
             nlColour colour;
-            colour.c[0] = PAD_COLOURS[mAwardWinners[award]][0];
-            colour.c[1] = PAD_COLOURS[mAwardWinners[award]][1];
-            colour.c[2] = PAD_COLOURS[mAwardWinners[award]][2];
+            const unsigned char* padColour = PAD_COLOURS[mAwardWinners[award]];
+            colour.c[0] = padColour[0];
+            colour.c[1] = padColour[1];
+            colour.c[2] = padColour[2];
             colour.c[3] = 0xFF;
 
             pText->SetAssetColour(colour);
@@ -572,8 +573,215 @@ void BraggingRightsOverlay::TournamentSceneCreated()
 /**
  * Offset/Address/Size: 0x1EA0 | 0x800D3E9C | size: 0x54C
  */
-void BraggingRightsOverlay::Update(float)
+void BraggingRightsOverlay::Update(float fDeltaT)
 {
+    BaseSceneHandler::Update(fDeltaT);
+    mButtons.CentreButtons();
+    FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
+    f32 fadeEndTime = presentation->m_currentSlide->m_start + presentation->m_currentSlide->m_duration;
+    if (presentation->m_currentSlide->m_time < fadeEndTime)
+    {
+        if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL)
+            || g_pFEInput->JustPressed(FE_ALL_PADS, 0x200, false, NULL))
+        {
+            presentation->m_fadeDuration = fadeEndTime;
+        }
+        return;
+    }
+    TLComponentInstance* pTickerComp = FEFinder<TLComponentInstance, 4>::Find(
+        presentation,
+        InlineHasher(nlStringLowerHash("Slide1")),
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("Component")),
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
+    TLSlide* slide = pTickerComp->GetActiveSlide();
+    f32 slideEndTime = slide->m_start + slide->m_duration;
+    if (pTickerComp->GetActiveSlide()->m_time >= slideEndTime)
+    {
+        mTicker->Update(fDeltaT);
+    }
+    if (!mIsTournamentScene)
+    {
+        if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL))
+        {
+            FrontEnd::ReturnToFE();
+            FEAudio::PlayAnimAudioEvent("sfx_screen_forward", false);
+            return;
+        }
+    }
+    if (mIsTournamentScene)
+    {
+        if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x200, false, NULL))
+        {
+            if (nlSingleton<GameInfoManager>::s_pInstance->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
+            {
+                nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_TOURNAMENT_STANDINGS_FINAL_ANIM, SCREEN_BACK, true);
+            }
+            else
+            {
+                nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_TOURNAMENT_STANDINGS, SCREEN_BACK, true);
+            }
+            return;
+        }
+    }
+    if (mIsTournamentScene)
+    {
+        if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL))
+        {
+            nlSingleton<GameSceneManager>::s_pInstance->PopEntireStack();
+            if (SaveLoadScene::IsIOEnabled())
+            {
+                SaveLoadScene* scene = (SaveLoadScene*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_SAVE, SCREEN_FORWARD, false);
+                scene->mNextScene = SCENE_MAIN_MENU;
+            }
+            else
+            {
+                nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_MAIN_MENU, SCREEN_FORWARD, false);
+            }
+            SHMainMenu::mSnapMenuIntoPosition = true;
+            SHMainMenu::mLastMenuItem = 0;
+            return;
+        }
+    }
+    if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0x0E, true, NULL))
+    {
+        int flags = mMenuItems.mFlags;
+        int wrapFlag = flags & 1;
+        int currentIndex = mMenuItems.mCurrentIndex;
+        int nextIndex = currentIndex + 1;
+
+    loop_right:
+        if (wrapFlag)
+        {
+            nextIndex = nextIndex % mMenuItems.mNumItemsAdded;
+        }
+        else
+        {
+            if (nextIndex >= mMenuItems.mNumItemsAdded)
+            {
+                goto done_right;
+            }
+        }
+
+        if (flags & 2)
+        {
+            if (mMenuItems.mMenuItems[nextIndex].mDisabled)
+            {
+                nextIndex++;
+                goto loop_right;
+            }
+        }
+
+        {
+            int tag = mMenuItems.mMenuItems[currentIndex].mCallbacks[2].mTag;
+            if (((u32)((-tag) | tag) >> 31) > 0)
+            {
+                TLComponentInstance* type = mMenuItems.mMenuItems[currentIndex].mType;
+                if (tag == FREE_FUNCTION)
+                {
+                    mMenuItems.mMenuItems[currentIndex].mCallbacks[2].mFreeFunction(type);
+                }
+                else
+                {
+                    (*mMenuItems.mMenuItems[currentIndex].mCallbacks[2].mFunctor)(type);
+                }
+            }
+        }
+
+        mMenuItems.mCurrentIndex = nextIndex;
+
+        {
+            int selIdx = mMenuItems.mCurrentIndex;
+            int tag = mMenuItems.mMenuItems[selIdx].mCallbacks[1].mTag;
+            if (((u32)((-tag) | tag) >> 31) > 0)
+            {
+                TLComponentInstance* type = mMenuItems.mMenuItems[selIdx].mType;
+                if (tag == FREE_FUNCTION)
+                {
+                    mMenuItems.mMenuItems[selIdx].mCallbacks[1].mFreeFunction(type);
+                }
+                else
+                {
+                    (*mMenuItems.mMenuItems[selIdx].mCallbacks[1].mFunctor)(type);
+                }
+            }
+        }
+
+    done_right:
+        ChangeTicker(mMenuItems.mCurrentIndex);
+    }
+    else if (g_pFEInput->IsAutoPressed(FE_ALL_PADS, 0x0D, true, NULL))
+    {
+        int flags = mMenuItems.mFlags;
+        int wrapFlag = flags & 1;
+        int currentIndex = mMenuItems.mCurrentIndex;
+        int nextIndex = currentIndex - 1;
+
+    loop_left:
+        if (wrapFlag)
+        {
+            if (nextIndex < 0)
+            {
+                nextIndex = mMenuItems.mNumItemsAdded - 1;
+            }
+        }
+        else
+        {
+            if (nextIndex < 0)
+            {
+                goto done_left;
+            }
+        }
+
+        if (flags & 2)
+        {
+            if (mMenuItems.mMenuItems[nextIndex].mDisabled)
+            {
+                nextIndex--;
+                goto loop_left;
+            }
+        }
+
+        {
+            int tag = mMenuItems.mMenuItems[currentIndex].mCallbacks[2].mTag;
+            if (((u32)((-tag) | tag) >> 31) > 0)
+            {
+                TLComponentInstance* type = mMenuItems.mMenuItems[currentIndex].mType;
+                if (tag == FREE_FUNCTION)
+                {
+                    mMenuItems.mMenuItems[currentIndex].mCallbacks[2].mFreeFunction(type);
+                }
+                else
+                {
+                    (*mMenuItems.mMenuItems[currentIndex].mCallbacks[2].mFunctor)(type);
+                }
+            }
+        }
+
+        mMenuItems.mCurrentIndex = nextIndex;
+
+        {
+            int selIdx = mMenuItems.mCurrentIndex;
+            int tag = mMenuItems.mMenuItems[selIdx].mCallbacks[1].mTag;
+            if (((u32)((-tag) | tag) >> 31) > 0)
+            {
+                TLComponentInstance* type = mMenuItems.mMenuItems[selIdx].mType;
+                if (tag == FREE_FUNCTION)
+                {
+                    mMenuItems.mMenuItems[selIdx].mCallbacks[1].mFreeFunction(type);
+                }
+                else
+                {
+                    (*mMenuItems.mMenuItems[selIdx].mCallbacks[1].mFunctor)(type);
+                }
+            }
+        }
+
+    done_left:
+        ChangeTicker(mMenuItems.mCurrentIndex);
+    }
 }
 
 /**

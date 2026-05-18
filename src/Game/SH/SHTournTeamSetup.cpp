@@ -2072,9 +2072,10 @@ BasicString<char, Detail::TempStringAllocator> TournTeamSetupSceneV2::FindCaptai
 
 /**
  * Offset/Address/Size: 0x76C | 0x800E2610 | size: 0x4C8
- * TODO: 93.1% match - r29/r30 register swap: MWCC hoists string literal address
- * before nlMalloc in inlined BasicString constructor, swapping data/str registers
+ * TODO: 96.21% match - string literal address is loaded at case entry rather than
+ * after temporary BasicString allocation in each sidekick branch
  */
+#pragma optimization_level 2
 BasicString<char, Detail::TempStringAllocator> TournTeamSetupSceneV2::FindSidekickSlideName(eSidekickID sidekick)
 {
     BasicString<char, Detail::TempStringAllocator> returnValue;
@@ -2097,6 +2098,7 @@ BasicString<char, Detail::TempStringAllocator> TournTeamSetupSceneV2::FindSideki
 
     return returnValue;
 }
+#pragma optimization_level 4
 
 /**
  * Offset/Address/Size: 0x4B0 | 0x800E2354 | size: 0x2BC

@@ -787,8 +787,8 @@ void cGame::BeginGame(bool bRematch, bool bStraightToKickoff)
         g_pTeams[i]->ResetCharacters();
     }
 
-    nlVector3 velocity = { 0.0f, 0.0f, 0.0f };
     nlVector3 position = { 0.0f, 0.0f, 0.18f };
+    nlVector3 velocity = { 0.0f, 0.0f, 0.0f };
 
     if (g_pBall->m_pOwner != NULL)
     {
@@ -796,8 +796,9 @@ void cGame::BeginGame(bool bRematch, bool bStraightToKickoff)
     }
     g_pBall->WarpTo(position);
     g_pBall->SetVelocity(velocity, SPINTYPE_NONE, NULL);
-    g_pBall->m_unk_0xA6 = false;
-    g_pBall->mpDamageTarget = NULL;
+    cBall* pBall = g_pBall;
+    pBall->m_unk_0xA6 = false;
+    pBall->mpDamageTarget = NULL;
     m_bBallInNet = false;
     g_pBall->ClearBallEffects();
     g_pBall->HandleBuzzerBeater(-1.0f);

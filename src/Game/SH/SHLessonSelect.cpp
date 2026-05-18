@@ -721,13 +721,15 @@ void LessonSelectScene::UpdateRow(int onScreenRow, bool playsound)
         {
             DoubleHighlite::TempDisableSound();
         }
-        mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].ApplyAction(ON_HIGHLIGHT);
+        mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[ON_HIGHLIGHT](
+            mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType);
     }
 
     BasicString<char, Detail::TempStringAllocator> rowString = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(currentRow + 1);
 
+    const char* rowStringC = rowString.c_str();
     unsigned short* numBuf = mNumberBuffers[onScreenRow];
-    nlStrToWcs(rowString.c_str(), numBuf, 16);
+    nlStrToWcs(rowStringC, numBuf, 16);
 
     pText1->SetString(numBuf);
     pText2->SetString(numBuf);

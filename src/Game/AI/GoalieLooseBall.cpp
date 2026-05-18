@@ -50,8 +50,8 @@ static bool LooseBallCallback(float fTime, float fDuration, unsigned long uEvent
  */
 static inline void InitLooseBallAnim(cPlayer* pPlayer, LooseBallInfo* pInfo, int animID, int animType)
 {
-    pInfo->mfPickupTime = 0.0f;
     pInfo->mfAnimDuration = 0.0f;
+    pInfo->mfPickupTime = 0.0f;
     pInfo->mnAnimID = animID;
     pInfo->mAnimType = (eLooseBallAnimType)animType;
     GetAnimTriggerInfo(pPlayer, animID, LooseBallCallback, pInfo);

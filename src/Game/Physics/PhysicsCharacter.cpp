@@ -380,13 +380,11 @@ PhysicsBoneID PhysicsCharacter::ResolvePhysicsBoneIDFromName(const char* name)
 
 /**
  * Offset/Address/Size: 0x100 | 0x80136318 | size: 0x608
- * TODO: 96.1% match - register allocation diffs (r26/r28/r29 vs r29/r30/r31 for this/pFldr/pBall, f30/f31 swap for dy/dx)
+ * TODO: 98.24% match - register allocation diffs for this/pFldr/pBall and dy/dx velocity dot-product ordering
  */
 void PhysicsCharacter::PostUpdate()
 {
-    cBall* pBall;
     cFielder* pFldr;
-    const char* teamName;
     nlVector3 characterPosition;
     nlVector3 v3BallVel;
     nlVector3 v3BallSpin;
@@ -402,12 +400,13 @@ void PhysicsCharacter::PostUpdate()
 
     if (m_HasCollidedWithBall)
     {
-        pBall = g_pBall;
+        cBall* const pBall = g_pBall;
         if (pBall->m_unk_0xA6)
         {
-            pFldr = (cFielder*)m_pAICharacter;
-            if (pFldr->m_eClassType == FIELDER)
+            cCharacter* pCharacter = m_pAICharacter;
+            if (pCharacter->m_eClassType == FIELDER)
             {
+                pFldr = (cFielder*)pCharacter;
                 cPlayer* prevOwner = pBall->m_pPrevOwner;
                 float dx, dy, dz;
                 dy = pBall->m_v3Position.f.y - prevOwner->m_v3Position.f.y;
@@ -445,9 +444,7 @@ void PhysicsCharacter::PostUpdate()
                         {
                             cTeam* otherTeam = prevOwner2->m_pTeam->GetOtherTeam();
                             eTeamID teamID = nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)otherTeam->m_nSide);
-                            teamName = GetTeamName(teamID);
-
-                            BasicString<char, Detail::TempStringAllocator> effectName(teamName);
+                            BasicString<char, Detail::TempStringAllocator> effectName(GetTeamName(teamID));
                             effectName.AppendInPlace("_shoot_to_score_catch");
                             EmitGoalieCatch(pFldr, effectName.c_str(), false);
                         }
@@ -480,9 +477,7 @@ void PhysicsCharacter::PostUpdate()
                     else
                     {
                         eTeamID teamID = nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)pFldr->m_pTeam->m_nSide);
-                        teamName = GetTeamName(teamID);
-
-                        BasicString<char, Detail::TempStringAllocator> effectName(teamName);
+                        BasicString<char, Detail::TempStringAllocator> effectName(GetTeamName(teamID));
                         effectName.AppendInPlace("_shoot_to_score_catch");
                         EmitGoalieCatch(pFldr, effectName.c_str(), true);
                     }

@@ -487,8 +487,7 @@ EffectsTerrainSpec* parse_terrain_spec(SimpleParser* parser)
 
 /**
  * Offset/Address/Size: 0x338 | 0x801F2D80 | size: 0x4D4
- * TODO: 98.69% match - pGroup register r26 vs target r30 (cascading),
- * terrain_spec string SDA vs full address (1 extra inst),
+ * TODO: 99.05% match - pGroup register r26 vs target r30 (cascading),
  * pSpecEntry stores via r4 vs r3, user specs loop register diffs.
  */
 EffectsGroup* parse_group(SimpleParser* parser)
@@ -573,7 +572,7 @@ EffectsGroup* parse_group(SimpleParser* parser)
             continue;
         }
 
-        if (nlStrCmp<char>(token, "terrain_spec") == 0)
+        if (nlStrCmp<char>(token, "terrain") == 0)
         {
             pTerrainSpec = parse_terrain_spec(parser);
             continue;

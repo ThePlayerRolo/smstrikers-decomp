@@ -1403,10 +1403,11 @@ void CrowdMood::Purge(bool bJustStopSFX)
 
 /**
  * Offset/Address/Size: 0x9F8 | 0x8014E10C | size: 0x554
- * TODO: 98.58% match - 2 missing instructions: li r0,-1; and r0,r3,r0 in DestMoodLevel clamp
+ * TODO: 98.87% match - DestMoodLevel clamp still has one extra stack store and a register mismatch in clamped assignment
  */
 void CrowdMood::Update(float dt)
 {
+    MOOD_DEFINITION moodDef;
     if (!g_Initd)
         return;
 
@@ -1450,8 +1451,9 @@ void CrowdMood::Update(float dt)
     if (g_CrowdState.HasChanged)
     {
         u8 level = g_CrowdState.DestMoodLevel;
+        s32 mask = -1;
         u8 clampedLevel = CM_END;
-        if (((u32)level & (u32)-1) <= (u32)CM_END)
+        if (((u32)level & *(u32*)&mask) <= (u32)CM_END)
             clampedLevel = level;
         g_CrowdState.DestMoodLevel = clampedLevel;
 
@@ -1598,7 +1600,6 @@ void CrowdMood::Update(float dt)
         g_CrowdState.SkipBlend = false;
     }
 
-    MOOD_DEFINITION moodDef;
     MoodDefFromBlend(g_CrowdState.CurrentMoodBlend, moodDef);
     PlayMoodDef(moodDef);
 }

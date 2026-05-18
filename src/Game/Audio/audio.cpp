@@ -1301,10 +1301,11 @@ void FadeFilter(float currentVal, float fadeToVal, float fadeDuration, float fad
             gCrowdSFX.ActivateFilterOnAllTrackedSFX(false);
             if (g_pGame != NULL)
             {
+                int p;
                 for (int t = 0; t < 2; t++)
                 {
                     cTeam* team = g_pTeams[t];
-                    for (int p = 0; p < 5; p++)
+                    for (p = 0; p < 5; p++)
                     {
                         team->GetPlayer(p)->m_pCharacterSFX->ActivateFilterOnAllTrackedSFX(false);
                     }
@@ -1319,10 +1320,11 @@ void FadeFilter(float currentVal, float fadeToVal, float fadeDuration, float fad
             gCrowdSFX.SetFilterFreqOnAllTrackedSFX(0);
             if (g_pGame != NULL)
             {
+                int p;
                 for (int t = 0; t < 2; t++)
                 {
                     cTeam* team = g_pTeams[t];
-                    for (int p = 0; p < 5; p++)
+                    for (p = 0; p < 5; p++)
                     {
                         team->GetPlayer(p)->m_pCharacterSFX->SetFilterFreqOnAllTrackedSFX(0);
                     }
@@ -1343,10 +1345,11 @@ void FadeFilter(float currentVal, float fadeToVal, float fadeDuration, float fad
             gCrowdSFX.ActivateFilterOnAllTrackedSFX(true);
             if (g_pGame != NULL)
             {
+                int p;
                 for (int t = 0; t < 2; t++)
                 {
                     cTeam* team = g_pTeams[t];
-                    for (int p = 0; p < 5; p++)
+                    for (p = 0; p < 5; p++)
                     {
                         team->GetPlayer(p)->m_pCharacterSFX->ActivateFilterOnAllTrackedSFX(true);
                     }
@@ -1361,10 +1364,11 @@ void FadeFilter(float currentVal, float fadeToVal, float fadeDuration, float fad
             gCrowdSFX.SetFilterFreqOnAllTrackedSFX(0x3FFF);
             if (g_pGame != NULL)
             {
+                int p;
                 for (int t = 0; t < 2; t++)
                 {
                     cTeam* team = g_pTeams[t];
-                    for (int p = 0; p < 5; p++)
+                    for (p = 0; p < 5; p++)
                     {
                         team->GetPlayer(p)->m_pCharacterSFX->SetFilterFreqOnAllTrackedSFX(0x3FFF);
                     }
@@ -1398,11 +1402,13 @@ createFade:
     {
         if (*(s32*)existing == 2)
         {
-            if (*(float*)((char*)existing + 0x14) == fadeToVal)
+            if (*(float*)((char*)existing + 0x14) != fadeToVal)
             {
-                goto foundExisting;
+                goto nextFade;
             }
+            goto foundExisting;
         }
+    nextFade:
         existing = existing->next;
     }
     existing = NULL;

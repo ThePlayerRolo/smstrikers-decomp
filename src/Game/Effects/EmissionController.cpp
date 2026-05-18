@@ -469,9 +469,12 @@ bool EmissionController::Update(float dt)
                     {
                         float ratio = fDist / dist;
                         float invRatio = 1.0f - ratio;
-                        pos.f.x = ratio * parentMat.m[3][0] + invRatio * currentMat.m[3][0];
-                        pos.f.y = ratio * parentMat.m[3][1] + invRatio * currentMat.m[3][1];
-                        pos.f.z = ratio * parentMat.m[3][2] + invRatio * currentMat.m[3][2];
+                        float x = ratio * parentMat.m[3][0];
+                        float y = ratio * parentMat.m[3][1];
+                        float z = ratio * parentMat.m[3][2];
+                        pos.f.x = invRatio * currentMat.m[3][0] + x;
+                        pos.f.y = invRatio * currentMat.m[3][1] + y;
+                        pos.f.z = invRatio * currentMat.m[3][2] + z;
                         break;
                     }
 
@@ -547,7 +550,7 @@ bool EmissionController::Update(float dt)
         pSys = pNext;
     }
 
-    u8 isFinished = (numSys == numDel);
+    u8 isFinished = (numSys == numDel) ? 1 : 0;
 
     if (isFinished && mFinishedCallback.mTag != EMPTY)
     {

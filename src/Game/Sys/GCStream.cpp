@@ -1069,7 +1069,7 @@ void GCAudioStreaming::StereoAudioStream::InterleavedHdrReadCB(nlFile* pFile, vo
 
 /**
  * Offset/Address/Size: 0x2A8 | 0x801C7A58 | size: 0x540
- * TODO: 89.84% match - r31/r30/r27 cyclic register swap for this/LengthB/MRAMOffsetB
+ * TODO: 93.29% match - r31/r30/r27 cyclic register swap for this/LengthB/MRAMOffsetB
  */
 unsigned long GCAudioStreaming::StereoAudioStream::DoUpdateRead(unsigned long MRAMOffsetA, unsigned long LengthA, unsigned long MRAMOffsetB, unsigned long LengthB, GCAudioStreaming::AudioStreamBuffer* pRequestingBuffer)
 {
@@ -1112,10 +1112,15 @@ unsigned long GCAudioStreaming::StereoAudioStream::DoUpdateRead(unsigned long MR
             Stop();
             return 0;
         }
-        AudioStreamBuffer* pBuffer = 0;
-        volatile unsigned long BufferIndex = (unsigned long)pBuffer;
-        if (m_BufferCount > 0)
+        AudioStreamBuffer* pBuffer;
+        volatile unsigned long BufferIndex = (unsigned long)(pBuffer = 0);
+        if (m_BufferCount <= 0)
+        {
+        }
+        else
+        {
             pBuffer = m_Buffers[0];
+        }
         unsigned long ARAMLenA = (LengthA >> 3) * 0xe;
         unsigned long ARAMLenB = (LengthB >> 3) * 0xe;
         while (pBuffer)
@@ -1239,10 +1244,15 @@ unsigned long GCAudioStreaming::StereoAudioStream::DoUpdateRead(unsigned long MR
         return LengthA + LengthB;
     }
     unsigned long TotalReadLen = LengthA + LengthB;
-    AudioStreamBuffer* pBuffer = 0;
-    volatile unsigned long BufferIndex = (unsigned long)pBuffer;
-    if (m_BufferCount > 0)
+    AudioStreamBuffer* pBuffer;
+    volatile unsigned long BufferIndex = (unsigned long)(pBuffer = 0);
+    if (m_BufferCount <= 0)
+    {
+    }
+    else
+    {
         pBuffer = m_Buffers[0];
+    }
     while (pBuffer)
     {
         unsigned char* pMRAMBuffer = pBuffer->m_MRAMBuffer;

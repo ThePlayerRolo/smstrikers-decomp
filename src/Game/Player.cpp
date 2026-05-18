@@ -924,13 +924,13 @@ bool cPlayer::IsOnSameTeam(cPlayer* other)
 
 /**
  * Offset/Address/Size: 0x197C | 0x80058ECC | size: 0x4A4
- * TODO: 97.91% match - 4-byte instruction offset throughout (scratch artifact)
  */
 void cPlayer::SetAIPad(cAIPad* pPad)
 {
     m_pController = pPad;
     if (m_eClassType != FIELDER)
         return;
+
     cFielder* pFielder = (cFielder*)this;
 
     if (pFielder->m_pBall != NULL)
@@ -938,9 +938,11 @@ void cPlayer::SetAIPad(cAIPad* pPad)
         u8 bShotInProgress = 0;
         eShotMeterState state;
         ShotMeter* pMeter = pFielder->m_pShotMeter;
+
         state = pMeter->m_eShotMeterState;
         if (state == SHOT_METER_ACTIVE || state == SHOT_METER_STS_ACTIVE || state == SHOT_METER_STS_TRANSISTION)
             bShotInProgress = 1;
+
         if (!bShotInProgress)
         {
             if (pFielder->m_eActionState == ACTION_SHOT)
@@ -948,10 +950,12 @@ void cPlayer::SetAIPad(cAIPad* pPad)
             if (pMeter->m_eShotMeterState != SHOT_METER_RELEASED)
                 goto pad;
         }
+
         pMeter->ShotReleased(pFielder);
         pFielder->InitActionShot(false);
         return;
     }
+
 pad:
     if (m_pController != NULL && pFielder->m_eFielderDesireState < FIELDERDESIRE_USER_CONTROLLED)
     {
@@ -960,19 +964,24 @@ pad:
             pFielder->InitDesire(FIELDERDESIRE_FINISH_ACTION, 0.5f, -1.0f, fvNotSet, fvNotSet);
             return;
         }
+
         pFielder->EndDesire(false);
         return;
     }
-    if (m_pController == NULL)
+
+    if (m_pController == NULL && pFielder->m_eFielderDesireState == FIELDERDESIRE_USER_CONTROLLED)
     {
         if (g_pGame->IsGameplayOrOvertime() && (pFielder->m_eActionState == ACTION_SLIDE_ATTACK || pFielder->m_eActionState == ACTION_SHOOT_TO_SCORE))
         {
             pFielder->InitDesire(FIELDERDESIRE_FINISH_ACTION, 0.5f, -1.0f, fvNotSet, fvNotSet);
             return;
         }
+
+        pFielder->EndDesire(false);
+        return;
     }
-    pFielder->EndDesire(false);
-    if (pFielder->m_eFielderDesireState == FIELDERDESIRE_WAIT && g_pGame->m_eGameState == GS_KICKOFF)
+
+    if (m_pController != NULL && pFielder->m_eFielderDesireState == FIELDERDESIRE_WAIT && g_pGame->m_eGameState == GS_KICKOFF)
         pFielder->EndDesire(false);
 }
 

@@ -73,8 +73,8 @@ extern eCameraType g_eCurrentCameraType;
  */
 void cCameraManager::Startup()
 {
-    GameplayCamera* pCamera = new (nlMalloc(sizeof(GameplayCamera), 8, false)) GameplayCamera();
-    pCamera->m_pFilter = pRumbleFilter = new (nlMalloc(sizeof(cRumbleFilter), 8, false)) cRumbleFilter();
+    cBaseCamera* pBaseCamera = (cBaseCamera*)new ((GameplayCamera*)nlMalloc(sizeof(GameplayCamera), 8, false)) GameplayCamera();
+    pBaseCamera->m_pFilter = pRumbleFilter = new (nlMalloc(sizeof(cRumbleFilter), 8, false)) cRumbleFilter();
 
     if (m_transition != eCT_NONE)
     {
@@ -99,8 +99,8 @@ void cCameraManager::Startup()
         }
     }
 
-    nlDLRingAddStart<cBaseCamera>(&m_cameraStack, static_cast<cBaseCamera*>(pCamera));
-    g_eCurrentCameraType = pCamera->GetType();
+    nlDLRingAddStart<cBaseCamera>(&m_cameraStack, pBaseCamera);
+    g_eCurrentCameraType = pBaseCamera->GetType();
 
     cAnimCamera::LoadCameraAnimation("art/cameras/startscreen.cam", "startscreen", true);
     cAnimCamera::LoadCameraAnimation("art/cameras/ShootToScoreCamera.cam", "ShootToScoreCamera", true);

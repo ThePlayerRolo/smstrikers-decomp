@@ -144,9 +144,8 @@ BlurHandler* BlurManager::GetNewHandler(const char* szTextureName, float fLineWi
 
 /**
  * Offset/Address/Size: 0x2AC | 0x80162A80 | size: 0x514
- * TODO: 88.92% match - MWCC in decomp.me devirtualizes Texcoord calls (direct bl)
- * while target uses virtual dispatch (lwz+lwz+mtctr+bctrl). 12 extra target instructions
- * from vtable dispatch + 4 from v3Bottom pointer pre-computation + lwz vs li for 0xFFFFFFFF.
+ * TODO: 97.03% match - remaining diffs are in blended-endpoint address arithmetic and
+ * loading the initial white colour value from constant storage.
  */
 void BlurHandler::RenderMesh(unsigned long uTexID)
 {
@@ -276,27 +275,27 @@ void BlurHandler::RenderMesh(unsigned long uTexID)
                 f32 invBlend = 1.0f - blendPct;
 
                 nlVector3 v3Top;
-                v3Top.f.x = blendPct * pB->v3Top.f.x + invBlend * pA->v3Top.f.x;
-                v3Top.f.y = blendPct * pB->v3Top.f.y + invBlend * pA->v3Top.f.y;
-                v3Top.f.z = blendPct * pB->v3Top.f.z + invBlend * pA->v3Top.f.z;
+                v3Top.f.x = invBlend * pA->v3Top.f.x + blendPct * pB->v3Top.f.x;
+                v3Top.f.y = invBlend * pA->v3Top.f.y + blendPct * pB->v3Top.f.y;
+                v3Top.f.z = invBlend * pA->v3Top.f.z + blendPct * pB->v3Top.f.z;
 
                 nlVector3 v3Bottom;
-                v3Bottom.f.x = blendPct * pB->v3Bottom.f.x + invBlend * pA->v3Bottom.f.x;
-                v3Bottom.f.y = blendPct * pB->v3Bottom.f.y + invBlend * pA->v3Bottom.f.y;
-                v3Bottom.f.z = blendPct * pB->v3Bottom.f.z + invBlend * pA->v3Bottom.f.z;
+                v3Bottom.f.x = invBlend * pA->v3Bottom.f.x + blendPct * pB->v3Bottom.f.x;
+                v3Bottom.f.y = invBlend * pA->v3Bottom.f.y + blendPct * pB->v3Bottom.f.y;
+                v3Bottom.f.z = invBlend * pA->v3Bottom.f.z + blendPct * pB->v3Bottom.f.z;
 
                 mesh.Colour(colour);
                 nlVector2 tc0;
                 tc0.f.x = texU;
                 tc0.f.y = 0.0f;
-                mesh.Texcoord(tc0);
+                ((GLMeshWriterCore*)&mesh)->Texcoord(tc0);
                 mesh.Vertex(v3Top);
 
                 mesh.Colour(colour);
                 nlVector2 tc1;
                 tc1.f.x = texU;
                 tc1.f.y = 1.0f;
-                mesh.Texcoord(tc1);
+                ((GLMeshWriterCore*)&mesh)->Texcoord(tc1);
                 mesh.Vertex(v3Bottom);
             }
             else
@@ -305,14 +304,14 @@ void BlurHandler::RenderMesh(unsigned long uTexID)
                 nlVector2 tc0;
                 tc0.f.x = texU;
                 tc0.f.y = 0.0f;
-                mesh.Texcoord(tc0);
+                ((GLMeshWriterCore*)&mesh)->Texcoord(tc0);
                 mesh.Vertex(BPEntry->v3Top);
 
                 mesh.Colour(colour);
                 nlVector2 tc1;
                 tc1.f.x = texU;
                 tc1.f.y = 1.0f;
-                mesh.Texcoord(tc1);
+                ((GLMeshWriterCore*)&mesh)->Texcoord(tc1);
                 mesh.Vertex(BPEntry->v3Bottom);
             }
 

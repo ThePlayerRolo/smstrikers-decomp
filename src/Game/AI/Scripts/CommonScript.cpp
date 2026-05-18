@@ -472,7 +472,7 @@ FuzzyVariant Fuzzy::GetSwapControllerScore(cPlayer* ThePlayer)
         float defense = 1.0f - offensive;
         team = ThePlayer != NULL ? ThePlayer->m_pTeam : NULL;
         float defResult = Defensive(team);
-        if (!(defResult <= defense))
+        if (defResult > defense)
             defResult = defense;
         if (defResult)
         {
@@ -500,8 +500,7 @@ FuzzyVariant Fuzzy::GetSwapControllerScore(cPlayer* ThePlayer)
             isIdle = 1;
     }
 
-    FuzzyVariant fvResult(result);
-    bestValue = fvResult;
+    bestValue = FuzzyVariant(result);
     bestValue.Confidence = 1.0f;
     return bestValue;
 }

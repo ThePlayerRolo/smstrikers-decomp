@@ -4,7 +4,6 @@
 
 /**
  * Offset/Address/Size: 0x0 | 0x801CE120 | size: 0x490
- * TODO: 97.93% match - r3 used as loop temp instead of holding return value before rebalance loop
  */
 AVLTreeNode* AVLTreeUntemplated::RemoveAVLNode(AVLTreeNode** root, void* key, unsigned int height)
 {
@@ -137,36 +136,34 @@ AVLTreeNode* AVLTreeUntemplated::RemoveAVLNode(AVLTreeNode** root, void* key, un
     while (stackTop > 0)
     {
         stackTop--;
-        AVLTreeNode* node = stack[stackTop];
+        curr = stack[stackTop];
 
-        if (node->heavy == 0)
+        if (curr->heavy == 0)
         {
-            node->heavy -= pathInfo[stackTop];
+            curr->heavy -= pathInfo[stackTop];
             break;
         }
 
-        node->heavy -= pathInfo[stackTop];
-        if (node->heavy == 0)
+        curr->heavy -= pathInfo[stackTop];
+        if (curr->heavy == 0)
             continue;
 
-        s8 dir = pathInfo[stackTop];
-
-        if (dir == 1)
-            kid = node->left;
+        if (pathInfo[stackTop] == 1)
+            kid = curr->left;
         else
-            kid = node->right;
+            kid = curr->right;
 
-        if (kid->heavy != dir)
+        if (kid->heavy != pathInfo[stackTop])
         {
-            if (dir != 1)
+            if (pathInfo[stackTop] != 1)
             {
-                node->right = kid->left;
-                kid->left = node;
+                curr->right = kid->left;
+                kid->left = curr;
             }
             else
             {
-                node->left = kid->right;
-                kid->right = node;
+                curr->left = kid->right;
+                kid->right = curr;
             }
 
             if (stackTop != 0)
@@ -183,63 +180,65 @@ AVLTreeNode* AVLTreeUntemplated::RemoveAVLNode(AVLTreeNode** root, void* key, un
 
             if (kid->heavy == 0)
             {
-                node->heavy = (node->heavy > 0) ? 1 : -1;
-                kid->heavy = -node->heavy;
+                comp = -1;
+                if (curr->heavy > 0)
+                    comp = 1;
+
+                curr->heavy = comp;
+                kid->heavy = -curr->heavy;
                 break;
             }
-            else
-            {
-                kid->heavy = 0;
-                node->heavy = 0;
-            }
+
+            kid->heavy = 0;
+            curr->heavy = 0;
         }
         else
         {
-            if (dir != 1)
+            if (pathInfo[stackTop] != 1)
             {
                 grandkid = kid->left;
                 kid->left = grandkid->right;
-                node->right = grandkid->left;
+                curr->right = grandkid->left;
                 grandkid->right = kid;
-                grandkid->left = node;
+                grandkid->left = curr;
 
                 if (grandkid->heavy == 1)
                 {
-                    node->heavy = -1;
+                    curr->heavy = -1;
                     kid->heavy = 0;
                 }
                 else if (grandkid->heavy == -1)
                 {
-                    node->heavy = 0;
+                    curr->heavy = 0;
                     kid->heavy = 1;
                 }
                 else
                 {
-                    node->heavy = 0;
                     kid->heavy = 0;
+                    curr->heavy = 0;
                 }
             }
             else
             {
                 grandkid = kid->right;
                 kid->right = grandkid->left;
-                node->left = grandkid->right;
+                curr->left = grandkid->right;
                 grandkid->left = kid;
-                grandkid->right = node;
+                grandkid->right = curr;
 
                 if (grandkid->heavy == 1)
                 {
-                    node->heavy = 0;
+                    curr->heavy = 0;
                     kid->heavy = -1;
                 }
                 else if (grandkid->heavy == -1)
                 {
-                    node->heavy = 1;
+                    curr->heavy = 1;
                     kid->heavy = 0;
                 }
                 else
                 {
-                    node->heavy = 0;
+                    curr->heavy = 0;
                     kid->heavy = 0;
                 }
             }

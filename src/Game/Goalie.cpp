@@ -1587,13 +1587,14 @@ void Goalie::FindDesiredGoaliePosition(nlVector3& pos, nlVector3& dir, nlVector3
     nlVector3 targetPos;
     float goalX;
     nlVector3 desiredVec;
+    float goalY = 0.0f;
 
     goalX = 0.5f * pNet->m_sideSign + pNet->GetGoalLineX();
 
     if (pThreatPos == NULL)
     {
+        cPlayer* pOwner = g_pBall->m_pOwner;
         cBall* pBall = g_pBall;
-        cPlayer* pOwner = pBall->m_pOwner;
         if (pOwner != NULL)
         {
             targetPos.f.x = 0.18f * pOwner->m_v3Velocity.f.x + pBall->m_v3Position.f.x;
@@ -1628,8 +1629,8 @@ void Goalie::FindDesiredGoaliePosition(nlVector3& pos, nlVector3& dir, nlVector3
     }
 
     desiredVec.f.x = targetPos.f.x - goalX;
-    desiredVec.f.y = targetPos.f.y - 0.0f;
-    desiredVec.f.z = targetPos.f.z - 0.0f;
+    desiredVec.f.y = targetPos.f.y - goalY;
+    desiredVec.f.z = targetPos.f.z - goalY;
 
     float goalLine = cField::GetGoalLineX(1U) - 0.5f;
     float goalieDist = nlSqrt(desiredVec.f.x * desiredVec.f.x + desiredVec.f.y * desiredVec.f.y + desiredVec.f.z * desiredVec.f.z, true);
@@ -1711,8 +1712,8 @@ void Goalie::FindDesiredGoaliePosition(nlVector3& pos, nlVector3& dir, nlVector3
 
     float ratio = (goalieDist + 0.5f) / (targetDist + 0.5f);
     float desiredX = ratio * desiredVec.f.x + goalX;
-    float desiredY = ratio * desiredVec.f.y + 0.0f;
-    float desiredZ = ratio * desiredVec.f.z + 0.0f;
+    float desiredY = ratio * desiredVec.f.y + goalY;
+    float desiredZ = ratio * desiredVec.f.z + goalY;
 
     if ((float)fabs(m_v3Position.f.x) > cField::GetGoalLineX(1U))
     {
@@ -1732,8 +1733,8 @@ void Goalie::FindDesiredGoaliePosition(nlVector3& pos, nlVector3& dir, nlVector3
             desiredY = halfNetMinusOne;
         }
         desiredX = goalLine * pNet->m_sideSign;
-        desiredVec.f.y = desiredY - m_v3Position.f.y;
         desiredVec.f.x = desiredX - m_v3Position.f.x;
+        desiredVec.f.y = desiredY - m_v3Position.f.y;
         desiredVec.f.z = desiredZ - m_v3Position.f.z;
     }
 
@@ -1754,9 +1755,9 @@ void Goalie::FindDesiredGoaliePosition(nlVector3& pos, nlVector3& dir, nlVector3
         desiredX = goalLine;
     }
 
-    pos.f.x = 0.2f * m_v3Position.f.x + 0.8f * desiredX;
-    pos.f.y = 0.2f * m_v3Position.f.y + 0.8f * desiredY;
-    pos.f.z = 0.2f * m_v3Position.f.z + 0.8f * desiredZ;
+    pos.f.x = 0.8f * desiredX + 0.2f * m_v3Position.f.x;
+    pos.f.y = 0.8f * desiredY + 0.2f * m_v3Position.f.y;
+    pos.f.z = 0.8f * desiredZ + 0.2f * m_v3Position.f.z;
     dir = desiredVec;
     focus = targetPos;
 }
@@ -1973,10 +1974,9 @@ void Goalie::HandleSTSContact(cBall* pBall)
 
 /**
  * Offset/Address/Size: 0x75B4 | 0x8004A0B0 | size: 0x494
- * TODO: 83.86% match - 9 branch offset diffs from 1 extra instruction (4 bytes) in
- * if(m_pBall==NULL) wrapping pattern for KICK block. Target uses flat bne- far branch
- * but MWCC generates beq-+inline return for if(m_pBall!=NULL)return false, requiring
- * wrapping which adds a trailing branch instruction shifting all subsequent branch targets.
+ * TODO: 99.80% match - stack-offset diffs remain in FuzzyVariant temporary layout
+ * during pass-target selection, plus operand-order register diffs in the 0.5f
+ * velocity scaling multiplies.
  */
 bool Goalie::InitiatePickup()
 {
@@ -2022,8 +2022,8 @@ bool Goalie::InitiatePickup()
                     }
 
                     mpShooter = NULL;
-                    mfSpeedScale = 1.0f;
                     mUrgency = URGENCY_LOW;
+                    mfSpeedScale = 1.0f;
 
                     mbPosGoalieNetCheck = false;
                     mbNegGoalieNetCheck = false;
@@ -2066,10 +2066,7 @@ bool Goalie::InitiatePickup()
                 }
             }
 
-            nlVector3 v3Pos;
-            v3Pos.f.x = g_pBall->m_v3Position.f.x;
-            v3Pos.f.y = g_pBall->m_v3Position.f.y;
-            v3Pos.f.z = g_pBall->m_v3Position.f.z;
+            nlVector3 v3Pos = g_pBall->m_v3Position;
 
             PickupBall(g_pBall);
             mbPickedUp = true;
@@ -2081,22 +2078,25 @@ bool Goalie::InitiatePickup()
             }
             else
             {
+                cPlayer* pPassTarget;
                 if (GetGlobalPad() != NULL)
                 {
-                    mpPassTarget = DoFindBestPassTarget(false, false);
+                    pPassTarget = DoFindBestPassTarget(false, false);
                 }
                 else
                 {
                     FuzzyVariant fvTarget = Fuzzy::GetBestPassTarget(this);
                     if (fvTarget.Confidence >= 0.5f)
                     {
-                        mpPassTarget = fvTarget.mData.pPlayer;
+                        pPassTarget = fvTarget.mData.pPlayer;
                     }
                     else
                     {
-                        mpPassTarget = DoFindBestPassTarget(false, false);
+                        pPassTarget = DoFindBestPassTarget(false, false);
                     }
                 }
+
+                mpPassTarget = pPassTarget;
             }
 
             if (mpPassTarget != NULL)
@@ -2120,36 +2120,31 @@ bool Goalie::InitiatePickup()
     {
         if (mfWaitTime <= 0.0f)
         {
-            if (g_pBall->m_tNoPickupTimer.m_uPackedTime != 0)
+            if (g_pBall->m_tNoPickupTimer.m_uPackedTime == 0)
             {
-                return false;
+                mfWaitTime = 0.1f;
+                SetNoPickUpTime(mfWaitTime);
+
+                nlVector3 v3BallVel = g_pBall->m_v3Velocity;
+
+                float fSpeedSq = v3BallVel.f.x * v3BallVel.f.x + v3BallVel.f.y * v3BallVel.f.y + v3BallVel.f.z * v3BallVel.f.z;
+                if (fSpeedSq > 64.0f)
+                {
+                    v3BallVel.f.x *= 0.5f;
+                    v3BallVel.f.y *= 0.5f;
+                    v3BallVel.f.z *= 0.5f;
+                    g_pBall->SetVelocity(v3BallVel, SPINTYPE_NONE, NULL);
+                }
+
+                mbDoHeadTrack = false;
+
+                if (g_pBall->m_tShotTimer.m_uPackedTime != 0)
+                {
+                    g_pBall->ClearShotInProgress();
+                }
+
+                return true;
             }
-
-            mfWaitTime = 0.1f;
-            SetNoPickUpTime(mfWaitTime);
-
-            nlVector3 v3BallVel;
-            v3BallVel.f.x = g_pBall->m_v3Velocity.f.x;
-            v3BallVel.f.y = g_pBall->m_v3Velocity.f.y;
-            v3BallVel.f.z = g_pBall->m_v3Velocity.f.z;
-
-            float fSpeedSq = v3BallVel.f.x * v3BallVel.f.x + v3BallVel.f.y * v3BallVel.f.y + v3BallVel.f.z * v3BallVel.f.z;
-            if (fSpeedSq > 64.0f)
-            {
-                v3BallVel.f.x *= 0.5f;
-                v3BallVel.f.y *= 0.5f;
-                v3BallVel.f.z *= 0.5f;
-                g_pBall->SetVelocity(v3BallVel, SPINTYPE_NONE, NULL);
-            }
-
-            mbDoHeadTrack = false;
-
-            if (g_pBall->m_tShotTimer.m_uPackedTime != 0)
-            {
-                g_pBall->ClearShotInProgress();
-            }
-
-            return true;
         }
     }
 

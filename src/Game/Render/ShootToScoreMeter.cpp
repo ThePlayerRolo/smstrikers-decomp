@@ -337,7 +337,7 @@ void ShootToScoreMeter::DrawMeter()
 
 /**
  * Offset/Address/Size: 0x3DC | 0x8016063C | size: 0x5A8
- * TODO: 97.9% match - f15/f16 register swap for magic double and 0.125f constants
+ * TODO: 99.8% match - pre-loop scaled-width/radius constant load/register ordering
  */
 void ShootToScoreMeter::DrawColouredRegion(float startAngle, float endAngle, const nlColour& startColour, const nlColour& endColour, nlMatrix4 meterMatrix, float scale)
 {
@@ -353,23 +353,28 @@ void ShootToScoreMeter::DrawColouredRegion(float startAngle, float endAngle, con
     glQuad3 barQuad;
     float frac0;
     float frac1;
-    float radius0 = radius - scaledWhiteBarWidth * 0.5f;
-    float radius1 = radius + scaledWhiteBarWidth * 0.5f;
+    float radius0 = radius - (scaledWhiteBarWidth * 0.5f);
+    float radius1 = radius + (scaledWhiteBarWidth * 0.5f);
+
+    float step = 0.125f;
+    float sinScale = 10430.378f;
+    float pi = 3.1415927f;
+    float deg = 180.0f;
 
     for (i = 0; i < 8; i++)
     {
-        frac0 = (float)i * 0.125f;
-        frac1 = (float)(i + 1) * 0.125f;
+        frac0 = (float)i * step;
+        frac1 = (float)(i + 1) * step;
 
         float angle0 = frac0 * widthAngle + startAngle;
-        u16 angle0_u16 = (u16)(s32)(10430.378f * (3.1415927f * angle0 / 180.0f));
-        float cos0 = nlSin((u16)(angle0_u16 + 0x4000));
-        float sin0 = nlSin(angle0_u16);
+        s32 angle0_i = (s32)(sinScale * (pi * angle0 / deg));
+        float cos0 = nlSin((u16)((u16)angle0_i + 0x4000));
+        float sin0 = nlSin((u16)angle0_i);
 
         float angle1 = frac1 * widthAngle + startAngle;
-        u16 angle1_u16 = (u16)(s32)(10430.378f * (3.1415927f * angle1 / 180.0f));
-        float cos1 = nlSin((u16)(angle1_u16 + 0x4000));
-        float sin1 = nlSin(angle1_u16);
+        s32 angle1_i = (s32)(sinScale * (pi * angle1 / deg));
+        float cos1 = nlSin((u16)((u16)angle1_i + 0x4000));
+        float sin1 = nlSin((u16)angle1_i);
 
         float zDepth;
         if (sbMakeSTSMeterOrthographic)

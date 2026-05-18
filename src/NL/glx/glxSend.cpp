@@ -1123,6 +1123,8 @@ void glx_SwitchTextureState(const glModelPacket* p)
     int bit;
     int texnum;
     GXTexWrapMode mode[2];
+    eGLTextureMode tmode;
+    eGLTextureFilter filter;
 
     glUnHandleizeTextureState(p->state.texturestate);
 
@@ -1142,8 +1144,9 @@ void glx_SwitchTextureState(const glModelPacket* p)
     else
     {
         u8 raw;
+        f32 level;
         raw = (u8)glGetTextureState(GLTS_DiffuseLevel);
-        f32 level = (f32)raw * (1.0f / 63.0f);
+        level = (f32)raw * (1.0f / 63.0f);
         if (level != glx_konstlevel[0])
         {
             int val = (int)(255.5f * level);
@@ -1163,7 +1166,10 @@ void glx_SwitchTextureState(const glModelPacket* p)
         }
 
         raw = (u8)glGetTextureState(GLTS_ShadowLevel);
-        level = 1.0f - (f32)raw * (1.0f / 63.0f);
+        {
+            f32 shadowLevel = (f32)raw * (1.0f / 63.0f);
+            level = 1.0f - shadowLevel;
+        }
         if (level != glx_konstlevel[2])
         {
             int val = (int)(255.5f * level);
@@ -1196,7 +1202,7 @@ void glx_SwitchTextureState(const glModelPacket* p)
         }
         else
         {
-            eGLTextureMode tmode = (eGLTextureMode)glGetTextureState((eGLTextureState)bit);
+            tmode = (eGLTextureMode)glGetTextureState((eGLTextureState)bit);
             switch (tmode)
             {
             case GLTM_WrapWrap:
@@ -1222,7 +1228,7 @@ void glx_SwitchTextureState(const glModelPacket* p)
 
         GXInitTexObjWrapMode(&glx_texobj[texnum], mode[0], mode[1]);
 
-        eGLTextureFilter filter = (eGLTextureFilter)glGetTextureState((eGLTextureState)(bit + 6));
+        filter = (eGLTextureFilter)glGetTextureState((eGLTextureState)(bit + 6));
         switch (filter)
         {
         case GLTF_Linear:
@@ -1243,9 +1249,11 @@ void glx_SwitchTextureState(const glModelPacket* p)
         case GLTF_Point:
         {
             PlatTexture* tex = (PlatTexture*)glx_texture[texnum];
-            GXTexFilter minFilt = GX_NEAR_MIP_NEAR;
+            GXTexFilter minFilt;
             if (tex->m_Levels == 1)
                 minFilt = GX_NEAR;
+            else
+                minFilt = GX_NEAR_MIP_NEAR;
             GXInitTexObjFilter(&glx_texobj[texnum], minFilt, GX_NEAR);
             break;
         }
