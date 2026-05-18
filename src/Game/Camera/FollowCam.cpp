@@ -98,7 +98,8 @@ void cFollowCamera::Update(float dt)
         {
             if (cPadManager::GetPad(0)->JustPressed(1, false) && !g_bTweaking)
             {
-                int v = (currentlySelectedTarget + count - 1);
+                int v = currentlySelectedTarget + count;
+                v -= 1;
                 currentlySelectedTarget = v - (v / count) * count; // mod
             }
             if (cPadManager::GetPad(0)->JustPressed(2, false) && !g_bTweaking)

@@ -841,8 +841,6 @@ FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.2f)
             fConfidence = fConfidence * fBranchRatio;
 
-        cFielder* pTarget = g_pScriptBallOwner;
-
         float fNotFacingSideline = 1.0f - FacingSideline(g_pScriptCurrentFielder);
         float fTrueConfidence2 = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edSlideAttack);
 
@@ -863,14 +861,14 @@ FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
             if (fConfidence > 0.0f)
                 fBestConfidence = fConfidence;
 
-            pEntity->QueueActionSetDesire(15, fConfidence, 0.0f, FuzzyVariant(pTarget), fvNotSet);
+            pEntity->QueueActionSetDesire(15, fConfidence, 0.0f, FuzzyVariant(g_pScriptBallOwner), fvNotSet);
 
             SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
             float fAggressive = Aggressive(g_pScriptCurrentFielder);
             pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_SlideAttackChance, fAggressive);
         }
 
-        float fNotSeparating = 1.0f - SeparatingFrom(g_pScriptCurrentFielder, pTarget);
+        float fNotSeparating = 1.0f - SeparatingFrom(g_pScriptCurrentFielder, g_pScriptBallOwner);
         float fTrueConfidence3 = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edHeavyAttack);
 
         fTrueConfidence3 = (fTrueConfidence3 <= fNotSeparating) ? fTrueConfidence3 : fNotSeparating;
@@ -890,7 +888,7 @@ FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
             if (fConfidence > fBestConfidence)
                 fBestConfidence = fConfidence;
 
-            pEntity->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant(pTarget), fvNotSet);
+            pEntity->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant(g_pScriptBallOwner), fvNotSet);
 
             SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
             float fAggressive = Aggressive(g_pScriptCurrentFielder);
@@ -903,9 +901,8 @@ FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
 
 /**
  * Offset/Address/Size: 0x5C4 | 0x80085C7C | size: 0x14CC
- * TODO: 94.75% match on decomp.me (-inline auto) - remaining diffs from r28 register
- * allocation difference: target caches FuzzyVariant copy ctor this pointers in r28,
- * decomp.me recomputes addresses. Caused by -inline deferred vs -inline auto.
+ * TODO: 99.95% match - remaining diffs are captain-blend multiply operand order
+ * and f29/f30 register assignment in the threat blend around Upfield/NearTo/Marking.
  */
 FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEntity)
 {
@@ -929,7 +926,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
             fConfidence = fConfidence * fRatio;
 
         float fCaptain = Captain(g_pScriptCurrentFielder);
-        float fCaptainConf = target.Confidence * 0.7f + fCaptain * 0.3f;
+        float fCaptainConf = target.Confidence;
+        fCaptainConf = fCaptainConf * 0.7f + fCaptain * 0.3f;
         float fCaptainFalse = 1.0f - fCaptainConf;
         float fCaptainMin = (fCaptainConf <= fCaptainFalse) ? fCaptainConf : fCaptainFalse;
         float fCaptainMax = (fCaptainConf >= fCaptainFalse) ? fCaptainConf : fCaptainFalse;
@@ -954,7 +952,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
                     fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
                     if (fConfidence < fLikely && fLikely < 0.2f)
                         fConfidence = fConfidence * fLRatio;
-                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    float fQueuedConfidence = fConfidence;
+                    fBestConfidence = (0.0f >= fQueuedConfidence) ? 0.0f : fQueuedConfidence;
                     pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(0), target);
                 }
             }
@@ -970,7 +969,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
                     fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
                     if (fConfidence < fLikely && fLikely < 0.2f)
                         fConfidence = fConfidence * fLRatio;
-                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    float fQueuedConfidence = fConfidence;
+                    fBestConfidence = (fBestConfidence >= fQueuedConfidence) ? fBestConfidence : fQueuedConfidence;
                     pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(1), target);
                 }
             }
@@ -986,7 +986,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
                     fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
                     if (fConfidence < fLikely && fLikely < 0.2f)
                         fConfidence = fConfidence * fLRatio;
-                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    float fQueuedConfidence = fConfidence;
+                    fBestConfidence = (fBestConfidence >= fQueuedConfidence) ? fBestConfidence : fQueuedConfidence;
                     pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(2), target);
                 }
             }
@@ -1002,7 +1003,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
                     fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
                     if (fConfidence < fLikely && fLikely < 0.2f)
                         fConfidence = fConfidence * fLRatio;
-                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    float fQueuedConfidence = fConfidence;
+                    fBestConfidence = (fBestConfidence >= fQueuedConfidence) ? fBestConfidence : fQueuedConfidence;
                     pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(3), target);
                 }
             }
@@ -1018,7 +1020,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
                     fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
                     if (fConfidence < fLikely && fLikely < 0.2f)
                         fConfidence = fConfidence * fLRatio;
-                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    float fQueuedConfidence = fConfidence;
+                    fBestConfidence = (fBestConfidence >= fQueuedConfidence) ? fBestConfidence : fQueuedConfidence;
                     pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(4), target);
                 }
             }
@@ -1046,7 +1049,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
                             fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
                             if (fConfidence < fLikely && fLikely < 0.2f)
                                 fConfidence = fConfidence * fLRatio;
-                            fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                            float fQueuedConfidence = fConfidence;
+                            fBestConfidence = (fBestConfidence >= fQueuedConfidence) ? fBestConfidence : fQueuedConfidence;
                             pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(5), target);
                         }
                     }
@@ -1055,18 +1059,13 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
         }
     }
 
-    float fUpfield = UpfieldFrom(target.mData.pPlayer, g_pScriptCurrentFielder);
-    float fNearTo = NearTo(target.mData.pPlayer, g_pScriptCurrentFielder);
-    float fThreat = 1.0f - fNearTo;
-    if (fUpfield >= fThreat)
-        fThreat = fUpfield;
-    float fMushrooms = OnMushrooms(g_pScriptCurrentFielder);
-    float fNotMush = 1.0f - fMushrooms;
-    if (fNotMush <= fThreat)
-        fThreat = fNotMush;
-    float fMarking = Marking(g_pScriptCurrentFielder, target.mData.pPlayer);
-    if (fMarking <= fThreat)
-        fThreat = fMarking;
+    float fUpfield = UpfieldFrom(g_pScriptCurrentFielder, g_pScriptBallOwner);
+    float fNearTo = NearTo(g_pScriptCurrentFielder, g_pScriptBallOwner);
+    float fThreat = (1.0f - fNearTo >= fUpfield) ? (1.0f - fNearTo) : fUpfield;
+    float fNotMush = 1.0f - OnMushrooms(g_pScriptCurrentFielder);
+    float fMarking = Marking(g_pScriptCurrentFielder, g_pScriptBallOwner);
+    fMarking = (fMarking <= fNotMush) ? fMarking : fNotMush;
+    fThreat = (fMarking <= fThreat) ? fMarking : fThreat;
 
     float fThreatFalse = 1.0f - fThreat;
     float fThreatMin = (fThreat <= fThreatFalse) ? fThreat : fThreatFalse;
@@ -1090,7 +1089,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
                 fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
                 if (fConfidence < fLikely && fLikely < 0.2f)
                     fConfidence = fConfidence * fLRatio;
-                fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                float fQueuedConfidence = fConfidence;
+                fBestConfidence = (fBestConfidence >= fQueuedConfidence) ? fBestConfidence : fQueuedConfidence;
                 pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(7), fvNotSet);
             }
         }
@@ -1107,7 +1107,8 @@ FuzzyVariant Fuzzy::UsePowerupDefensive(float fConfidence, cDecisionEntity* pEnt
             fConfidence = (fConfidence <= fLikely) ? fConfidence : fLikely;
             if (fConfidence < fLikely && fLikely < 0.2f)
                 fConfidence = fConfidence * fLRatio;
-            fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+            float fQueuedConfidence = fConfidence;
+            fBestConfidence = (fBestConfidence >= fQueuedConfidence) ? fBestConfidence : fQueuedConfidence;
             pEntity->QueueActionSetDesire(FIELDERDESIRE_USE_POWERUP, fConfidence, 0.0f, FuzzyVariant(6), fvNotSet);
         }
     }

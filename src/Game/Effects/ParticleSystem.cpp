@@ -15,7 +15,17 @@ int ParticleSystem::m_nNumViews = 0;
 int ParticleSystem::m_NumInstances = 0;
 eGLView ParticleSystem::m_eViews[8];
 
-efList freeParticles;
+struct FreeParticles : public efList
+{
+    FreeParticles()
+    {
+        m_headNode = nullptr;
+        m_tailNode = nullptr;
+        m_numNodes = 0;
+    }
+};
+
+FreeParticles freeParticles;
 
 void* textureFrames[36] = { nullptr };
 Particle* particleMemory;

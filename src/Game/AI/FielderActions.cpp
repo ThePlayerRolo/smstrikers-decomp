@@ -3129,6 +3129,49 @@ void HyperStrikeEffectUpdate(EmissionController& controller)
     controller.SetDirection(viewVector);
 }
 
+static void FreezeEveryoneButCaptain(cFielder* pCaptain)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        cTeam* pTeam = g_pTeams[i];
+        cFielder* pFielder;
+        for (int j = 0; j < 4; j++)
+        {
+            pFielder = pTeam->GetFielder(j);
+            if (pCaptain != pFielder)
+            {
+                if (pFielder->IsFrozen())
+                {
+                    EmitUnFreeze(pFielder);
+                }
+                if (pFielder->IsInvincible())
+                {
+                    pFielder->CleanUpPowerupEffect();
+                }
+                pFielder->ClearPowerupAnimState(false);
+                pFielder->SetFrozen(10000000.0f);
+            }
+        }
+    }
+}
+
+static void UnFreezeEveryoneButCaptain(cFielder* pCaptain)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        cTeam* pTeam = g_pTeams[i];
+        cFielder* pFielder;
+        for (int j = 0; j < 4; j++)
+        {
+            pFielder = pTeam->GetFielder(j);
+            if (pCaptain != pFielder)
+            {
+                pFielder->SetFrozen(0.0f);
+            }
+        }
+    }
+}
+
 /**
  * Offset/Address/Size: 0x17D0 | 0x80028308 | size: 0x147C
  */
@@ -3454,29 +3497,7 @@ void cFielder::ActionShootToScore(float)
                 if (meS2SResult == S2S_SUPER_SHOT)
                 {
                     EmitShootToScoreHyperStrike(this);
-
-                    for (int t = 0; t < 2; t++)
-                    {
-                        cTeam* pTeam = g_pTeams[t];
-                        for (int f = 0; f < 4; f++)
-                        {
-                            cFielder* pFielder = pTeam->GetFielder(f);
-                            if (pFielder != this)
-                            {
-                                if (pFielder->IsFrozen())
-                                {
-                                    EmitUnFreeze(pFielder);
-                                }
-                                if (pFielder->IsInvincible())
-                                {
-                                    pFielder->CleanUpPowerupEffect();
-                                }
-                                pFielder->ClearPowerupAnimState(false);
-                                pFielder->SetFrozen(10000000.0f);
-                            }
-                        }
-                    }
-
+                    FreezeEveryoneButCaptain(this);
                     g_pGame->ResetPowerups(false);
                 }
 
@@ -3754,19 +3775,7 @@ void cFielder::ActionShootToScore(float)
         else
         {
             WorldDarkening::Instance().Fade(sfHyperStrikeFadeInSpeed, 0.0f);
-
-            for (int t = 0; t < 2; t++)
-            {
-                cTeam* pTeam = g_pTeams[t];
-                for (int f = 0; f < 4; f++)
-                {
-                    cFielder* pFielder = pTeam->GetFielder(f);
-                    if (pFielder != this)
-                    {
-                        pFielder->SetFrozen(0.0f);
-                    }
-                }
-            }
+            UnFreezeEveryoneButCaptain(this);
         }
 
         if (meS2SResult != S2S_SUPER_SHOT && meS2SResult != S2S_SCORE)

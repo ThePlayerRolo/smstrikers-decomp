@@ -24,6 +24,19 @@ void EnableDofDebug()
     }
 }
 
+struct DofDebugFlag
+{
+    DofDebugFlag()
+    {
+        m_active = false;
+        m_callback = EnableDofDebug;
+    }
+    bool m_active;
+    void (*m_callback)();
+};
+
+static DofDebugFlag g_EnableDofDebug;
+
 static inline void* nlGetChunkData(nlChunk* chunk)
 {
     u32 alignField = chunk->m_ID & 0x7F000000;

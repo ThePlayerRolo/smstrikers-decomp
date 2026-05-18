@@ -8,6 +8,7 @@
 #include "Game/Sys/debug.h"
 #include "Game/Audio/AudioLoader.h"
 #include "types.h"
+#include <dolphin/ar.h>
 
 extern u32 sndStackGetAvailableSampleMemory(unsigned long id);
 extern "C" u32 sndStackSetCurrent(u32 id);
@@ -53,6 +54,25 @@ static struct _struct_stack_list_0x10 stack_list[2] = {
     { NULL, 0xFFFFFFFFU, 0x2B4000, 0U },
 };
 
+namespace PlatAudio
+{
+extern u32 gPrimaryStackSize;
+}
+
+namespace
+{
+struct PlatAudioInit
+{
+    PlatAudioInit()
+    {
+        u32 sz = 0x44C000U - (u32)ARGetBaseAddress();
+        PlatAudio::gPrimaryStackSize = sz;
+        stack_list[0].unk8 = (s32)sz;
+    }
+};
+PlatAudioInit s_platAudioInit;
+} // namespace
+
 struct EffectSettings
 {
     // todo: implement
@@ -76,7 +96,7 @@ static bool gAreSoundBuffersSetup;
 namespace PlatAudio
 {
 
-static u32 gPrimaryStackSize;
+u32 gPrimaryStackSize;
 bool gUsingDolbyProLogic2 = false;
 
 /**

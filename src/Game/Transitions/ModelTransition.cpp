@@ -812,7 +812,7 @@ ModeledScreenTransition* ModeledScreenTransition::LoadFromParser(SimpleParser* p
             const char* effect = parser->NextTokenOnLine(true);
             char buf[128];
             nlStrNCpy(buf, effect, 128);
-            for (int i = 0; buf[i] != '\0'; i++)
+            for (int i = 0; i < 128 && buf[i] != '\0'; i++)
             {
                 if (buf[i] == '_')
                     buf[i] = ' ';

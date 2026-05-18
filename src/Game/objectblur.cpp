@@ -14,7 +14,7 @@
 
 BlurHandler* BlurManager::m_activeBlurHandler = NULL;
 
-SlotPool<BlurHandler> BlurManager::m_BlurHandlerSlotPool;
+SlotPool<BlurHandler> BlurManager::m_BlurHandlerSlotPool(0x10, 0x10);
 
 f32 fFlimmerOffset = 0.01f;
 

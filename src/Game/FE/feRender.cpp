@@ -20,8 +20,8 @@ GLMatrixStack* FERender::m_pMatrixStack = nullptr;
 FEScene* FERender::m_pRenderScene = nullptr;
 
 static nlFloatColour s_currentAssetColour;
-static unsigned long drawQuadProgram;
-static unsigned long grabTex;
+static unsigned long drawQuadProgram = glGetProgram("2d unlit");
+static unsigned long grabTex = nlStringLowerHash("target/grab_texture");
 
 inline void ConvertFloatColourToColour(nlColour& out, const nlFloatColour& in)
 {

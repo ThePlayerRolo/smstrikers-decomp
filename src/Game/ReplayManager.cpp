@@ -30,12 +30,7 @@ static ReplayManager* sInstance = reinterpret_cast<ReplayManager*>(sInstanceStor
 static DestructorChain sDestructorChain;
 } // namespace
 
-// /**
-//  * Offset/Address/Size: 0x3B4 | 0x80112CC4 | size: 0x10
-//  */
-// void 0x8028D2B8..0x8028D2BC | size: 0x4
-// {
-// }
+static f32 CANT_COLLIDE = *(f32*)__float_max;
 
 /**
  * Offset/Address/Size: 0x388 | 0x80112C98 | size: 0x2C

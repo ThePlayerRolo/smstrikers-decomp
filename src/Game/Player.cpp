@@ -30,13 +30,31 @@ float g_fPassInterceptNoPickupTimer = 5.0f;
 
 static u8 sbNoBallPickups;
 
-extern int g_nHeadSpinMax;
-extern int g_nHeadTiltMax;
-extern int g_nWarioHeadSpinMax;
-extern int g_nWarioHeadTiltMax;
-extern int g_nWaluigiHeadSpinMax;
 extern float g_fFixedUpdateTick;
-extern u16 g_aOOIConstraint;
+
+u16 g_aOOIConstraint;
+int g_nHeadTiltMax;
+int g_nHeadSpinMax;
+int g_nWaluigiHeadSpinMax;
+int g_nWarioHeadSpinMax;
+int g_nWarioHeadTiltMax;
+
+namespace
+{
+struct PlayerGlobalsInit
+{
+    PlayerGlobalsInit()
+    {
+        g_aOOIConstraint = 0x8000;
+        g_nHeadTiltMax = 0xAAA;
+        g_nHeadSpinMax = 0x3C71;
+        g_nWaluigiHeadSpinMax = 0x31C7;
+        g_nWarioHeadSpinMax = 0x238E;
+        g_nWarioHeadTiltMax = -0x71C;
+    }
+};
+PlayerGlobalsInit s_playerGlobalsInit;
+} // namespace
 
 /**
  * Offset/Address/Size: 0x0 | 0x80057550 | size: 0x20

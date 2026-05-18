@@ -4,7 +4,7 @@
 
 bool GLRenderBuffer::m_bInstance = false;
 
-u32 glRenderBuffer[4];
+GLRenderBuffer glRenderBuffer;
 
 // /**
 //  * Offset/Address/Size: 0x60 | 0x801E81CC | size: 0x58

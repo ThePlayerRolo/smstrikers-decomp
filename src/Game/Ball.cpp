@@ -1946,6 +1946,7 @@ cBall::~cBall()
 
 static nlVector3 v3Zero = { 0.f, 0.f, 0.f };
 static nlQuaternion qIdentity = { 0.f, 0.f, 0.f, 1.f };
+static f32 CANT_COLLIDE = *(f32*)__float_max;
 
 /**
  * Offset/Address/Size: 0x3908 | 0x8000D2DC | size: 0x260

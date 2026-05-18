@@ -5,6 +5,18 @@
 
 extern "C" unsigned long wcstoul(const unsigned short* str, unsigned short** end, int base);
 
+const unsigned long nlEscapeSequence::ESCAPE_DEFN[ESC_COUNT] = {
+    0x00000000,
+    0x7B000000,
+    0x6E627300,
+    0x636C7200,
+    0x70000000,
+};
+
+nlEscapeSequence::ESCAPE_LOOKUP nlEscapeSequence::s_EscapeLookup[ESC_COUNT];
+
+const unsigned short nlEscapeSequence::ESCAPE_BEGIN = 0x007B;
+
 /**
  * Offset/Address/Size: 0x0 | 0x8021251C | size: 0xB0
  */
@@ -136,3 +148,20 @@ void nlTextEscape_stub()
 {
     nlQSort<nlEscapeSequence::ESCAPE_LOOKUP>((nlEscapeSequence::ESCAPE_LOOKUP*)0, 0, &nlDefaultQSortComparer<nlEscapeSequence::ESCAPE_LOOKUP>);
 }
+
+namespace
+{
+struct nlTextEscapeGlobalsInit
+{
+    nlTextEscapeGlobalsInit()
+    {
+        for (int i = 0; i < ESC_COUNT; i++)
+        {
+            nlEscapeSequence::s_EscapeLookup[i].hash = nlEscapeSequence::ESCAPE_DEFN[i];
+            nlEscapeSequence::s_EscapeLookup[i].type = (ESCAPE_TYPE)i;
+        }
+        nlQSort<nlEscapeSequence::ESCAPE_LOOKUP>(nlEscapeSequence::s_EscapeLookup, ESC_COUNT, &nlDefaultQSortComparer<nlEscapeSequence::ESCAPE_LOOKUP>);
+    }
+};
+nlTextEscapeGlobalsInit s_nlTextEscapeGlobalsInit;
+} // namespace

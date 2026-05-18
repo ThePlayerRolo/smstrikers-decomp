@@ -7,9 +7,12 @@
 #include "NL/gl/glMatrix.h"
 #include "NL/gl/glState.h"
 
-extern const u32 WhiteTexture;
+ShapeRender g_ShapeRenderer;
+unsigned long UnlitProgram = glGetProgram("3d unlit");
+static unsigned long LitProgram = glGetProgram("3d pointlit");
+const u32 WhiteTexture = glGetTexture("global/white");
+
 static unsigned char g_bLit;
-static unsigned long LitProgram;
 
 /**
  * Offset/Address/Size: 0x149C | 0x801FC72C | size: 0x418

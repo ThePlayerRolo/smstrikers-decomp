@@ -1681,7 +1681,7 @@ void cFielder::CalcShootToScoreShot(nlVector3& v3BallVelocity, nlVector3& v3Ball
             int nSide = -1;
             if ((f32)fabs(ballPos->f.x) > 4.0f)
             {
-                if (ballPos->f.y * ballPos->f.x < 0.0f)
+                if (ballPos->f.x * ballPos->f.y < 0.0f)
                 {
                     nSide = 0;
                 }
@@ -1721,8 +1721,8 @@ void cFielder::CalcShootToScoreShot(nlVector3& v3BallVelocity, nlVector3& v3Ball
             {
                 nlVector3 v3WorldSavePos;
                 GetWorldPoint(v3WorldSavePos, pGoalie->mBlendInfo.mv3BlendedSavePos, *goaliePos, aSaveAngle);
-                float sdx = v3WorldSavePos.f.x - v3IntceptPos.f.x;
                 float sdy = v3WorldSavePos.f.y - v3IntceptPos.f.y;
+                float sdx = v3WorldSavePos.f.x - v3IntceptPos.f.x;
                 float sdz = v3WorldSavePos.f.z - v3IntceptPos.f.z;
                 if (sdx * sdx + sdy * sdy + sdz * sdz > 1.0f)
                 {
@@ -1769,8 +1769,8 @@ void cFielder::CalcShootToScoreShot(nlVector3& v3BallVelocity, nlVector3& v3Ball
         GetWorldPoint(v3BallTarget, pGoalie->mpSaveData->mv3SavePos, *goaliePos, pGoalie->m_aActualFacingDirection);
         if (!(fTime2Goalie < 0.03f))
         {
-            float sdx = v3IntceptPos.f.x - v3BallTarget.f.x;
             float sdy = v3IntceptPos.f.y - v3BallTarget.f.y;
+            float sdx = v3IntceptPos.f.x - v3BallTarget.f.x;
             float sdz = v3IntceptPos.f.z - v3BallTarget.f.z;
             if (sdx * sdx + sdy * sdy + sdz * sdz <= 4.0f)
             {
@@ -1822,8 +1822,7 @@ void cFielder::CalcShootToScoreShot(nlVector3& v3BallVelocity, nlVector3& v3Ball
     case S2S_SUPER_SHOT:
     {
         nlVector3 v3MagicPos = m_v3Position;
-        float fNetWidthThresh = 0.5f * cNet::m_fNetWidth - 0.5f;
-        if ((f32)fabs(pGoalie->m_v3Position.f.y) > fNetWidthThresh)
+        if ((f32)fabs(pGoalie->m_v3Position.f.y) > (0.5f * cNet::m_fNetWidth - 0.5f))
         {
             cNet* pNet = pGoalie->m_pTeam->m_pNet;
             v3MagicPos.f.x = pNet->m_baseLocation.f.x;
@@ -1861,20 +1860,22 @@ void cFielder::CalcShootToScoreShot(nlVector3& v3BallVelocity, nlVector3& v3Ball
             {
                 goto spin_data;
             }
-            float sdx = v3IntceptPos.f.x - v3BlastPos.f.x;
             float sdy = v3IntceptPos.f.y - v3BlastPos.f.y;
+            float sdx = v3IntceptPos.f.x - v3BlastPos.f.x;
             float sdz = v3IntceptPos.f.z - v3BlastPos.f.z;
             if (sdx * sdx + sdy * sdy + sdz * sdz > 9.0f)
             {
             spin_data:
+                bool bDoSpin;
                 if (pGoalie->mv3LocalContactPosition.f.y > 0.0f)
                 {
-                    pGoalie->FindSTSSpinData(true);
+                    bDoSpin = true;
                 }
                 else
                 {
-                    pGoalie->FindSTSSpinData(false);
+                    bDoSpin = false;
                 }
+                pGoalie->FindSTSSpinData(bDoSpin);
                 goto super_shot_final;
             }
         }
@@ -2926,8 +2927,9 @@ void cFielder::DoFindBestShotTarget(nlVector3& v3PositionOut, float& fShotSpeed,
     float fDist2NetSide = 0.5f * cNet::m_fNetWidth - kBallAllowance;
     cNet* pNet = m_pTeam->GetOtherNet();
     float fNetBaseX = pNet->m_baseLocation.f.x;
+    float fBallY = pBall->m_v3Position.f.y;
 
-    float fBallYClamped = (pBall->m_v3Position.f.y >= -fDist2NetSide) ? pBall->m_v3Position.f.y : -fDist2NetSide;
+    float fBallYClamped = (fBallY >= -fDist2NetSide) ? fBallY : -fDist2NetSide;
     fBallYClamped = (fBallYClamped <= fDist2NetSide) ? fBallYClamped : fDist2NetSide;
 
     float fBallZClamped;
@@ -2945,7 +2947,7 @@ void cFielder::DoFindBestShotTarget(nlVector3& v3PositionOut, float& fShotSpeed,
         fBallZClamped = (fBallZClamped <= fHeightLimit) ? fBallZClamped : fHeightLimit;
     }
 
-    float fDY = pBall->m_v3Position.f.y - fBallYClamped;
+    float fDY = fBallY - fBallYClamped;
     float fDX = pBall->m_v3Position.f.x - fNetBaseX;
     float fShotDist = nlSqrt((fDX * fDX) + (fDY * fDY), true);
 
@@ -6771,8 +6773,8 @@ bool cFielder::DoAIReceivePassActionSelection()
 
 /**
  * Offset/Address/Size: 0x3C | 0x80019378 | size: 0x680
- * TODO: 97.8% match - r30/r31 swapped for this/bDidSomething, minor FP scheduling
- * and stack-slot differences in USE_POWERUP branch temps
+ * TODO: 98.9% match - persistent r30/r31 swap for this vs bDidSomething in
+ * PASS/DEKE/SHOOT call paths
  */
 bool cFielder::DoAIWindupActionSelection()
 {
@@ -6780,14 +6782,15 @@ bool cFielder::DoAIWindupActionSelection()
     extern cTeam* g_pCurrentlyUpdatingTeam;
     static FilteredRandomChance randchancegen;
 
-    FuzzyVariant looseBallAction = Fuzzy::GetBestWindupShotAction(this);
+    cFielder* pThis = this;
+    FuzzyVariant looseBallAction = Fuzzy::GetBestWindupShotAction(pThis);
 
     bool bSelectChance = randchancegen.genrand(looseBallAction.SelectionChance);
     bool bDidSomething = false;
     float fActionScore = looseBallAction.Confidence;
     eFielderDesireState action = (eFielderDesireState)looseBallAction.mData.i;
-    float fReaction = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Off_Reaction;
-    float fPerturbPercent = 0.5f * (1.0f - fReaction);
+    SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+    float fPerturbPercent = 0.5f * (1.0f - pSkillTweaks->Off_Reaction);
 
     if (bSelectChance)
     {
@@ -6816,8 +6819,8 @@ bool cFielder::DoAIWindupActionSelection()
             if (!(fActionScore >= 0.6f + fReactionOffset))
                 break;
             cPlayer* pTarget = looseBallAction.ExtraData.mData.pPlayer;
-            EndDesire(false);
-            InitDesire(FIELDERDESIRE_PASS, looseBallAction.Confidence, -1.0f, FuzzyVariant(pTarget), FuzzyVariant(OpenTo(g_pScriptCurrentFielder, pTarget) < 0.5f));
+            pThis->EndDesire(false);
+            pThis->InitDesire(FIELDERDESIRE_PASS, looseBallAction.Confidence, -1.0f, FuzzyVariant(pTarget), FuzzyVariant(OpenTo(g_pScriptCurrentFielder, pTarget) < 0.5f));
             bDidSomething = true;
             break;
         }
@@ -6827,46 +6830,46 @@ bool cFielder::DoAIWindupActionSelection()
             float fReactionOffset = nlRandomf(fReactionRandom, &nlDefaultSeed) - 0.5f * fReactionRandom;
             if (!(fActionScore >= 0.4f + fReactionOffset))
                 break;
-            EndDesire(false);
-            InitDesire(FIELDERDESIRE_DEKE, 0.5f, -1.0f, fvNotSet, fvNotSet);
+            pThis->EndDesire(false);
+            pThis->InitDesire(FIELDERDESIRE_DEKE, 0.5f, -1.0f, fvNotSet, fvNotSet);
             bDidSomething = true;
             break;
         }
         case FIELDERDESIRE_USE_POWERUP:
         {
+            ePowerUpType powerupType = (ePowerUpType)looseBallAction.ExtraData.mData.i;
             float fReactionRandom = 0.4f * fPerturbPercent;
             float fReactionOffset = nlRandomf(fReactionRandom, &nlDefaultSeed) - 0.5f * fReactionRandom;
             if (!(fActionScore >= 0.4f + fReactionOffset))
                 break;
-            ePowerUpType powerupType = (ePowerUpType)looseBallAction.ExtraData.mData.i;
-            if (powerupType != m_pTeam->GetCurrentPowerUp().eType)
+            if (powerupType != pThis->m_pTeam->GetCurrentPowerUp().eType)
                 break;
-            if (m_nPowerupAnimID >= 0)
+            if (pThis->m_nPowerupAnimID >= 0)
                 break;
-            if (m_ePowerup == POWER_UP_STAR)
+            if (pThis->m_ePowerup == POWER_UP_STAR)
                 break;
-            if (m_tFrozenTimer.m_uPackedTime != 0)
+            if (pThis->m_tFrozenTimer.m_uPackedTime != 0)
                 break;
-            if (IsFallenDown(0.0f) && (m_pTeam->IsCurrentStar() || m_pTeam->IsCurrentMushroom()))
+            if (pThis->IsFallenDown(0.0f) && (pThis->m_pTeam->IsCurrentStar() || pThis->m_pTeam->IsCurrentMushroom()))
                 break;
-            if (m_pTeam->IsCurrentNoPowerup())
+            if (!pThis->m_pTeam->IsCurrentNoPowerup())
             {
-                cTeam* pTeam = m_pTeam;
-                SetPowerup(pTeam->GetCurrentPowerUp().eType,
+                cTeam* pTeam = pThis->m_pTeam;
+                pThis->SetPowerup(pTeam->GetCurrentPowerUp().eType,
                     pTeam->GetCurrentPowerUp().nnumOfPowerups,
                     NULL);
-                m_pTeam->ClearCurrentPowerUp();
+                pThis->m_pTeam->ClearCurrentPowerUp();
             }
             else
             {
-                if (m_pTeam->GetPowerUpByIndex(1).eType == POWER_UP_NONE)
+                if (pThis->m_pTeam->GetPowerUpByIndex(1).eType == POWER_UP_NONE)
                     break;
-                m_pTeam->TogglePowerup(true);
-                cTeam* pTeam = m_pTeam;
-                SetPowerup(pTeam->GetCurrentPowerUp().eType,
+                pThis->m_pTeam->TogglePowerup(true);
+                cTeam* pTeam = pThis->m_pTeam;
+                pThis->SetPowerup(pTeam->GetCurrentPowerUp().eType,
                     pTeam->GetCurrentPowerUp().nnumOfPowerups,
                     NULL);
-                m_pTeam->ClearCurrentPowerUp();
+                pThis->m_pTeam->ClearCurrentPowerUp();
             }
             break;
         }
@@ -6876,7 +6879,7 @@ bool cFielder::DoAIWindupActionSelection()
             float fReactionOffset = nlRandomf(fReactionRandom, &nlDefaultSeed) - 0.5f * fReactionRandom;
             if (!(fActionScore >= 0.6f + fReactionOffset))
                 break;
-            m_pShotMeter->ShotReleased(this);
+            pThis->m_pShotMeter->ShotReleased(pThis);
             bDidSomething = true;
             break;
         }

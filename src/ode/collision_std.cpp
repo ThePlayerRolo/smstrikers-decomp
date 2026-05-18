@@ -1305,9 +1305,9 @@ int dCollideBoxPlane(dxGeom* o1, dxGeom* o2,
     dReal A1 = box->side[0] * Q1;
     dReal A2 = box->side[1] * Q2;
     dReal A3 = box->side[2] * Q3;
-    dReal B1 = dFabs(A1);
-    dReal B2 = dFabs(A2);
-    dReal B3 = dFabs(A3);
+    dReal B1 = fabsf(A1);
+    dReal B2 = fabsf(A2);
+    dReal B3 = fabsf(A3);
 
     // early exit test
     dReal depth = plane->p[3] + REAL(0.5) * (B1 + B2 + B3) - dDOT(n, o1->pos);

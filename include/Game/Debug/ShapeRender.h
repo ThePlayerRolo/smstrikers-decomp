@@ -18,6 +18,7 @@ struct PrimitiveShape
 class ShapeRender
 {
 public:
+    ShapeRender() { m_Initialized = false; }
     void CreateHemisphereGeometry(PrimitiveShape& prim);
     void CreateFlatCylinderEndGeometry(PrimitiveShape& prim);
     void CreateCylinderGeometry(PrimitiveShape& prim);

@@ -15,6 +15,7 @@
 #include "NL/gl/glState.h"
 #include "NL/glx/glxTexture.h"
 #include "NL/nlString.h"
+#include "Game/Camera/animcam.h"
 
 namespace Audio
 {
@@ -36,6 +37,8 @@ extern cWorldSFX gStadGenSFX;
 } // namespace Audio
 
 void FireCameraRumbleFilter(float, float);
+
+static cAnimCamera sNisCam;
 
 static unsigned char gbChainChompProjectedShadow;
 

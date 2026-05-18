@@ -112,8 +112,6 @@ NPCManager::NPCManager()
                     break;
                 animEntry = animEntry->next;
             }
-            if (animEntry == NULL)
-                foundAnim = NULL;
             CameraGuy* guy = new (nlMalloc(sizeof(CameraGuy), 8, false)) CameraGuy(*mNPCTemplate[0].hierarchy, mNPCTemplate[0].modelID);
             guy->Init();
             guy->SetIdleAnim(*foundAnim);
@@ -141,8 +139,6 @@ NPCManager::NPCManager()
                     break;
                 animEntry = animEntry->next;
             }
-            if (animEntry == NULL)
-                foundAnim = NULL;
             CameraGuy* guy = new (nlMalloc(sizeof(CameraGuy), 8, false)) CameraGuy(*mNPCTemplate[1].hierarchy, mNPCTemplate[1].modelID);
             guy->Init();
             guy->SetIdleAnim(*foundAnim);
@@ -170,8 +166,6 @@ NPCManager::NPCManager()
                     break;
                 animEntry = animEntry->next;
             }
-            if (animEntry == NULL)
-                foundAnim = NULL;
             SkinAnimatedNPC* npc = new (nlMalloc(sizeof(SkinAnimatedNPC), 8, false)) SkinAnimatedNPC(*mNPCTemplate[2].hierarchy, mNPCTemplate[2].modelID);
             npc->SetAnimState(*foundAnim, 0.2f, (ePlayMode)0);
             npc->mWorldMatrix = ((AVLTreeEntry<unsigned long, HelperObject*>**)stack[0])[stack[1] - 1]->value->m_worldMatrix;
@@ -197,8 +191,6 @@ NPCManager::NPCManager()
                     break;
                 animEntry = animEntry->next;
             }
-            if (animEntry == NULL)
-                foundAnim = NULL;
             SkinAnimatedNPC* npc = new (nlMalloc(sizeof(SkinAnimatedNPC), 8, false)) SkinAnimatedNPC(*mNPCTemplate[3].hierarchy, mNPCTemplate[3].modelID);
             npc->SetAnimState(*foundAnim, 0.2f, (ePlayMode)0);
             npc->mWorldMatrix = ((AVLTreeEntry<unsigned long, HelperObject*>**)stack[0])[stack[1] - 1]->value->m_worldMatrix;
@@ -224,8 +216,6 @@ NPCManager::NPCManager()
                     break;
                 animEntry = animEntry->next;
             }
-            if (animEntry == NULL)
-                foundAnim = NULL;
             SkinAnimatedNPC* npc = new (nlMalloc(sizeof(SkinAnimatedNPC), 8, false)) SkinAnimatedNPC(*mNPCTemplate[4].hierarchy, mNPCTemplate[4].modelID);
             npc->SetAnimState(*foundAnim, 0.2f, (ePlayMode)0);
             npc->mWorldMatrix = ((AVLTreeEntry<unsigned long, HelperObject*>**)stack[0])[stack[1] - 1]->value->m_worldMatrix;

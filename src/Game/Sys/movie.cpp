@@ -42,7 +42,7 @@ static unsigned long long resourceMarker;
 static bool bMustFreeBuffer;
 static void* g_GrabTextureData;
 static unsigned long g_GrabTextureSize;
-static unsigned long GrabTextureHandle;
+static unsigned long GrabTextureHandle = glGetTexture("target/grab_texture");
 static THPVideoInfo videoInfo;
 
 /**

@@ -24,8 +24,8 @@ struct glx_DOFTexture
     /* 0x14 */ void* m_unk_0x14;
 };
 
-u32 GrabTextureName = 0;
-u32 DOFTextureName = 0;
+u32 GrabTextureName = glGetTexture("target/grab_texture");
+u32 DOFTextureName = glGetTexture("target/dof");
 void* clearz_mem = 0;
 u32 glx_SharedMemory = 0;
 u32 glx_SharedSize = 0;
