@@ -15,7 +15,7 @@ class glModel;
 class TextureTreeCompare
 {
 public:
-    int operator()(const glModelPacket* const& b, const glModelPacket* const& a) const
+    int operator()(const glModelPacket* b, const glModelPacket* a) const
     {
         if (a->state.program < b->state.program)
             return -1;
@@ -108,6 +108,51 @@ inline int AVLTreeBase<DepthPacketPair, unsigned int, BasicSlotPool<AVLTreeEntry
     else
         result = 0;
     return result;
+}
+
+template <>
+inline int AVLTreeBase<const glModelPacket*, unsigned int, BasicSlotPool<AVLTreeEntry<const glModelPacket*, unsigned int> >, TextureTreeCompare>::CompareKey(void* key, AVLTreeNode* node)
+{
+    AVLTreeEntry<const glModelPacket*, unsigned int>* entry = (AVLTreeEntry<const glModelPacket*, unsigned int>*)node;
+    const glModelPacket* e = entry->key;
+    TextureTreeCompare cmp;
+    return cmp(e, *(const glModelPacket**)key);
+}
+
+inline int CmpTexturePackets(const glModelPacket* keyA, const glModelPacket* keyB)
+{
+    int result;
+    if (keyA->state.program < keyB->state.program)
+        result = -1;
+    else if (keyA->state.program > keyB->state.program)
+        result = 1;
+    else if (keyA->state.texconfig < keyB->state.texconfig)
+        result = -1;
+    else if (keyA->state.texconfig > keyB->state.texconfig)
+        result = 1;
+    else if (keyA->state.texture[0] < keyB->state.texture[0])
+        result = -1;
+    else if (keyA->state.texture[0] > keyB->state.texture[0])
+        result = 1;
+    else if (keyA->userData < keyB->userData)
+        result = -1;
+    else if (keyA->userData > keyB->userData)
+        result = 1;
+    else if (keyA < keyB)
+        result = -1;
+    else if (keyA > keyB)
+        result = 1;
+    else
+        result = 0;
+    return result;
+}
+
+template <>
+inline int AVLTreeBase<const glModelPacket*, unsigned int, BasicSlotPool<AVLTreeEntry<const glModelPacket*, unsigned int> >, TextureTreeCompare>::CompareNodes(AVLTreeNode* a, AVLTreeNode* b)
+{
+    return CmpTexturePackets(
+        ((AVLTreeEntry<const glModelPacket*, unsigned int>*)a)->key,
+        ((AVLTreeEntry<const glModelPacket*, unsigned int>*)b)->key);
 }
 
 class GLTexturePacketTree : public nlAVLTreeSlotPool<const glModelPacket*, unsigned int, TextureTreeCompare>

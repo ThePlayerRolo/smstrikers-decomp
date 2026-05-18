@@ -861,6 +861,18 @@ BraggingRightsScene::~BraggingRightsScene()
 {
 }
 
+inline TeamStats::TeamStats()
+{
+    memset(&mPlayerTotalStats, 0, sizeof(mPlayerTotalStats));
+    mPlayerTotalStats.mRecordType.mTeamID = TEAM_MARIO;
+    mPlayerTotalStats.mType = TYPE_TEAM;
+    mTeamIndex = TEAM_MARIO;
+    mNumWins = 0;
+    mNumLosses = 0;
+    mNumOTLosses = 0;
+    mNumPoints = 0;
+}
+
 /**
  * Offset/Address/Size: 0x2E4 | 0x800D22E0 | size: 0x11E0
  */
@@ -885,59 +897,49 @@ void BraggingRightsScene::SceneCreated()
     TLTextInstance* pText;
     int totalStats[5];
     int currentStats[5];
-    u32 userStatsBuffer[sizeof(TeamStats) / sizeof(u32)];
-    TeamStats* userStats = (TeamStats*)userStatsBuffer;
+    TeamStats userStats;
     unsigned char complete[5] = { 0, 0, 0, 0, 0 };
     int i;
-
-    memset(&userStats->mPlayerTotalStats, 0, sizeof(userStats->mPlayerTotalStats));
-    userStats->mPlayerTotalStats.mRecordType.mTeamID = TEAM_MARIO;
-    userStats->mPlayerTotalStats.mType = TYPE_TEAM;
-    userStats->mTeamIndex = TEAM_MARIO;
-    userStats->mNumWins = 0;
-    userStats->mNumLosses = 0;
-    userStats->mNumOTLosses = 0;
-    userStats->mNumPoints = 0;
 
     for (i = 0; i < info->GetNumPlayingTeams(); i++)
     {
         TeamStats tempStats = info->GetTeamStatsByIndex((unsigned short)i);
         if (tempStats.mTeamIndex == info->GetUserSelectedCupTeam())
         {
-            *userStats = tempStats;
+            userStats = tempStats;
         }
     }
 
     totalStats[0] = info->mUserInfo.mNumGamesPlayed;
-    currentStats[0] = userStats->mPlayerTotalStats.mNumGamesPlayed;
+    currentStats[0] = userStats.mPlayerTotalStats.mNumGamesPlayed;
     if (totalStats[0] >= 100)
     {
         complete[0] = 1;
     }
 
     totalStats[1] = info->mUserInfo.mNumGoalsScored;
-    currentStats[1] = userStats->mPlayerTotalStats.mNumGoalsFor;
+    currentStats[1] = userStats.mPlayerTotalStats.mNumGoalsFor;
     if (totalStats[1] >= 300)
     {
         complete[1] = 1;
     }
 
     totalStats[2] = info->mUserInfo.mNumSTSAttempts;
-    currentStats[2] = userStats->mPlayerTotalStats.mNumSTSAttempts;
+    currentStats[2] = userStats.mPlayerTotalStats.mNumSTSAttempts;
     if (totalStats[2] >= 100)
     {
         complete[2] = 1;
     }
 
     totalStats[3] = info->mUserInfo.mNumPerfectPasses;
-    currentStats[3] = userStats->mPlayerTotalStats.mNumPerfectPasses;
+    currentStats[3] = userStats.mPlayerTotalStats.mNumPerfectPasses;
     if (totalStats[3] >= 300)
     {
         complete[3] = 1;
     }
 
     totalStats[4] = info->mUserInfo.mNumHits;
-    currentStats[4] = userStats->mPlayerTotalStats.mNumHitsMade;
+    currentStats[4] = userStats.mPlayerTotalStats.mNumHitsMade;
     if (totalStats[4] >= 1000)
     {
         complete[4] = 1;
@@ -1031,9 +1033,9 @@ void BraggingRightsScene::SceneCreated()
 
     for (i = 0; i < info->GetNumPlayingTeams(); i++)
     {
-        TeamStats userTeam = info->GetTeamStatsByIndex((unsigned short)i);
-        if (userTeam.mTeamIndex == info->GetUserSelectedCupTeam())
+        if (info->GetTeamStatsByIndex((unsigned short)i).mTeamIndex == info->GetUserSelectedCupTeam())
         {
+            TeamStats userTeam = info->GetTeamStatsByIndex((unsigned short)i);
             wins = userTeam.mNumWins;
             losses = userTeam.mNumLosses + userTeam.mNumOTLosses;
             break;
@@ -1048,12 +1050,13 @@ void BraggingRightsScene::SceneCreated()
         = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(losses);
     unsigned short winWideString[32];
     unsigned short lossWideString[32];
-    BasicString<unsigned short, Detail::TempStringAllocator> unformatted(
-        LookupLocHash(nlStringLowerHash("BRAG_RATIO")));
-    BasicString<unsigned short, Detail::TempStringAllocator> formatted;
 
     nlStrToWcs(winString.c_str(), winWideString, 32);
     nlStrToWcs(lossString.c_str(), lossWideString, 32);
+
+    BasicString<unsigned short, Detail::TempStringAllocator> unformatted(
+        LookupLocHash(nlStringLowerHash("BRAG_RATIO")));
+    BasicString<unsigned short, Detail::TempStringAllocator> formatted;
 
     formatted = Format<BasicString<unsigned short, Detail::TempStringAllocator>, unsigned short[32], unsigned short[32]>(
         unformatted, winWideString, lossWideString);

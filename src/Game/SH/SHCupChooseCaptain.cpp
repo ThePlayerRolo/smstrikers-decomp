@@ -803,6 +803,38 @@ void CupChooseCaptainSceneV2::UpdateSKName()
     teamComp->SetActiveSlide(GetTeamName(mCurrentCaptain));
 }
 
+static inline void UpdateImages(CupChooseCaptainSceneV2* self)
+{
+    char filename[128];
+    char filenamebg[128];
+    char filenameflash[128];
+    char skfilename[128];
+    char skfilenamebg[128];
+    const char* captainname = GetTeamName(self->mCurrentCaptain);
+    const char* sidekickname = GetSidekickName(self->mCurrentSK);
+
+    if (!self->mIsSuperCup)
+    {
+        nlSNPrintf(filename, 0x80, "fe/cup_loadingscreens/%s_l", captainname);
+        nlSNPrintf(filenamebg, 0x80, "fe/cup_loadingscreens/%s_l_bg", captainname);
+        nlSNPrintf(filenameflash, 0x80, "fe/cup_loadingscreens/%s_l_white", captainname);
+        nlSNPrintf(skfilename, 0x80, "fe/cup_loadingscreenssidekicks/%s_%s_l", sidekickname, captainname);
+        nlSNPrintf(skfilenamebg, 0x80, "fe/cup_loadingscreenssidekicks/%s_%s_l_bg", sidekickname, captainname);
+    }
+    else
+    {
+        nlSNPrintf(filename, 0x80, "fe/supercup_loadingscreens/%s_l", captainname);
+        nlSNPrintf(filenamebg, 0x80, "fe/supercup_loadingscreens/%s_l_bg", captainname);
+        nlSNPrintf(filenameflash, 0x80, "fe/supercup_loadingscreens/%s_l_white", captainname);
+        nlSNPrintf(skfilename, 0x80, "fe/supercup_loadingscreenssidekicks/%s_%s_l", sidekickname, captainname);
+        nlSNPrintf(skfilenamebg, 0x80, "fe/supercup_loadingscreenssidekicks/%s_%s_l_bg", sidekickname, captainname);
+    }
+
+    self->mCaptainImageMain->QueueLoad(filename, false);
+    self->mCaptainImageBG->QueueLoad(filenamebg, false);
+    self->mCaptainImageFlash->QueueLoad(filenameflash, false);
+}
+
 /**
  * Offset/Address/Size: 0x330 | 0x800DD1FC | size: 0x8F0
  */
@@ -923,34 +955,7 @@ void CupChooseCaptainSceneV2::ChangeState(CupChooseCaptainSceneV2::eCupCaptainSt
         mPressAComponent->m_bVisible = true;
 
         {
-            char filename[128];
-            char filenamebg[128];
-            char filenameflash[128];
-            char skfilename[128];
-            char skfilenamebg[128];
-            const char* captainname = GetTeamName(mCurrentCaptain);
-            const char* sidekickname = GetSidekickName(mCurrentSK);
-
-            if (!mIsSuperCup)
-            {
-                nlSNPrintf(filename, 0x80, "fe/cup_loadingscreens/%s_l", captainname);
-                nlSNPrintf(filenamebg, 0x80, "fe/cup_loadingscreens/%s_l_bg", captainname);
-                nlSNPrintf(filenameflash, 0x80, "fe/cup_loadingscreens/%s_l_white", captainname);
-                nlSNPrintf(skfilename, 0x80, "fe/cup_loadingscreenssidekicks/%s_%s_l", sidekickname, captainname);
-                nlSNPrintf(skfilenamebg, 0x80, "fe/cup_loadingscreenssidekicks/%s_%s_l_bg", sidekickname, captainname);
-            }
-            else
-            {
-                nlSNPrintf(filename, 0x80, "fe/supercup_loadingscreens/%s_l", captainname);
-                nlSNPrintf(filenamebg, 0x80, "fe/supercup_loadingscreens/%s_l_bg", captainname);
-                nlSNPrintf(filenameflash, 0x80, "fe/supercup_loadingscreens/%s_l_white", captainname);
-                nlSNPrintf(skfilename, 0x80, "fe/supercup_loadingscreenssidekicks/%s_%s_l", sidekickname, captainname);
-                nlSNPrintf(skfilenamebg, 0x80, "fe/supercup_loadingscreenssidekicks/%s_%s_l_bg", sidekickname, captainname);
-            }
-
-            mCaptainImageMain->QueueLoad(filename, false);
-            mCaptainImageBG->QueueLoad(filenamebg, false);
-            mCaptainImageFlash->QueueLoad(filenameflash, false);
+            UpdateImages(this);
         }
 
         mNumImagesLoaded = 0;
@@ -1110,34 +1115,7 @@ void CupChooseCaptainSceneV2::ChangeState(CupChooseCaptainSceneV2::eCupCaptainSt
         mPressAComponent->m_bVisible = true;
 
         {
-            char filename[128];
-            char filenamebg[128];
-            char filenameflash[128];
-            char skfilename[128];
-            char skfilenamebg[128];
-            const char* captainname = GetTeamName(mCurrentCaptain);
-            const char* sidekickname = GetSidekickName(mCurrentSK);
-
-            if (!mIsSuperCup)
-            {
-                nlSNPrintf(filename, 0x80, "fe/cup_loadingscreens/%s_l", captainname);
-                nlSNPrintf(filenamebg, 0x80, "fe/cup_loadingscreens/%s_l_bg", captainname);
-                nlSNPrintf(filenameflash, 0x80, "fe/cup_loadingscreens/%s_l_white", captainname);
-                nlSNPrintf(skfilename, 0x80, "fe/cup_loadingscreenssidekicks/%s_%s_l", sidekickname, captainname);
-                nlSNPrintf(skfilenamebg, 0x80, "fe/cup_loadingscreenssidekicks/%s_%s_l_bg", sidekickname, captainname);
-            }
-            else
-            {
-                nlSNPrintf(filename, 0x80, "fe/supercup_loadingscreens/%s_l", captainname);
-                nlSNPrintf(filenamebg, 0x80, "fe/supercup_loadingscreens/%s_l_bg", captainname);
-                nlSNPrintf(filenameflash, 0x80, "fe/supercup_loadingscreens/%s_l_white", captainname);
-                nlSNPrintf(skfilename, 0x80, "fe/supercup_loadingscreenssidekicks/%s_%s_l", sidekickname, captainname);
-                nlSNPrintf(skfilenamebg, 0x80, "fe/supercup_loadingscreenssidekicks/%s_%s_l_bg", sidekickname, captainname);
-            }
-
-            mCaptainImageMain->QueueLoad(filename, false);
-            mCaptainImageBG->QueueLoad(filenamebg, false);
-            mCaptainImageFlash->QueueLoad(filenameflash, false);
+            UpdateImages(this);
         }
 
         mNumImagesLoaded = 0;

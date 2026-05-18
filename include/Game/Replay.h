@@ -85,24 +85,28 @@ void Replayable(LoadFrame& frame, char typeId, cPoseNode*& poseNode);
 template <int N, typename T>
 void LoadFrame::ReplayablePolymorphicPtr(T*& current)
 {
-    unsigned char notNull = 1;
-    memcpy(&notNull, mStream.mStorage, 1);
-    mStream.mStorage++;
-
-    if (notNull)
+    FORCE_DONT_INLINE;
+    if (N == 0 || mInterval == N)
     {
-        char typeId = 0;
-        memcpy(&typeId, mStream.mStorage, 1);
+        unsigned char notNull = 1;
+        memcpy(&notNull, mStream.mStorage, 1);
         mStream.mStorage++;
 
-        if (typeId < 0 || typeId > 4)
-            nlBreak();
+        if (notNull)
+        {
+            char typeId = 0;
+            memcpy(&typeId, mStream.mStorage, 1);
+            mStream.mStorage++;
 
-        ::Replayable<N>(*this, typeId, current);
-    }
-    else
-    {
-        current = 0;
+            if (typeId < 0 || typeId > 4)
+                nlBreak();
+
+            ::Replayable<N>(*this, typeId, current);
+        }
+        else
+        {
+            current = 0;
+        }
     }
 }
 

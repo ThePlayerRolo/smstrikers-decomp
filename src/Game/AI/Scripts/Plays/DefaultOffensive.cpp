@@ -988,7 +988,8 @@ FuzzyVariant Fuzzy::InGoodWindupPosition(cFielder* TheFielder)
 }
 /**
  * Offset/Address/Size: 0x2B2C | 0x8008F5B8 | size: 0x5FC
- * TODO: 95.38% match - 4 @sda21 constant pool label diffs for 1.0f/0.0f loads
+ * TODO: 97.32% match - SpaceSearch destructor call shape and final output
+ * initialization null-check branch still differ.
  */
 void Fuzzy::CutAndBreak(cFielder* TheFielder)
 {
@@ -1017,7 +1018,8 @@ void Fuzzy::CutAndBreak(cFielder* TheFielder)
 
         SSearchCutAndBreak ssearch = SSearchCutAndBreak(TheFielder);
         nlVector3 v3Position;
-        float fCutAndBreakScore = ssearch.FindBestPosition(v3Position, PositionOf(TheFielder), DIR_NONE, NULL, 8.0f, 0x8000);
+        nlVector3& (*PositionOfFielder)(cFielder*) = PositionOf<cFielder*>;
+        float fCutAndBreakScore = ssearch.FindBestPosition(v3Position, PositionOfFielder(TheFielder), DIR_NONE, NULL, 8.0f, 0x8000);
 
         if (fConfidence > 0.0f)
         {
@@ -1037,7 +1039,7 @@ void Fuzzy::CutAndBreak(cFielder* TheFielder)
         if (fConfidence > fBestConfidence)
         {
             fBestConfidence = fConfidence;
-            bestValue = FuzzyVariant(sZeroCutAndBreak);
+            bestValue = FuzzyVariant(0.0f);
         }
     }
 

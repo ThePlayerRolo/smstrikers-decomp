@@ -442,7 +442,14 @@ void CupTrophyScene::SceneCreated()
             (InlineHasher&)h5,
             (InlineHasher&)h3,
             (InlineHasher&)h1);
-        arrowComp->m_bVisible = ((CupTrophySpoilView*)pSpoil)->mNumRecords > 3;
+        if (((CupTrophySpoilView*)pSpoil)->mNumRecords <= 3)
+        {
+            arrowComp->m_bVisible = false;
+        }
+        else
+        {
+            arrowComp->m_bVisible = true;
+        }
     }
 
     if (mIsNew)

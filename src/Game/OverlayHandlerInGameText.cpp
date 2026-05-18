@@ -162,6 +162,18 @@ BasicString<unsigned short, Detail::TempStringAllocator>::Append<Detail::TempStr
 // }
 
 /**
+ * Offset/Address/Size: 0x29C | 0x800FC3A4 | size: 0x38
+ */
+template <>
+template <>
+TLInstance* FEFinder<TLInstance, 3>::Find<FEPresentation>(
+    FEPresentation* pTopLevel, InlineHasher h1, InlineHasher h2, InlineHasher h3,
+    InlineHasher h4, InlineHasher h5, InlineHasher h6)
+{
+    return _Find(pTopLevel, h1.m_Hash, h2.m_Hash, h3.m_Hash, h4.m_Hash, h5.m_Hash, h6.m_Hash);
+}
+
+/**
  * Offset/Address/Size: 0x3DC | 0x800FC4E4 | size: 0x15C
  */
 template <>
@@ -181,6 +193,7 @@ TLInstance* FEFinder<TLInstance, 3>::_Find<TLInstance>(
 /**
  * Offset/Address/Size: 0x2D4 | 0x800FC3DC | size: 0x84
  */
+#pragma dont_inline on
 template <>
 template <>
 TLInstance* FEFinder<TLInstance, 3>::_Find<FEPresentation>(
@@ -194,6 +207,7 @@ TLInstance* FEFinder<TLInstance, 3>::_Find<FEPresentation>(
         return (TLInstance*)pChild;
     return _Find<TLSlide>(CastToSomeType<TLSlide>(pTopLevel->m_slides, pChild), Level2, Level3, Level4, Level5, Level6, 0);
 }
+#pragma dont_inline reset
 
 /**
  * Offset/Address/Size: 0x358 | 0x800FC460 | size: 0x84
@@ -213,20 +227,6 @@ TLInstance* FEFinder<TLInstance, 3>::_Find<TLSlide>(
     return _Find<TLInstance>(CastToSomeType<TLInstance>(pTopLevel->m_instances, pChild), Level2, Level3, Level4, Level5, Level6, 0);
 }
 #pragma dont_inline reset
-
-/**
- * Offset/Address/Size: 0x29C | 0x800FC3A4 | size: 0x38
- */
-#pragma inline_depth(0)
-template <>
-template <>
-TLInstance* FEFinder<TLInstance, 3>::Find<FEPresentation>(
-    FEPresentation* pTopLevel, InlineHasher h1, InlineHasher h2, InlineHasher h3,
-    InlineHasher h4, InlineHasher h5, InlineHasher h6)
-{
-    return _Find(pTopLevel, h1.m_Hash, h2.m_Hash, h3.m_Hash, h4.m_Hash, h5.m_Hash, h6.m_Hash);
-}
-#pragma inline_depth()
 
 /**
  * Offset/Address/Size: 0x140 | 0x800FC248 | size: 0x15C

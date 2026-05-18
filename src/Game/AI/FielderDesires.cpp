@@ -1914,22 +1914,24 @@ void cFielder::InitDesireReceivePassFromIdle(const LooseBallContactAnimInfo* pAn
 
 /**
  * Offset/Address/Size: 0x2080 | 0x80032E04 | size: 0xC88
- * TODO: 91.52% match - state-machine branch ordering and register allocation still differ in one-touch shot/pass handling paths.
+ * TODO: 94.36% match - one-touch shot/pass state paths still differ in register allocation and branch layout.
  */
 void cFielder::DesireReceivePassFromIdle(float fDeltaT)
 {
-    float yDiff = m_DesireReceivePassSharedVars.v3BallPosition.f.y - g_pBall->m_v3Position.f.y;
-    float xDiff = m_DesireReceivePassSharedVars.v3BallPosition.f.x - g_pBall->m_v3Position.f.x;
+    float yDiff = m_DesireReceivePassSharedVars.v3BallPosition.f.x - g_pBall->m_v3Position.f.x;
+    float xDiff = m_DesireReceivePassSharedVars.v3BallPosition.f.y - g_pBall->m_v3Position.f.y;
 
     float invDist = nlRecipSqrt((yDiff * yDiff) + (xDiff * xDiff), true);
-    float normY = invDist * yDiff;
     float normX = invDist * xDiff;
+    float normY = invDist * yDiff;
+
+    cBall* pBall = g_pBall;
 
     float invBallVel = nlRecipSqrt(
-        (g_pBall->m_v3Velocity.f.x * g_pBall->m_v3Velocity.f.x) + (g_pBall->m_v3Velocity.f.y * g_pBall->m_v3Velocity.f.y),
+        (pBall->m_v3Velocity.f.x * pBall->m_v3Velocity.f.x) + (pBall->m_v3Velocity.f.y * pBall->m_v3Velocity.f.y),
         true);
-    float ballVelNormY = invBallVel * g_pBall->m_v3Velocity.f.y;
-    float ballVelNormX = invBallVel * g_pBall->m_v3Velocity.f.x;
+    float ballVelNormY = invBallVel * pBall->m_v3Velocity.f.y;
+    float ballVelNormX = invBallVel * pBall->m_v3Velocity.f.x;
 
     if (m_pBall == NULL && m_eDesireSubState != 2)
     {
@@ -1983,7 +1985,7 @@ void cFielder::DesireReceivePassFromIdle(float fDeltaT)
             {
                 SetAttemptOneTouchShot();
             }
-            else if (GetGlobalPad()->JustPressed(PAD_DEKE, true))
+            else if (GetGlobalPad()->JustPressed(PAD_HIT, true))
             {
                 if (m_eDesireSubState != 1)
                 {
@@ -2041,7 +2043,6 @@ void cFielder::DesireReceivePassFromIdle(float fDeltaT)
                 m_aActualFacingDirection,
                 pBestBallContactAnimInfo);
 
-            bool bSuccess = false;
             if (bFoundContact)
             {
                 m_DesireOneTimerVars.aDesiredFacingDirection = m_aActualFacingDirection;
@@ -2069,13 +2070,8 @@ void cFielder::DesireReceivePassFromIdle(float fDeltaT)
                     SetNoPickUpTime(3.0f);
                     g_pBall->SetPassTargetTimer(fBallContactTime);
                     m_pAvoidance->SetThingsToAvoid(0);
-                    bSuccess = true;
+                    return;
                 }
-            }
-
-            if (bSuccess)
-            {
-                return;
             }
 
             if (bVolleyPass)

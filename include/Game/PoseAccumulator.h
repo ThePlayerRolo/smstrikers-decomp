@@ -7,8 +7,6 @@
 #include "Game/SHierarchy.h"
 #include "Game/PoseNode.h"
 
-// class cPoseAccumulator;
-
 typedef void (*BuildNodeMatrixFn)(unsigned int, unsigned int, cPoseAccumulator*, unsigned int, int);
 
 class cBuildNodeMatrixCallbackInfo
@@ -38,27 +36,14 @@ struct ScaleAccum
     /* 0x00 */ nlVector3 s;
     /* 0x0C */ float fAccumulatedWeight;
     /* 0x10 */ bool bIdentity;
-    // /* 0x00 */ float x;
-    // /* 0x04 */ float y;
-    // /* 0x08 */ float z;
-    // /* 0x0C */ float weight;
-    // /* 0x10 */ bool locked;
-    // /* 0x11 */ u8 _pad[3];
-}; // total size: 0x14
+}; // total size: 0xC
 
 struct TransAccum
 {
-
-    // /* 0x00 */ float x;
-    // /* 0x04 */ float y;
-    // /* 0x08 */ float z;
-    // /* 0x0C */ float weight;
-    // /* 0x10 */ bool locked;
-    // /* 0x11 */ u8 _pad[3];
-    /* 0x00 */ nlVector3 t;              // offset 0x0, size 0xC
-    /* 0x0C */ float fAccumulatedWeight; // offset 0xC, size 0x4
-    /* 0x10 */ bool bIdentity;           // offset 0x10, size 0x1
-}; // size: 0x14
+    /* 0x00 */ nlVector3 t;
+    /* 0x0C */ float fAccumulatedWeight;
+    /* 0x10 */ bool bIdentity;
+}; // size: 0xC
 
 class cPoseAccumulator
 {

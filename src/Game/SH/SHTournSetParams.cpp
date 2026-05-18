@@ -868,9 +868,8 @@ void TournSetParamsScene::ApplyMenuDefaults()
 
 /**
  * Offset/Address/Size: 0x0 | 0x800DF9D4 | size: 0x6B0
- * TODO: 87.87% match - remaining diffs are r29/r30 register allocation swaps
- * in menu pointer/index handling and non-league preselection branch flow
- * offsets.
+ * TODO: 91.61% match - remaining diffs are register allocation swaps in menu
+ * pointer/index handling and non-league preselection loop address flow.
  */
 void TournSetParamsScene::InitializeMenu()
 {
@@ -982,7 +981,7 @@ void TournSetParamsScene::InitializeMenu()
                 {
                     item = &mSlideMenuLists[1]->mMenuItems[i];
                 }
-                item->mDisabled = activestatetable[row * 3 + col];
+                ((unsigned char&)item->mDisabled) = activestatetable[row * 3 + col];
                 i++;
             }
         }
@@ -993,16 +992,18 @@ void TournSetParamsScene::InitializeMenu()
         mMenuItems.mMenuItems[2].mType->m_bVisible = true;
 
         SlideMenuList* menu = mSlideMenuLists[1];
+        int numTeamsSelection = m_numTeams - 3;
         MenuItem<SlideMenuItem>* cur = &menu->mMenuItems[menu->mCurrentIndex];
         CALL_MENU_CB(cur, 2);
-        menu->mCurrentIndex = m_numTeams - 3;
+        menu->mCurrentIndex = numTeamsSelection;
         cur = &menu->mMenuItems[menu->mCurrentIndex];
         CALL_MENU_CB(cur, 1);
 
         menu = mSlideMenuLists[2];
+        int numGamesSelection = m_numGames - 1;
         cur = &menu->mMenuItems[menu->mCurrentIndex];
         CALL_MENU_CB(cur, 2);
-        menu->mCurrentIndex = m_numGames - 1;
+        menu->mCurrentIndex = numGamesSelection;
         cur = &menu->mMenuItems[menu->mCurrentIndex];
         CALL_MENU_CB(cur, 1);
 

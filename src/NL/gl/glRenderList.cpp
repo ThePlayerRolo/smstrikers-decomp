@@ -333,15 +333,15 @@ struct PacketCallbackManagerLayout
     /* 0x48 */ unsigned long m_LastMaterialSet;
 }; // total size: 0x50
 
-static unsigned long glv_UserDataChanged;
-static unsigned long glv_MaterialChanged;
-static unsigned long glv_UserStateKeyChanged;
-static unsigned long glv_RasterChanged;
-static unsigned long glv_TextureStateChanged;
-static unsigned long glv_MatrixChanged;
-static unsigned long glv_TexConfigChanged;
-static unsigned long glv_TextureChanged;
-static unsigned long glv_StreamsChanged;
+static unsigned long glv_UserDataChanged __attribute__((section(".sdata2"))) = 0x100;
+static unsigned long glv_MaterialChanged __attribute__((section(".sdata2"))) = 0x400;
+static unsigned long glv_UserStateKeyChanged __attribute__((section(".sdata2"))) = 0x200;
+static unsigned long glv_RasterChanged __attribute__((section(".sdata2"))) = 0x08;
+static unsigned long glv_TextureStateChanged __attribute__((section(".sdata2"))) = 0x10;
+static unsigned long glv_MatrixChanged __attribute__((section(".sdata2"))) = 0x20;
+static unsigned long glv_TexConfigChanged __attribute__((section(".sdata2"))) = 0x80;
+static unsigned long glv_TextureChanged __attribute__((section(".sdata2"))) = 0x4;
+static unsigned long glv_StreamsChanged __attribute__((section(".sdata2"))) = 0x40;
 
 /**
  * Offset/Address/Size: 0x748 | 0x801D9A08 | size: 0x298

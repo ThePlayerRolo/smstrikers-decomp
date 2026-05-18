@@ -1081,9 +1081,8 @@ void FadeFilterToFullStrength()
 
 /**
  * Offset/Address/Size: 0x474 | 0x8013C988 | size: 0x354
- * TODO: 97.61% match - register allocation in team/player loops (same as FadeFilter),
- *       pitchBend u16 load register swap (r28/r0), search loop beq vs bne+b compiler peephole.
- *       #pragma inline_depth(0) needed in decomp.me scratch to prevent nlListAddStart inlining.
+ * TODO: 98.66% match - register allocation in team/player loops (r28/r30/r31 swapped,
+ *       same as FadeFilter), pitchBend u16 load register swap (r28/r0).
  */
 void PitchBend(float param1, float param2, float param3, float param4)
 {
@@ -1111,7 +1110,7 @@ void PitchBend(float param1, float param2, float param3, float param4)
         {
             goto createFade;
         }
-        if (0.5f == param2)
+        if (1.0f == param2)
         {
             // Reset pitch bend to center (0x2000)
             if (!gbPitchBent)
@@ -1187,19 +1186,12 @@ createFade:
         return;
     }
 
-    // Search for existing fade with same type (3=pitch bend) and target
     FadeAudioData* existing = g_pFadeList;
     while (existing != NULL)
     {
-        if (*(s32*)existing == 3)
+        if (*(s32*)existing == 3 && *(float*)((char*)existing + 0x14) == param2)
         {
-            if (*(float*)((char*)existing + 0x14) != param2)
-            {
-            }
-            else
-            {
-                goto foundExisting;
-            }
+            goto foundExisting;
         }
         existing = existing->next;
     }
@@ -3178,25 +3170,32 @@ bool InitializeReverb(eStadiumID stadiumID, unsigned char studio)
             config.Set(reverbStr, 0.9f);
             coloration = 0.9f;
         }
-        else if (tvp.type == _BOOL)
-        {
-            coloration = LexicalCast<float, bool>(tvp.value.b);
-        }
-        else if (tvp.type == _INT)
-        {
-            coloration = LexicalCast<float, int>(tvp.value.i);
-        }
-        else if (tvp.type == _FLOAT)
-        {
-            coloration = LexicalCast<float, float>(tvp.value.f);
-        }
-        else if (tvp.type == _STRING)
-        {
-            coloration = LexicalCast<float, const char*>(tvp.value.s);
-        }
         else
         {
-            coloration = 0.0f;
+            float fValue;
+
+            if (tvp.type == _BOOL)
+            {
+                fValue = LexicalCast<float, bool>(tvp.value.b);
+            }
+            else if (tvp.type == _INT)
+            {
+                fValue = LexicalCast<float, int>(tvp.value.i);
+            }
+            else if (tvp.type == _FLOAT)
+            {
+                fValue = LexicalCast<float, float>(tvp.value.f);
+            }
+            else if (tvp.type == _STRING)
+            {
+                fValue = LexicalCast<float, const char*>(tvp.value.s);
+            }
+            else
+            {
+                fValue = 0.0f;
+            }
+
+            coloration = fValue;
         }
     }
 
@@ -3208,25 +3207,32 @@ bool InitializeReverb(eStadiumID stadiumID, unsigned char studio)
             config.Set(reverbStr, 0.3f);
             mix = 0.3f;
         }
-        else if (tvp.type == _BOOL)
-        {
-            mix = LexicalCast<float, bool>(tvp.value.b);
-        }
-        else if (tvp.type == _INT)
-        {
-            mix = LexicalCast<float, int>(tvp.value.i);
-        }
-        else if (tvp.type == _FLOAT)
-        {
-            mix = LexicalCast<float, float>(tvp.value.f);
-        }
-        else if (tvp.type == _STRING)
-        {
-            mix = LexicalCast<float, const char*>(tvp.value.s);
-        }
         else
         {
-            mix = 0.0f;
+            float fValue;
+
+            if (tvp.type == _BOOL)
+            {
+                fValue = LexicalCast<float, bool>(tvp.value.b);
+            }
+            else if (tvp.type == _INT)
+            {
+                fValue = LexicalCast<float, int>(tvp.value.i);
+            }
+            else if (tvp.type == _FLOAT)
+            {
+                fValue = LexicalCast<float, float>(tvp.value.f);
+            }
+            else if (tvp.type == _STRING)
+            {
+                fValue = LexicalCast<float, const char*>(tvp.value.s);
+            }
+            else
+            {
+                fValue = 0.0f;
+            }
+
+            mix = fValue;
         }
     }
 
@@ -3238,25 +3244,32 @@ bool InitializeReverb(eStadiumID stadiumID, unsigned char studio)
             config.Set(reverbStr, 3.5f);
             time = 3.5f;
         }
-        else if (tvp.type == _BOOL)
-        {
-            time = LexicalCast<float, bool>(tvp.value.b);
-        }
-        else if (tvp.type == _INT)
-        {
-            time = LexicalCast<float, int>(tvp.value.i);
-        }
-        else if (tvp.type == _FLOAT)
-        {
-            time = LexicalCast<float, float>(tvp.value.f);
-        }
-        else if (tvp.type == _STRING)
-        {
-            time = LexicalCast<float, const char*>(tvp.value.s);
-        }
         else
         {
-            time = 0.0f;
+            float fValue;
+
+            if (tvp.type == _BOOL)
+            {
+                fValue = LexicalCast<float, bool>(tvp.value.b);
+            }
+            else if (tvp.type == _INT)
+            {
+                fValue = LexicalCast<float, int>(tvp.value.i);
+            }
+            else if (tvp.type == _FLOAT)
+            {
+                fValue = LexicalCast<float, float>(tvp.value.f);
+            }
+            else if (tvp.type == _STRING)
+            {
+                fValue = LexicalCast<float, const char*>(tvp.value.s);
+            }
+            else
+            {
+                fValue = 0.0f;
+            }
+
+            time = fValue;
         }
     }
 
@@ -3268,25 +3281,32 @@ bool InitializeReverb(eStadiumID stadiumID, unsigned char studio)
             config.Set(reverbStr, 0.5f);
             damping = 0.5f;
         }
-        else if (tvp.type == _BOOL)
-        {
-            damping = LexicalCast<float, bool>(tvp.value.b);
-        }
-        else if (tvp.type == _INT)
-        {
-            damping = LexicalCast<float, int>(tvp.value.i);
-        }
-        else if (tvp.type == _FLOAT)
-        {
-            damping = LexicalCast<float, float>(tvp.value.f);
-        }
-        else if (tvp.type == _STRING)
-        {
-            damping = LexicalCast<float, const char*>(tvp.value.s);
-        }
         else
         {
-            damping = 0.0f;
+            float fValue;
+
+            if (tvp.type == _BOOL)
+            {
+                fValue = LexicalCast<float, bool>(tvp.value.b);
+            }
+            else if (tvp.type == _INT)
+            {
+                fValue = LexicalCast<float, int>(tvp.value.i);
+            }
+            else if (tvp.type == _FLOAT)
+            {
+                fValue = LexicalCast<float, float>(tvp.value.f);
+            }
+            else if (tvp.type == _STRING)
+            {
+                fValue = LexicalCast<float, const char*>(tvp.value.s);
+            }
+            else
+            {
+                fValue = 0.0f;
+            }
+
+            damping = fValue;
         }
     }
 
@@ -3298,25 +3318,32 @@ bool InitializeReverb(eStadiumID stadiumID, unsigned char studio)
             config.Set(reverbStr, 0.1f);
             preDelay = 0.1f;
         }
-        else if (tvp.type == _BOOL)
-        {
-            preDelay = LexicalCast<float, bool>(tvp.value.b);
-        }
-        else if (tvp.type == _INT)
-        {
-            preDelay = LexicalCast<float, int>(tvp.value.i);
-        }
-        else if (tvp.type == _FLOAT)
-        {
-            preDelay = LexicalCast<float, float>(tvp.value.f);
-        }
-        else if (tvp.type == _STRING)
-        {
-            preDelay = LexicalCast<float, const char*>(tvp.value.s);
-        }
         else
         {
-            preDelay = 0.0f;
+            float fValue;
+
+            if (tvp.type == _BOOL)
+            {
+                fValue = LexicalCast<float, bool>(tvp.value.b);
+            }
+            else if (tvp.type == _INT)
+            {
+                fValue = LexicalCast<float, int>(tvp.value.i);
+            }
+            else if (tvp.type == _FLOAT)
+            {
+                fValue = LexicalCast<float, float>(tvp.value.f);
+            }
+            else if (tvp.type == _STRING)
+            {
+                fValue = LexicalCast<float, const char*>(tvp.value.s);
+            }
+            else
+            {
+                fValue = 0.0f;
+            }
+
+            preDelay = fValue;
         }
     }
 
@@ -3328,34 +3355,44 @@ bool InitializeReverb(eStadiumID stadiumID, unsigned char studio)
             config.Set(reverbStr, 0.0f);
             crosstalk = 0.0f;
         }
-        else if (tvp.type == _BOOL)
-        {
-            crosstalk = LexicalCast<float, bool>(tvp.value.b);
-        }
-        else if (tvp.type == _INT)
-        {
-            crosstalk = LexicalCast<float, int>(tvp.value.i);
-        }
-        else if (tvp.type == _FLOAT)
-        {
-            crosstalk = LexicalCast<float, float>(tvp.value.f);
-        }
-        else if (tvp.type == _STRING)
-        {
-            crosstalk = LexicalCast<float, const char*>(tvp.value.s);
-        }
         else
         {
-            crosstalk = 0.0f;
+            float fValue;
+
+            if (tvp.type == _BOOL)
+            {
+                fValue = LexicalCast<float, bool>(tvp.value.b);
+            }
+            else if (tvp.type == _INT)
+            {
+                fValue = LexicalCast<float, int>(tvp.value.i);
+            }
+            else if (tvp.type == _FLOAT)
+            {
+                fValue = LexicalCast<float, float>(tvp.value.f);
+            }
+            else if (tvp.type == _STRING)
+            {
+                fValue = LexicalCast<float, const char*>(tvp.value.s);
+            }
+            else
+            {
+                fValue = 0.0f;
+            }
+
+            crosstalk = fValue;
         }
     }
 
     if (gbUseHiQualityReverb)
     {
-        pReverbHiSettings = &gReverbHiSettings;
         if (PlatAudio::gUsingDolbyProLogic2)
         {
             pReverbHiSettings = &gDPL2ReverbHiSettings;
+        }
+        else
+        {
+            pReverbHiSettings = &gReverbHiSettings;
         }
 
         pAuxEffectSettings = pReverbHiSettings;
@@ -3370,10 +3407,13 @@ bool InitializeReverb(eStadiumID stadiumID, unsigned char studio)
     }
     else
     {
-        pReverbStdSettings = &gReverbStdSettings;
         if (PlatAudio::gUsingDolbyProLogic2)
         {
             pReverbStdSettings = &gDPL2ReverbStdSettings;
+        }
+        else
+        {
+            pReverbStdSettings = &gReverbStdSettings;
         }
 
         pAuxEffectSettings = pReverbStdSettings;

@@ -20,14 +20,55 @@
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0x1DAC | 0x80188948 | size: 0xD74
-//  */
-// void FormatImpl<BasicString<char, Detail::TempStringAllocator>>::operator%<const char*>(const char* const&)
-// {
-// }
-
 typedef FormatImpl<NLString> NLFormatImpl;
+
+/**
+ * Offset/Address/Size: 0x1DAC | 0x80188948 | size: 0xD74
+ * TODO: 90.21% match - r27/r28 swap in operator[] COW path, copy ctor reload, bne/b vs beq branch
+ */
+template <>
+NLFormatImpl& NLFormatImpl::operator% <const char*>(const char* const& t)
+{
+    NLString insert = LexicalCast<NLString, const char*>(t);
+
+    for (int i = 0; i < (int)mString.size() - 1; i++)
+    {
+        if (mString[i] != '{')
+            continue;
+
+        if (i + 1 >= (int)mString.size() - 1)
+            continue;
+
+        if (mString[i + 1] - '0' != mCurrentPos)
+            continue;
+
+        if (i + 2 >= (int)mString.size() - 1)
+            continue;
+
+        if (mString[i + 2] != '}')
+            continue;
+
+        mString[0];
+        char* eraseStart = &mString[i];
+        char* eraseEnd = &mString[i + 3];
+        BasicStringData<char>* data = mString.m_data;
+        int size = eraseEnd - eraseStart;
+        char* dst = data->mData + (eraseStart - data->mData);
+        const char* src = eraseEnd;
+        while (src != data->mData + data->mSize)
+        {
+            *dst++ = *src++;
+        }
+        data->mSize -= size;
+
+        char* insertBegin = &insert[0];
+        char* insertEnd = &insert[(int)insert.size() - 1];
+        mString.insert(&mString[i], insertBegin, insertEnd);
+    }
+
+    mCurrentPos++;
+    return *this;
+}
 
 /**
  * Offset/Address/Size: 0x1038 | 0x80187BD4 | size: 0xD74
@@ -817,7 +858,7 @@ void StatsTracker::TrackStat(ePlayerStats stat, int homeaway, int playerindex, i
     eTeamID teamID;
     int padIndex;
     u8 hasPad;
-    int i;
+    u32 i;
 
     switch (stat)
     {
@@ -945,24 +986,26 @@ void StatsTracker::TrackStat(ePlayerStats stat, int homeaway, int playerindex, i
         nlSingleton<StatsTracker>::s_pInstance->TrackStat(STATS_LOSS, homeaway == 0, 0, 0, 0, 0, 0);
 
         gameInfoManager = nlSingleton<GameInfoManager>::s_pInstance;
-        if (gameInfoManager->IsInCupMode())
+        if (gameInfoManager->IsInCupMode() == 1)
         {
             if (gameInfoManager->mCupMatchRequirement != RESULT_INVALID)
             {
-                teamID = mBasicGameInfo->mTeamIndex[homeaway];
+                teamID = mBasicGameInfo->mTeamIndex[(short)homeaway];
                 if (teamID == gameInfoManager->GetUserSelectedCupTeam())
                 {
                     AwardCup(RESULT_USER_WINS);
+                    break;
                 }
                 else
                 {
                     AwardCup(RESULT_USER_LOSES);
+                    break;
                 }
             }
         }
-        else if (gameInfoManager->IsInTournamentMode() && gameInfoManager->GetNumHumanTeams() == 1)
+        if (gameInfoManager->IsInTournamentMode() == 1 && gameInfoManager->GetNumHumanTeams() == 1)
         {
-            teamID = mBasicGameInfo->mTeamIndex[homeaway];
+            teamID = mBasicGameInfo->mTeamIndex[(short)homeaway];
             if (teamID == gameInfoManager->GetUserSelectedCupTeam() && gameInfoManager->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
             {
                 gameInfoManager->SetResultsOfLastUserGame(RESULT_CUP_WIN);
@@ -977,24 +1020,26 @@ void StatsTracker::TrackStat(ePlayerStats stat, int homeaway, int playerindex, i
         nlSingleton<StatsTracker>::s_pInstance->TrackStat(STATS_OT_LOSS, homeaway == 0, 0, 0, 0, 0, 0);
 
         gameInfoManager = nlSingleton<GameInfoManager>::s_pInstance;
-        if (gameInfoManager->IsInCupMode())
+        if (gameInfoManager->IsInCupMode() == 1)
         {
             if (gameInfoManager->mCupMatchRequirement != RESULT_INVALID)
             {
-                teamID = mBasicGameInfo->mTeamIndex[homeaway];
+                teamID = mBasicGameInfo->mTeamIndex[(short)homeaway];
                 if (teamID == gameInfoManager->GetUserSelectedCupTeam())
                 {
                     AwardCup(RESULT_USER_OT_WINS);
+                    break;
                 }
                 else
                 {
                     AwardCup(RESULT_USER_OT_LOSES);
+                    break;
                 }
             }
         }
-        else if (gameInfoManager->IsInTournamentMode() && gameInfoManager->GetNumHumanTeams() == 1)
+        if (gameInfoManager->IsInTournamentMode() == 1 && gameInfoManager->GetNumHumanTeams() == 1)
         {
-            teamID = mBasicGameInfo->mTeamIndex[homeaway];
+            teamID = mBasicGameInfo->mTeamIndex[(short)homeaway];
             if (teamID == gameInfoManager->GetUserSelectedCupTeam() && gameInfoManager->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
             {
                 gameInfoManager->SetResultsOfLastUserGame(RESULT_CUP_WIN);

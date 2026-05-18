@@ -1346,6 +1346,7 @@ void Replayable<0, SaveFrame, int>(SaveFrame& frame, int& value)
 template <>
 void cPN_SingleAxisBlender::Replay<LoadFrame>(LoadFrame& frame)
 {
+    FORCE_DONT_INLINE;
     Replayable<0>(frame, (cPoseNode&)*this);
     const char* cursor = frame.mStream.mStorage;
     float scale = 1.0f / 128.0f;
@@ -1360,6 +1361,7 @@ void cPN_SingleAxisBlender::Replay<LoadFrame>(LoadFrame& frame)
 template <>
 void cPN_SingleAxisBlender::Replay<SaveFrame>(SaveFrame& frame)
 {
+    FORCE_DONT_INLINE;
     Replayable<0>(frame, (cPoseNode&)*this);
     FloatCompressor<0, 1, 7> proxy(m_fSmoothedWeight);
     proxy.Replay(frame);
@@ -1371,6 +1373,7 @@ void cPN_SingleAxisBlender::Replay<SaveFrame>(SaveFrame& frame)
 template <>
 void cPN_SAnimController::Replay<LoadFrame>(LoadFrame& frame)
 {
+    FORCE_DONT_INLINE;
     Replayable<0>(frame, (cPoseNode&)*this);
 
     const char* cursor = frame.mStream.mStorage;
@@ -1393,6 +1396,7 @@ void cPN_SAnimController::Replay<LoadFrame>(LoadFrame& frame)
 template <>
 void cPN_SAnimController::Replay<SaveFrame>(SaveFrame& frame)
 {
+    FORCE_DONT_INLINE;
     Replayable<0>(frame, (cPoseNode&)*this);
 
     FloatCompressor<0, 1, 15> proxy(m_fTime);
@@ -1511,6 +1515,7 @@ void cPN_Blender::Replay<SaveFrame>(SaveFrame& frame)
 template <>
 void ReplayablePolymorphic<1, SaveFrame, cPoseNode>(SaveFrame& frame, cPoseNode*& ptr)
 {
+    // FORCE_DONT_INLINE;
     char typeId;
     cPoseNode* current = ptr;
     if (frame.mInterval == 1)
@@ -1567,6 +1572,7 @@ void DrawableCharacter_stub()
     Replayable<0>(sf, FloatCompressor<0, 1, 15>(x));
     Replayable<0>(lf, FloatCompressor<0, 1, 7>(x));
     Replayable<0>(lf, FloatCompressor<0, 1, 15>(x));
+    Replayable<0>(lf, 0, pn);
     ReplayablePolymorphic<1, SaveFrame, cPoseNode>(sf, pn);
     cPoseAccumulator& (cPoseAccumulator::*fn)(const cPoseAccumulator&) = &cPoseAccumulator::operator=;
     (void)fn;

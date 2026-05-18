@@ -399,9 +399,7 @@ AsyncEntry* nlDLRingGetStart<AsyncEntry>(AsyncEntry* current);
 
 /**
  * Offset/Address/Size: 0x72C | 0x801CF480 | size: 0x27C
- * TODO: 90.0% match in scratch - remaining diffs are register allocation in
- * both branches and MWCC switch lowering (jump-table target still emitted as
- * compare-chain here).
+ * TODO: 99.87% match - r30 vs r27 register allocation for manager (s_pAsyncManager)
  */
 void nlServiceFileSystem()
 {
@@ -413,7 +411,7 @@ void nlServiceFileSystem()
     extern Function<void(int)> g_HandleDVDRetryCB;
     extern Function<FnVoidVoid> g_CheckForResetCB;
 
-    AsyncManager* manager = s_pAsyncManager;
+    AsyncManager* const manager = s_pAsyncManager;
     AsyncEntry* entry = manager->m_activeEntryList;
     s32 driveStatus;
     u8 loadedSaveState;
@@ -452,42 +450,63 @@ void nlServiceFileSystem()
     {
         driveStatus = DVDGetDriveStatus();
 
-        u32 statusPlusOne = (u32)(driveStatus + 1);
-        if (statusPlusOne <= 12)
+        switch (driveStatus)
         {
-            switch (statusPlusOne)
+        case DVD_STATE_FATAL_ERROR:
+        case DVD_STATE_NO_DISK:
+        case DVD_STATE_COVER_OPEN:
+        case DVD_STATE_WRONG_DISK:
+        case DVD_STATE_RETRY:
+            if (!loadedSaveState)
             {
-            case DVD_STATE_FATAL_ERROR + 1:
-            case DVD_STATE_END + 1:
-            case DVD_STATE_BUSY + 1:
-            case DVD_STATE_WAITING + 1:
-            case DVD_STATE_PAUSING + 1:
-            case DVD_STATE_IGNORED + 1:
-            case DVD_STATE_CANCELED + 1:
-                break;
+                glxLoadSaveState();
+            }
 
-            case DVD_STATE_COVER_CLOSED + 1:
-            case DVD_STATE_NO_DISK + 1:
-            case DVD_STATE_COVER_OPEN + 1:
-            case DVD_STATE_WRONG_DISK + 1:
-            case DVD_STATE_MOTOR_STOPPED + 1:
-                if (!loadedSaveState)
+            if (g_HandleDVDMessageCallback.mTag == 1)
+            {
+                handleDVDMessageCallback->mFreeFunction(driveStatus);
+            }
+            else
+            {
+                (*handleDVDMessageCallback->mFunctor)(driveStatus);
+            }
+
+            loadedSaveState = 1;
+
+            while (driveStatus == DVDGetDriveStatus())
+            {
+                OSYieldThread();
+
+                if (g_CheckForResetCB.mTag != 0)
                 {
-                    glxLoadSaveState();
+                    if (g_CheckForResetCB.mTag == 1)
+                    {
+                        checkForResetCB->mFreeFunction();
+                    }
+                    else
+                    {
+                        checkForResetCB->mFunctor->operator()();
+                    }
+                }
+            }
+            break;
+
+        case DVD_STATE_BUSY:
+            if (loadedSaveState)
+            {
+                if (g_HandleDVDRetryCB.mTag != 0)
+                {
+                    if (g_HandleDVDRetryCB.mTag == 1)
+                    {
+                        handleDVDRetryCB->mFreeFunction(1);
+                    }
+                    else
+                    {
+                        (*handleDVDRetryCB->mFunctor)(1);
+                    }
                 }
 
-                if (g_HandleDVDMessageCallback.mTag == 1)
-                {
-                    handleDVDMessageCallback->mFreeFunction(driveStatus);
-                }
-                else
-                {
-                    (*handleDVDMessageCallback->mFunctor)(driveStatus);
-                }
-
-                loadedSaveState = 1;
-
-                while (driveStatus == DVDGetDriveStatus())
+                while (DVDGetDriveStatus() == DVD_STATE_BUSY)
                 {
                     OSYieldThread();
 
@@ -503,42 +522,8 @@ void nlServiceFileSystem()
                         }
                     }
                 }
-                break;
-
-            case DVD_STATE_RETRY + 1:
-                if (loadedSaveState)
-                {
-                    if (g_HandleDVDRetryCB.mTag != 0)
-                    {
-                        if (g_HandleDVDRetryCB.mTag == 1)
-                        {
-                            handleDVDRetryCB->mFreeFunction(1);
-                        }
-                        else
-                        {
-                            (*handleDVDRetryCB->mFunctor)(1);
-                        }
-                    }
-
-                    while (DVDGetDriveStatus() == DVD_STATE_BUSY)
-                    {
-                        OSYieldThread();
-
-                        if (g_CheckForResetCB.mTag != 0)
-                        {
-                            if (g_CheckForResetCB.mTag == 1)
-                            {
-                                checkForResetCB->mFreeFunction();
-                            }
-                            else
-                            {
-                                checkForResetCB->mFunctor->operator()();
-                            }
-                        }
-                    }
-                }
-                break;
             }
+            break;
         }
 
         if ((driveStatus == DVD_STATE_END) || (driveStatus == DVD_STATE_FATAL_ERROR))

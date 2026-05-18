@@ -140,10 +140,11 @@ int nlStrNICmp(const CharT* a, const CharT* b, unsigned long maxsize)
  * void nlToLower<unsigned char>(unsigned char)
  */
 
-// Single character version (current implementation)
+// Single character version
 template <typename CharT>
 CharT nlToLower(CharT c)
 {
+    FORCE_DONT_INLINE;
     if ((c >= 0x41) && (c <= 0x5A))
     {
         c = (CharT)(c | 0x20);

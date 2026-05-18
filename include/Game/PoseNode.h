@@ -2,14 +2,8 @@
 #define _POSENODE_H_
 
 #include "NL/nlMath.h"
-
-template <int N, typename FrameType, typename T>
-void Replayable(FrameType& frame, T& drawable);
-
-template <int N, typename FrameType, typename T>
-void ReplayablePolymorphic(FrameType& frame, T*& ptr);
-
-class cPoseAccumulator;
+#include "Game/Replay.h"
+#include "Game/PoseAccumulator.h"
 
 class cPoseNode
 {
@@ -24,15 +18,6 @@ public:
     /* 0x1C */ virtual int GetType() = 0;
     /* 0x20 */ virtual void BlendRootTrans(nlVector3* outBase, float weight, float* scratch) = 0;
     /* 0x24 */ virtual void BlendRootRot(unsigned short* outRot, float weight, float* scratch) = 0;
-
-    // /* 0x0C */ virtual void V_unkC(int) = 0;
-    // // /* 0x10 */ virtual void V_unk10(float) const = 0;
-    // /* 0x10 */ virtual void V_unk10(cPoseAccumulator* accum, float weight) const = 0;
-    // /* 0x14 */ virtual void V_unk14() = 0;
-    // /* 0x18 */ virtual void V_unk18() = 0;
-
-    // void V_GetRootTrans(nlVector3* outBase, float weight, float* scratch) = 0;
-    // virtual void V_GetRootRot(unsigned short* outRot, float weight, float* scratch) = 0;
 
     void GetRootRot(unsigned short*);
     void GetRootTrans(nlVector3*, unsigned short);
@@ -51,6 +36,7 @@ public:
 template <typename T>
 inline void cPoseNode::Replay(T& frame)
 {
+    // FORCE_DONT_INLINE;
     Replayable<0>(frame, m_numChildren);
     for (int i = 0; i < m_numChildren; i++)
     {

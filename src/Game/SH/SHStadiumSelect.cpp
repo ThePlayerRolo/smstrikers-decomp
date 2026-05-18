@@ -120,6 +120,7 @@ static inline int WrapStadiumIndex(int index)
 /**
  * Offset/Address/Size: 0x1400 | 0x800D9980 | size: 0xF4
  */
+#pragma dont_inline reset
 StadiumSelectSceneV2::StadiumSelectSceneV2()
     : mTempTextureBuffer(NULL)
     , mTempTextureBufferSize(0)

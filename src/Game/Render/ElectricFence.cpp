@@ -749,11 +749,13 @@ void UpdateElectricFence(float fDeltaT)
         {
             pos.f.x = -pos.f.x;
         }
+        float netWidth = cNet::m_fNetWidth;
+        float netHeight = cNet::m_fNetHeight;
         if ((float)__fabs(pos.f.x - goalLineX) < 0.01)
         {
-            if ((float)__fabs(pos.f.y) < cNet::m_fNetWidth)
+            if ((float)__fabs(pos.f.y) < netWidth)
             {
-                pos.f.z = nlRandomf(cNet::m_fNetHeight, 5.0f, &nlDefaultSeed);
+                pos.f.z = nlRandomf(netHeight, 5.0f, &nlDefaultSeed);
             }
         }
         unsigned long counterVal = counter;
@@ -805,10 +807,7 @@ void UpdateElectricFence(float fDeltaT)
                     data = (ElectricFenceData*)freeSlot;
                     ElectricFenceData::sElectricFenceDataPool.m_FreeList = freeSlot->m_next;
                 }
-                if (data != NULL)
-                {
-                    new (data) ElectricFenceData(controller);
-                }
+                new (data) ElectricFenceData(controller);
                 {
                     Function<EmissionController&> updateCb;
                     updateCb.mTag = FREE_FUNCTION;
