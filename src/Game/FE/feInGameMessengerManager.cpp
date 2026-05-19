@@ -6,10 +6,6 @@
 
 /**
  * Offset/Address/Size: 0x0 | 0x800FF91C | size: 0x140
- * TODO: 97.31% match - MWCC strength-reduces TIMESTATE_TIMES loop:
- * pre-computes base+offset outside loop (r0) instead of keeping base in r6
- * and recomputing add inside loop body (5 diffs). Remaining 2 diffs:
- * loop-back target and 25.0f literal pool symbol.
  */
 void FEInGameMessengerManager::Update(float fDeltaT)
 {
@@ -20,15 +16,12 @@ void FEInGameMessengerManager::Update(float fDeltaT)
 
     float normTime = g_pGame->GetNormalizedGameTime();
     eTimeStates newState = m_curTimeState;
-    int offset = (int)newState;
-    float (*pTimes)[TS_NUMTIMESTATES] = (float (*)[TS_NUMTIMESTATES]) & TIMESTATE_TIMES;
 
-    while (offset + 1 != (int)TS_NUMTIMESTATES)
+    while (newState + 1 != TS_NUMTIMESTATES)
     {
-        if (normTime >= (*pTimes)[offset + 1])
+        if (normTime >= TIMESTATE_TIMES[newState + 1])
         {
-            offset++;
-            newState = (eTimeStates)offset;
+            newState = (eTimeStates)(newState + 1);
         }
         else
         {

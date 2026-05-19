@@ -1051,14 +1051,24 @@ void DrawableCharacter::Blend(const float* blendFactors, const DrawableCharacter
     t = *blendFactors;
     lhsPoseAccum = lhs.mPoseAccumulator;
     rhsPoseAccum = rhs.mPoseAccumulator;
-    for (int i = 0; i < mPoseAccumulator->m_MorphWeights.mSize; i++)
+    int j = 0;
+    for (int i = 0; i < 2; i++)
     {
-        mPoseAccumulator->m_MorphWeights.mData[i] += lhsPoseAccum->m_MorphWeights.mData[i] * oneMinusT;
-        mPoseAccumulator->m_MorphWeights.mData[i] += rhsPoseAccum->m_MorphWeights.mData[i] * t;
+        mPoseAccumulator->m_MorphWeights.mData[j] += lhsPoseAccum->m_MorphWeights.mData[j] * oneMinusT;
+        mPoseAccumulator->m_MorphWeights.mData[j] += rhsPoseAccum->m_MorphWeights.mData[j] * t;
+        mPoseAccumulator->m_MorphWeights.mData[j + 1] += lhsPoseAccum->m_MorphWeights.mData[j + 1] * oneMinusT;
+        mPoseAccumulator->m_MorphWeights.mData[j + 1] += rhsPoseAccum->m_MorphWeights.mData[j + 1] * t;
+        mPoseAccumulator->m_MorphWeights.mData[j + 2] += lhsPoseAccum->m_MorphWeights.mData[j + 2] * oneMinusT;
+        mPoseAccumulator->m_MorphWeights.mData[j + 2] += rhsPoseAccum->m_MorphWeights.mData[j + 2] * t;
+        mPoseAccumulator->m_MorphWeights.mData[j + 3] += lhsPoseAccum->m_MorphWeights.mData[j + 3] * oneMinusT;
+        mPoseAccumulator->m_MorphWeights.mData[j + 3] += rhsPoseAccum->m_MorphWeights.mData[j + 3] * t;
+        j += 4;
     }
     nlMatrix4 rotMatrix;
     nlMakeRotationMatrixZ(rotMatrix, 0.0000958738f * (float)mFacingDirection);
-    rotMatrix.SetRow_(3, mPosition);
+    rotMatrix.m[3][0] = mPosition.f.x;
+    rotMatrix.m[3][1] = mPosition.f.y;
+    rotMatrix.m[3][2] = mPosition.f.z;
     if (mCharacter != nullptr)
     {
         mPoseAccumulator->SetBuildNodeMatrixCallback(mCharacter->m_nHeadJointIndex, DrawableCharacterHeadTrackCallback, (unsigned int)this, 0);

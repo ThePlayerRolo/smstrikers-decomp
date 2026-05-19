@@ -134,7 +134,7 @@ void Goalie::ActionLooseBallDesperate(float fDeltaT)
         if (pAnim->m_fTime < pInfo->mfPickupTime)
         {
             float fRatio = pAnim->m_fTime / pInfo->mfPickupTime;
-            float fTimeRemaining = pInfo->mfPickupTime * pInfo->mfAnimDuration - pInfo->mfAnimDuration * pAnim->m_fTime;
+            float fTimeRemaining = pInfo->mfAnimDuration * pInfo->mfPickupTime - pAnim->m_fTime * pInfo->mfAnimDuration;
             float fGoalLineX = cField::GetGoalLineX(1U);
             float fTimeScale = 0.25f * fTimeRemaining;
             float fLimit = fGoalLineX - 0.2f;
@@ -1127,13 +1127,16 @@ void Goalie::ActionMoveWB(float fDeltaT)
         if (mfTargetTime > 1.0f)
         {
             nlVector3 v3Center = m_v3Position;
+            float m02 = m_m4WorldMatrix.m[0][2];
+            float m01 = m_m4WorldMatrix.m[0][1];
+            float m00 = m_m4WorldMatrix.m[0][0];
             float dist = nlGetLength3D(m_v3Position.f.x, m_v3Position.f.y, m_v3Position.f.z);
             float invDist = -1.0f / dist;
             v3Center.f.x = invDist * m_v3Position.f.x;
             v3Center.f.y = invDist * m_v3Position.f.y;
             v3Center.f.z = invDist * m_v3Position.f.z;
 
-            float dot = m_m4WorldMatrix.m[0][1] * v3Center.f.y + m_m4WorldMatrix.m[0][0] * v3Center.f.x + m_m4WorldMatrix.m[0][2] * v3Center.f.z;
+            float dot = m00 * v3Center.f.x + m01 * v3Center.f.y + m02 * v3Center.f.z;
 
             if (dot > 0.5)
             {
@@ -1200,8 +1203,11 @@ no_pad:
         m_aDesiredFacingDirection = (u16)(s32)(10430.378f * angle);
 
         float absX = (float)fabs(m_v3Position.f.x);
-        float goalLineX = cField::GetGoalLineX(1U);
-        if (goalLineX - 3.0f >= absX)
+        float goalLineX = cField::GetGoalLineX(1U) - 3.0f;
+        if (absX > goalLineX)
+        {
+        }
+        else
         {
             s16 diff = (s16)(m_aDesiredFacingDirection - m_aActualFacingDirection);
             if (diff < 0)
@@ -1628,14 +1634,14 @@ void Goalie::ActionSTS(float fDeltaT)
                 v3Root.f.z = dz;
                 v3Root.f.y = dy;
                 v3Root.f.x = dx;
-                f32 posZ = m_v3Position.f.z;
-                f32 posY = m_v3Position.f.y;
                 f32 posX = m_v3Position.f.x;
+                f32 posY = m_v3Position.f.y;
+                f32 posZ = m_v3Position.f.z;
                 f32 fT = (fAnimTime - mfTargetTime) / (1.0f - mfTargetTime);
                 f32 fSmoothT = fT * fT * (-2.0f * fT + 3.0f);
                 v3Root.f.z = posZ + fSmoothT * dz;
-                v3Root.f.y = posY + fSmoothT * dy;
                 v3Root.f.x = posX + fSmoothT * dx;
+                v3Root.f.y = posY + fSmoothT * dy;
                 SetPosition(v3Root);
             }
             f32 fGoalieNetYLimit = 0.5f * cNet::m_fNetWidth - 0.7f;
@@ -1652,17 +1658,13 @@ void Goalie::ActionSTS(float fDeltaT)
                 fStadiumVal = 2.0f;
                 break;
             }
-            f32 fGoalLineLimit = cField::GetGoalLineX(1U);
-            fGoalLineLimit += fStadiumVal;
+            f32 fGoalLineLimit = cField::GetGoalLineX(1U) + fStadiumVal;
             if (fAnimTime > 0.12f
                 && (float)fabs(m_v3Position.f.y) > fGoalieNetYLimit
                 && (float)fabs(m_v3Position.f.x) < fGoalLineLimit)
             {
                 v3GoaliePos = m_v3Position;
-                if (m_v3Position.f.y > 0.0f)
-                    v3GoaliePos.f.y = fGoalieNetYLimit;
-                else
-                    v3GoaliePos.f.y = -fGoalieNetYLimit;
+                v3GoaliePos.f.y = (m_v3Position.f.y > 0.0f) ? fGoalieNetYLimit : -fGoalieNetYLimit;
                 SetPosition(v3GoaliePos);
             }
         }

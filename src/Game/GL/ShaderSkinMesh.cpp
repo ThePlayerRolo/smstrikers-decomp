@@ -389,8 +389,8 @@ static inline void CopySoftwareVerts(ShaderSkinMesh* mesh)
 
 /**
  * Offset/Address/Size: 0x58C | 0x801E0BD0 | size: 0x1E0
- * TODO: 97.3% match - remaining differences are in morph loop register
- *       assignment for morph weight and delta-offset cursors.
+ * TODO: 97.5% match - remaining differences are in morph loop register
+ *       assignment for delta-offset and end cursors.
  */
 void ShaderSkinMesh::PrepareToRender(unsigned long flags, const nlMatrix4* pMatrix)
 {
@@ -407,13 +407,14 @@ void ShaderSkinMesh::PrepareToRender(unsigned long flags, const nlMatrix4* pMatr
 
         int m = 0;
         MorphDelta* pDelta = morphData;
+        MorphDelta* end = pDelta;
         u32 deltaOffset = (u32)m;
         ShaderSkinMesh* weightCursor = this;
 
         while (m < numMorphs)
         {
             u32 nDeltas = morphNumDeltas[deltaOffset >> 2];
-            MorphDelta* end = pDelta + nDeltas;
+            end = pDelta + nDeltas;
 
             if (weightCursor->morphWeights[0] > 0.0f)
             {

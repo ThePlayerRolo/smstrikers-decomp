@@ -439,9 +439,8 @@ extern void AddTriangleFromGeometry__18NetMeshModelLoaderFRC13glModelPacketPUs(
 
 /**
  * Offset/Address/Size: 0xA80 | 0x80130BD8 | size: 0x110
- * TODO: 96.18% match - callee-saved register mapping is still shifted for
- * this/packet/numVerts, and the inner loop keeps j/base/index temporaries in
- * r4/r5/r6/r3 instead of r7/r3/r6/r4.
+ * TODO: 96.91% match - inner-loop temporaries still map to
+ * r4/r5/r3/r6 instead of r7/r3/r4/r6.
  */
 void NetMeshModelLoader::ReadEdgesFromGeometryPacket(const glModelPacket& packet)
 {
@@ -453,10 +452,10 @@ void NetMeshModelLoader::ReadEdgesFromGeometryPacket(const glModelPacket& packet
     DisplayList* pList = dlGetStruct(packet.indexBuffer);
 
     s32 i = 2;
-    s32 numVerts = packet.numVertices;
-    while (i < numVerts)
+    while (i < packet.numVertices)
     {
         u16 vertexIndices[3];
+        u16* pVtx = vertexIndices;
         s32 j = 0;
 
         while (j < 3)
@@ -493,9 +492,10 @@ void NetMeshModelLoader::ReadEdgesFromGeometryPacket(const glModelPacket& packet
                 ptr = (u16*)ptr8;
             }
 
-            vertexIndices[j] = *ptr;
-            if (vertexIndices[j] > maxVertex)
-                maxVertex = vertexIndices[j];
+            *pVtx = *ptr;
+            if (*pVtx > maxVertex)
+                maxVertex = *pVtx;
+            pVtx++;
             j++;
         }
 

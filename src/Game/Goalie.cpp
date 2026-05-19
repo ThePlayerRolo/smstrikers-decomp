@@ -584,7 +584,7 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
     cPlayer* pPlayer = pData->player2;
     cPlayer::CollideWithCharacterCallback(pData);
 
-    int bHitReactResult;
+    bool bHitReactResult;
     nlVector3 v3LocalPos;
     s32 anim;
 
@@ -608,7 +608,15 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
             return;
         }
 
-        if (m_eAnimID == 0x0B || m_eAnimID == 0x0D || m_eAnimID == 0x0C)
+        if (m_eAnimID == 0x0B)
+        {
+            return;
+        }
+        if (m_eAnimID == 0x0D)
+        {
+            return;
+        }
+        if (m_eAnimID == 0x0C)
         {
             return;
         }
@@ -635,7 +643,23 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
             anim = 0x0C;
         }
 
-        if (anim != m_eAnimID || (m_pCurrentAnimController->m_ePlayMode == PM_HOLD && m_pCurrentAnimController->m_fTime == 1.0f))
+        if (anim == m_eAnimID)
+        {
+            bool bAtEnd = false;
+            cPN_SAnimController* pAnim = m_pCurrentAnimController;
+            if (pAnim->m_ePlayMode == PM_HOLD)
+            {
+                if (pAnim->m_fTime == 1.0f)
+                {
+                    bAtEnd = true;
+                }
+            }
+            if (bAtEnd)
+            {
+                SetAnimState(anim, true, 0.2f, false, false);
+            }
+        }
+        else
         {
             SetAnimState(anim, true, 0.2f, false, false);
         }
@@ -653,7 +677,7 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
     case GOALIEACTION_STS_ATTACK:
     {
         cFielder* pFldr = g_pBall->GetOwnerFielder();
-        int bDoHit;
+        bool bDoHit;
 
         if (pFldr != NULL && !IsOnSameTeam(pFldr) && pFldr->m_eActionState == ACTION_SHOOT_TO_SCORE)
         {
@@ -674,7 +698,7 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
             return;
         }
 
-        if (m_pCurrentAnimController->m_fTime <= 0.3f)
+        if (!(m_pCurrentAnimController->m_fTime > 0.3f))
         {
             return;
         }
@@ -698,9 +722,9 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
 
         nlVector3 v3NewVel;
         f32 velScale = -((GoalieTweaks*)m_pTweaks)->fSTSAttackBallVelMult;
-        v3NewVel.f.x = velScale * m_v3Position.f.x;
-        v3NewVel.f.y = velScale * m_v3Position.f.y;
         v3NewVel.f.z = velScale * m_v3Position.f.z;
+        v3NewVel.f.y = velScale * m_v3Position.f.y;
+        v3NewVel.f.x = velScale * m_v3Position.f.x;
 
         f32 yRand = nlRandomf(5.0f, &nlDefaultSeed);
         if ((u32)nlRandom(100, &nlDefaultSeed) > 50)
@@ -780,7 +804,7 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
         return;
 
     case GOALIEACTION_LOOSEBALL_DESPERATE:
-        if (g_pBall->m_pOwner == pPlayer)
+        if (pPlayer == g_pBall->m_pOwner)
         {
             if (pPlayer != NULL && !IsOnSameTeam(pPlayer) && !((cFielder*)pPlayer)->IsFallenDown(0.0f) && !((cFielder*)pPlayer)->IsInvincible())
             {
@@ -805,20 +829,19 @@ void Goalie::CollideWithCharacterCallback(CollisionPlayerPlayerData* pData)
                 }
             }
 
-            if (mpLooseBallInfo->mnAnimID != m_eAnimID || (m_pCurrentAnimController->m_ePlayMode == PM_HOLD && m_pCurrentAnimController->m_fTime == 1.0f))
+            if (mpLooseBallInfo->mnAnimID != m_eAnimID)
             {
-                SetAnimState(mpLooseBallInfo->mnAnimID, true, 0.2f, false, false);
+                if (mpLooseBallInfo->mnAnimID != m_eAnimID || (m_pCurrentAnimController->m_ePlayMode == PM_HOLD && m_pCurrentAnimController->m_fTime == 1.0f))
+                {
+                    SetAnimState(mpLooseBallInfo->mnAnimID, true, 0.2f, false, false);
+                    cPN_SAnimController* pAnim = m_pCurrentAnimController;
+                    f32 targetTime = 0.5f * mpLooseBallInfo->mfPickupTime;
+                    f32 curTime = pAnim->m_fTime;
+                    pAnim->m_fPrevTime = curTime;
+                    pAnim->m_fTime = targetTime;
+                    InitMovementFromAnim(0, v3Zero, 1.0f, false);
+                }
             }
-
-            {
-                cPN_SAnimController* pAnim = m_pCurrentAnimController;
-                f32 targetTime = 0.5f * mpLooseBallInfo->mfPickupTime;
-                f32 curTime = pAnim->m_fTime;
-                pAnim->m_fPrevTime = curTime;
-                pAnim->m_fTime = targetTime;
-            }
-
-            InitMovementFromAnim(0, v3Zero, 1.0f, false);
 
             if (m_pBall == NULL)
             {
@@ -6683,9 +6706,8 @@ void Goalie::SetDesiredSaveFacing(const nlVector3& v3BallPosition)
 
 /**
  * Offset/Address/Size: 0x3C4 | 0x80042EC0 | size: 0x1F4
- * TODO: 97.28% match - remaining register assignment mismatch in angle-difference integer math,
- * and velocity clamp temporaries still mapped to different FP registers with two branch shape
- * differences.
+ * TODO: 97.52% match - velocity clamp temporaries still map to different FP registers,
+ * with remaining branch-shape differences in the clamp blocks.
  */
 void Goalie::TrackTarget(const nlVector3& v3Target, float fRatio)
 {
@@ -6703,8 +6725,8 @@ void Goalie::TrackTarget(const nlVector3& v3Target, float fRatio)
     s16 aDiff = (s16)((u16)(s32)(10430.378f * fAngleToTarget)
                       - (u16)(s32)(10430.378f * nlATan2f(v3FutureBallPos.f.y - m_v3Position.f.y, v3FutureBallPos.f.x - m_v3Position.f.x)));
     s32 iRatio = (s32)(1024.0f * fRatio);
-    iRatio = (aDiff * iRatio) / 1024;
-    SetFacingDirection((u16)(iRatio + m_aActualFacingDirection));
+    s32 iTurn = (iRatio * aDiff) / 1024;
+    SetFacingDirection((u16)(iTurn + m_aActualFacingDirection));
 
     float fVelX = fRatio * fDeltaX;
     float fVelY = fRatio * fDeltaY;
@@ -6712,9 +6734,9 @@ void Goalie::TrackTarget(const nlVector3& v3Target, float fRatio)
     fVelZ *= fRatio;
 
     fVelX = fVelX >= -0.12f ? fVelX : -0.12f;
-    fVelX = fVelX <= 0.5f ? fVelX : 0.5f;
+    fVelX = fVelX <= 0.12f ? fVelX : 0.12f;
     fVelY = fVelY >= -0.12f ? fVelY : -0.12f;
-    fVelY = fVelY <= 0.5f ? fVelY : 0.5f;
+    fVelY = fVelY <= 0.12f ? fVelY : 0.12f;
 
     nlVec3Set(v3FuturePos, fVelX + m_v3Position.f.x, fVelY + m_v3Position.f.y, fVelZ + m_v3Position.f.z);
 

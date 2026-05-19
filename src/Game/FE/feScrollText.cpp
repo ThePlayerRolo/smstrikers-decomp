@@ -263,13 +263,14 @@ void FEScrollText::SetDisplayMessage(const BasicString<unsigned short, Detail::T
     FORCE_DONT_INLINE;
 }
 
-static const unsigned short sEmptyString[] = { 0 };
+static unsigned short sEmptyStringData[] = { 0 };
+static unsigned short* sEmptyString = sEmptyStringData;
 
 inline void FEScrollText::SetMetrics(int pos, int width)
 {
     const gl_ScreenInfo* screenInfo = glGetScreenInfo();
-    int boxWidth = width;
     int boxX = pos + screenInfo->ScreenWidth / 2 - width / 2;
+    int boxWidth = width;
     if (boxX < 0)
         boxX = 0;
     if (width + boxX >= screenInfo->ScreenWidth)

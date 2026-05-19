@@ -674,16 +674,23 @@ void FERender::RenderTimeLineAsset(TLInstance* pTLInstance, float fCurrentTime)
     nlMultMatrices(combinedMatrix, scaleMatrix, rotationMatrix);
 
     const feVector3& pos = pTLInstance->GetPosition();
+    float x;
+    float negOne = -1.0f;
+    float y;
     float z = pos.f.z;
-    combinedMatrix.f.m41 = pos.f.x;
-    combinedMatrix.f.m42 = pos.f.y;
+    y = pos.f.y;
+    x = pos.f.x;
+    combinedMatrix.f.m43 = z;
+    combinedMatrix.f.m41 = x;
+    combinedMatrix.f.m42 = y;
     combinedMatrix.f.m44 = 1.0f;
-    combinedMatrix.f.m43 = z * -1.0f;
+    combinedMatrix.f.m43 = z * negOne;
 
     m_pMatrixStack->PushMatrix();
     m_pMatrixStack->MultMatrix(combinedMatrix);
 
-    nlFloatColour* curAssetColour = &s_currentAssetColour;
+    nlFloatColour* pCurrentAssetColour = &s_currentAssetColour;
+    nlFloatColour* curAssetColour = pCurrentAssetColour;
     for (u32 i = 0; i < 4; i++)
     {
         curAssetColour->c[i] = (pTLInstance->GetColour().c[i] * curAssetColour->c[i]) / 255.0f;
@@ -702,9 +709,10 @@ void FERender::RenderTimeLineAsset(TLInstance* pTLInstance, float fCurrentTime)
         ((TLTextInstance*)pTLInstance)->m_DrawInfo.pMatrix = &textMatrix;
 
         nlColour colour;
-#pragma inline_depth(0)
-        ConvertFloatColourToColour(colour, s_currentAssetColour);
-#pragma inline_depth()
+        colour.c[0] = (s32)(s_currentAssetColour.c[0] * 255.0f);
+        colour.c[1] = (s32)(s_currentAssetColour.c[1] * 255.0f);
+        colour.c[2] = (s32)(s_currentAssetColour.c[2] * 255.0f);
+        colour.c[3] = (s32)(s_currentAssetColour.c[3] * 255.0f);
 
         ((TLTextInstance*)pTLInstance)->Render((eGLView)m_pRenderScene->m_uRenderView, colour);
         break;
@@ -715,78 +723,81 @@ void FERender::RenderTimeLineAsset(TLInstance* pTLInstance, float fCurrentTime)
         if (compRef != 0)
         {
             TLSlide* slide = compRef->m_pActiveSlide;
-            if (slide != 0 && slide->m_instances != 0)
+            if (slide != 0)
             {
-                TLInstance* curr = slide->m_instances->m_next;
-
-                while (true)
+                if (slide != 0 && slide->m_instances != 0)
                 {
-                    nlFloatColour oldSlideColour = s_currentAssetColour;
-                    TLInstance* next = curr->m_next;
+                    TLInstance* curr = slide->m_instances->m_next;
 
-                    float slideTime = slide->GetCurrentTime();
-                    if (curr->IsValidAtTime(slideTime) && curr->IsVisible())
+                    while (true)
                     {
-                        PushTransformMatrix(curr);
-                        CalculateCurrentAssetColour(curr);
+                        nlFloatColour oldSlideColour = s_currentAssetColour;
+                        TLInstance* next = curr->m_next;
 
-                        switch (curr->GetType())
+                        float slideTime = slide->GetCurrentTime();
+                        if (curr->IsValidAtTime(slideTime) && curr->IsVisible())
                         {
-                        case TLAT_IMAGE:
-                            RenderImageInstance((const TLImageInstance*)curr);
-                            break;
-                        case TLAT_TEXT:
-#pragma inline_depth(0)
-                            RenderTextInstance((TLTextInstance*)curr);
-#pragma inline_depth()
-                            break;
-                        case TLAT_COMPONENT:
-#pragma inline_depth(0)
-                            RenderComponentInstance((TLComponentInstance*)curr);
-#pragma inline_depth()
-                            break;
-                        default:
-                            break;
-                        }
+                            PushTransformMatrix(curr);
+                            CalculateCurrentAssetColour(curr);
 
-                        if (curr->pChildren != 0)
-                        {
-                            TLInstance* child = curr->pChildren->m_next;
-
-                            while (true)
+                            switch (curr->GetType())
                             {
-                                TLInstance* nextChild = child->m_next;
-                                nlFloatColour oldChildColour = s_currentAssetColour;
+                            case TLAT_IMAGE:
+                                RenderImageInstance((const TLImageInstance*)curr);
+                                break;
+                            case TLAT_TEXT:
+#pragma inline_depth(0)
+                                RenderTextInstance((TLTextInstance*)curr);
+#pragma inline_depth()
+                                break;
+                            case TLAT_COMPONENT:
+#pragma inline_depth(0)
+                                RenderComponentInstance((TLComponentInstance*)curr);
+#pragma inline_depth()
+                                break;
+                            default:
+                                break;
+                            }
 
-                                RenderTimeLineAsset(child, slideTime);
+                            if (curr->pChildren != 0)
+                            {
+                                TLInstance* child = curr->pChildren->m_next;
+
+                                while (true)
+                                {
+                                    TLInstance* nextChild = child->m_next;
+                                    nlFloatColour oldChildColour = s_currentAssetColour;
+
+                                    RenderTimeLineAsset(child, slideTime);
 
 #pragma inline_depth(0)
-                                s_currentAssetColour = oldChildColour;
+                                    s_currentAssetColour = oldChildColour;
 #pragma inline_depth()
 
-                                if (child == curr->pChildren)
-                                {
-                                    break;
-                                }
+                                    if (child == curr->pChildren)
+                                    {
+                                        break;
+                                    }
 
-                                child = nextChild;
+                                    child = nextChild;
+                                }
                             }
+
+                            PopTransformMatrix();
                         }
 
-                        PopTransformMatrix();
+                        *(u32*)&s_currentAssetColour.c[0] = *(u32*)&oldSlideColour.c[0];
+                        *(u32*)&s_currentAssetColour.c[1] = *(u32*)&oldSlideColour.c[1];
+                        *(u32*)&s_currentAssetColour.c[2] = *(u32*)&oldSlideColour.c[2];
+                        *(u32*)&s_currentAssetColour.c[3] = *(u32*)&oldSlideColour.c[3];
+
+                        if (curr == slide->m_instances)
+                        {
+                            break;
+                        }
+
+                        curr = next;
                     }
-
-                    *(u32*)&s_currentAssetColour.c[0] = *(u32*)&oldSlideColour.c[0];
-                    *(u32*)&s_currentAssetColour.c[1] = *(u32*)&oldSlideColour.c[1];
-                    *(u32*)&s_currentAssetColour.c[2] = *(u32*)&oldSlideColour.c[2];
-                    *(u32*)&s_currentAssetColour.c[3] = *(u32*)&oldSlideColour.c[3];
-
-                    if (curr == slide->m_instances)
-                    {
-                        break;
-                    }
-
-                    curr = next;
                 }
             }
         }
@@ -837,7 +848,7 @@ void FERender::RenderTimeLineAsset(TLInstance* pTLInstance, float fCurrentTime)
                 m_pMatrixStack->PushMatrix();
                 m_pMatrixStack->MultMatrix(combMatrix);
 
-                nlFloatColour* colPtr = &s_currentAssetColour;
+                nlFloatColour* colPtr = pCurrentAssetColour;
                 for (u32 j = 0; j < 4; j++)
                 {
                     colPtr->c[j] = (curr->GetColour().c[j] * colPtr->c[j]) / 255.0f;

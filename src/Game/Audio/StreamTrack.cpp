@@ -448,7 +448,7 @@ void AudioStreamTrack::StreamTrack::Update(float)
 
 /**
  * Offset/Address/Size: 0x14D4 | 0x8015622C | size: 0x428
- * TODO: 87.4% match - +0x10 QS variable stack offset shift from Allocate inline localData placement, loop addi r3,r6,0x58 scheduling diff, Allocate branch pattern diff
+ * TODO: 92.9% match - stack frame size/local layout differs around queue restore; loop remove-start setup and memfun bind sequence still differ
  */
 void AudioStreamTrack::StreamTrack::PlayStream(
     unsigned long StreamId, float Volume, bool Looping,
@@ -491,11 +491,39 @@ void AudioStreamTrack::StreamTrack::PlayStream(
     }
 
     *pAllocHead = headQS;
-    DLListEntry<QUEUED_STREAM>* newHead = m_QueuedStreams.Allocate(*pAllocHead);
+    DLListEntry<QUEUED_STREAM>* newHead = m_QueuedStreams.m_Allocator.m_pFree;
+    if (newHead == NULL)
+    {
+        newHead = NULL;
+    }
+    else
+    {
+        m_QueuedStreams.m_Allocator.m_pFree = newHead->m_next;
+    }
+    if (newHead != NULL)
+    {
+        newHead->m_next = NULL;
+        newHead->m_prev = NULL;
+        newHead->m_data = *pAllocHead;
+    }
     nlDLRingAddStart(&m_QueuedStreams.m_Head, newHead);
 
     *pAllocTail = tailQS;
-    DLListEntry<QUEUED_STREAM>* newTail = m_QueuedStreams.Allocate(*pAllocTail);
+    DLListEntry<QUEUED_STREAM>* newTail = m_QueuedStreams.m_Allocator.m_pFree;
+    if (newTail == NULL)
+    {
+        newTail = NULL;
+    }
+    else
+    {
+        m_QueuedStreams.m_Allocator.m_pFree = newTail->m_next;
+    }
+    if (newTail != NULL)
+    {
+        newTail->m_next = NULL;
+        newTail->m_prev = NULL;
+        newTail->m_data = *pAllocTail;
+    }
     nlDLRingAddEnd(&m_QueuedStreams.m_Head, newTail);
 
     DLListEntry<QUEUED_STREAM>* startEntry = nlDLRingGetStart(m_QueuedStreams.m_Head);

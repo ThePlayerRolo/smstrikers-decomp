@@ -1,8 +1,7 @@
 #include "Game/AI/Scripts/FormationScript.h"
 #include "Game/AI/Scripts/ScriptQuestions.h"
 
-static int sDefFormation;
-static int sOffFormation;
+// #include "Game/AI/Scripts/RootScript.h"
 
 class SaveConfidence
 {
@@ -24,8 +23,6 @@ public:
 
 /**
  * Offset/Address/Size: 0x1604 | 0x8007E640 | size: 0x320
- * TODO: 89.89% match - template ctor scheduling: mType/mData stores after ExtraData.Reset()
- *       instead of before, likely -inline deferred scheduling difference
  */
 FuzzyVariant Fuzzy::GetBestDefensiveFormation(cTeam* TheTeam)
 {
@@ -37,8 +34,7 @@ FuzzyVariant Fuzzy::GetBestDefensiveFormation(cTeam* TheTeam)
 
     FuzzyVariant teamVar2(TheTeam);
 
-    int formId = sDefFormation;
-    FuzzyVariant formResult(formId);
+    FuzzyVariant formResult(0x4);
 
     bestValue = formResult;
     bestValue.Confidence = 1.0f;
@@ -48,8 +44,6 @@ FuzzyVariant Fuzzy::GetBestDefensiveFormation(cTeam* TheTeam)
 
 /**
  * Offset/Address/Size: 0x12E4 | 0x8007E320 | size: 0x320
- * TODO: 89.89% match - template ctor scheduling: mType/mData stores after ExtraData.Reset()
- *       instead of before, likely -inline deferred scheduling difference
  */
 FuzzyVariant Fuzzy::GetBestOffensiveFormation(cTeam* TheTeam)
 {
@@ -61,8 +55,7 @@ FuzzyVariant Fuzzy::GetBestOffensiveFormation(cTeam* TheTeam)
 
     FuzzyVariant teamVar2(TheTeam);
 
-    int formId = sOffFormation;
-    FuzzyVariant formResult(formId);
+    FuzzyVariant formResult(0x5);
 
     bestValue = formResult;
     bestValue.Confidence = 1.0f;
@@ -72,8 +65,6 @@ FuzzyVariant Fuzzy::GetBestOffensiveFormation(cTeam* TheTeam)
 
 /**
  * Offset/Address/Size: 0x0 | 0x8007D03C | size: 0x12E4
- * TODO: 95.18% match - remaining stack/register allocation differences in
- *       nested confidence scopes and temporary FuzzyVariant copies.
  */
 FuzzyVariant Fuzzy::GetBestBallFormationSet(cTeam* TheTeam)
 {
@@ -87,276 +78,288 @@ FuzzyVariant Fuzzy::GetBestBallFormationSet(cTeam* TheTeam)
 
     FuzzyVariant teamVar2(TheTeam);
 
-    float fTrueConfidence = Losing(TheTeam);
-    float fFalseConfidence = 1.0f - fTrueConfidence;
-    float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    float fBranchRatio = fMin / fMax;
-    if (fTrueConfidence > 0.0f)
     {
-        SaveConfidence PushDOM(&fConfidence);
-        fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-        if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+        float fTrueConfidence = Losing(TheTeam);
+        float fFalseConfidence = 1.0f - fTrueConfidence;
+        float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fBranchRatio = fMin / fMax;
+        if (fTrueConfidence > 0.0f)
         {
-            fConfidence = fConfidence * fBranchRatio;
-        }
-
-        {
-            float fTrueConfidence = TimeCloseToOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
+            SaveConfidence PushDOM(&fConfidence);
+            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                fConfidence = fConfidence * fBranchRatio;
+            }
 
-                if (fConfidence > fBestConfidence)
+            {
+                float fTrueConfidence = TimeCloseToOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(3);
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
+
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(3);
+                    }
                 }
             }
-        }
 
-        {
-            float fTrueConfidence = TimeNearlyOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                float fTrueConfidence = TimeNearlyOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
 
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(3);
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(3);
+                    }
                 }
             }
-        }
 
-        {
-            float fTrueConfidence = TimeFarFromOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                float fTrueConfidence = TimeFarFromOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
 
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(2);
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(2);
+                    }
                 }
             }
         }
     }
 
-    fTrueConfidence = Tied(TheTeam);
-    fFalseConfidence = 1.0f - fTrueConfidence;
-    fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    fBranchRatio = fMin / fMax;
-    if (fTrueConfidence > 0.0f)
     {
-        SaveConfidence PushDOM(&fConfidence);
-        fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-        if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+        float fTrueConfidence = Tied(TheTeam);
+        float fFalseConfidence = 1.0f - fTrueConfidence;
+        float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fBranchRatio = fMin / fMax;
+        if (fTrueConfidence > 0.0f)
         {
-            fConfidence = fConfidence * fBranchRatio;
-        }
-
-        {
-            float fTrueConfidence = TimeCloseToOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
+            SaveConfidence PushDOM(&fConfidence);
+            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                fConfidence = fConfidence * fBranchRatio;
+            }
 
-                if (fConfidence > fBestConfidence)
+            {
+                float fTrueConfidence = TimeCloseToOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(3);
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
+
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(3);
+                    }
                 }
             }
-        }
 
-        {
-            float fTrueConfidence = TimeNearlyOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                float fTrueConfidence = TimeNearlyOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
 
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(2);
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(2);
+                    }
                 }
             }
-        }
 
-        {
-            float fTrueConfidence = TimeFarFromOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                float fTrueConfidence = TimeFarFromOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
 
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(2);
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(2);
+                    }
                 }
             }
         }
     }
 
-    fTrueConfidence = Winning(TheTeam);
-    fFalseConfidence = 1.0f - fTrueConfidence;
-    fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    fBranchRatio = fMin / fMax;
-    if (fTrueConfidence > 0.0f)
     {
-        SaveConfidence PushDOM(&fConfidence);
-        fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-        if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+        float fTrueConfidence = Winning(TheTeam);
+        float fFalseConfidence = 1.0f - fTrueConfidence;
+        float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fBranchRatio = fMin / fMax;
+        if (fTrueConfidence > 0.0f)
         {
-            fConfidence = fConfidence * fBranchRatio;
-        }
-
-        {
-            float fTrueConfidence = TimeCloseToOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
+            SaveConfidence PushDOM(&fConfidence);
+            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                fConfidence = fConfidence * fBranchRatio;
+            }
 
-                if (fConfidence > fBestConfidence)
+            {
+                float fTrueConfidence = TimeCloseToOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(2);
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
+
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(2);
+                    }
                 }
             }
-        }
 
-        {
-            float fTrueConfidence = TimeNearlyOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                float fTrueConfidence = TimeNearlyOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
 
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(2);
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(2);
+                    }
                 }
             }
-        }
 
-        {
-            float fTrueConfidence = TimeFarFromOver(g_pGame);
-            float fFalseConfidence = 1.0f - fTrueConfidence;
-            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            float fBranchRatio = fMin / fMax;
-            if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                float fTrueConfidence = TimeFarFromOver(g_pGame);
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
+                if (fTrueConfidence > 0.0f)
                 {
-                    fConfidence = fConfidence * fBranchRatio;
-                }
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    {
+                        fConfidence = fConfidence * fBranchRatio;
+                    }
 
-                if (fConfidence > fBestConfidence)
-                {
-                    fBestConfidence = fConfidence;
-                    bestValue = FuzzyVariant(2);
+                    if (fConfidence > fBestConfidence)
+                    {
+                        fBestConfidence = fConfidence;
+                        bestValue = FuzzyVariant(2);
+                    }
                 }
             }
         }
     }
 
-    fTrueConfidence = (0.0f == fBestConfidence);
-    fFalseConfidence = 1.0f - fTrueConfidence;
-    fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-    fBranchRatio = fMin / fMax;
-    if (fTrueConfidence > 0.0f)
     {
-        SaveConfidence PushDOM(&fConfidence);
-        fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-        if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+        float fTrueConfidence = 0.0f;
+        if (0.0f == fBestConfidence)
         {
-            fConfidence = fConfidence * fBranchRatio;
+            fTrueConfidence = 1.0f;
         }
-
-        if (fConfidence > fBestConfidence)
+        float fFalseConfidence = 1.0f - fTrueConfidence;
+        float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        float fBranchRatio = fMin / fMax;
+        if (fTrueConfidence > 0.0f)
         {
-            fBestConfidence = fConfidence;
-            bestValue = FuzzyVariant(2);
+            SaveConfidence PushDOM(&fConfidence);
+            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+            {
+                fConfidence = fConfidence * fBranchRatio;
+            }
+
+            if (fConfidence > fBestConfidence)
+            {
+                fBestConfidence = fConfidence;
+                bestValue = FuzzyVariant(2);
+            }
         }
     }
 

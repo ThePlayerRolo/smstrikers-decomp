@@ -174,26 +174,21 @@ SFXEmitter* GetSFXEmitter(unsigned long id)
 
 /**
  * Offset/Address/Size: 0x15C | 0x801C4958 | size: 0x35C
- * TODO: 86.95% match - remaining mismatch is mostly register allocation
- * and volatile store-base ordering in reset paths.
+ * TODO: 89.13% match - r31/r30/r29 callee-saved rotation (target: r31=i, r30=index, r29=emitter;
+ * ours: r31=index, r30=emitter, r29=i). MWCC gives parameter priority for r31 over locals.
  */
 SFXEmitter* GetFreeEmitter(unsigned long& index)
 {
     int i;
-    int emitterOffset;
-    SFXEmitter* emitter = gEmitters;
-    SFXEmitter* currEmitter;
-    SND_PARAMETER_INFO* pInfo;
-    float* pFirstTimeStamp = &gEmitters[0].fTimeStamp;
 
     index = 0;
     for (i = 0; i < 64; i++)
     {
-        if (!sndCheckEmitter((SND_EMITTER*)emitter) && sndFXCheck(sndEmitterVoiceID((SND_EMITTER*)emitter)) == -1
-            && !emitter->bIsStopping && !emitter->bInUse)
+        if (!sndCheckEmitter((SND_EMITTER*)&gEmitters[i]) && sndFXCheck(sndEmitterVoiceID((SND_EMITTER*)&gEmitters[i])) == -1
+            && !gEmitters[i].bIsStopping && !gEmitters[i].bInUse)
         {
-            emitterOffset = i * sizeof(SFXEmitter);
-            currEmitter = (SFXEmitter*)((u8*)gEmitters + emitterOffset);
+            int emitterOffset = i * sizeof(SFXEmitter);
+            SFXEmitter* currEmitter = (SFXEmitter*)((u8*)gEmitters + emitterOffset);
             sndRemoveEmitter((SND_EMITTER*)currEmitter);
             currEmitter->bInUse = true;
             index = i;
@@ -215,7 +210,7 @@ SFXEmitter* GetFreeEmitter(unsigned long& index)
             currEmitter->dir.vDir.f.y = 0.0f;
             currEmitter->dir.vDir.f.z = 0.0f;
             currEmitter->posUpdateMethod = NONE;
-            pInfo = currEmitter->pMIDIControllerInfo;
+            SND_PARAMETER_INFO* pInfo = currEmitter->pMIDIControllerInfo;
             if (pInfo != NULL)
             {
                 if (pInfo->paraArray != NULL)
@@ -225,12 +220,12 @@ SFXEmitter* GetFreeEmitter(unsigned long& index)
             currEmitter->pMIDIControllerInfo = NULL;
             break;
         }
-        emitter += 1;
     }
 
     if (i == 64)
     {
-        float min = gEmitters[0].fTimeStamp;
+        float* pFirstTimeStamp = &gEmitters[0].fTimeStamp;
+        float min = *pFirstTimeStamp;
         int minIndex = 0;
         for (i = 1; i < 64; i++)
         {
@@ -241,8 +236,8 @@ SFXEmitter* GetFreeEmitter(unsigned long& index)
             }
         }
 
-        emitterOffset = minIndex * sizeof(SFXEmitter);
-        currEmitter = (SFXEmitter*)((u8*)gEmitters + emitterOffset);
+        int emitterOffset = minIndex * sizeof(SFXEmitter);
+        SFXEmitter* currEmitter = (SFXEmitter*)((u8*)gEmitters + emitterOffset);
         sndRemoveEmitter((SND_EMITTER*)currEmitter);
         currEmitter->bInUse = true;
         index = minIndex;
@@ -264,7 +259,7 @@ SFXEmitter* GetFreeEmitter(unsigned long& index)
         currEmitter->dir.vDir.f.y = 0.0f;
         currEmitter->dir.vDir.f.z = 0.0f;
         currEmitter->posUpdateMethod = NONE;
-        pInfo = currEmitter->pMIDIControllerInfo;
+        SND_PARAMETER_INFO* pInfo = currEmitter->pMIDIControllerInfo;
         if (pInfo != NULL)
         {
             if (pInfo->paraArray != NULL)

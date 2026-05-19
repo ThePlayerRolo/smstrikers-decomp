@@ -233,9 +233,9 @@ typedef Function0<void>::FunctorImpl<BindExp1_vfb> FunctorImpl_vfb;
 
 /**
  * Offset/Address/Size: 0x1F64 | 0x800DC1E8 | size: 0x154
- * TODO: 91.74% match - Bind temp/no callback stack slot order differs (0x0C/0x1C),
- * placement-new path still has duplicate NULL-check branch, and FEPopupMenu::Create
- * call remains ref-vs-value ABI mismatch in available declarations.
+ * TODO: 93.80% match - Bind temp and no-callback stack slots remain swapped (0x0C/0x1C),
+ * functor bind arg still lowers as word copy (lwz/stw) instead of byte copy (lbz/stb),
+ * and FEPopupMenu::Create call site remains ref-vs-value ABI-mangled.
  */
 template <>
 struct BindExp1<void, void (*)(bool), bool>
@@ -257,17 +257,12 @@ void startNewCup(bool isSuperCup)
 
     {
         BindExp1_vfb bindResult = Bind<void, void (*)(bool), bool>(confirmedNewCup, isSuperCup);
-        Function<FnVoidVoid> no;
 
+        Function<FnVoidVoid> no;
         Function<FnVoidVoid> yes;
+
         yes.mTag = FUNCTOR;
-        FunctorImpl_vfb* functor = (FunctorImpl_vfb*)nlMalloc(sizeof(FunctorImpl_vfb), 8, false);
-        if (functor != NULL)
-        {
-            functor = new (functor) FunctorImpl_vfb();
-            functor->mBind.mFuncPtr = bindResult.mFuncPtr;
-            functor->mBind.mArg = bindResult.mArg;
-        }
+        FunctorImpl_vfb* functor = new ((FunctorImpl_vfb*)nlMalloc(sizeof(FunctorImpl_vfb), 8, false)) FunctorImpl_vfb(bindResult);
         yes.mFunctor = functor;
 
         no.mTag = FREE_FUNCTION;
@@ -275,7 +270,8 @@ void startNewCup(bool isSuperCup)
 
         pPopup->Create(POPUP_REALLY_OVERWRITE, yes, no);
     }
-    *(u8*)((u8*)pPopup + 0xAA4) = 0;
+
+    pPopup->mUnknownAA4 = false;
 }
 
 /**

@@ -399,28 +399,28 @@ void Config::Set(const char* tag, bool value)
     u32 hash = 0x1505;
     while (*p != 0)
     {
-        s32 c = (s8)nlToUpper(*p++);
-        hash += (hash << 5) + c;
+        s8 c = (s8)nlToUpper((u8)*p++);
+        hash = (hash << 5) + hash + c;
     }
-    u32 idx = hash & 0x3FF;
 
+    u32 offset;
     TagValuePair* tvp;
-    do
+    for (u32 idx = hash & 0x3FF;;)
     {
-        u32 offset = idx * 12;
-        if (mTvpHash[idx].tag == NULL || nlStrICmp(mTvpHash[idx].tag, tag) == 0)
+        offset = idx * 12;
+        if (*(const char**)((u8*)mTvpHash + offset) == 0 || nlStrICmp(*(const char**)((u8*)mTvpHash + offset), tag) == 0)
         {
             tvp = (TagValuePair*)((u8*)mTvpHash + offset);
             break;
         }
         idx++;
         idx &= 0x3FF;
-    } while (true);
+    }
 
     tvp->type = _BOOL;
     tvp->value.b = value;
 
-    if (tvp->tag == NULL)
+    if (tvp->tag == 0)
     {
         char* dest = mStringEnd;
         s32 ch;

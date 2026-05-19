@@ -76,38 +76,36 @@ void PhysicsBall::ScaleAngularVelocity(float scale)
  */
 void PhysicsBall::AddResistanceForces()
 {
-    nlVector3 v3Vel;
-    nlVector3 v3Force;
-    nlVector3 v3AngVel;
-    nlVector3 v3CrossForce;
-    nlVector3 v3LinVel2;
-    nlVector3 v3LinVelM;
+    nlVector3 velocity;
+    nlVector3 resistance;
+    nlVector3 v3CurAngularVel;
+    nlVector3 v3BallSurfaceSpeed;
+    nlVector3 v3CurBallSpeed;
+    nlVector3 v3CurLinVel;
     nlVector3 v3MagnusForce;
-    nlVector3 v3AngVelM;
-    nlVector3 v3LinVel1;
-    nlVector3 v3AngVel2;
+    nlVector3 v3CurAngVel;
     u8 bApply;
 
-    v3Vel = GetLinearVelocity();
+    velocity = GetLinearVelocity();
     if (m_parentObject == NULL)
     {
         if (m_bIsSupportedByGround != 0 && m_bUseAngularVel == 0)
         {
-            f32 speed = nlSqrt(v3Vel.f.z * v3Vel.f.z + (v3Vel.f.x * v3Vel.f.x + v3Vel.f.y * v3Vel.f.y), true);
+            f32 speed = nlSqrt(velocity.f.z * velocity.f.z + (velocity.f.x * velocity.f.x + velocity.f.y * velocity.f.y), true);
             if (speed > 0.01f)
             {
                 f32 factor = -g_BallRollingResistance / speed;
-                v3Force.f.x = factor * v3Vel.f.x;
-                v3Force.f.y = factor * v3Vel.f.y;
-                v3Force.f.z = factor * v3Vel.f.z;
-                AddForceAtCentreOfMass(v3Force);
+                resistance.f.x = factor * velocity.f.x;
+                resistance.f.y = factor * velocity.f.y;
+                resistance.f.z = factor * velocity.f.z;
+                AddForceAtCentreOfMass(resistance);
             }
         }
         f32 drag = -g_BallAirResistance;
-        v3Force.f.x = drag * v3Vel.f.x;
-        v3Force.f.y = drag * v3Vel.f.y;
-        v3Force.f.z = drag * v3Vel.f.z;
-        AddForceAtCentreOfMass(v3Force);
+        resistance.f.x = drag * velocity.f.x;
+        resistance.f.y = drag * velocity.f.y;
+        resistance.f.z = drag * velocity.f.z;
+        AddForceAtCentreOfMass(resistance);
     }
     if (m_bUseTiltForce != 0 && g_pBall->m_pPassTarget == NULL)
     {
@@ -128,6 +126,7 @@ void PhysicsBall::AddResistanceForces()
         f32 threshold = 0.02f + GetRadius();
         if (GetPosition().f.z < threshold)
         {
+            nlVector3 v3LinVel1;
             GetLinearVelocity(&v3LinVel1);
             nlVector3 localNorm = { 0.f, 0.f, 0.f };
             f32 invR = 1.0f / GetRadius();
@@ -135,32 +134,33 @@ void PhysicsBall::AddResistanceForces()
             localNorm.f.z = invR;
             localGndVel.f.x = v3LinVel1.f.x;
             localGndVel.f.y = v3LinVel1.f.y;
+            GetAngularVelocity(&v3CurAngularVel);
             f32 crossX = localNorm.f.y * localGndVel.f.z - localNorm.f.z * localGndVel.f.y;
-            f32 crossY = localNorm.f.z * localGndVel.f.x - localNorm.f.x * localGndVel.f.z;
+            f32 crossY = -localNorm.f.x * localGndVel.f.z + localNorm.f.z * localGndVel.f.x;
             f32 crossZ = localNorm.f.x * localGndVel.f.y - localNorm.f.y * localGndVel.f.x;
-            GetAngularVelocity(&v3AngVel);
-            f32 torqueX = 0.25f * (crossX - v3AngVel.f.x);
-            f32 torqueY = 0.25f * (crossY - v3AngVel.f.y);
-            f32 torqueZ = 0.25f * (crossZ - v3AngVel.f.z);
+            f32 torqueZ = 0.25f * (crossZ - v3CurAngularVel.f.z);
+            f32 torqueX = 0.25f * (crossX - v3CurAngularVel.f.x);
+            f32 torqueY = 0.25f * (crossY - v3CurAngularVel.f.y);
             dBodyAddTorque(m_bodyID, torqueX, torqueY, torqueZ);
+            nlVector3 v3AngVel2;
             GetAngularVelocity(&v3AngVel2);
             v3AngVel2.f.z = 0.f;
             nlVector3 localRad = { 0.f, 0.f, 0.f };
             localRad.f.z = GetRadius();
-            v3CrossForce.f.x = v3AngVel2.f.y * localRad.f.z - v3AngVel2.f.z * localRad.f.y;
-            v3CrossForce.f.y = v3AngVel2.f.z * localRad.f.x - v3AngVel2.f.x * localRad.f.z;
-            v3CrossForce.f.z = v3AngVel2.f.x * localRad.f.y - v3AngVel2.f.y * localRad.f.x;
-            GetLinearVelocity(&v3LinVel2);
-            v3CrossForce.f.z = v3CrossForce.f.z - v3LinVel2.f.z;
-            v3CrossForce.f.y = v3CrossForce.f.y - v3LinVel2.f.y;
-            v3CrossForce.f.x = v3CrossForce.f.x - v3LinVel2.f.x;
-            v3CrossForce.f.z = 5.f * v3CrossForce.f.z;
-            v3CrossForce.f.y = 5.f * v3CrossForce.f.y;
-            v3CrossForce.f.x = 5.f * v3CrossForce.f.x;
-            AddForceAtCentreOfMass(v3CrossForce);
-            v3CrossForce.f.z = 0.f;
-            if (torqueX * torqueX + torqueZ * torqueZ + torqueY * torqueY < 0.0001f
-                && v3CrossForce.f.x * v3CrossForce.f.x + v3CrossForce.f.y * v3CrossForce.f.y + v3CrossForce.f.z * v3CrossForce.f.z < 0.00003f)
+            v3BallSurfaceSpeed.f.z = v3AngVel2.f.x * localRad.f.y - v3AngVel2.f.y * localRad.f.x;
+            v3BallSurfaceSpeed.f.y = -v3AngVel2.f.x * localRad.f.z + v3AngVel2.f.z * localRad.f.x;
+            v3BallSurfaceSpeed.f.x = v3AngVel2.f.y * localRad.f.z - v3AngVel2.f.z * localRad.f.y;
+            GetLinearVelocity(&v3CurBallSpeed);
+            v3BallSurfaceSpeed.f.z = v3BallSurfaceSpeed.f.z - v3CurBallSpeed.f.z;
+            v3BallSurfaceSpeed.f.y = v3BallSurfaceSpeed.f.y - v3CurBallSpeed.f.y;
+            v3BallSurfaceSpeed.f.x = v3BallSurfaceSpeed.f.x - v3CurBallSpeed.f.x;
+            v3BallSurfaceSpeed.f.z = 5.f * v3BallSurfaceSpeed.f.z;
+            v3BallSurfaceSpeed.f.y = 5.f * v3BallSurfaceSpeed.f.y;
+            v3BallSurfaceSpeed.f.x = 5.f * v3BallSurfaceSpeed.f.x;
+            AddForceAtCentreOfMass(v3BallSurfaceSpeed);
+            v3BallSurfaceSpeed.f.z = 0.f;
+            if (torqueZ * torqueZ + torqueX * torqueX + torqueY * torqueY < 0.0001f
+                && v3BallSurfaceSpeed.f.x * v3BallSurfaceSpeed.f.x + v3BallSurfaceSpeed.f.y * v3BallSurfaceSpeed.f.y + v3BallSurfaceSpeed.f.z * v3BallSurfaceSpeed.f.z < 0.00003f)
                 m_bUseAngularVel = 0;
         }
     }
@@ -170,15 +170,18 @@ void PhysicsBall::AddResistanceForces()
         nlVector3& pos = GetPosition();
         if (pos.f.z > threshold)
         {
-            GetLinearVelocity(&v3LinVelM);
-            if (v3LinVelM.f.x * v3LinVelM.f.x + v3LinVelM.f.y * v3LinVelM.f.y + v3LinVelM.f.z * v3LinVelM.f.z > 1.f)
+            GetLinearVelocity(&v3CurLinVel);
+            if (v3CurLinVel.f.x * v3CurLinVel.f.x + v3CurLinVel.f.y * v3CurLinVel.f.y + v3CurLinVel.f.z * v3CurLinVel.f.z > 1.f)
             {
-                GetAngularVelocity(&v3AngVelM);
-                if (v3AngVelM.f.x * v3AngVelM.f.x + v3AngVelM.f.y * v3AngVelM.f.y + v3AngVelM.f.z * v3AngVelM.f.z > 1.f)
+                GetAngularVelocity(&v3CurAngVel);
+                if (v3CurAngVel.f.x * v3CurAngVel.f.x + v3CurAngVel.f.y * v3CurAngVel.f.y + v3CurAngVel.f.z * v3CurAngVel.f.z > 1.f)
                 {
-                    v3MagnusForce.f.x = (v3AngVelM.f.z * v3LinVelM.f.y - v3AngVelM.f.y * v3LinVelM.f.z) * 0.04f;
-                    v3MagnusForce.f.z = (v3AngVelM.f.y * v3LinVelM.f.x - v3AngVelM.f.x * v3LinVelM.f.y) * 0.075f;
-                    v3MagnusForce.f.y = (-v3AngVelM.f.z * v3LinVelM.f.x + v3AngVelM.f.x * v3LinVelM.f.z) * 0.075f;
+                    v3MagnusForce.f.z = v3CurAngVel.f.x * v3CurLinVel.f.y - v3CurAngVel.f.y * v3CurLinVel.f.x;
+                    v3MagnusForce.f.x = v3CurAngVel.f.y * v3CurLinVel.f.z - v3CurAngVel.f.z * v3CurLinVel.f.y;
+                    v3MagnusForce.f.y = -v3CurAngVel.f.x * v3CurLinVel.f.z + v3CurAngVel.f.z * v3CurLinVel.f.x;
+                    v3MagnusForce.f.x *= 0.075f;
+                    v3MagnusForce.f.y *= 0.075f;
+                    v3MagnusForce.f.z *= 0.04f;
                     AddForceAtCentreOfMass(v3MagnusForce);
                 }
             }

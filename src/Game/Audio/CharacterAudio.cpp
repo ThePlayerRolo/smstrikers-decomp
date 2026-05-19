@@ -746,9 +746,8 @@ int cCharacterSFX::PlayRandomWalkFootstep(float, bool bAvoidCurrent)
 
 /**
  * Offset/Address/Size: 0x2F0 | 0x8014C694 | size: 0x1C8
- * TODO: 98.55% match - remaining diffs are an extra range-guard branch before
- *       the jump-table dispatch and r22/r24 register assignment swaps in the
- *       captain/sidekick loops.
+ * TODO: 99.43% match - remaining diffs are r22/r24 register assignment swaps
+ *       in the captain/sidekick loops.
  */
 unsigned long cCharacterSFX::PlayNISRandomCharDialogue(CharDialogueType dialogueType, NisCharacterClass charIdentifier, float fVol, float fDelay, bool bIs3D, const nlVector3* pInitialPosVector, const nlVector3* pInitialDirVector, unsigned long* unkPtr)
 {
@@ -772,31 +771,17 @@ unsigned long cCharacterSFX::PlayNISRandomCharDialogue(CharDialogueType dialogue
 
     pChar = NULL;
 
-    if ((u32)charId <= (u32)NIS_CHAR_CLASS_AWAY_GOALIE)
+    switch (charId)
     {
-        switch ((u32)charId)
-        {
-        case NIS_CHAR_CLASS_BIRDO:
-        case NIS_CHAR_CLASS_HAMMERBROS:
-        case NIS_CHAR_CLASS_KOOPA:
-        case NIS_CHAR_CLASS_TOAD:
-            goto find_sidekick;
-        case NIS_CHAR_CLASS_DAISY:
-        case NIS_CHAR_CLASS_DONKEYKONG:
-        case NIS_CHAR_CLASS_LUIGI:
-        case NIS_CHAR_CLASS_MARIO:
-        case NIS_CHAR_CLASS_PEACH:
-        case NIS_CHAR_CLASS_WALUIGI:
-        case NIS_CHAR_CLASS_WARIO:
-        case NIS_CHAR_CLASS_YOSHI:
-        case NIS_CHAR_CLASS_MYSTERY:
-            goto find_captain;
-        case NIS_CHAR_CLASS_HOME_GOALIE:
-        case NIS_CHAR_CLASS_AWAY_GOALIE:
-            goto find_goalie;
-        }
-
-    find_captain:
+    case NIS_CHAR_CLASS_DAISY:
+    case NIS_CHAR_CLASS_DONKEYKONG:
+    case NIS_CHAR_CLASS_LUIGI:
+    case NIS_CHAR_CLASS_MARIO:
+    case NIS_CHAR_CLASS_PEACH:
+    case NIS_CHAR_CLASS_WALUIGI:
+    case NIS_CHAR_CLASS_WARIO:
+    case NIS_CHAR_CLASS_YOSHI:
+    case NIS_CHAR_CLASS_MYSTERY:
         for (int team = 0; team < 2; team++)
         {
             cTeam* pTeam = g_pTeams[team];
@@ -806,9 +791,11 @@ unsigned long cCharacterSFX::PlayNISRandomCharDialogue(CharDialogueType dialogue
                 break;
             }
         }
-        goto end_char_lookup;
-
-    find_sidekick:
+        break;
+    case NIS_CHAR_CLASS_BIRDO:
+    case NIS_CHAR_CLASS_HAMMERBROS:
+    case NIS_CHAR_CLASS_KOOPA:
+    case NIS_CHAR_CLASS_TOAD:
         for (int team = 0; team < 2; team++)
         {
             if ((u32)charId == (u32)ConvertToCharacterClass(GameInfoManager::Instance()->GetSidekick((short)team)))
@@ -817,9 +804,9 @@ unsigned long cCharacterSFX::PlayNISRandomCharDialogue(CharDialogueType dialogue
                 break;
             }
         }
-        goto end_char_lookup;
-
-    find_goalie:
+        break;
+    case NIS_CHAR_CLASS_HOME_GOALIE:
+    case NIS_CHAR_CLASS_AWAY_GOALIE:
     {
         int team = 0;
         if (charId == NIS_CHAR_CLASS_AWAY_GOALIE)
@@ -827,8 +814,8 @@ unsigned long cCharacterSFX::PlayNISRandomCharDialogue(CharDialogueType dialogue
             team = 1;
         }
         pChar = g_pTeams[team]->GetGoalie();
+        break;
     }
-    end_char_lookup:;
     }
 
     if (pChar == NULL)

@@ -53,7 +53,9 @@ public:
         : m_savedValue(*pFloat)
         , m_pFloat(pFloat)
     {
+        FORCE_DONT_INLINE;
     }
+
     ~SaveConfidence()
     {
         *m_pFloat = m_savedValue;

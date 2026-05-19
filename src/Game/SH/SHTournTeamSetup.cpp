@@ -1613,10 +1613,321 @@ void TournTeamSetupSceneV2::UpdateRow(int onScreenRow)
 
 /**
  * Offset/Address/Size: 0x1F30 | 0x800E3DD4 | size: 0x5D0
+ * TODO: 98.12% match - r4/r5 register swap in the STATE_SCROLLING team loop and
+ * post-loop sentinel comparison chain differs from target.
  */
-void TournTeamSetupSceneV2::ChangeState(TournTeamSetupSceneV2::eTeamChooserState, TournTeamSetupSceneV2::eTeamChooserState)
+void TournTeamSetupSceneV2::ChangeState(TournTeamSetupSceneV2::eTeamChooserState from, TournTeamSetupSceneV2::eTeamChooserState to)
 {
-    FORCE_DONT_INLINE;
+    typedef TLComponentInstance* (*FindCompByValue)(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher);
+    typedef TLComponentInstance* (*FindCompByRef)(TLSlide*, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&);
+    union
+    {
+        FindCompByValue byValue;
+        FindCompByRef byRef;
+    } findComp;
+
+    volatile InlineHasher hB, hA;
+    volatile InlineHasher h9, h8;
+    volatile InlineHasher h7, h6, h5, h4, h3, h2, h1, h0;
+    volatile InlineHasher gB, gA;
+    volatile InlineHasher g4, g3, g2, g1, g0;
+    volatile InlineHasher fB, fA;
+    volatile InlineHasher f4, f3, f2, f1, f0;
+    volatile InlineHasher eB, eA;
+    volatile InlineHasher e4, e3, e2, e1, e0;
+    volatile InlineHasher dB, dA;
+    volatile InlineHasher d4, d3, d2, d1, d0;
+    volatile InlineHasher cB, cA;
+    volatile InlineHasher c4, c3, c2, c1, c0;
+
+    TLComponentInstance* pCursorComp;
+    unsigned long hash;
+    int humanCount;
+    int numTeams;
+
+    if (from == STATE_CAPTAIN && to == STATE_SIDEKICK)
+    {
+        mComponents[0]->SetActiveSlide("Slide2");
+        UpdateSKName();
+        mComponents[0]->Update(0.0f);
+
+        mComponents[1]->SetActiveSlide("OUT");
+        FEAudio::PlayAnimAudioEvent("sfx_character_group_left_exit", false);
+
+        mCaptainGrid->RebuildInstanceTable();
+        mCaptainGrid->UpdateSuperTeamIconState();
+
+        h0.m_Hash = 0;
+        h1.m_Hash = 0;
+        h2.m_Hash = 0;
+        h3.m_Hash = 0;
+        h4.m_Hash = 0;
+        h5.m_Hash = 0;
+        h6.m_Hash = 0;
+        h7.m_Hash = 0;
+        h8.m_Hash = 0;
+        h9.m_Hash = 0;
+
+        hash = nlStringLowerHash("HIGHLIGHT");
+        hB.m_Hash = hash;
+        hA.m_Hash = hash;
+
+        findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
+        pCursorComp = findComp.byRef(
+            mComponents[1]->GetActiveSlide(),
+            (InlineHasher&)hB,
+            (InlineHasher&)h9,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
+        pCursorComp->m_bVisible = false;
+
+        mComponents[2]->SetActiveSlide("IN");
+        mComponents[2]->Update(0.0f);
+        mComponents[2]->m_bVisible = true;
+
+        FEAudio::PlayAnimAudioEvent("sfx_character_group_left_enter", false);
+        mSKGrid->RebindHighliteComponent("HIGHLIGHT");
+
+        g0.m_Hash = 0;
+        h1.m_Hash = 0;
+        g1.m_Hash = 0;
+        h3.m_Hash = 0;
+        g2.m_Hash = 0;
+        h5.m_Hash = 0;
+        g3.m_Hash = 0;
+        h7.m_Hash = 0;
+        g4.m_Hash = 0;
+        h9.m_Hash = 0;
+
+        hash = nlStringLowerHash("HIGHLIGHT");
+        gB.m_Hash = hash;
+        gA.m_Hash = hash;
+
+        findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
+        pCursorComp = findComp.byRef(
+            mComponents[2]->GetActiveSlide(),
+            (InlineHasher&)gB,
+            (InlineHasher&)h9,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
+        pCursorComp->m_bVisible = true;
+    }
+    else if (from == STATE_CAPTAIN && to == STATE_SCROLLING)
+    {
+        mComponents[1]->SetActiveSlide("OUT");
+        FEAudio::PlayAnimAudioEvent("sfx_character_group_left_exit", false);
+        mComponents[0]->m_bVisible = false;
+
+        f0.m_Hash = 0;
+        h1.m_Hash = 0;
+        f1.m_Hash = 0;
+        h3.m_Hash = 0;
+        f2.m_Hash = 0;
+        h5.m_Hash = 0;
+        f3.m_Hash = 0;
+        h7.m_Hash = 0;
+        f4.m_Hash = 0;
+        h9.m_Hash = 0;
+
+        hash = nlStringLowerHash("HIGHLIGHT");
+        fB.m_Hash = hash;
+        fA.m_Hash = hash;
+
+        findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
+        pCursorComp = findComp.byRef(
+            mComponents[2]->GetActiveSlide(),
+            (InlineHasher&)fB,
+            (InlineHasher&)h9,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
+        pCursorComp->m_bVisible = false;
+    }
+    else if (from == STATE_SIDEKICK && to == STATE_CAPTAIN)
+    {
+        mComponents[0]->SetActiveSlide("Slide1");
+        mComponents[1]->SetActiveSlide("SELECT");
+
+        mCaptainGrid->RebuildInstanceTable();
+        mCaptainGrid->UpdateSuperTeamIconState();
+
+        e0.m_Hash = 0;
+        h1.m_Hash = 0;
+        e1.m_Hash = 0;
+        h3.m_Hash = 0;
+        e2.m_Hash = 0;
+        h5.m_Hash = 0;
+        e3.m_Hash = 0;
+        h7.m_Hash = 0;
+        e4.m_Hash = 0;
+        h9.m_Hash = 0;
+
+        hash = nlStringLowerHash("HIGHLIGHT");
+        eB.m_Hash = hash;
+        eA.m_Hash = hash;
+
+        findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
+        pCursorComp = findComp.byRef(
+            mComponents[1]->GetActiveSlide(),
+            (InlineHasher&)eB,
+            (InlineHasher&)h9,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
+        pCursorComp->m_bVisible = true;
+
+        mCaptainGrid->RebindHighliteComponent("HIGHLIGHT");
+        mComponents[2]->m_bVisible = false;
+    }
+    else if (from == STATE_SCROLLING && to == STATE_CAPTAIN)
+    {
+        mComponents[0]->m_bVisible = true;
+        mComponents[1]->m_bVisible = true;
+
+        mComponents[1]->SetActiveSlide("IN");
+        FEAudio::PlayAnimAudioEvent("sfx_character_group_left_enter", false);
+        mComponents[1]->Update(0.0f);
+
+        mCaptainGrid->RebuildInstanceTable();
+        mCaptainGrid->UpdateSuperTeamIconState();
+        mCaptainGrid->RebindHighliteComponent("HIGHLIGHT");
+
+        d0.m_Hash = 0;
+        h1.m_Hash = 0;
+        d1.m_Hash = 0;
+        h3.m_Hash = 0;
+        d2.m_Hash = 0;
+        h5.m_Hash = 0;
+        d3.m_Hash = 0;
+        h7.m_Hash = 0;
+        d4.m_Hash = 0;
+        h9.m_Hash = 0;
+
+        hash = nlStringLowerHash("HIGHLIGHT");
+        dB.m_Hash = hash;
+        dA.m_Hash = hash;
+
+        findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
+        pCursorComp = findComp.byRef(
+            mComponents[1]->GetActiveSlide(),
+            (InlineHasher&)dB,
+            (InlineHasher&)h9,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
+        pCursorComp->m_bVisible = true;
+
+        FEMapMenu* mapMenu = mCaptainGrid->mMapMenu;
+        int oldSel = mapMenu->GetSelectedItem();
+        int currentSel = oldSel;
+        bool first = false;
+
+        while (!mapMenu->IsSelectedItemActive())
+        {
+            mapMenu->MoveRight(!first);
+            first = true;
+
+            int newSel = mapMenu->GetSelectedItem();
+            if (currentSel == newSel)
+            {
+                mapMenu->MoveDown(false);
+                currentSel = mapMenu->GetSelectedItem();
+                if (currentSel == oldSel)
+                {
+                    break;
+                }
+            }
+        }
+
+        mCurrentCaptain = mCaptainGrid->GetSelectedItem();
+        UpdateCaptainName();
+    }
+    else if (from == STATE_SIDEKICK && to == STATE_SCROLLING)
+    {
+        mComponents[2]->SetActiveSlide("OUT");
+        mComponents[0]->SetActiveSlide("Slide1");
+        mComponents[0]->m_bVisible = false;
+
+        c0.m_Hash = 0;
+        h1.m_Hash = 0;
+        c1.m_Hash = 0;
+        h3.m_Hash = 0;
+        c2.m_Hash = 0;
+        h5.m_Hash = 0;
+        c3.m_Hash = 0;
+        h7.m_Hash = 0;
+        c4.m_Hash = 0;
+        h9.m_Hash = 0;
+
+        hash = nlStringLowerHash("HIGHLIGHT");
+        cB.m_Hash = hash;
+        cA.m_Hash = hash;
+
+        findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
+        pCursorComp = findComp.byRef(
+            mComponents[2]->GetActiveSlide(),
+            (InlineHasher&)cB,
+            (InlineHasher&)h9,
+            (InlineHasher&)h7,
+            (InlineHasher&)h5,
+            (InlineHasher&)h3,
+            (InlineHasher&)h1);
+        pCursorComp->m_bVisible = false;
+    }
+
+    if (to == STATE_SCROLLING)
+    {
+        humanCount = 0;
+        numTeams = mTournInfo.m_numTeams;
+
+        for (int i = 0; i < numTeams; i++)
+        {
+            if (mTeamData[i].isEmpty)
+            {
+                numTeams = -1;
+                break;
+            }
+
+            if (mTeamData[i].isHumanPlayer)
+            {
+                humanCount++;
+            }
+        }
+
+        if (numTeams != -1)
+        {
+            if (humanCount < 1)
+            {
+                numTeams = -2;
+            }
+            else
+            {
+                numTeams = 1;
+            }
+        }
+
+        if (numTeams == 1)
+        {
+            mPressStartComponent->m_bVisible = true;
+        }
+        else
+        {
+            mPressStartComponent->m_bVisible = false;
+        }
+    }
+    else
+    {
+        mPressStartComponent->m_bVisible = false;
+    }
+
+    mCurrentState = to;
 }
 
 /**

@@ -2888,20 +2888,20 @@ float CloseToSideline(const nlVector3& v3Position, const nlVector2* vDistanceCon
 
 /**
  * Offset/Address/Size: 0x1BD4 | 0x8008065C | size: 0x134
- * TODO: 98.8% match - MWCC still rotates callee-saved register assignment for
- *       pos/base/offset (r27-r31) and fZero/posX/posY (f29-f31).
+ * TODO: 99.16% match - remaining MWCC callee-saved allocation differs for
+ *       fZero/posX/posY and base/offset ordering.
  */
 static inline float NearToSidelineImpl(const nlVector3& v3Position, const nlVector2* pConfidence)
 {
     float fScore = 0.0f;
     int i = 0;
+    const u8* pBase = (const u8*)cField::mSidelines;
+    s32 offset = i;
     u32 posU0 = v3Position.as_u32[0];
-    f32 fZero = fScore;
     u32 posU1 = v3Position.as_u32[1];
     u32 posU2 = v3Position.as_u32[2];
-    s32 offset = i;
+    f32 fZero = fScore;
     f32 posX = v3Position.f.x;
-    const u8* pBase = (const u8*)cField::mSidelines;
     f32 posY = v3Position.f.y;
 
     for (; i < 4; i++, offset += 0xC)

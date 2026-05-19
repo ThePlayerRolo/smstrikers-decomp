@@ -459,7 +459,6 @@ inline BasicString<unsigned short, Detail::TempStringAllocator> Format<BasicStri
 }
 /**
  * Offset/Address/Size: 0xF68 | 0x8009DFA4 | size: 0x118
- * TODO: 9.16% match - direct return path still bypasses the expected temporary copy/refcount block.
  */
 template <>
 inline BasicString<unsigned short, Detail::TempStringAllocator> Format<BasicString<unsigned short, Detail::TempStringAllocator>, unsigned short[4]>(
@@ -477,7 +476,9 @@ inline BasicString<unsigned short, Detail::TempStringAllocator> Format<BasicStri
     }
 
     FormatImplLayoutWideTemp impl(data);
-    return (BasicString<unsigned short, Detail::TempStringAllocator>)(((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % (const unsigned short*)value);
+
+    return BasicString<unsigned short, Detail::TempStringAllocator>(
+        (const BasicString<unsigned short, Detail::TempStringAllocator>&)(BasicString<unsigned short, Detail::TempStringAllocator>)(((FormatImpl<BasicString<unsigned short, Detail::TempStringAllocator> >&)impl) % (const unsigned short*)value));
 }
 /**
  * Offset/Address/Size: 0x0 | 0x80060960 | size: 0x114

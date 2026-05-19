@@ -131,9 +131,11 @@ cPoseAccumulator::cPoseAccumulator(cSHierarchy* pSHierarchy, bool bStorePrevNode
 void cPoseAccumulator::Pose(const cPoseNode& node, const nlMatrix4& mat)
 {
     int i;
-    for (i = 0; i < m_BaseSHierarchy->m_nodeCount; i++)
+    int j;
+
+    for (i = 0, j = i; i < m_BaseSHierarchy->m_nodeCount; i++, j++)
     {
-        RotAccum& r = m_rot.mData[i];
+        RotAccum& r = m_rot.mData[j];
         r.q.f.x = 0.0f;
         r.q.f.y = 0.0f;
         r.q.f.z = 0.0f;

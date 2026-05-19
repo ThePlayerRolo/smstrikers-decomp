@@ -14,7 +14,6 @@ class GLSkinMesh;
 glModel* glplatEndLoadModel(void*, unsigned long, unsigned long*);
 bool glplatBeginLoadModel(const char* filename, void (*callback)(void*, unsigned long, void*), void* userData);
 glModel* glplatLoadModel(const char* filename, unsigned long* pNumModels);
-glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNumModels, bool bLoadTextures);
 GLSkinMesh* glx_MakeSkinMesh(nlChunk* outerChunk, glModel* models);
 void glSetIgnoreDuplicateModels(bool);
 // void nlRingAddEnd<BoneMapList>(BoneMapList**, BoneMapList*);

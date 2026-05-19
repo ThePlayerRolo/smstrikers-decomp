@@ -180,6 +180,7 @@ extern "C" FuzzyMapPair* __find_or_insert(void* tree, const unsigned long* key);
 /**
  * Offset/Address/Size: 0x0 | 0x80079C80 | size: 0xE4
  */
+#pragma dont_inline on
 const FuzzyVariant& ScriptQuestionCache::AddToCache(unsigned long key, const FuzzyVariant& variant, const char* name)
 {
     if (g_bScriptQuestionCachingOn)
@@ -202,6 +203,7 @@ const FuzzyVariant& ScriptQuestionCache::AddToCache(unsigned long key, const Fuz
     }
     return variant;
 }
+#pragma dont_inline reset
 
 /**
  * Offset/Address/Size: 0x0 | 0x80079B54 | size: 0xE4
@@ -4297,28 +4299,47 @@ FuzzyVariant Fuzzy::GetPowerupToUseForPassReceiveDefence(cFielder* TheFielder)
     cTeam* pTeam = (TheFielder != NULL) ? TheFielder->m_pTeam : NULL;
     float fNotUserControlled = 1.0f - UserControlledT(pTeam);
 
-    cPlayer* pOtherGoalie = NULL;
+    cPlayer* pOtherGoalie;
     if (TheFielder != NULL)
     {
+        cTeam* pOtherTeam;
         if (TheFielder != NULL)
         {
-            cTeam* pOtherTeam = TheFielder->m_pTeam->GetOtherTeam();
-            pOtherGoalie = pOtherTeam->GetGoalie();
+            pOtherTeam = TheFielder->m_pTeam->GetOtherTeam();
         }
+        else
+        {
+            pOtherTeam = NULL;
+        }
+        pOtherGoalie = pOtherTeam->GetGoalie();
+    }
+    else
+    {
+        pOtherGoalie = NULL;
     }
 
-    float fNotOtherGoaliePickup = 1.0f - Fuzzy::GoalieAndGonnaPickupBall(pOtherGoalie).Confidence;
+    float fNotOtherGoaliePickup = 1.0f - Fuzzy::GoalieAndGonnaPickupBall(pOtherGoalie).mData.f;
 
-    cPlayer* pGoalie = NULL;
+    cPlayer* pGoalie;
     if (TheFielder != NULL)
     {
+        cTeam* pTeamForGoalie;
         if (TheFielder != NULL)
         {
-            pGoalie = TheFielder->m_pTeam->GetGoalie();
+            pTeamForGoalie = TheFielder->m_pTeam;
         }
+        else
+        {
+            pTeamForGoalie = NULL;
+        }
+        pGoalie = pTeamForGoalie->GetGoalie();
+    }
+    else
+    {
+        pGoalie = NULL;
     }
 
-    float fNotGoaliePickup = 1.0f - Fuzzy::GoalieAndGonnaPickupBall(pGoalie).Confidence;
+    float fNotGoaliePickup = 1.0f - Fuzzy::GoalieAndGonnaPickupBall(pGoalie).mData.f;
 
     fNotUserControlled = (fNotUserControlled <= fTrueConfidence) ? fNotUserControlled : fTrueConfidence;
     fNotOtherGoaliePickup = (fNotOtherGoaliePickup <= fNotUserControlled) ? fNotOtherGoaliePickup : fNotUserControlled;
@@ -4641,10 +4662,8 @@ FuzzyVariant Fuzzy::GetPowerupToUseForWindupDefence(cFielder* TheFielder)
     float fConfidence = 1.0f;
     float fBestConfidence = 0.0f;
 
-    FuzzyVariant fvFielder((cPlayer*)TheFielder);
-    ((Variant*)&fvFielder)->GetHash();
-
-    FuzzyVariant fvFielder2((cPlayer*)TheFielder);
+    ((Variant*)&FuzzyVariant((cPlayer*)TheFielder))->GetHash();
+    FuzzyVariant((cPlayer*)TheFielder);
 
     FuzzyVariant usePowerup = Fuzzy::GetPowerupToUseForPassReceiveDefence(TheFielder);
 

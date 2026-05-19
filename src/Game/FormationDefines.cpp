@@ -244,12 +244,14 @@ FormationSet* FormationSet::LoadFormationSets(const char* filename, int& out_num
                 break;
             }
 
-            nlStrNCpy(formationList[i_formation].m_Name,
-                config.Get<BasicString<char, Detail::TempStringAllocator> >(var_name,
-                          BasicString<char, Detail::TempStringAllocator>("Unnamed"))
-                    .c_str(),
-                32);
-            formationList[i_formation].m_Name[31] = 0;
+            FormationSpec& formation = formationList[i_formation];
+
+            (nlStrNCpy(formation.m_Name,
+                 config.Get<BasicString<char, Detail::TempStringAllocator> >(var_name,
+                           BasicString<char, Detail::TempStringAllocator>("Unnamed"))
+                     .c_str(),
+                 32),
+                formation.m_Name[31] = 0);
 
             nlSNPrintf(var_name, 127, "%s/F%d_KEY_POS", section_name, i_formation);
             int keyIndex = GetConfigInt(config, var_name, -1);
@@ -260,12 +262,12 @@ FormationSet* FormationSet::LoadFormationSets(const char* filename, int& out_num
             nlSNPrintf(var_name, 127, "%s/F%d_OUTRADIUS", section_name, i_formation);
             float outRadius = GetConfigFloat(config, var_name, 11.0f);
 
-            formationList[i_formation].m_InRadius = inRadius;
-            formationList[i_formation].m_OutRadius = outRadius;
+            formation.m_InRadius = inRadius;
+            formation.m_OutRadius = outRadius;
 
             for (int i_pos = 0; i_pos < 4; i_pos++)
             {
-                FormationPos& position = formationList[i_formation].m_Positions[i_pos];
+                FormationPos& position = formation.m_Positions[i_pos];
 
                 nlSNPrintf(var_name, 127, "%s/F%d_P%d_X", section_name, i_formation, i_pos);
                 float xVal = GetConfigFloat(config, var_name, -9999.9f);
@@ -286,35 +288,35 @@ FormationSet* FormationSet::LoadFormationSets(const char* filename, int& out_num
                 position.m_CaptainPreference = captainPref;
             }
 
-            formationList[i_formation].m_ID = formation_id;
-            formationList[i_formation].m_iKeyIndex = keyIndex;
-            formationList[i_formation].m_v2Min.f.x = 999999.9f;
-            formationList[i_formation].m_v2Min.f.y = 999999.9f;
-            formationList[i_formation].m_v2Max.f.x = -999999.9f;
-            formationList[i_formation].m_v2Max.f.y = -999999.9f;
-            formationList[i_formation].m_v2Center.f.x = 0.0f;
-            formationList[i_formation].m_v2Center.f.y = 0.0f;
+            formation.m_ID = formation_id;
+            formation.m_iKeyIndex = keyIndex;
+            formation.m_v2Min.f.x = 999999.9f;
+            formation.m_v2Min.f.y = 999999.9f;
+            formation.m_v2Max.f.x = -999999.9f;
+            formation.m_v2Max.f.y = -999999.9f;
+            formation.m_v2Center.f.x = 0.0f;
+            formation.m_v2Center.f.y = 0.0f;
 
-            FormationPos* pp = &formationList[i_formation].m_Positions[0];
+            FormationPos* pp = &formation.m_Positions[0];
             for (int n = 4; n != 0; n--)
             {
-                formationList[i_formation].m_v2Min.f.x = (formationList[i_formation].m_v2Min.f.x <= pp->m_Location.f.x) ? formationList[i_formation].m_v2Min.f.x : pp->m_Location.f.x;
-                formationList[i_formation].m_v2Min.f.y = (formationList[i_formation].m_v2Min.f.y <= pp->m_Location.f.y) ? formationList[i_formation].m_v2Min.f.y : pp->m_Location.f.y;
-                formationList[i_formation].m_v2Max.f.x = (formationList[i_formation].m_v2Max.f.x >= pp->m_Location.f.x) ? formationList[i_formation].m_v2Max.f.x : pp->m_Location.f.x;
-                formationList[i_formation].m_v2Max.f.y = (formationList[i_formation].m_v2Max.f.y >= pp->m_Location.f.y) ? formationList[i_formation].m_v2Max.f.y : pp->m_Location.f.y;
+                formation.m_v2Min.f.x = (formation.m_v2Min.f.x <= pp->m_Location.f.x) ? formation.m_v2Min.f.x : pp->m_Location.f.x;
+                formation.m_v2Min.f.y = (formation.m_v2Min.f.y <= pp->m_Location.f.y) ? formation.m_v2Min.f.y : pp->m_Location.f.y;
+                formation.m_v2Max.f.x = (formation.m_v2Max.f.x >= pp->m_Location.f.x) ? formation.m_v2Max.f.x : pp->m_Location.f.x;
+                formation.m_v2Max.f.y = (formation.m_v2Max.f.y >= pp->m_Location.f.y) ? formation.m_v2Max.f.y : pp->m_Location.f.y;
                 {
-                    float cx = formationList[i_formation].m_v2Center.f.x + pp->m_Location.f.x;
-                    float cy = formationList[i_formation].m_v2Center.f.y + pp->m_Location.f.y;
-                    formationList[i_formation].m_v2Center.f.x = cx;
-                    formationList[i_formation].m_v2Center.f.y = cy;
+                    float cx = formation.m_v2Center.f.x + pp->m_Location.f.x;
+                    float cy = formation.m_v2Center.f.y + pp->m_Location.f.y;
+                    formation.m_v2Center.f.x = cx;
+                    formation.m_v2Center.f.y = cy;
                 }
                 pp++;
             }
             {
-                float cx = formationList[i_formation].m_v2Center.f.x * 0.25f;
-                float cy = formationList[i_formation].m_v2Center.f.y * 0.25f;
-                formationList[i_formation].m_v2Center.f.x = cx;
-                formationList[i_formation].m_v2Center.f.y = cy;
+                float cx = formation.m_v2Center.f.x * 0.25f;
+                float cy = formation.m_v2Center.f.y * 0.25f;
+                formation.m_v2Center.f.x = cx;
+                formation.m_v2Center.f.y = cy;
             }
 
             formation_id++;

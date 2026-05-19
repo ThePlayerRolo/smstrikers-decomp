@@ -2194,7 +2194,6 @@ void StatsTracker::TrackWinner(int forfeitSide)
 void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* filename)
 {
     unsigned char firstTime = 1;
-    FILE* pFile;
 
     extern const char* STATS_FILE;
     extern unsigned long fwrite(const void*, unsigned long, unsigned long, void*);
@@ -2237,7 +2236,7 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
         filename = STATS_FILE;
     }
 
-    pFile = fopen(filename, "r");
+    FILE* pFile = fopen(filename, "r");
     if (pFile != 0)
     {
         firstTime = 0;
@@ -2253,7 +2252,6 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
     if (firstTime)
     {
         BasicString<char, Detail::TempStringAllocator> header;
-        BasicString<char, Detail::TempStringAllocator> homeAway("H ");
         int i;
 
         header.AppendInPlace("H Captain, ");
@@ -2264,6 +2262,7 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
         header.AppendInPlace("Game Time, ");
         header.AppendInPlace("Actual Time, ");
 
+        BasicString<char, Detail::TempStringAllocator> homeAway("H ");
         for (i = 0; i < 2; i++)
         {
             header.AppendInPlace(homeAway.Append("Num Players, "));
@@ -2295,12 +2294,11 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
     int i;
     for (i = 0; i < 4; i++)
     {
-        short side = nlSingleton<GameInfoManager>::s_pInstance->GetPlayingSide((unsigned short)i);
-        if (side == 0)
+        if (nlSingleton<GameInfoManager>::s_pInstance->GetPlayingSide((unsigned short)i) == 0)
         {
             numHumans[0]++;
         }
-        else if (side == 1)
+        else if (nlSingleton<GameInfoManager>::s_pInstance->GetPlayingSide((unsigned short)i) == 1)
         {
             numHumans[1]++;
         }
@@ -2312,34 +2310,26 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
     if (allCaptains)
     {
         BasicString<char, Detail::TempStringAllocator> formatTemplate("{0},{1},{2},{3},{4},{5},{6},");
-        const char* stadiumName = TheWorldLoader.GetStadiumFilename(nlSingleton<GameInfoManager>::s_pInstance->GetStadium());
-        const char* awayTeamName = GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(1));
-        const char* homeTeamName = GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0));
 
         stats = Format(formatTemplate,
-            homeTeamName,
-            homeTeamName,
-            awayTeamName,
-            awayTeamName,
-            stadiumName,
+            GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0)),
+            GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0)),
+            GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(1)),
+            GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(1)),
+            TheWorldLoader.GetStadiumFilename(nlSingleton<GameInfoManager>::s_pInstance->GetStadium()),
             gameTime,
             gameDuration);
     }
     else
     {
         BasicString<char, Detail::TempStringAllocator> formatTemplate("{0},{1},{2},{3},{4},{5},{6},");
-        const char* stadiumName = TheWorldLoader.GetStadiumFilename(nlSingleton<GameInfoManager>::s_pInstance->GetStadium());
-        const char* awaySidekickName = GetSidekickName(nlSingleton<GameInfoManager>::s_pInstance->GetSidekick(1));
-        const char* awayTeamName = GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(1));
-        const char* homeSidekickName = GetSidekickName(nlSingleton<GameInfoManager>::s_pInstance->GetSidekick(0));
-        const char* homeTeamName = GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0));
 
         stats = Format(formatTemplate,
-            homeTeamName,
-            homeSidekickName,
-            awayTeamName,
-            awaySidekickName,
-            stadiumName,
+            GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0)),
+            GetSidekickName(nlSingleton<GameInfoManager>::s_pInstance->GetSidekick(0)),
+            GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(1)),
+            GetSidekickName(nlSingleton<GameInfoManager>::s_pInstance->GetSidekick(1)),
+            TheWorldLoader.GetStadiumFilename(nlSingleton<GameInfoManager>::s_pInstance->GetStadium()),
             gameTime,
             gameDuration);
     }

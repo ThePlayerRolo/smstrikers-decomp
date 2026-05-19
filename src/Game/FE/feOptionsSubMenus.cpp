@@ -1747,12 +1747,7 @@ void OptionsCheatsMenu::BuildCustomPowerupsList(TLComponentInstance* compinstanc
     TLComponentInstance* pArrowComp;
     GameInfoManager* gm = nlSingleton<GameInfoManager>::s_pInstance;
 
-    SlideMenuList* list = (SlideMenuList*)nlMalloc(sizeof(SlideMenuList), 8, false);
-    if (list != NULL)
-    {
-        new (list) SlideMenuList();
-        list->mComponentInstance = compinstance;
-    }
+    SlideMenuList* list = new (nlMalloc(sizeof(SlideMenuList), 8, false)) SlideMenuList(compinstance);
     mSlideMenuLists[0] = (MenuList<SlideMenuList>*)list;
 
     compinstance->SetActiveSlide("Slide1");
@@ -1849,11 +1844,11 @@ void OptionsCheatsMenu::BuildCustomPowerupsList(TLComponentInstance* compinstanc
 
         if (slidesAdded > 1)
         {
-            sml->mFlags = 1;
+            ((SlideMenuList*)mSlideMenuLists[0])->mFlags = 1;
 
-            if (sml != NULL)
+            if (((SlideMenuList*)mSlideMenuLists[0]) != NULL)
             {
-                TLComponentInstance* comp = sml->mComponentInstance;
+                TLComponentInstance* comp = ((SlideMenuList*)mSlideMenuLists[0])->mComponentInstance;
                 if (comp != NULL && comp->GetActiveSlide() != NULL)
                 {
                     TLSlide* startSlide = comp->GetActiveSlide();
@@ -1874,7 +1869,8 @@ void OptionsCheatsMenu::BuildCustomPowerupsList(TLComponentInstance* compinstanc
                                 }
                                 else if (inst->m_type == TLAT_IMAGE)
                                 {
-                                    if (inst->m_hash != nlStringLowerHash("white_box"))
+                                    unsigned long instHash = inst->m_hash;
+                                    if (instHash != nlStringLowerHash("white_box"))
                                     {
                                         inst->SetAssetColour(SubMenuHighliteColour);
                                     }

@@ -319,12 +319,13 @@ NPCManager::~NPCManager()
             hierEntry = hierEntry->next;
         }
 
-        nlWalkList(pHierInv->m_lItemList.m_Head, (HierListBase*)pHierInv, &HierListBase::DeleteEntry);
-        pHierInv->m_lItemList.m_Head = NULL;
-        pHierInv->m_lItemList.m_Tail = NULL;
+        void (HierListBase::*cbHier)(ListEntry<cSHierarchy*>*) = &HierListBase::DeleteEntry;
+        nlWalkList(pHierInv->m_lItemList.m_Head, (HierListBase*)pHierInv, cbHier);
 
         ListEntry<char*>** pTail = &pHierInv->m_lMemList.m_Tail;
+        pHierInv->m_lItemList.m_Head = NULL;
         ListEntry<char*>** pHead = &pHierInv->m_lMemList.m_Head;
+        pHierInv->m_lItemList.m_Tail = NULL;
         while (pHierInv->m_lMemList.m_Head != NULL)
         {
             ListEntry<char*>* first = nlListRemoveStart<ListEntry<char*> >(pHead, pTail);
@@ -338,26 +339,8 @@ NPCManager::~NPCManager()
         }
 
         pHierInv->m_nItemCount = 0;
-        if (&pHierInv->m_lMemList != NULL)
-        {
-            if (&pHierInv->m_lMemList != NULL)
-            {
-                nlWalkList(pHierInv->m_lMemList.m_Head, (FileListBase*)&pHierInv->m_lMemList, &FileListBase::DeleteEntry);
-                pHierInv->m_lMemList.m_Head = NULL;
-                pHierInv->m_lMemList.m_Tail = NULL;
-            }
-        }
-
-        if (pHierInv != NULL)
-        {
-            if (pHierInv != NULL)
-            {
-                nlWalkList(pHierInv->m_lItemList.m_Head, (HierListBase*)pHierInv, &HierListBase::DeleteEntry);
-                pHierInv->m_lItemList.m_Head = NULL;
-                pHierInv->m_lItemList.m_Tail = NULL;
-            }
-        }
-
+        pHierInv->m_lMemList.~nlListContainer();
+        pHierInv->m_lItemList.~nlListContainer();
         ::operator delete(pHierInv);
     }
 
@@ -371,12 +354,13 @@ NPCManager::~NPCManager()
             animEntry = animEntry->next;
         }
 
-        nlWalkList(pSAnimInv->m_lItemList.m_Head, (SAnimListBase*)pSAnimInv, &SAnimListBase::DeleteEntry);
-        pSAnimInv->m_lItemList.m_Head = NULL;
-        pSAnimInv->m_lItemList.m_Tail = NULL;
+        void (SAnimListBase::*cbAnim)(ListEntry<cSAnim*>*) = &SAnimListBase::DeleteEntry;
+        nlWalkList(pSAnimInv->m_lItemList.m_Head, (SAnimListBase*)pSAnimInv, cbAnim);
 
         ListEntry<char*>** pTail2 = &pSAnimInv->m_lMemList.m_Tail;
+        pSAnimInv->m_lItemList.m_Head = NULL;
         ListEntry<char*>** pHead2 = &pSAnimInv->m_lMemList.m_Head;
+        pSAnimInv->m_lItemList.m_Tail = NULL;
         while (pSAnimInv->m_lMemList.m_Head != NULL)
         {
             ListEntry<char*>* first = nlListRemoveStart<ListEntry<char*> >(pHead2, pTail2);
@@ -390,26 +374,8 @@ NPCManager::~NPCManager()
         }
 
         pSAnimInv->m_nItemCount = 0;
-        if (&pSAnimInv->m_lMemList != NULL)
-        {
-            if (&pSAnimInv->m_lMemList != NULL)
-            {
-                nlWalkList(pSAnimInv->m_lMemList.m_Head, (FileListBase*)&pSAnimInv->m_lMemList, &FileListBase::DeleteEntry);
-                pSAnimInv->m_lMemList.m_Head = NULL;
-                pSAnimInv->m_lMemList.m_Tail = NULL;
-            }
-        }
-
-        if (pSAnimInv != NULL)
-        {
-            if (pSAnimInv != NULL)
-            {
-                nlWalkList(pSAnimInv->m_lItemList.m_Head, (SAnimListBase*)pSAnimInv, &SAnimListBase::DeleteEntry);
-                pSAnimInv->m_lItemList.m_Head = NULL;
-                pSAnimInv->m_lItemList.m_Tail = NULL;
-            }
-        }
-
+        pSAnimInv->m_lMemList.~nlListContainer();
+        pSAnimInv->m_lItemList.~nlListContainer();
         ::operator delete(pSAnimInv);
     }
 }

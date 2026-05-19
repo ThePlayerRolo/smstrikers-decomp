@@ -660,8 +660,8 @@ void CheckResults()
 
 /**
  * Offset/Address/Size: 0x1408 | 0x800B1990 | size: 0x1DC
- * TODO: 97.2% match - callback setup still emits extra r4/r0 move shuffles and
- * call symbol differs at Create(..., Function, Function) vs Create(..., Function&, Function&).
+ * TODO: 100.0% match - call symbol still differs at Create(..., Function, Function) vs
+ * Create(..., Function&, Function&).
  */
 bool PushNoCardMessage()
 {
@@ -710,12 +710,9 @@ bool PushNoCardMessage()
         option1.mTag = FREE_FUNCTION;
         option1.mFreeFunction = RetryCB;
 
-        void (*cb)() = ContinueWithoutSavingCB;
-        if (gSceneTypeStack[gSceneTypeStackDepth - 1] == ST_LOAD)
-        {
-            cb = ContinueWithoutLoadingCB;
-        }
-        option2.mFreeFunction = cb;
+        option2.mFreeFunction = (gSceneTypeStack[gSceneTypeStackDepth - 1] == ST_LOAD)
+                                  ? ContinueWithoutLoadingCB
+                                  : ContinueWithoutSavingCB;
         option2.mTag = FREE_FUNCTION;
 
         popup->Create(POPUP_NO_MEMCARD, option1, option2);

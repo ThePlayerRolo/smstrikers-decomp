@@ -420,9 +420,10 @@ void cSAnim::GetRootRot(float fTime, unsigned short* pRootRot) const
 }
 /**
  * Offset/Address/Size: 0x1E0 | 0x801E93F4 | size: 0x10C
- * TODO: 98.66% match - remaining interpolation block register allocation differs
- * (index in r5 vs r7 and val0/val1 base register assignment swap).
+ * TODO: 99.18% match - interpolation setup keeps index in r5 instead of r7 and
+ * propagates float temporary register swaps.
  */
+#pragma inline_depth(8)
 void cSAnim::GetRootTrans(float t, nlVector3* out) const
 {
     if (m_nNumRootKeys != 0)
@@ -434,12 +435,13 @@ void cSAnim::GetRootTrans(float t, nlVector3* out) const
         }
 
         float fRealIndex = t * (m_nNumRootKeys - 1);
-        int nIndex = (int)fRealIndex;
-        float fWeight = fRealIndex - nIndex;
-        float fInvWeight = 1.0f - fWeight;
+        int nIndex0 = (int)fRealIndex;
+        int nIndex1 = nIndex0 + 1;
         const nlVector3* pRootTrans = m_pRootTrans;
-        const nlVector3* pVal0 = &pRootTrans[nIndex];
-        const nlVector3* pVal1 = &pRootTrans[nIndex + 1];
+        const nlVector3* pVal0 = &pRootTrans[nIndex0];
+        const nlVector3* pVal1 = &pRootTrans[nIndex1];
+        float fWeight = fRealIndex - nIndex0;
+        float fInvWeight = 1.0f - fWeight;
 
         out->f.x = (fWeight * pVal1->f.x) + (fInvWeight * pVal0->f.x);
         out->f.y = (fWeight * pVal1->f.y) + (fInvWeight * pVal0->f.y);

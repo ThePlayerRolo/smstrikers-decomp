@@ -90,9 +90,9 @@ FuzzyVariant Fuzzy::AbortDefencePlay(cDecisionEntity*)
 
 /**
  * Offset/Address/Size: 0x48B4 | 0x80089F6C | size: 0xCDC
- * TODO: 97.69% match - compiler optimizes 2-branch ternary to 1-branch at
- * UsePowerupDefensive result clamp (f31 already holds 0.0f, else branch elided).
- * -inline deferred file; scratch shows 96.74% due to register allocation diff.
+ * TODO: 97.96% match - remaining diffs are register allocation cascades
+ * (f1/f2 swap in fTryConf/fallback sections, f29 vs f0 for TryResult,
+ * 1-branch ternary optimization at max chain and position result).
  */
 FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
 {
@@ -160,8 +160,8 @@ FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
             if (fConfidence < fTryConf && fTryConf < 0.2f)
                 fConfidence = fConfidence * fBranchRatio3;
 
-            fBestConfidence = TryAttacking(fConfidence, pDecision).mData.f;
-            fBestConfidence = (fBestConfidence >= fPassConf) ? fBestConfidence : fPassConf;
+            float fTryResult = TryAttacking(fConfidence, pDecision).mData.f;
+            fBestConfidence = (fTryResult >= fPassConf) ? fTryResult : fPassConf;
 
             // Positional sub-branch
             float fCapConf = (0.3f >= (1.0f - fBestConfidence)) ? 0.3f : (1.0f - fBestConfidence);

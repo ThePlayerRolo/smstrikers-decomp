@@ -101,6 +101,11 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
     extern FuzzyVariant fvNotSet;
     extern FuzzyVariant GetStrategicBallCarrier__5FuzzyFP5cTeam(cTeam*);
 
+    struct FuzzyBuf
+    {
+        int _[12];
+    };
+
     float fConfidence = 1.0f;
     float fBestConfidence = 0.0f;
 
@@ -119,20 +124,20 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             fConfidence = fConfidence * fBranchRatio;
 
-        FuzzyVariant doShooting;
-        ((Fuzzy*)&doShooting)->DoShooting(fConfidence, pDecision);
-        float fDoShooting = (doShooting.mData.f >= 0.0f) ? doShooting.mData.f : 0.0f;
+        FuzzyBuf doShootingBuf;
+        ((Fuzzy*)&doShootingBuf)->DoShooting(fConfidence, pDecision);
+        float fDoShooting = (((FuzzyVariant&)doShootingBuf).mData.f >= 0.0f) ? ((FuzzyVariant&)doShootingBuf).mData.f : 0.0f;
 
-        FuzzyVariant doPassing;
-        ((Fuzzy*)&doPassing)->DoPassing(fConfidence, pDecision);
-        float fDoPassing = doPassing.mData.f;
+        FuzzyBuf doPassingBuf;
+        ((Fuzzy*)&doPassingBuf)->DoPassing(fConfidence, pDecision);
+        float fDoPassing = ((FuzzyVariant&)doPassingBuf).mData.f;
         fDoPassing = (fDoPassing >= fDoShooting) ? fDoPassing : fDoShooting;
 
         fBestConfidence = fDoPassing;
 
-        FuzzyVariant goodBallCarrier;
-        ((Fuzzy*)&goodBallCarrier)->GoodBallCarrier(g_pScriptCurrentFielder);
-        float fGoodBallCarrier = goodBallCarrier.mData.f;
+        FuzzyBuf goodBallCarrierBuf;
+        ((Fuzzy*)&goodBallCarrierBuf)->GoodBallCarrier(g_pScriptCurrentFielder);
+        float fGoodBallCarrier = ((FuzzyVariant&)goodBallCarrierBuf).mData.f;
 
         float fNotRepeatingDeke = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edDeke);
         float fNotCloseSideline = 1.0f - CloseToSideline(g_pScriptCurrentFielder);
@@ -229,10 +234,10 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
             if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                 fConfidence = fConfidence * fBranchRatio;
 
-            FuzzyVariant usePowerupOffensive;
-            ((Fuzzy*)&usePowerupOffensive)->UsePowerupOffensive(fConfidence, pDecision);
-            if (usePowerupOffensive.mData.f >= fBestConfidence)
-                fBestConfidence = usePowerupOffensive.mData.f;
+            FuzzyBuf usePowerupBuf;
+            ((Fuzzy*)&usePowerupBuf)->UsePowerupOffensive(fConfidence, pDecision);
+            if (((FuzzyVariant&)usePowerupBuf).mData.f >= fBestConfidence)
+                fBestConfidence = ((FuzzyVariant&)usePowerupBuf).mData.f;
         }
 
         fTrueConfidence = FGREATER(fGoodBallCarrier, (fDoShooting >= fDoPassing) ? fDoShooting : fDoPassing);
@@ -269,9 +274,9 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
         if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
             fConfidence = fConfidence * fBranchRatio;
 
-        FuzzyVariant cutAndBreak;
-        ((Fuzzy*)&cutAndBreak)->CutAndBreak(g_pScriptCurrentFielder);
-        float fCutAndBreak = cutAndBreak.mData.f;
+        FuzzyBuf cutAndBreakBuf;
+        ((Fuzzy*)&cutAndBreakBuf)->CutAndBreak(g_pScriptCurrentFielder);
+        float fCutAndBreak = ((FuzzyVariant&)cutAndBreakBuf).mData.f;
 
         fTrueConfidence = Striker(g_pScriptCurrentFielder);
         fTrueConfidence = (fTrueConfidence <= fCutAndBreak) ? fTrueConfidence : fCutAndBreak;
@@ -508,13 +513,14 @@ void Fuzzy::GoodBallCarrier(cFielder* TheFielder)
 
     FuzzyVariant bestValue;
     float fConfidence = 1.0f;
+    float fWindupScore;
     float fBestConfidence = 0.0f;
 
     FuzzyVariant fvFielder((cPlayer*)TheFielder);
     ((Variant*)&fvFielder)->GetHash();
     FuzzyVariant fvFielder2((cPlayer*)TheFielder);
 
-    float fWindupScore = InGoodWindupPosition(g_pScriptCurrentFielder).mData.f;
+    fWindupScore = InGoodWindupPosition(g_pScriptCurrentFielder).mData.f;
 
     float fOnMushrooms = OnMushrooms(g_pScriptCurrentFielder);
     float fInvincible = Invincible(g_pScriptCurrentFielder);
@@ -556,8 +562,8 @@ void Fuzzy::GoodBallCarrier(cFielder* TheFielder)
             float fLessWindup = FLESS(fWindupScore, 0.8f);
             float fNotCloseToNet = 1.0f - CloseToMyNet(g_pScriptCurrentFielder);
             float fNotInDanger = 1.0f - InDangerDelayed(g_pScriptCurrentFielder).mData.f;
-            fNotCloseToNet = (fNotCloseToNet <= fLessWindup) ? fNotCloseToNet : fLessWindup;
-            fNotInDanger = (fNotInDanger <= fNotCloseToNet) ? fNotInDanger : fNotCloseToNet;
+            fNotCloseToNet = (fLessWindup <= fNotCloseToNet) ? fLessWindup : fNotCloseToNet;
+            fNotInDanger = (fNotCloseToNet <= fNotInDanger) ? fNotCloseToNet : fNotInDanger;
             bestValue = FuzzyVariant(fNotInDanger);
         }
     }

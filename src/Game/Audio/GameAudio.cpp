@@ -183,9 +183,9 @@ static inline void ResetTrackedEmitter(SFXEmitter* pSFXEmitter)
 void cGameSFX::UpdateAllTrackedSFX(float)
 {
     DLListEntry<SFXPlaySet*>* head;
+    SFXPlaySet* pTrackedSFX;
     DLListEntry<SFXPlaySet*>* current;
     DLListEntry<SFXPlaySet*>* iter;
-    SFXPlaySet* pTrackedSFX;
     float currTime;
 
     if (!mbCurPlaySetIsValid)

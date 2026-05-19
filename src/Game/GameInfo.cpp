@@ -1295,15 +1295,15 @@ void GameInfoManager::SetupTournamentKnockout(eTeamID* lineup, eSidekickID* skli
 unsigned char GameInfoManager::SetupKnockoutRound(short round)
 {
     eSidekickID sidekicks[9];
-    BaseCup* cup = mCurrentCup;
     int gamesPerRound;
-    signed short previousRound;
     signed short currentRound;
+    signed short previousRound;
+    BaseCup* cup = mCurrentCup;
+    int i;
     eTeamID home;
     eTeamID away;
     unsigned char returnValue = 0;
     eStadiumID currentStadium;
-    int i;
     BasicGameInfo* g;
     eTeamID index;
     BasicGameInfo* g2;
@@ -2532,13 +2532,14 @@ void GameInfoManager::OnPreGameState()
         BasicString<char, Detail::TempStringAllocator> stadium;
         stadium = Config::Global().Get<BasicString<char, Detail::TempStringAllocator> >(
             "stadium", BasicString<char, Detail::TempStringAllocator>());
+        const char* userStadium = stadium.c_str();
 
         mGameInfo[mCurrentMode]->mStadiumIndex = (eStadiumID)-1;
-        for (eStadiumID i = STAD_MARIO_STADIUM; i < MAX_STADIUMS; i = (eStadiumID)(i + 1))
+        for (int i = 0; i < MAX_STADIUMS; i++)
         {
-            if (nlStrICmp(TheWorldLoader.GetStadiumFilename(i), stadium.c_str()) == 0)
+            if (nlStrICmp(TheWorldLoader.GetStadiumFilename((eStadiumID)i), userStadium) == 0)
             {
-                mGameInfo[mCurrentMode]->mStadiumIndex = i;
+                mGameInfo[mCurrentMode]->mStadiumIndex = (eStadiumID)i;
                 break;
             }
         }
@@ -2989,7 +2990,6 @@ void GameInfoManager::OnPostCupGameState()
     {
         eMilestoneColour level = GetMilestoneLevel(MILESTONES[i]);
         mDisplayTrophy[i + 1] = (mTrophyColourState[i] != level);
-        mTrophyColourState[i] = level;
     }
 
     mCupMatchRequirement = RESULT_INVALID;
@@ -2998,7 +2998,7 @@ void GameInfoManager::OnPostCupGameState()
         && !(mCurrentMode == GM_MUSHROOM_CUP && mUserInfo.mIsFlowerCupUnlocked)
         && !(mCurrentMode == GM_FLOWER_CUP && mUserInfo.mIsStarCupUnlocked))
     {
-        if (mCurrentCup->mRoundNumber == (short)(mCurrentCup->GetNumRounds() - 1))
+        if (mCurrentCup->mRoundNumber == (mCurrentCup->GetNumRounds() - 1))
         {
             TeamStats allStats[8];
             int userIndex = -1;

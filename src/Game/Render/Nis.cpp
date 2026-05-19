@@ -318,15 +318,17 @@ Nis::Nis(NisHeader& header, char* data, int size)
 
 /**
  * Offset/Address/Size: 0x13C0 | 0x8012C7D0 | size: 0x290
- * TODO: 95.62% match - r28/r29/r30 register assignment swap (this/dealloc/data)
- * and compiler hoists format string load outside loop body
+ * TODO: 96.34% match - remaining diffs are the r30/r31 assignment order in the
+ * inlined BasicString literal/data path and an extra loop-top compare before
+ * format literal setup
  */
 Nis::~Nis()
 {
     for (int i = 0; i < mNumCameras; i++)
     {
-        BasicString<char, Detail::TempStringAllocator> cameraName = Format(BasicString<char, Detail::TempStringAllocator>("{0}_{1}"), mHeader->name, i);
-        cAnimCamera::FreeCameraAnimation(cameraName.c_str());
+        const char* fmt = (i >= 0) ? "{0}_{1}" : "{0}_{1}";
+        BasicString<char, Detail::TempStringAllocator> name = Format(BasicString<char, Detail::TempStringAllocator>(fmt), mHeader->name, i);
+        cAnimCamera::FreeCameraAnimation(name.c_str());
     }
 
     if (mCamera)

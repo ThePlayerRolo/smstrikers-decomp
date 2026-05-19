@@ -98,8 +98,8 @@ cAnimInventory::~cAnimInventory()
 
 /**
  * Offset/Address/Size: 0x88 | 0x80007004 | size: 0x214
- * TODO: 92.8% match - callee-saved register allocation differs (params r28/r27
- * vs target r31/r30), search loop pFound placement
+ * TODO: 94.3% match - callee-saved register assignment still differs (this and
+ * filename), and search-loop found-pointer placement is not exact
  */
 void cAnimInventory::AddAnimBundle(const char* szFilename)
 {
@@ -119,7 +119,7 @@ void cAnimInventory::AddAnimBundle(const char* szFilename)
     char* end = pMem + bundleLen;
     while (pMem != end)
     {
-        if ((((nlChunk*)pMem)->m_ID & 0xFFFFFF00) == 0x80017000)
+        if ((((nlChunk*)pMem)->m_ID & 0x80FFFFFF) == 0x80017000)
         {
             cSAnim* pAnim = cSAnim::Initialize((nlChunk*)pMem);
             ListEntry<cSAnim*>* pAnimEntry = (ListEntry<cSAnim*>*)nlMalloc(8, 8, 0);

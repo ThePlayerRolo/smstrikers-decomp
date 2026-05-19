@@ -175,8 +175,9 @@ void ISidekickGridComponent::RebuildInstanceTable()
 
 /**
  * Offset/Address/Size: 0x408 | 0x800C2C18 | size: 0x1AC
- * TODO: 97.2% match - register allocation: this=r26 instead of r27,
- * activeslide/this swapped, base=r31 instead of r25 in second loop
+ * TODO: 97.4% match - register allocation: this=r26 instead of r27,
+ * activeslide/this swapped, base=r31 instead of r25, itemIndex=r27 instead of
+ * r31 in second loop
  */
 #pragma opt_strength_reduction off
 void ISidekickGridComponent::BuildMapMenu()
@@ -203,9 +204,7 @@ void ISidekickGridComponent::BuildMapMenu()
 
     for (int itemIndexBase = 0, i = 0; i < 2; i++, itemIndexBase += 2)
     {
-        int itemIndex = itemIndexBase;
-
-        for (int j = 0; j < 2; j++, itemIndex++)
+        for (int j = 0, itemIndex = itemIndexBase; j < 2; j++, itemIndex++)
         {
             int leftIndex = itemIndex - 1;
             if (((itemIndex % 2) - 1) < 0)

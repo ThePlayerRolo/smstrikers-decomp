@@ -29,6 +29,8 @@ static bool glIgnoreDuplicateModels;
 static const char glxModelPath[] = "smstk";
 static const char glxSkinExt[] = ".skinmesh";
 
+static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNumModels, bool bLoadTextures);
+
 /**
  * Offset/Address/Size: 0x0 | 0x801BFC20 | size: 0x24
  */
@@ -135,17 +137,19 @@ static inline u32 Div67(u32 n)
 /**
  * Offset/Address/Size: 0x1D0 | 0x801BFDF0 | size: 0xA38
  */
-glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNumModels, bool bLoadTextures)
+static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNumModels, bool bLoadTextures)
 {
     FORCE_DONT_INLINE;
 
     bool hasBmdHeader = false;
+    nlChunk* innerEnd;
+    nlChunk* chunk;
     char* outerChunkPtr;
     char* outerEnd;
     char* chunkStart;
     char* chunkEnd;
-    int numPacketEntries;
     u32 refDataPtr;
+    int numPacketEntries;
     bool hasSkinData;
     GLAnimTex animTex;
     u32 numModels;
@@ -182,8 +186,8 @@ glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNumModels,
 
         while (outerChunkPtr < outerEnd)
         {
-            nlChunk* chunk = (nlChunk*)(outerChunkPtr + 8);
-            nlChunk* innerEnd = (nlChunk*)(outerChunkPtr + ((nlChunk*)outerChunkPtr)->m_Size + 8);
+            chunk = (nlChunk*)(outerChunkPtr + 8);
+            innerEnd = (nlChunk*)(outerChunkPtr + ((nlChunk*)outerChunkPtr)->m_Size + 8);
 
             while (chunk != innerEnd)
             {

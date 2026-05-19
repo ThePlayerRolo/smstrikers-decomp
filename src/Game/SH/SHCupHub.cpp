@@ -1083,7 +1083,7 @@ void CupHubScene::CreateLeague()
     typedef TLTextInstance* (*FindTextByValue)(TLSlide*, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher, InlineHasher);
     typedef TLTextInstance* (*FindTextByRef)(TLSlide*, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&, InlineHasher&);
 
-    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+    GameInfoManager* const gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
     GameInfoManager::eGameModes mode = gameInfo->mCurrentMode;
     u16 numTeams = gameInfo->GetNumPlayingTeams();
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
@@ -1128,8 +1128,8 @@ void CupHubScene::CreateLeague()
     numTeams = (u16)numTeams;
     int posOffset = (8 - numTeams) * 12;
     title->m_OverloadFlags |= 8;
-    const feVector3& titlePos = title->GetAssetPosition();
-    feVector3 position = titlePos;
+    feVector3 position = title->GetAssetPosition();
+    feVector3 rowPosition;
 
     if (mode == 5)
     {
@@ -1174,8 +1174,8 @@ void CupHubScene::CreateLeague()
     }
 
     {
-        const feVector3& pos = ranksComp->GetAssetPosition();
-        ranksComp->SetAssetPosition(pos.f.x, pos.f.y - (float)posOffset, pos.f.z);
+        rowPosition = ranksComp->GetAssetPosition();
+        ranksComp->SetAssetPosition(rowPosition.f.x, rowPosition.f.y - (float)posOffset, rowPosition.f.z);
     }
 
     TLComponentInstance* titlesComp;
@@ -1212,8 +1212,8 @@ void CupHubScene::CreateLeague()
     }
 
     {
-        const feVector3& pos = titlesComp->GetAssetPosition();
-        titlesComp->SetAssetPosition(pos.f.x, pos.f.y - (float)posOffset, pos.f.z);
+        rowPosition = titlesComp->GetAssetPosition();
+        titlesComp->SetAssetPosition(rowPosition.f.x, rowPosition.f.y - (float)posOffset, rowPosition.f.z);
     }
 
     nlSingleton<StatsTracker>::s_pInstance->GetSortedTeamStats(mAllTeamStats, numTeams, mStandingsIndices, numTeams);
@@ -1221,8 +1221,10 @@ void CupHubScene::CreateLeague()
     TLTextInstance* pTextInstance;
     TLComponentInstance* pComp;
     TLSlide* pSlide;
-    bool useHighlight;
+    unsigned char useHighlight;
+    eTeamID currentTeam;
     int row;
+    int standingsIndices[8];
 
     for (row = 0; row < 8; row++)
     {
@@ -1294,7 +1296,7 @@ void CupHubScene::CreateLeague()
 
         if (row < numTeams)
         {
-            eTeamID currentTeam = mAllTeamStats[mStandingsIndices[row]].mTeamIndex;
+            currentTeam = mAllTeamStats[mStandingsIndices[row]].mTeamIndex;
             useHighlight = IsUserRow(currentTeam);
 
             if (useHighlight && !mDoAnimations)
@@ -1354,8 +1356,8 @@ void CupHubScene::CreateLeague()
             mAnimComponents[row] = pComp;
 
             {
-                const feVector3& pos = pComp->GetAssetPosition();
-                pComp->SetAssetPosition(pos.f.x, pos.f.y - (float)posOffset, pos.f.z);
+                rowPosition = pComp->GetAssetPosition();
+                pComp->SetAssetPosition(rowPosition.f.x, rowPosition.f.y - (float)posOffset, rowPosition.f.z);
             }
         }
 
@@ -1620,12 +1622,11 @@ void CupHubScene::CreateLeague()
             mAllTeamStats[i] = gameInfo->GetTeamStatsByIndex((u16)i);
         }
 
-        int tempIndices[8];
-        nlSingleton<StatsTracker>::s_pInstance->GetSortedTeamStats(mAllTeamStats, numTeams, tempIndices, numTeams);
+        nlSingleton<StatsTracker>::s_pInstance->GetSortedTeamStats(mAllTeamStats, numTeams, standingsIndices, numTeams);
 
         for (int i = 0; i < gameInfo->GetNumPlayingTeams(); i++)
         {
-            mNewRanks[mAllTeamStats[tempIndices[i]].mTeamIndex] = i;
+            mNewRanks[mAllTeamStats[standingsIndices[i]].mTeamIndex] = i;
         }
 
         mUpdatingStats = true;
@@ -3988,14 +3989,12 @@ void CupHubScene::UpdateProgressIndicator()
     int displayRounds[16];
     eHubColour nodeColours[16];
     TLSlide* pSlide;
-    TLComponentInstance* progress;
     TLComponentInstance* highlight;
-    TLComponentInstance* joiner;
     int i;
     TLImageInstance* nodeImage;
     feVector3 position;
 
-    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+    GameInfoManager* const gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
 
     numRounds = gameInfo->GetNumRounds();
     if (gameInfo->mDidRoundJustEnd && mDoAnimations && gameInfo->GetCurrentRoundNumber() != -5)
@@ -4042,7 +4041,7 @@ void CupHubScene::UpdateProgressIndicator()
         } findComp;
 
         findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
-        progress = findComp.byRef(
+        TLComponentInstance* progress = findComp.byRef(
             pSlide,
             (InlineHasher&)hB,
             (InlineHasher&)h9,
@@ -4050,9 +4049,9 @@ void CupHubScene::UpdateProgressIndicator()
             (InlineHasher&)h5,
             (InlineHasher&)h3,
             (InlineHasher&)h1);
-    }
 
-    pSlide = progress->GetActiveSlide();
+        pSlide = progress->GetActiveSlide();
+    }
 
     {
         volatile InlineHasher h7, h6, h5, h4, h3, h2, h1, h0;
@@ -4113,7 +4112,7 @@ void CupHubScene::UpdateProgressIndicator()
             currentRound = 15;
         }
     }
-    else if (gameInfo->IsInTournamentMode() && gameInfo->mCurrentMode == GameInfoManager::GM_MUSHROOM_CUP)
+    else if (gameInfo->IsInTournamentMode() && gameInfo->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
     {
         if (numRounds == 2 && round == -3)
         {
@@ -4161,7 +4160,7 @@ void CupHubScene::UpdateProgressIndicator()
         } findComp;
 
         findComp.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
-        joiner = findComp.byRef(
+        TLComponentInstance* joiner = findComp.byRef(
             pSlide,
             (InlineHasher&)h7,
             (InlineHasher&)h6,
@@ -4170,17 +4169,18 @@ void CupHubScene::UpdateProgressIndicator()
             (InlineHasher&)h3,
             (InlineHasher&)h2);
 
-        if (numRounds == 5 || numRounds == 7)
+        switch (numRounds)
         {
+        case 5:
+        case 7:
             joiner->SetActiveSlide("Slide2");
-        }
-        else if (numRounds == 10)
-        {
+            break;
+        case 10:
             joiner->SetActiveSlide("10");
-        }
-        else if (numRounds == 14)
-        {
+            break;
+        case 14:
             joiner->SetActiveSlide("14");
+            break;
         }
     }
 
@@ -4201,9 +4201,17 @@ void CupHubScene::UpdateProgressIndicator()
         }
         else if (numRounds == 3)
         {
-            if (gameInfo->IsInTournamentMode() && gameInfo->mCurrentMode == GameInfoManager::GM_MUSHROOM_CUP)
+            if (gameInfo->IsInTournamentMode() && gameInfo->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
             {
-                if (i == 0 || i == 7 || i == 15)
+                if (i == 0)
+                {
+                    displayRounds[i] = i;
+                }
+                else if (i == 7)
+                {
+                    displayRounds[i] = i;
+                }
+                else if (i == 15)
                 {
                     displayRounds[i] = i;
                 }
@@ -4255,7 +4263,7 @@ void CupHubScene::UpdateProgressIndicator()
         {
             if (i <= 12)
             {
-                if (!(i & 1))
+                if ((i % 2) == 0)
                 {
                     displayRounds[i] = i / 2;
                 }
@@ -4265,12 +4273,16 @@ void CupHubScene::UpdateProgressIndicator()
         {
             if (i <= 12)
             {
-                if (!(i & 1))
+                if ((i % 2) == 0)
                 {
                     displayRounds[i] = i / 2;
                 }
             }
-            else if (i == 14 || i == 15)
+            else if (i == 14)
+            {
+                displayRounds[i] = i;
+            }
+            else if (i == 15)
             {
                 displayRounds[i] = i;
             }
@@ -4283,7 +4295,7 @@ void CupHubScene::UpdateProgressIndicator()
 
     if (round == -5)
     {
-        if (gameInfo->IsInTournamentMode() && gameInfo->mCurrentMode == GameInfoManager::GM_MUSHROOM_CUP)
+        if (gameInfo->IsInTournamentMode() && gameInfo->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
         {
             currentRound = 15;
         }
@@ -4366,7 +4378,6 @@ void CupHubScene::UpdateProgressIndicator()
         }
     }
 }
-
 /**
  * Erased (inlined into ColourUserRow)
  */
@@ -4711,7 +4722,7 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
         }                                                                                                                  \
     }
 
-    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+    GameInfoManager* gameInfo = *(GameInfoManager* volatile*)&nlSingleton<GameInfoManager>::s_pInstance;
     int roundNumber = gameInfo->GetCurrentRoundNumber();
 
     TLSlide* pCurrentSlide = m_pFEScene->m_pFEPackage->GetPresentation()->m_currentSlide;
@@ -4810,9 +4821,9 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
 
     BasicString<unsigned short, Detail::TempStringAllocator> leftTeam(sSpace);
     BasicString<unsigned short, Detail::TempStringAllocator> rightTeam(sSpace);
-    unsigned short roundWide[32] = { };
     BasicString<unsigned short, Detail::TempStringAllocator> roundWideString;
     BasicString<unsigned short, Detail::TempStringAllocator> unformatted;
+    unsigned short roundWide[32] = { };
 
     BasicGameInfo* pGame = gameInfo->mGameInfo[gameInfo->mCurrentMode];
 

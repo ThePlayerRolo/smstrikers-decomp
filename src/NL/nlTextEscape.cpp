@@ -84,17 +84,20 @@ nlEscapeSequence::nlEscapeSequence(const unsigned short* str)
 
     if (ExtendedStart != 0)
     {
+        const unsigned short* pExtended = ExtendedStart;
+        nlEscapeSequence* pSelf = this;
+
         Char = 0;
         while (Char < 15)
         {
-            unsigned long ch = *ExtendedStart;
+            unsigned long ch = *pExtended;
             if (ch == '}')
             {
                 break;
             }
 
-            m_Extended[Char] = (unsigned short)ch;
-            ExtendedStart++;
+            pSelf->m_Extended[Char] = (unsigned short)ch;
+            pExtended++;
             Char++;
         }
     }

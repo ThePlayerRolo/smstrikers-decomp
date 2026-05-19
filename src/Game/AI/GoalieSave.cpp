@@ -897,13 +897,9 @@ SaveData* GoalieSave::FindBestInList(SaveBlendInfo& blendInfo, nlListContainer<S
                 float fMilDur = fMilestoneVal * pCur->mfDuration;
                 fSaveTime = fSaveTime - fMilDur;
                 if (bFromTakeoff)
-                {
                     nlVec3Add(v3AdjLocalPos, v3LocalPos, pCur->mv3TakeoffPos);
-                }
                 else
-                {
                     v3AdjLocalPos = v3LocalPos;
-                }
             }
             else
             {
@@ -914,248 +910,231 @@ SaveData* GoalieSave::FindBestInList(SaveBlendInfo& blendInfo, nlListContainer<S
         }
 
         if (fSaveTime <= fTime)
-            goto advance;
-
-        pCur = GoalieSave::GetClosestBlendedPos(tempBlendInfo, v3AdjLocalPos, pCur);
-
-        fSaveTime = tempBlendInfo.mfMilestoneTime[2];
         {
-            float fThisTime = tempBlendInfo.mfMilestoneTime[milestone];
+            pCur = GoalieSave::GetClosestBlendedPos(tempBlendInfo, v3AdjLocalPos, pCur);
 
-            if (fThisTime > 0.0f)
+            fSaveTime = tempBlendInfo.mfMilestoneTime[2];
             {
-                fSaveTime = fSaveTime - fThisTime;
-                if (bFromTakeoff)
+                float fThisTime = tempBlendInfo.mfMilestoneTime[milestone];
+
+                if (fThisTime > 0.0f)
                 {
-                    nlVec3Add(v3AdjLocalPos, v3LocalPos, pCur->mv3TakeoffPos);
+                    fSaveTime = fSaveTime - fThisTime;
+                    if (bFromTakeoff)
+                        nlVec3Add(v3AdjLocalPos, v3LocalPos, pCur->mv3TakeoffPos);
+                }
+                else
+                {
+                    float fScale = 1.0f - fDefaultMilestoneValues[milestone];
+                    fSaveTime = fSaveTime * fScale;
                 }
             }
-            else
+
+            if (fSaveTime <= fTime)
             {
-                float fScale = 1.0f - fDefaultMilestoneValues[milestone];
-                fSaveTime = fSaveTime * fScale;
+                float fDistZ = v3AdjLocalPos.f.z - tempBlendInfo.mv3BlendedSavePos.f.z;
+                float fDistY = v3AdjLocalPos.f.y - tempBlendInfo.mv3BlendedSavePos.f.y;
+                float fDistSq = fDistZ * fDistZ + fDistY * fDistY;
+
+                if (fDistSq < fClosest)
+                {
+                    if (fDistSq < mfCatchAllowDistSq)
+                        goto okUpdate;
+                    if (pCur->muSaveType & 3)
+                        goto advance;
+                okUpdate:
+
+                    fClosest = fDistSq;
+                    pClosest = pCur;
+
+                    blendInfo.mfStartTime = tempBlendInfo.mfStartTime;
+                    blendInfo.mfMilestoneTime[0] = tempBlendInfo.mfMilestoneTime[0];
+                    blendInfo.mfMilestoneTime[1] = tempBlendInfo.mfMilestoneTime[1];
+                    blendInfo.mfMilestoneTime[2] = tempBlendInfo.mfMilestoneTime[2];
+                    blendInfo.mfMilestoneTime[3] = tempBlendInfo.mfMilestoneTime[3];
+                    blendInfo.mfMilestoneTime[4] = tempBlendInfo.mfMilestoneTime[4];
+
+                    __memcpy(&blendInfo.mfMilestoneScale[0][0], &tempBlendInfo.mfMilestoneScale[0][0], 80);
+
+                    blendInfo.mfSaveBlendPrimary = tempBlendInfo.mfSaveBlendPrimary;
+                    blendInfo.mfSaveBlendSecondary = tempBlendInfo.mfSaveBlendSecondary;
+                    blendInfo.mfSaveBlendComposite = tempBlendInfo.mfSaveBlendComposite;
+                    blendInfo.mpSaveData[0] = tempBlendInfo.mpSaveData[0];
+                    blendInfo.mpSaveData[1] = tempBlendInfo.mpSaveData[1];
+                    blendInfo.mpSaveData[2] = tempBlendInfo.mpSaveData[2];
+                    blendInfo.mpSaveData[3] = tempBlendInfo.mpSaveData[3];
+                    blendInfo.mv3BlendedSavePos.f.x = tempBlendInfo.mv3BlendedSavePos.f.x;
+                    blendInfo.mv3BlendedSavePos.f.y = tempBlendInfo.mv3BlendedSavePos.f.y;
+                    blendInfo.mv3BlendedSavePos.f.z = tempBlendInfo.mv3BlendedSavePos.f.z;
+
+                    {
+                        float fStartAdj = blendInfo.mfMilestoneTime[2] - fTime;
+                        float fStartResult;
+                        if (0.0f >= fStartAdj)
+                            fStartResult = 0.0f;
+                        else
+                            fStartResult = fStartAdj;
+                        blendInfo.mfStartTime = fStartResult;
+                    }
+
+                    if (bFromTakeoff)
+                    {
+                        blendInfo.mv3BlendedSavePos.f.x -= pCur->mv3TakeoffPos.f.x;
+                        blendInfo.mv3BlendedSavePos.f.y -= pCur->mv3TakeoffPos.f.y;
+                        blendInfo.mv3BlendedSavePos.f.z -= pCur->mv3TakeoffPos.f.z;
+                    }
+
+                    if (fDistSq < 0.0025f)
+                        break;
+                }
             }
         }
-
-        if (fSaveTime <= fTime)
-            goto advance;
-
-        {
-            float fDistZ = v3AdjLocalPos.f.z - tempBlendInfo.mv3BlendedSavePos.f.z;
-            float fDistY = v3AdjLocalPos.f.y - tempBlendInfo.mv3BlendedSavePos.f.y;
-            fSaveTime = fDistY * fDistY + fDistZ * fDistZ;
-        }
-
-        if (fSaveTime >= fClosest)
-            goto advance;
-
-        if (fSaveTime >= mfCatchAllowDistSq)
-        {
-            if (pCur->muSaveType & 3)
-                goto advance;
-        }
-
-        fClosest = fSaveTime;
-        pClosest = pCur;
-
-        blendInfo.mfStartTime = tempBlendInfo.mfStartTime;
-        blendInfo.mfMilestoneTime[0] = tempBlendInfo.mfMilestoneTime[0];
-        blendInfo.mfMilestoneTime[1] = tempBlendInfo.mfMilestoneTime[1];
-        blendInfo.mfMilestoneTime[2] = tempBlendInfo.mfMilestoneTime[2];
-        blendInfo.mfMilestoneTime[3] = tempBlendInfo.mfMilestoneTime[3];
-        blendInfo.mfMilestoneTime[4] = tempBlendInfo.mfMilestoneTime[4];
-
-        {
-            int k;
-            float* dst = &blendInfo.mfMilestoneScale[0][0];
-            float* src = &tempBlendInfo.mfMilestoneScale[0][0];
-            for (k = 0; k < 10; k++)
-            {
-                dst[0] = src[0];
-                dst[1] = src[1];
-                dst += 2;
-                src += 2;
-            }
-        }
-
-        blendInfo.mfSaveBlendPrimary = tempBlendInfo.mfSaveBlendPrimary;
-        blendInfo.mfSaveBlendSecondary = tempBlendInfo.mfSaveBlendSecondary;
-        blendInfo.mfSaveBlendComposite = tempBlendInfo.mfSaveBlendComposite;
-        blendInfo.mpSaveData[0] = tempBlendInfo.mpSaveData[0];
-        blendInfo.mpSaveData[1] = tempBlendInfo.mpSaveData[1];
-        blendInfo.mpSaveData[2] = tempBlendInfo.mpSaveData[2];
-        blendInfo.mpSaveData[3] = tempBlendInfo.mpSaveData[3];
-        blendInfo.mv3BlendedSavePos.f.x = tempBlendInfo.mv3BlendedSavePos.f.x;
-        blendInfo.mv3BlendedSavePos.f.y = tempBlendInfo.mv3BlendedSavePos.f.y;
-        blendInfo.mv3BlendedSavePos.f.z = tempBlendInfo.mv3BlendedSavePos.f.z;
-
-        {
-            float fStartAdj = blendInfo.mfMilestoneTime[2] - fTime;
-            if (0.0f >= fStartAdj)
-                fStartAdj = 0.0f;
-            blendInfo.mfStartTime = fStartAdj;
-        }
-
-        if (bFromTakeoff)
-        {
-            blendInfo.mv3BlendedSavePos.f.x -= pCur->mv3TakeoffPos.f.x;
-            blendInfo.mv3BlendedSavePos.f.y -= pCur->mv3TakeoffPos.f.y;
-            blendInfo.mv3BlendedSavePos.f.z -= pCur->mv3TakeoffPos.f.z;
-        }
-
-        if (fSaveTime < 0.0025f)
-            break;
 
     advance:
         pEntry = pEntry->next;
     }
 
-    if (pClosest == NULL)
-        return pClosest;
-
-    bEmptySpot = 0;
-    fLastTime = 0.0f;
-
+    if (pClosest != NULL)
     {
-        int i;
-        float fNegOne = -1.0f;
 
-        for (i = 0; i < 4; i++)
+        bEmptySpot = 0;
+
         {
-            pConnected = blendInfo.mpSaveData[i];
-            if (pConnected == NULL)
-                goto nextSlot;
+            int i;
 
+            for (i = 0; i < 4; i++)
             {
-                float fRunning;
-                fThisTime = pConnected->mfMilestonePercent[0] * pConnected->mfDuration;
-                fRunning = fLastTime;
+                pConnected = blendInfo.mpSaveData[i];
+                if (pConnected == NULL)
+                    continue;
 
-                if (fThisTime > fLastTime)
                 {
-                    blendInfo.mfMilestoneScale[i][0] = fThisTime - fLastTime;
-                    fRunning = fThisTime;
-                }
-                else
-                {
-                    blendInfo.mfMilestoneScale[i][0] = fNegOne;
-                    bEmptySpot = 1;
-                }
+                    float fRunning = 0.0f;
+                    float fDefault = -1.0f;
+                    float fCompare = fRunning;
 
-                fThisTime = pConnected->mfMilestonePercent[1] * pConnected->mfDuration;
-                if (fThisTime > fLastTime)
-                {
-                    blendInfo.mfMilestoneScale[i][1] = fThisTime - fRunning;
-                    fRunning = fThisTime;
-                }
-                else
-                {
-                    blendInfo.mfMilestoneScale[i][1] = fNegOne;
-                    bEmptySpot = 1;
-                }
+                    fThisTime = pConnected->mfMilestonePercent[0] * pConnected->mfDuration;
+                    if (fThisTime > fRunning)
+                    {
+                        blendInfo.mfMilestoneScale[i][0] = fThisTime - fRunning;
+                        fRunning = fThisTime;
+                    }
+                    else
+                    {
+                        blendInfo.mfMilestoneScale[i][0] = fDefault;
+                        bEmptySpot = 1;
+                    }
 
-                fThisTime = pConnected->mfMilestonePercent[2] * pConnected->mfDuration;
-                if (fThisTime > fLastTime)
-                {
-                    blendInfo.mfMilestoneScale[i][2] = fThisTime - fRunning;
-                    fRunning = fThisTime;
-                }
-                else
-                {
-                    blendInfo.mfMilestoneScale[i][2] = fNegOne;
-                    bEmptySpot = 1;
-                }
+                    fThisTime = pConnected->mfMilestonePercent[1] * pConnected->mfDuration;
+                    if (fThisTime > fCompare)
+                    {
+                        blendInfo.mfMilestoneScale[i][1] = fThisTime - fRunning;
+                        fRunning = fThisTime;
+                    }
+                    else
+                    {
+                        blendInfo.mfMilestoneScale[i][1] = fDefault;
+                        bEmptySpot = 1;
+                    }
 
-                fThisTime = pConnected->mfMilestonePercent[3] * pConnected->mfDuration;
-                if (fThisTime > fLastTime)
-                {
-                    blendInfo.mfMilestoneScale[i][3] = fThisTime - fRunning;
-                    fRunning = fThisTime;
-                }
-                else
-                {
-                    blendInfo.mfMilestoneScale[i][3] = fNegOne;
-                    bEmptySpot = 1;
-                }
+                    fThisTime = pConnected->mfMilestonePercent[2] * pConnected->mfDuration;
+                    if (fThisTime > fCompare)
+                    {
+                        blendInfo.mfMilestoneScale[i][2] = fThisTime - fRunning;
+                        fRunning = fThisTime;
+                    }
+                    else
+                    {
+                        blendInfo.mfMilestoneScale[i][2] = fDefault;
+                        bEmptySpot = 1;
+                    }
 
-                fThisTime = pConnected->mfMilestonePercent[4] * pConnected->mfDuration;
-                if (fThisTime > fLastTime)
-                {
-                    blendInfo.mfMilestoneScale[i][4] = fThisTime - fRunning;
-                }
-                else
-                {
-                    blendInfo.mfMilestoneScale[i][4] = fNegOne;
-                    bEmptySpot = 1;
+                    fThisTime = pConnected->mfMilestonePercent[3] * pConnected->mfDuration;
+                    if (fThisTime > fCompare)
+                    {
+                        blendInfo.mfMilestoneScale[i][3] = fThisTime - fRunning;
+                        fRunning = fThisTime;
+                    }
+                    else
+                    {
+                        blendInfo.mfMilestoneScale[i][3] = fDefault;
+                        bEmptySpot = 1;
+                    }
+
+                    fThisTime = pConnected->mfMilestonePercent[4] * pConnected->mfDuration;
+                    if (fThisTime > fCompare)
+                    {
+                        blendInfo.mfMilestoneScale[i][4] = fThisTime - fRunning;
+                    }
+                    else
+                    {
+                        blendInfo.mfMilestoneScale[i][4] = fDefault;
+                        bEmptySpot = 1;
+                    }
                 }
             }
-
-        nextSlot:;
         }
-    }
 
-    {
-        int i;
-        float fPrevTime = 0.0f;
-        for (i = 0; i < 5; i++)
         {
-            fThisTime = blendInfo.mfMilestoneTime[i];
-            if (fThisTime <= fPrevTime)
-                goto nextMilestone;
-
+            int i;
+            float fPrevTime = 0.0f;
+            for (i = 0; i < 5; i++)
             {
-                float fSegDuration = fThisTime - fPrevTime;
-                fInvSegTime = 1.0f / fSegDuration;
-                fPrevTime = fThisTime;
+                fThisTime = blendInfo.mfMilestoneTime[i];
+                if (fThisTime > 0.0f)
+                {
+                    float fSegDuration = fThisTime - fPrevTime;
+                    fInvSegTime = 1.0f / fSegDuration;
+                    fPrevTime = fThisTime;
 
-                if (blendInfo.mpSaveData[0])
-                    blendInfo.mfMilestoneScale[0][i] *= fInvSegTime;
-                if (blendInfo.mpSaveData[1])
-                    blendInfo.mfMilestoneScale[1][i] *= fInvSegTime;
-                if (blendInfo.mpSaveData[2])
-                    blendInfo.mfMilestoneScale[2][i] *= fInvSegTime;
-                if (blendInfo.mpSaveData[3])
-                    blendInfo.mfMilestoneScale[3][i] *= fInvSegTime;
+                    if (blendInfo.mpSaveData[0])
+                        blendInfo.mfMilestoneScale[0][i] *= fInvSegTime;
+                    if (blendInfo.mpSaveData[1])
+                        blendInfo.mfMilestoneScale[1][i] *= fInvSegTime;
+                    if (blendInfo.mpSaveData[2])
+                        blendInfo.mfMilestoneScale[2][i] *= fInvSegTime;
+                    if (blendInfo.mpSaveData[3])
+                        blendInfo.mfMilestoneScale[3][i] *= fInvSegTime;
+                }
+            }
+        }
+
+        if ((unsigned char)bEmptySpot)
+        {
+            if (blendInfo.mfMilestoneTime[3] <= 0.0f)
+            {
+                blendInfo.mfMilestoneScale[0][3] = blendInfo.mfMilestoneScale[0][4];
+                blendInfo.mfMilestoneScale[1][3] = blendInfo.mfMilestoneScale[1][4];
+                blendInfo.mfMilestoneScale[2][3] = blendInfo.mfMilestoneScale[2][4];
+                blendInfo.mfMilestoneScale[3][3] = blendInfo.mfMilestoneScale[3][4];
             }
 
-        nextMilestone:;
+            if (blendInfo.mfMilestoneTime[2] <= 0.0f)
+            {
+                blendInfo.mfMilestoneScale[0][2] = blendInfo.mfMilestoneScale[0][3];
+                blendInfo.mfMilestoneScale[1][2] = blendInfo.mfMilestoneScale[1][3];
+                blendInfo.mfMilestoneScale[2][2] = blendInfo.mfMilestoneScale[2][3];
+                blendInfo.mfMilestoneScale[3][2] = blendInfo.mfMilestoneScale[3][3];
+            }
+
+            if (blendInfo.mfMilestoneTime[1] <= 0.0f)
+            {
+                blendInfo.mfMilestoneScale[0][1] = blendInfo.mfMilestoneScale[0][2];
+                blendInfo.mfMilestoneScale[1][1] = blendInfo.mfMilestoneScale[1][2];
+                blendInfo.mfMilestoneScale[2][1] = blendInfo.mfMilestoneScale[2][2];
+                blendInfo.mfMilestoneScale[3][1] = blendInfo.mfMilestoneScale[3][2];
+            }
+
+            if (blendInfo.mfMilestoneTime[0] <= 0.0f)
+            {
+                blendInfo.mfMilestoneScale[0][0] = blendInfo.mfMilestoneScale[0][1];
+                blendInfo.mfMilestoneScale[1][0] = blendInfo.mfMilestoneScale[1][1];
+                blendInfo.mfMilestoneScale[2][0] = blendInfo.mfMilestoneScale[2][1];
+                blendInfo.mfMilestoneScale[3][0] = blendInfo.mfMilestoneScale[3][1];
+            }
         }
-    }
 
-    if (!(unsigned char)bEmptySpot)
-        return pClosest;
-
-    if (blendInfo.mfMilestoneTime[4] <= 0.0f)
-    {
-        blendInfo.mfMilestoneScale[0][4] = blendInfo.mfMilestoneScale[0][3];
-        blendInfo.mfMilestoneScale[1][4] = blendInfo.mfMilestoneScale[1][3];
-        blendInfo.mfMilestoneScale[2][4] = blendInfo.mfMilestoneScale[2][3];
-        blendInfo.mfMilestoneScale[3][4] = blendInfo.mfMilestoneScale[3][3];
-    }
-
-    if (blendInfo.mfMilestoneTime[3] <= 0.0f)
-    {
-        blendInfo.mfMilestoneScale[0][3] = blendInfo.mfMilestoneScale[0][2];
-        blendInfo.mfMilestoneScale[1][3] = blendInfo.mfMilestoneScale[1][2];
-        blendInfo.mfMilestoneScale[2][3] = blendInfo.mfMilestoneScale[2][2];
-        blendInfo.mfMilestoneScale[3][3] = blendInfo.mfMilestoneScale[3][2];
-    }
-
-    if (blendInfo.mfMilestoneTime[2] <= 0.0f)
-    {
-        blendInfo.mfMilestoneScale[0][2] = blendInfo.mfMilestoneScale[0][1];
-        blendInfo.mfMilestoneScale[1][2] = blendInfo.mfMilestoneScale[1][1];
-        blendInfo.mfMilestoneScale[2][2] = blendInfo.mfMilestoneScale[2][1];
-        blendInfo.mfMilestoneScale[3][2] = blendInfo.mfMilestoneScale[3][1];
-    }
-
-    if (blendInfo.mfMilestoneTime[1] <= 0.0f)
-    {
-        blendInfo.mfMilestoneScale[0][1] = blendInfo.mfMilestoneScale[0][0];
-        blendInfo.mfMilestoneScale[1][1] = blendInfo.mfMilestoneScale[1][0];
-        blendInfo.mfMilestoneScale[2][1] = blendInfo.mfMilestoneScale[2][0];
-        blendInfo.mfMilestoneScale[3][1] = blendInfo.mfMilestoneScale[3][0];
-    }
+    } /* end if (pClosest != NULL) */
 
     return pClosest;
 }

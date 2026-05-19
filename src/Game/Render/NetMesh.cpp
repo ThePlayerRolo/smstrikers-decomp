@@ -421,9 +421,12 @@ void NetMesh::SatisfyConstraints(const nlVector3& ballPosition, bool bExaggerate
         {
             cPositionConstraint& c = m_aPositionConstraints[i];
             nlVector3& x = m_v3Position[c.nParticle];
-            x.f.x = c.v3Position.f.x;
-            x.f.y = c.v3Position.f.y;
-            x.f.z = c.v3Position.f.z;
+            float ty = c.v3Position.f.y;
+            float tz = c.v3Position.f.z;
+            float tx = c.v3Position.f.x;
+            x.f.x = tx;
+            x.f.y = ty;
+            x.f.z = tz;
         }
 
         {

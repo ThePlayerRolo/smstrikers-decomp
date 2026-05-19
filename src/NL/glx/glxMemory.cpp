@@ -144,8 +144,8 @@ u32 glplatFrameAlloc(unsigned long size, eGLMemory mem)
 
 /**
  * Offset/Address/Size: 0x200 | 0x801B6B28 | size: 0x110
- * TODO: 87.1% match - loop uses addic./bne instead of mtctr/bdnz (CTR loop),
- * causing register allocation differences (r8 vs r4 accumulator) and loop setup reordering
+ * TODO: 95.15% match - remaining mismatch is CTR-loop form
+ * (mtctr/bdnz vs addic./bne)
  */
 void glplatResourceRelease(unsigned long long resourceId)
 {
@@ -163,30 +163,24 @@ void glplatResourceRelease(unsigned long long resourceId)
     }
 
     u32 totalAlloc = 0;
-    u32 totalTex = 0;
-    s32 n = g_uResourceMarker;
-    s32 count = n + 1;
+    u32 marker = g_uResourceMarker;
+    u32 totalTex = totalAlloc;
     GLXMemoryInfo* p = g_uResourceAlloc;
-    if (n >= 0)
+    s32 count = marker + 1;
+    if ((s32)marker >= 0)
     {
         do
         {
-            u32 a = p->m_uBytes[0];
-            u32 b = p->m_uBytes[1];
-            u32 c = p->m_uBytes[2];
-            a = a + b;
-            b = p->m_uBytes[3];
-            a = a + c;
+            u32 a = p->m_uBytes[0] + p->m_uBytes[1];
+            a = a + p->m_uBytes[2];
+            a = a + p->m_uBytes[3];
             u32 e = p->m_uBytes[4];
-            a = a + b;
             u32 g = p->m_uTexBundle;
-            u32 f = p->m_uBytes[5];
             a = a + e;
-            u32 tex = e - g;
-            p++;
-            a = a + f;
+            a = a + p->m_uBytes[5];
             totalAlloc = totalAlloc + a;
-            totalTex = totalTex + tex;
+            totalTex = totalTex + (e - g);
+            p++;
         } while (--count != 0);
     }
 

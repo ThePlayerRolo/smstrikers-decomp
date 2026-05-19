@@ -561,8 +561,8 @@ static void SOR_LCP(int m, int nb, dRealMutablePtr J, int* jb, dxBody* const* bo
 void dxQuickStepper(dxWorld* world, dxBody* const* body, int nb,
     dxJoint* const* _joint, int nj, dReal stepsize)
 {
+    dxQuickStepParameters* w_qs;
     int i, j;
-    dxQuickStepParameters* w_qs = &world->qs;
     IFTIMING(dTimerStart("preprocessing");)
 
     dReal stepsize1 = dRecip(stepsize);
@@ -597,20 +597,13 @@ void dxQuickStepper(dxWorld* world, dxBody* const* body, int nb,
         dMULTIPLY2_333(tmp, body[i]->invI, body[i]->R);
         dMULTIPLY0_333(invI + i * 12, body[i]->R, tmp);
         // compute rotational force
-        dMULTIPLY0_331(tmp, I + i * 12, body[i]->avel);
-        dCROSS(body[i]->tacc, -=, body[i]->avel, tmp);
+        dReal* avel = body[i]->avel;
+        dReal* tacc = body[i]->tacc;
+        dMULTIPLY0_331(tmp, I + i * 12, avel);
+        dCROSS(tacc, -=, avel, tmp);
     }
 
-    // add the gravity force to all bodies
-    for (i = 0; i < nb; i++)
-    {
-        if ((body[i]->flags & dxBodyNoGravity) == 0)
-        {
-            body[i]->facc[0] += body[i]->mass.mass * world->gravity[0];
-            body[i]->facc[1] += body[i]->mass.mass * world->gravity[1];
-            body[i]->facc[2] += body[i]->mass.mass * world->gravity[2];
-        }
-    }
+    // gravity is applied externally before calling dxQuickStepper
 
     // get joint information (m = total constraint dimension, nub = number of unbounded variables).
     // joints with m=0 are inactive and are removed from the joints array
@@ -718,12 +711,13 @@ void dxQuickStepper(dxWorld* world, dxBody* const* body, int nb,
         // put v/h + invM*fe into tmp1
         for (i = 0; i < nb; i++)
         {
-            dReal body_invMass = body[i]->invMass;
+            dxBody* b = body[i];
+            dReal body_invMass = b->invMass;
             for (j = 0; j < 3; j++)
-                tmp1[i * 6 + j] = body[i]->facc[j] * body_invMass + body[i]->lvel[j] * stepsize1;
-            dMULTIPLY0_331(tmp1 + i * 6 + 3, invI + i * 12, body[i]->tacc);
+                tmp1[i * 6 + j] = b->facc[j] * body_invMass + b->lvel[j] * stepsize1;
+            dMULTIPLY0_331(tmp1 + i * 6 + 3, invI + i * 12, b->tacc);
             for (j = 0; j < 3; j++)
-                tmp1[i * 6 + 3 + j] += body[i]->avel[j] * stepsize1;
+                tmp1[i * 6 + 3 + j] += b->avel[j] * stepsize1;
         }
 
         // put J*tmp1 into rhs
@@ -748,9 +742,8 @@ void dxQuickStepper(dxWorld* world, dxBody* const* body, int nb,
         }
 #endif
 
-        // solve the LCP problem and get lambda and invM*constraint_force
-        IFTIMING(dTimerNow("solving LCP problem");)
         dRealAllocaArray(cforce, nb * 6);
+        w_qs = &world->qs;
         SOR_LCP(m, nb, J, jb, body, invI, lambda, cforce, rhs, lo, hi, cfm, findex, w_qs);
 
 #ifdef WARM_STARTING
@@ -769,10 +762,11 @@ void dxQuickStepper(dxWorld* world, dxBody* const* body, int nb,
         // add stepsize * cforce to the body velocity
         for (i = 0; i < nb; i++)
         {
+            dxBody* b = body[i];
             for (j = 0; j < 3; j++)
-                body[i]->lvel[j] += stepsize * cforce[i * 6 + j];
+                b->lvel[j] += stepsize * cforce[i * 6 + j];
             for (j = 0; j < 3; j++)
-                body[i]->avel[j] += stepsize * cforce[i * 6 + 3 + j];
+                b->avel[j] += stepsize * cforce[i * 6 + 3 + j];
         }
 
         // if joint feedback is requested, compute the constraint force.
@@ -822,14 +816,19 @@ void dxQuickStepper(dxWorld* world, dxBody* const* body, int nb,
     // add stepsize * invM * fe to the body velocity
 
     IFTIMING(dTimerNow("compute velocity update");)
-    for (i = 0; i < nb; i++)
     {
-        dReal body_invMass = body[i]->invMass;
-        for (j = 0; j < 3; j++)
-            body[i]->lvel[j] += stepsize * body_invMass * body[i]->facc[j];
-        for (j = 0; j < 3; j++)
-            body[i]->tacc[j] *= stepsize;
-        dMULTIPLYADD0_331(body[i]->avel, invI + i * 12, body[i]->tacc);
+        dxBody* const* body_ptr = body;
+        const dReal* invI_ptr = invI;
+        for (i = 0; i < nb; i++, body_ptr++, invI_ptr += 12)
+        {
+            dxBody* b = *body_ptr;
+            dReal body_invMass = b->invMass;
+            for (j = 0; j < 3; j++)
+                b->lvel[j] += stepsize * body_invMass * b->facc[j];
+            for (j = 0; j < 3; j++)
+                b->tacc[j] *= stepsize;
+            dMULTIPLYADD0_331(b->avel, invI_ptr, b->tacc);
+        }
     }
 
 #if 0
@@ -855,10 +854,13 @@ void dxQuickStepper(dxWorld* world, dxBody* const* body, int nb,
     IFTIMING(dTimerNow("tidy up");)
 
     // zero all force accumulators
-    for (i = 0; i < nb; i++)
+    if (world->clear_accumulators)
     {
-        dSetZero(body[i]->facc, 3);
-        dSetZero(body[i]->tacc, 3);
+        for (i = 0; i < nb; i++)
+        {
+            dSetZero(body[i]->facc, 3);
+            dSetZero(body[i]->tacc, 3);
+        }
     }
 
     IFTIMING(dTimerEnd();)

@@ -145,9 +145,8 @@ static const char* TOTAL_USER_SLIDE_NAME = "TOTAL USER";
 
 /**
  * Offset/Address/Size: 0x1B00 | 0x800FE6A0 | size: 0x1EC
- * TODO: 96.56% match - second Find<TLSlide> still places zero InlineHasher
- * temporaries in low stack slots (r7/r8/r9 from 0x10/0x0C/0x08) instead of
- * reusing first-call slots at 0x40/0x38/0x30.
+ * TODO: 99.63% match - second Find<TLSlide> zero InlineHasher temporaries
+ * still differ in stack slot mapping.
  */
 void SummaryOverlay::SceneCreated()
 {
@@ -193,16 +192,14 @@ void SummaryOverlay::SceneCreated()
 
     mSlideMenu->m_doWrapAround = true;
 
-    InlineHasher zero(0);
-
     mButtons.mButtonInstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         presentation->m_currentSlide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("buttons")),
         InlineHasher(0),
-        zero,
-        zero,
-        zero);
+        InlineHasher(0),
+        InlineHasher(0),
+        InlineHasher(0));
 
     mButtons.SetState(mButtonState);
 }

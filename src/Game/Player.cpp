@@ -1582,42 +1582,33 @@ void cPlayer::SetSpaceSearch(SpaceSearch* pSpaceSearch)
 
 /**
  * Offset/Address/Size: 0x2E4C | 0x8005A39C | size: 0x160
- * Almost identical match, emits redundant beq and a single mr
  */
 cPlayer::~cPlayer()
 {
-    PlayerTweaks* piVar1;
-    EffectsGroup* pEVar2;
-    char cVar3;
-    double dVar4;
+    EndBlur();
+    delete m_pTweaks;
 
-    this->EndBlur();
-    piVar1 = this->m_pTweaks;
-    if (piVar1 != nullptr)
+    if (m_pBall != NULL)
     {
-        delete piVar1;
-    }
-    if (this->m_pBall != nullptr)
-    {
-        this->m_pPhysicsCharacter->ReleaseObject();
-        this->m_pBall->ClearOwner();
-        this->m_pBall = nullptr;
-        dVar4 = this->m_tBallPossessionTimer.GetSeconds();
-        StatsTracker::s_pInstance->TrackStat((ePlayerStats)0xf, m_pTeam->m_nSide, this->m_ID, 100.f * dVar4, 0, 0, 0);
-        pEVar2 = fxGetGroup("ball_sts_windup");
-        cVar3 = this->IsPlayingEffect(pEVar2);
-        if (cVar3 != 0)
+        m_pPhysicsCharacter->ReleaseObject();
+        m_pBall->ClearOwner();
+        m_pBall = NULL;
+
+        f32 possessionTime = m_tBallPossessionTimer.GetSeconds();
+        StatsTracker::s_pInstance->TrackStat((ePlayerStats)0xF, m_pTeam->m_nSide, m_ID, 100.0f * possessionTime, 0, 0, 0);
+
+        if (IsPlayingEffect(fxGetGroup("ball_sts_windup")))
         {
-            this->StopSFX((Audio::eCharSFX)0x14);
-            this->StopSFX((Audio::eCharSFX)0x39);
+            StopSFX((Audio::eCharSFX)0x14);
+            StopSFX((Audio::eCharSFX)0x39);
         }
+
         KillWindups(this);
-        this->StopSFX((Audio::eCharSFX)0x12);
-        this->m_pCharacterSFX->StopMovementLoop();
+        StopSFX((Audio::eCharSFX)0x12);
+        m_pCharacterSFX->StopMovementLoop();
     }
-    SpaceSearch* temp_piVar1 = this->m_pSpaceSearch;
-    if (temp_piVar1 != nullptr)
-        delete temp_piVar1;
+
+    delete m_pSpaceSearch;
 }
 
 /**
