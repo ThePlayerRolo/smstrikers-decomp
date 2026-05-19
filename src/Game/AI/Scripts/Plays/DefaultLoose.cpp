@@ -4,20 +4,7 @@
 
 class cTeam;
 
-class SaveConfidence
-{
-public:
-    SaveConfidence(float* pFloat)
-        : m_savedValue(*pFloat)
-        , m_pFloat(pFloat)
-    {
-    }
-
-    ~SaveConfidence() { *m_pFloat = m_savedValue; }
-
-    float m_savedValue;
-    float* m_pFloat;
-};
+#include "Game/AI/Scripts/SaveConfidence.h"
 
 static bool sFalse = false;
 static bool sTrue = true;

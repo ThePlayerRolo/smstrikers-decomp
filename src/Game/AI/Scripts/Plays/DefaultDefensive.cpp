@@ -14,24 +14,7 @@ extern FuzzyVariant fvNotSet;
 extern cBall* g_pScriptBall;
 extern cFielder* g_pScriptCurrentMark;
 
-class SaveConfidence
-{
-public:
-    SaveConfidence(float* pFloat)
-        : m_savedValue(*pFloat)
-        , m_pFloat(pFloat)
-    {
-    }
-    ~SaveConfidence();
-
-    float m_savedValue;
-    float* m_pFloat;
-};
-
-inline SaveConfidence::~SaveConfidence()
-{
-    *m_pFloat = m_savedValue;
-}
+#include "Game/AI/Scripts/SaveConfidence.h"
 
 float Defensive(cTeam*);
 

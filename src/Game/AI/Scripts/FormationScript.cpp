@@ -1,25 +1,7 @@
 #include "Game/AI/Scripts/FormationScript.h"
 #include "Game/AI/Scripts/ScriptQuestions.h"
 
-// #include "Game/AI/Scripts/RootScript.h"
-
-class SaveConfidence
-{
-public:
-    SaveConfidence(float* pFloat)
-        : m_fSavedVal(*pFloat)
-        , m_pVal(pFloat)
-    {
-    }
-
-    ~SaveConfidence()
-    {
-        *m_pVal = m_fSavedVal;
-    }
-
-    float m_fSavedVal;
-    float* m_pVal;
-};
+#include "Game/AI/Scripts/SaveConfidence.h"
 
 /**
  * Offset/Address/Size: 0x1604 | 0x8007E640 | size: 0x320

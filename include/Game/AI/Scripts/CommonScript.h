@@ -6,6 +6,8 @@
 #include "Game/AI/FuzzyVariant.h"
 #include "PowerPC_EABI_Support/MSL_C++/MSL_Common/msl_tree.h"
 
+#include "Game/AI/Scripts/SaveConfidence.h"
+
 class cTeam;
 class cPlayer;
 class cFielder;
@@ -38,31 +40,6 @@ public:
     static FuzzyVariant InDanger(cFielder*);
     static FuzzyVariant InDangerDelayed(cFielder*);
     static FuzzyVariant GoalieAndGonnaPickupBall(cPlayer*);
-};
-
-// class FuzzyVariant
-// {
-// public:
-//     FuzzyVariant(const FuzzyVariant&);
-// };
-
-class SaveConfidence
-{
-public:
-    SaveConfidence(float* pFloat)
-        : m_savedValue(*pFloat)
-        , m_pFloat(pFloat)
-    {
-        FORCE_DONT_INLINE;
-    }
-
-    ~SaveConfidence()
-    {
-        *m_pFloat = m_savedValue;
-    }
-
-    float m_savedValue;
-    float* m_pFloat;
 };
 
 #ifndef _SCRIPTQUESTIONCACHE_DEFINED_
