@@ -27,7 +27,7 @@ void SebringAnimTagScriptInterpreter::DoFunctionCall(unsigned int func)
         NisCharacterClass charClass = (NisCharacterClass)*m_SP;
         m_SP--;
         const char* name = (const char*)*m_SP;
-        Audio::PlayCharSFXbyStr(name, charClass, 1.0f, 0.0f, false, false, NULL, NULL, NULL);
+        Audio::PlayCharSFXbyStr(name, charClass, 100.0f, -1.0f, false, false, NULL, NULL, NULL);
         break;
     }
     case 1: // PlayCharSfxWithVol
@@ -39,7 +39,7 @@ void SebringAnimTagScriptInterpreter::DoFunctionCall(unsigned int func)
         NisCharacterClass charClass = (NisCharacterClass)*m_SP;
         m_SP--;
         const char* name = (const char*)*m_SP;
-        Audio::PlayCharSFXbyStr(name, charClass, fVol, 0.0f, false, false, NULL, NULL, NULL);
+        Audio::PlayCharSFXbyStr(name, charClass, fVol, -1.0f, false, false, NULL, NULL, NULL);
         break;
     }
     case 2: // PlayWorldSfx
@@ -47,7 +47,7 @@ void SebringAnimTagScriptInterpreter::DoFunctionCall(unsigned int func)
         m_SP--;
         m_SP--;
         const char* name = (const char*)*m_SP;
-        Audio::PlayWorldSFXbyStr(name, 1.0f, 0.0f, false, true, NULL, NULL, NULL);
+        Audio::PlayWorldSFXbyStr(name, 100.0f, -1.0f, false, true, NULL, NULL, NULL);
         break;
     }
     case 3: // PlayWorldSfxWithVol
@@ -57,7 +57,7 @@ void SebringAnimTagScriptInterpreter::DoFunctionCall(unsigned int func)
         float fVol = *(float*)m_SP;
         m_SP--;
         const char* name = (const char*)*m_SP;
-        Audio::PlayWorldSFXbyStr(name, fVol, 0.0f, false, true, NULL, NULL, NULL);
+        Audio::PlayWorldSFXbyStr(name, fVol, -1.0f, false, true, NULL, NULL, NULL);
         break;
     }
     case 4: // StopCharSfx
@@ -93,7 +93,7 @@ void SebringAnimTagScriptInterpreter::TriggerFired(unsigned long triggerId)
     {
         AnimTriggerCallbackInfo data;
         data.m_uEventID = triggerId;
-        data.m_fIntensity = 1.0f;
+        data.m_fIntensity = 100.0f;
         CharacterTriggerHandler((unsigned int)&data);
     }
 }

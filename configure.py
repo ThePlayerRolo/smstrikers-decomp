@@ -956,8 +956,8 @@ config.libs = [
             Object(Matching, "Game/WorldTriggers.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/CharacterTriggers.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(Matching, "Game/Triggers/AnimTagScript.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
-            Object(NonMatching, "Game/Triggers/AnimTrigger.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
-            Object(NonMatching, "Game/Triggers/SebringAnimScript.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
+            Object(Matching, "Game/Triggers/AnimTrigger.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
+            Object(Matching, "Game/Triggers/SebringAnimScript.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             
 
             Object(Matching, "Game/PadMonkey.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
@@ -1109,7 +1109,7 @@ config.libs = [
             Object(Matching, "Game/Drawable/DrawableExplosionFragment.cpp", extra_cflags=["-inline auto"]),
 
             # Interpreter
-            Object(NonMatching, "Game/InterpreterCore.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
+            Object(Matching, "Game/InterpreterCore.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
 
             # GL
             Object(Matching, "Game/GL/GLMaterial.cpp", extra_cflags=["-inline auto", "-inline deferred"]),

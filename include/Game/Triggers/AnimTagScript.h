@@ -29,7 +29,7 @@ public:
     {
         m_BytecodeCount = 0;
     }
-    ~AnimTagScriptInterpreter()
+    virtual ~AnimTagScriptInterpreter()
     {
         SlotPoolBase::BaseFreeBlocks(&m_AnimTagSlotPool, sizeof(AnimTagCBInfo));
         for (int i = 0; i < m_BytecodeCount; i++)
@@ -37,8 +37,8 @@ public:
             nlFree(m_ppBytecode[i]);
         }
     }
-
-    virtual void TriggerFired(unsigned long);
+    /* 0x0C */ virtual void DoFunctionCall(unsigned int) = 0;
+    /* 0x10 */ virtual void TriggerFired(unsigned long) {}
 
     static void AnimControllerCB(unsigned int ref)
     {

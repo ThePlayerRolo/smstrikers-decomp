@@ -11,10 +11,10 @@ public:
     {
         m_FireTriggers = true;
     }
-    ~SebringAnimTagScriptInterpreter();
 
-    void DoFunctionCall(unsigned int);
-    void TriggerFired(unsigned long);
+    virtual ~SebringAnimTagScriptInterpreter() {}
+    virtual void DoFunctionCall(unsigned int);
+    virtual void TriggerFired(unsigned long);
 
     /* 0xC0 */ bool m_FireTriggers;
 }; // total size: 0xC4

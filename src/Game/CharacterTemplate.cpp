@@ -1303,27 +1303,6 @@ CharacterPhysicsData::~CharacterPhysicsData()
 }
 
 /**
- * Offset/Address/Size: 0x60 | 0x80014618 | size: 0xE0
- */
-SebringAnimTagScriptInterpreter::~SebringAnimTagScriptInterpreter()
-{
-}
-
-/**
- * Offset/Address/Size: 0x0 | 0x800146F8 | size: 0xD0
- */
-// AnimTagScriptInterpreter::~AnimTagScriptInterpreter() -- defined inline in AnimTagScript.h
-
-/**
- * Offset/Address/Size: 0xD0 | 0x800147C8 | size: 0x4
- */
-void AnimTagScriptInterpreter::TriggerFired(unsigned long)
-{
-}
-
-// LexicalCast<bool, *> specializations are emitted via NL_LEXICALCAST_DEFINE_BOOL
-
-/**
  * Offset/Address/Size: 0x70 | 0x8001483C | size: 0x94
  */
 extern "C" void __sinit_CharacterTemplate_cpp()
@@ -1358,31 +1337,3 @@ extern "C" void __sinit_CharacterTemplate_cpp()
     g_aCharacterTemplateInfo[12].pSFXPropAccessor = pSuper;
     g_GoalieTemplateInfo.pSFXPropAccessor = pCritter;
 }
-
-// /**
-//  * Offset/Address/Size: 0x0 | 0x800148D0 | size: 0x68
-//  */
-// void nlWalkList<ListEntry<AnimRetargetList*>, ListContainerBase<AnimRetargetList*, NewAdapter<ListEntry<AnimRetargetList*>>>>(ListEntry<AnimRetargetList*>*, ListContainerBase<AnimRetargetList*, NewAdapter<ListEntry<AnimRetargetList*>>>*, void (ListContainerBase<AnimRetargetList*, NewAdapter<ListEntry<AnimRetargetList*>>>::*)(ListEntry<AnimRetargetList*>*))
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0x68 | 0x80014938 | size: 0x68
-//  */
-// void nlWalkList<ListEntry<cSHierarchy*>, ListContainerBase<cSHierarchy*, NewAdapter<ListEntry<cSHierarchy*>>>>(ListEntry<cSHierarchy*>*, ListContainerBase<cSHierarchy*, NewAdapter<ListEntry<cSHierarchy*>>>*, void (ListContainerBase<cSHierarchy*, NewAdapter<ListEntry<cSHierarchy*>>>::*)(ListEntry<cSHierarchy*>*))
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0xD0 | 0x800149A0 | size: 0x28
-//  */
-// void nlListAddStart<ListEntry<AnimRetargetList*>>(ListEntry<AnimRetargetList*>**, ListEntry<AnimRetargetList*>*, ListEntry<AnimRetargetList*>**)
-// {
-// }
-
-// /**
-//  * Offset/Address/Size: 0xF8 | 0x800149C8 | size: 0x28
-//  */
-// void nlListAddStart<ListEntry<cSHierarchy*>>(ListEntry<cSHierarchy*>**, ListEntry<cSHierarchy*>*, ListEntry<cSHierarchy*>**)
-// {
-// }
