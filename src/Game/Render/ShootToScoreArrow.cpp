@@ -9,7 +9,7 @@ const unsigned long LightTexture = glGetTexture("global/lightramp");
 const unsigned long BlackTexture = glGetTexture("global/black");
 const unsigned long WhiteTexture = glGetTexture("global/white");
 
-bool useSubtractiveDarkening;
+static bool useSubtractiveDarkening = false;
 
 /**
  * Offset/Address/Size: 0x0 | 0x8015FFE0 | size: 0x1C8

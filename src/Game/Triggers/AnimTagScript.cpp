@@ -38,22 +38,6 @@ public:
     u32 m_CurrentTrigger;
 };
 
-extern "C" void AnimControllerCB__24AnimTagScriptInterpreterFUi(unsigned int);
-
-/**
- * Offset/Address/Size: 0x0 | 0x80214530 | size: 0x64
- */
-void AnimTagScriptInterpreter::AnimControllerCB(unsigned int)
-{
-    AnimTagScriptInterpreter* pVtbl = *(AnimTagScriptInterpreter**)this;
-    unsigned long address = (unsigned long)m_Header;
-    if ((address + 0x10000) != 0xFFFF)
-    {
-        pVtbl->CallFunctionAt(address);
-    }
-    pVtbl->TriggerFired(m_Return);
-}
-
 /**
  * Offset/Address/Size: 0x0 | 0x80214354 | size: 0x1DC
  */
@@ -90,7 +74,7 @@ u8 AnimTagScriptInterpreter::SetupAnimationTriggers(const char* TriggerFileName,
                 pSlot->ScriptInfo.Trigger = pTriggerRecord->Trigger;
                 pSlot->ScriptInfo.ScriptFuncOffset = pTriggerRecord->ScriptFuncOffset;
 
-                ((cSAnim*)node->data)->CreateCallback(pTriggerRecord->Frame / (float)((cSAnim*)node->data)->m_nNumKeys, (unsigned int)pSlot, AnimControllerCB__24AnimTagScriptInterpreterFUi);
+                ((cSAnim*)node->data)->CreateCallback(pTriggerRecord->Frame / (float)((cSAnim*)node->data)->m_nNumKeys, (unsigned int)pSlot, AnimTagScriptInterpreter::AnimControllerCB);
 
                 file.m_CurrentTrigger++;
             }

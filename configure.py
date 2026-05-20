@@ -955,9 +955,9 @@ config.libs = [
             Object(Matching, "Game/MarioTriggers.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(Matching, "Game/WorldTriggers.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/CharacterTriggers.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
-            Object(NonMatching, "Game/Triggers/AnimTagScript.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
-            Object(NonMatching, "Game/Triggers/SebringAnimScript.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
+            Object(Matching, "Game/Triggers/AnimTagScript.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             Object(NonMatching, "Game/Triggers/AnimTrigger.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
+            Object(NonMatching, "Game/Triggers/SebringAnimScript.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
             
 
             Object(Matching, "Game/PadMonkey.cpp", extra_cflags=["-inline auto", "-inline deferred"]),
