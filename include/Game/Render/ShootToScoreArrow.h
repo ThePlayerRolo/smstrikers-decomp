@@ -1,7 +1,7 @@
 #ifndef _SHOOTTOSCOREARROW_H_
 #define _SHOOTTOSCOREARROW_H_
 
-// void 0x8028D310..0x8028D314 | size: 0x4;
+#include "NL/gl/glDraw2.h"
 
 class WorldDarkening
 {
@@ -13,7 +13,6 @@ public:
         mTo = 0.f;
         mActive = 0;
     };
-    // ~WorldDarkening();
 
     static WorldDarkening& Instance();
     void Fade(float, float);
@@ -23,6 +22,14 @@ public:
     /* 0x4 */ float mPos;
     /* 0x8 */ float mTo;
     /* 0xC */ bool mActive;
+
+private:
+    static inline void SetPolyColour(glPoly2& poly, u8 r, u8 g, u8 b, u8 a)
+    {
+        nlColour color = { 0, 0, 0, 0 };
+        nlColourSet(color, r, g, b, a);
+        poly.SetColour(color);
+    }
 }; // total size: 0x10
 
 #endif // _SHOOTTOSCOREARROW_H_

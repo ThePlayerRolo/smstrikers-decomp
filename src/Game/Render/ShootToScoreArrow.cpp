@@ -11,8 +11,6 @@ const unsigned long WhiteTexture = glGetTexture("global/white");
 
 bool useSubtractiveDarkening;
 
-// static const nlColour black = { 0, 0, 0, 0 };
-
 /**
  * Offset/Address/Size: 0x0 | 0x8015FFE0 | size: 0x1C8
  */
@@ -67,15 +65,11 @@ void WorldDarkening::UpdateAndRender(float deltaTime)
 
     if (useSubtractiveDarkening != 0)
     {
-        nlColour color = { 0, 0, 0, 0 };
-        nlColourSet(color, darkenAmount, darkenAmount, darkenAmount, 255);
-        poly.SetColour(color);
+        SetPolyColour(poly, darkenAmount, darkenAmount, darkenAmount, 255);
     }
     else
     {
-        nlColour color = { 0, 0, 0, 0 };
-        nlColourSet(color, 0, 0, 0, darkenAmount);
-        poly.SetColour(color);
+        SetPolyColour(poly, 0, 0, 0, darkenAmount);
     }
 
     poly.Attach(GLV_BigBlackPolygon, 0, NULL, -1);
