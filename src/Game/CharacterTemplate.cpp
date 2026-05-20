@@ -5,9 +5,11 @@
 #include "Game/CharacterTweaks.h"
 #include "Game/FE/feHelpFuncs.h"
 #include "Game/Goalie.h"
+#include "Game/AI/ScriptAction.h"
 #include "Game/Audio/AudioLoader.h"
 #include "Game/AnimInventory.h"
 #include "Game/Physics/CharacterPhysicsElement.h"
+#include "Game/Triggers/AnimTrigger.h"
 #include "Game/Triggers/SebringAnimScript.h"
 #include "NL/nlFile.h"
 #include "NL/nlFileGC.h"
@@ -35,55 +37,41 @@ extern SoundPropAccessor* gpSUPERSoundPropAccessor;
 extern SoundPropAccessor* gpCRITTERSoundPropAccessor;
 
 extern SebringAnimTagScriptInterpreter* g_pAnimScriptInterp;
-extern "C" cAnimInventory* __dt__14cAnimInventoryFv(cAnimInventory*, int);
-extern "C" SlotPoolBase m_AnimTriggerCallbackInfoSlotPool__23AnimTriggerCallbackInfo;
-extern "C" SlotPoolBase m_ScriptActionSlotPool__12ScriptAction;
 
 cCharacter* g_pCharacters[10];
-static tCharacterTemplateInfo g_aCharacterTemplateInfo[13];
+static tCharacterTemplateInfo g_aCharacterTemplateInfo[13] = {
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpBIRDOSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpDAISYSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpDKSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpHAMBROSSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpKOOPASoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpLUIGISoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpMARIOSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpPEACHSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpTOADSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpWALUIGISoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpWARIOSoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpYOSHISoundPropAccessor },
+    { NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpSUPERSoundPropAccessor },
+};
 static tCharacterTemplate* g_aCharacterTemplates[13];
-static tCharacterTemplateInfo g_GoalieTemplateInfo;
+static tCharacterTemplateInfo g_GoalieTemplateInfo = {
+    NULL, (eClassTypes)0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, gpCRITTERSoundPropAccessor
+};
 static tCharacterTemplate* g_GoalieTemplate;
 
 s32 skiptexture = 0xFFFFFFFF;
 
-static const char* const s_GoalieCharacterNames[9] = {
-    "daisygoalie",      // @1109
-    "donkeykonggoalie", // @1111
-    "luigigoalie",      // @1113
-    "mariogoalie",      // @1100
-    "peachgoalie",      // @1115
-    "waluigigoalie",    // @1117
-    "wariogoalie",      // @1119
-    "yoshigoalie",      // @1121
-    "superteamgoalie"   // @1123
-};
-
-static const char* const s_GoalieTexturePaths[9] = {
-    "characters/daisygoalie/daisygoalie.glt",           // @1110
-    "characters/donkeykonggoalie/donkeykonggoalie.glt", // @1112
-    "characters/luigigoalie/luigigoalie.glt",           // @1114
-    "characters/mariogoalie/mariogoalie.glt",           // @1103
-    "characters/peachgoalie/peachgoalie.glt",           // @1116
-    "characters/waluigigoalie/waluigigoalie.glt",       // @1118
-    "characters/wariogoalie/wariogoalie.glt",           // @1120
-    "characters/yoshigoalie/yoshigoalie.glt",           // @1122
-    "characters/superteamgoalie/superteamgoalie.glt"    // @1124
-};
-
-// tGoalieTemplateInfo g_GoalieTextureInfo[9];
-
-// Global goalie texture info array
 tGoalieTemplateInfo g_GoalieTextureInfo[9] = {
-    { s_GoalieCharacterNames[0], s_GoalieTexturePaths[0], nullptr },
-    { s_GoalieCharacterNames[1], s_GoalieTexturePaths[1], nullptr },
-    { s_GoalieCharacterNames[2], s_GoalieTexturePaths[2], nullptr },
-    { s_GoalieCharacterNames[3], s_GoalieTexturePaths[3], nullptr },
-    { s_GoalieCharacterNames[4], s_GoalieTexturePaths[4], nullptr },
-    { s_GoalieCharacterNames[5], s_GoalieTexturePaths[5], nullptr },
-    { s_GoalieCharacterNames[6], s_GoalieTexturePaths[6], nullptr },
-    { s_GoalieCharacterNames[7], s_GoalieTexturePaths[7], nullptr },
-    { s_GoalieCharacterNames[8], s_GoalieTexturePaths[8], nullptr }
+    { "daisygoalie",      "characters/daisygoalie/daisygoalie.glt",           0 },
+    { "donkeykonggoalie", "characters/donkeykonggoalie/donkeykonggoalie.glt", 0 },
+    { "luigigoalie",      "characters/luigigoalie/luigigoalie.glt",           0 },
+    { "mariogoalie",      "characters/mariogoalie/mariogoalie.glt",           0 },
+    { "peachgoalie",      "characters/peachgoalie/peachgoalie.glt",           0 },
+    { "waluigigoalie",    "characters/waluigigoalie/waluigigoalie.glt",       0 },
+    { "wariogoalie",      "characters/wariogoalie/wariogoalie.glt",           0 },
+    { "yoshigoalie",      "characters/yoshigoalie/yoshigoalie.glt",           0 },
+    { "superteamgoalie",  "characters/superteamgoalie/superteamgoalie.glt",   0 },
 };
 
 /**
@@ -187,7 +175,7 @@ void DestroyCharacters()
 
             if (!(*ppCharacterTemplate)->bAnimInventoryCopy)
             {
-                __dt__14cAnimInventoryFv((*ppCharacterTemplate)->pAnimInventory, 1);
+                delete (*ppCharacterTemplate)->pAnimInventory;
             }
 
             delete (*ppCharacterTemplate)->pPhysicsData;
@@ -271,7 +259,7 @@ void DestroyCharacters()
 
         if (!g_GoalieTemplate->bAnimInventoryCopy)
         {
-            __dt__14cAnimInventoryFv(g_GoalieTemplate->pAnimInventory, 1);
+            delete g_GoalieTemplate->pAnimInventory;
         }
 
         delete g_GoalieTemplate->pPhysicsData;
@@ -325,8 +313,8 @@ void DestroyCharacters()
     g_GoalieTextureInfo[7].bLoaded = 0;
     g_GoalieTextureInfo[8].bLoaded = 0;
 
-    SlotPoolBase::BaseFreeBlocks(&m_AnimTriggerCallbackInfoSlotPool__23AnimTriggerCallbackInfo, 8);
-    SlotPoolBase::BaseFreeBlocks(&m_ScriptActionSlotPool__12ScriptAction, 0x80);
+    SlotPoolBase::BaseFreeBlocks(&AnimTriggerCallbackInfo::m_AnimTriggerCallbackInfoSlotPool, 8);
+    SlotPoolBase::BaseFreeBlocks(&ScriptAction::m_ScriptActionSlotPool, 0x80);
 }
 
 /**
@@ -1300,40 +1288,4 @@ void CharacterTemplate_stub()
 CharacterPhysicsData::~CharacterPhysicsData()
 {
     delete[] pPhysicsElements;
-}
-
-/**
- * Offset/Address/Size: 0x70 | 0x8001483C | size: 0x94
- */
-extern "C" void __sinit_CharacterTemplate_cpp()
-{
-    SoundPropAccessor* pBirdo = gpBIRDOSoundPropAccessor;
-    SoundPropAccessor* pDaisy = gpDAISYSoundPropAccessor;
-    SoundPropAccessor* pDK = gpDKSoundPropAccessor;
-    SoundPropAccessor* pHambros = gpHAMBROSSoundPropAccessor;
-    SoundPropAccessor* pKoopa = gpKOOPASoundPropAccessor;
-    SoundPropAccessor* pLuigi = gpLUIGISoundPropAccessor;
-    SoundPropAccessor* pMario = gpMARIOSoundPropAccessor;
-    SoundPropAccessor* pPeach = gpPEACHSoundPropAccessor;
-    SoundPropAccessor* pToad = gpTOADSoundPropAccessor;
-    SoundPropAccessor* pWaluigi = gpWALUIGISoundPropAccessor;
-    SoundPropAccessor* pWario = gpWARIOSoundPropAccessor;
-    SoundPropAccessor* pYoshi = gpYOSHISoundPropAccessor;
-    SoundPropAccessor* pSuper = gpSUPERSoundPropAccessor;
-    SoundPropAccessor* pCritter = gpCRITTERSoundPropAccessor;
-
-    g_aCharacterTemplateInfo[0].pSFXPropAccessor = pBirdo;
-    g_aCharacterTemplateInfo[1].pSFXPropAccessor = pDaisy;
-    g_aCharacterTemplateInfo[2].pSFXPropAccessor = pDK;
-    g_aCharacterTemplateInfo[3].pSFXPropAccessor = pHambros;
-    g_aCharacterTemplateInfo[4].pSFXPropAccessor = pKoopa;
-    g_aCharacterTemplateInfo[5].pSFXPropAccessor = pLuigi;
-    g_aCharacterTemplateInfo[6].pSFXPropAccessor = pMario;
-    g_aCharacterTemplateInfo[7].pSFXPropAccessor = pPeach;
-    g_aCharacterTemplateInfo[8].pSFXPropAccessor = pToad;
-    g_aCharacterTemplateInfo[9].pSFXPropAccessor = pWaluigi;
-    g_aCharacterTemplateInfo[10].pSFXPropAccessor = pWario;
-    g_aCharacterTemplateInfo[11].pSFXPropAccessor = pYoshi;
-    g_aCharacterTemplateInfo[12].pSFXPropAccessor = pSuper;
-    g_GoalieTemplateInfo.pSFXPropAccessor = pCritter;
 }
