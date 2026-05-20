@@ -298,13 +298,13 @@ CupHubScene::CupHubScene(bool doAnimations, bool playAllKnockoutAnimations)
         gameInfo->DetermineNextMatchups(3);
     }
 
+    round = gameInfo->GetCurrentRoundNumber();
+
     for (i = 0; i < 8; i++)
     {
         mRowMovement[i] = 0.0f;
         mAnimComponents[i] = NULL;
     }
-
-    round = gameInfo->GetCurrentRoundNumber();
 
     if (gameInfo->IsInTournamentMode() && gameInfo->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
     {
@@ -409,14 +409,12 @@ CupHubScene::CupHubScene(bool doAnimations, bool playAllKnockoutAnimations)
         }
         else if (gameInfo->IsInTournamentMode() && gameInfo->mCustomTournamentInfo.m_tournMode == TM_KNOCKOUT)
         {
+            int knockoutRound = -4;
             if (gameInfo->mCurrentCup->GetNumRounds() == 2)
             {
-                mCurrentKnockoutAnimationRound = -3;
+                knockoutRound = -3;
             }
-            else
-            {
-                mCurrentKnockoutAnimationRound = -4;
-            }
+            mCurrentKnockoutAnimationRound = knockoutRound;
         }
     }
     else if (mDoAnimations)

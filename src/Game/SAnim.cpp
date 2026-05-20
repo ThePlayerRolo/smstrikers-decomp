@@ -40,10 +40,29 @@ static inline nlChunk* nlGetNextChunk(nlChunk* chunk)
     return (nlChunk*)((u8*)chunk + chunk->m_Size + 8);
 }
 
+static inline void InitializeNodeData(cSAnim* pRetval, nlChunk* nodeChunk, u32 nodeIndex)
+{
+    nlChunk* subChunk = (nlChunk*)((u8*)nodeChunk + 8);
+    nlChunk* subEnd = nlGetNextChunk(nodeChunk);
+
+    while (subChunk != subEnd)
+    {
+        u32 subType = subChunk->m_ID & 0x80FFFFFF;
+        if (subType == 0x17101)
+            ((void**)pRetval->m_pRotKeys)[nodeIndex] = nlGetChunkData(subChunk);
+        else if (subType == 0x17102)
+            pRetval->m_pTransKeys[nodeIndex] = (PackedTrans*)nlGetChunkData(subChunk);
+        else if (subType == 0x17103)
+            pRetval->m_pScaleKeys[nodeIndex] = (PackedScale*)nlGetChunkData(subChunk);
+
+        subChunk = nlGetNextChunk(subChunk);
+    }
+}
+
 /**
  * Offset/Address/Size: 0xD40 | 0x801E9F54 | size: 0x68C
- * TODO: 84.10% match - 18 register allocation diffs remain in inlined chunk/data setup
- * (r5/r7 chunk pointer selection, r5/r6 alignment temp in two nlGetChunkData expansions).
+ * TODO: 93.43% match - remaining register allocation differences in chunk-data setup
+ * and root-key interpolation block.
  */
 #pragma inline_depth(smart)
 cSAnim* cSAnim::Initialize(nlChunk* pChunk)
@@ -55,100 +74,85 @@ cSAnim* cSAnim::Initialize(nlChunk* pChunk)
     cSAnim* pRetval = (cSAnim*)nlGetChunkData(chunkA);
     pRetval->m_pCallbackList = NULL;
 
-    chunkB = nlGetNextChunk(chunkA);
+    chunkB = (nlChunk*)((u8*)chunkA + chunkA->m_Size + 8);
     pRetval->m_szName = (const char*)nlGetChunkData(chunkB);
 
-    chunkA = nlGetNextChunk(chunkB);
+    chunkA = (nlChunk*)((u8*)chunkB + chunkB->m_Size + 8);
     pRetval->m_pRotKeys = nlGetChunkData(chunkA);
 
-    chunkB = nlGetNextChunk(chunkA);
+    chunkB = (nlChunk*)((u8*)chunkA + chunkA->m_Size + 8);
     pRetval->m_pTransKeys = (PackedTrans**)nlGetChunkData(chunkB);
 
-    chunkA = nlGetNextChunk(chunkB);
+    chunkA = (nlChunk*)((u8*)chunkB + chunkB->m_Size + 8);
     pRetval->m_pScaleKeys = (PackedScale**)nlGetChunkData(chunkA);
 
-    chunkB = nlGetNextChunk(chunkA);
+    chunkB = (nlChunk*)((u8*)chunkA + chunkA->m_Size + 8);
     pRetval->m_pRootRot = (unsigned short*)nlGetChunkData(chunkB);
 
-    chunkA = nlGetNextChunk(chunkB);
+    chunkA = (nlChunk*)((u8*)chunkB + chunkB->m_Size + 8);
     pRetval->m_pRootTrans = (nlVector3*)nlGetChunkData(chunkA);
 
     u32 nodeIndex = 0;
+    u32 type;
     nlChunk* nodeChunk = nlGetNextChunk(chunkA);
 
-    while (nodeChunk != end)
+    while (nodeChunk != end && ((type = nodeChunk->m_ID & 0x80FFFFFF) == 0x80017100 || type == 0x1001))
     {
-        u32 type = nodeChunk->m_ID & 0x80FFFFFF;
-        if (type != 0x80017100 && type != 0x1001)
-            break;
-
         if (type == 0x80017100)
         {
-            nlChunk* subChunk = (nlChunk*)((u8*)nodeChunk + 8);
-            nlChunk* subEnd = nlGetNextChunk(nodeChunk);
-
-            while (subChunk != subEnd)
-            {
-                u32 subType = subChunk->m_ID & 0x80FFFFFF;
-                if (subType == 0x17101)
-                {
-                    ((void**)pRetval->m_pRotKeys)[nodeIndex] = nlGetChunkData(subChunk);
-                }
-                else if (subType == 0x17102)
-                {
-                    pRetval->m_pTransKeys[nodeIndex] = (PackedTrans*)nlGetChunkData(subChunk);
-                }
-                else if (subType == 0x17103)
-                {
-                    pRetval->m_pScaleKeys[nodeIndex] = (PackedScale*)nlGetChunkData(subChunk);
-                }
-                subChunk = nlGetNextChunk(subChunk);
-            }
+            InitializeNodeData(pRetval, nodeChunk, nodeIndex);
             nodeIndex++;
         }
+
         nodeChunk = nlGetNextChunk(nodeChunk);
     }
 
+    u32 numRootKeys;
     nlVector3* rootTrans = pRetval->m_pRootTrans;
     nlVector3 v3PosStart;
     nlVector3 v3PosEnd;
 
     if (rootTrans != NULL)
     {
-        u32 numRootKeys = pRetval->m_nNumRootKeys;
+        numRootKeys = pRetval->m_nNumRootKeys;
+        if (numRootKeys != 0)
+        {
+            u32 lastIndex = numRootKeys - 1;
 
-        if (numRootKeys == 0)
+            if (numRootKeys == 1)
+            {
+                v3PosStart = rootTrans[lastIndex];
+            }
+            else
+            {
+                float fRealIndex = 0.0f * lastIndex;
+                int nIndex = (int)fRealIndex;
+                float fFrac = fRealIndex - (float)nIndex;
+                float fInvFrac = 1.0f - fFrac;
+                nlVector3* pVal0 = &rootTrans[nIndex];
+                nlVector3* pVal1 = &rootTrans[nIndex + 1];
+                v3PosStart.f.x = fFrac * pVal1->f.x + fInvFrac * pVal0->f.x;
+                v3PosStart.f.y = fFrac * pVal1->f.y + fInvFrac * pVal0->f.y;
+                v3PosStart.f.z = fFrac * pVal1->f.z + fInvFrac * pVal0->f.z;
+            }
+        }
+        else
         {
             v3PosStart.f.x = 0.0f;
             v3PosStart.f.y = 0.0f;
             v3PosStart.f.z = 0.0f;
         }
-        else if (numRootKeys == 1)
+
+        if (numRootKeys != 0)
         {
-            v3PosStart = rootTrans[numRootKeys - 1];
+            u32 lastIndex = numRootKeys - 1;
+            v3PosEnd = rootTrans[lastIndex];
         }
         else
-        {
-            float fRealIndex = 0.0f * (numRootKeys - 1);
-            int nIndex = (int)fRealIndex;
-            float fFrac = fRealIndex - (float)nIndex;
-            float fInvFrac = 1.0f - fFrac;
-            nlVector3* pVal0 = &rootTrans[nIndex];
-            nlVector3* pVal1 = &rootTrans[nIndex + 1];
-            v3PosStart.f.x = fFrac * pVal1->f.x + fInvFrac * pVal0->f.x;
-            v3PosStart.f.y = fFrac * pVal1->f.y + fInvFrac * pVal0->f.y;
-            v3PosStart.f.z = fFrac * pVal1->f.z + fInvFrac * pVal0->f.z;
-        }
-
-        if (numRootKeys == 0)
         {
             v3PosEnd.f.x = 0.0f;
             v3PosEnd.f.y = 0.0f;
             v3PosEnd.f.z = 0.0f;
-        }
-        else
-        {
-            v3PosEnd = rootTrans[numRootKeys - 1];
         }
 
         float dist = nlSqrt(

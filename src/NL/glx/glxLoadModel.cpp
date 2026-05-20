@@ -144,32 +144,32 @@ static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNum
     bool hasBmdHeader = false;
     nlChunk* innerEnd;
     nlChunk* chunk;
-    char* outerChunkPtr;
-    char* outerEnd;
-    char* chunkStart;
-    char* chunkEnd;
-    u32 refDataPtr;
-    int numPacketEntries;
-    bool hasSkinData;
-    GLAnimTex animTex;
-    u32 numModels;
-    int numStreamEntries;
-    glModel* pModels;
-    glModelPacket* pPackets;
+    nlChunk* outerChunkPtr;
+    nlChunk* outerEnd;
+    nlChunk* chunkStart;
+    nlChunk* chunkEnd;
     u8* pStreamData;
-    u8* pDisplayListData;
+    int numPacketEntries;
+    GLAnimTex animTex;
     u8* pIndexData;
+    glModel* pModels;
+    int numStreamEntries;
+    u32 refDataPtr;
+    glModelPacket* pPackets;
+    u32 numModels;
+    bool hasSkinData;
+    u8* pDisplayListData;
 
-    outerChunkPtr = data;
-    outerEnd = data + size;
+    outerChunkPtr = (nlChunk*)data;
+    outerEnd = (nlChunk*)(data + size);
     chunkStart = outerChunkPtr;
     chunkEnd = outerEnd;
 
     if ((*(u32*)outerChunkPtr & ~0x7F000000u) == 0x8001B100u)
     {
-        u32 innerSize = *(u32*)(outerChunkPtr + 4);
-        chunkStart = outerChunkPtr + 8;
-        chunkEnd = outerChunkPtr + 8 + innerSize;
+        u32 innerSize = outerChunkPtr->m_Size;
+        chunkStart = (nlChunk*)((u8*)outerChunkPtr + 8);
+        chunkEnd = (nlChunk*)((u8*)outerChunkPtr + innerSize + 8);
         hasBmdHeader = true;
     }
 
@@ -181,13 +181,13 @@ static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNum
         {
             nlChunk* topChunk = (nlChunk*)chunkStart;
             outerChunkPtr = chunkStart;
-            outerEnd = chunkStart + topChunk->m_Size + 8;
+            outerEnd = (nlChunk*)((u8*)chunkStart + topChunk->m_Size + 8);
         }
 
         while (outerChunkPtr < outerEnd)
         {
-            chunk = (nlChunk*)(outerChunkPtr + 8);
-            innerEnd = (nlChunk*)(outerChunkPtr + ((nlChunk*)outerChunkPtr)->m_Size + 8);
+            chunk = (nlChunk*)((u8*)outerChunkPtr + 8);
+            innerEnd = (nlChunk*)((u8*)outerChunkPtr + outerChunkPtr->m_Size + 8);
 
             while (chunk != innerEnd)
             {
@@ -211,7 +211,7 @@ static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNum
                 {
                 case BMD_CHUNK_REF_DATA:
                 {
-                    void* p = glResourceAlloc(chunkSize, GLM_TextureData);
+                    void* p = glResourceAlloc(chunkSize, GLM_Matrix);
                     refDataPtr = (u32)p;
                     memcpy(p, chunkData, chunkSize);
                     break;
@@ -244,7 +244,7 @@ static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNum
                 }
                 case BMD_CHUNK_PACKETS:
                 {
-                    numPacketEntries = (int)Div67(chunkSize);
+                    numPacketEntries = (int)(chunkSize / 67);
                     pPackets = (glModelPacket*)glResourceAlloc(chunkSize, GLM_Header);
                     memcpy(pPackets, chunkData, chunkSize);
                     break;
@@ -371,7 +371,7 @@ static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNum
                 chunk = (nlChunk*)((u8*)chunk + chunk->m_Size + 8);
             }
 
-            outerChunkPtr += ((nlChunk*)outerChunkPtr)->m_Size + 8;
+            outerChunkPtr = (nlChunk*)((u8*)outerChunkPtr + outerChunkPtr->m_Size + 8);
 
             if ((s32)numModels > 0)
             {
@@ -484,7 +484,7 @@ static glModel* glxLoadModelFromMemory(char* data, int size, unsigned long* pNum
 
         {
             nlChunk* topChunk = (nlChunk*)chunkStart;
-            chunkStart += topChunk->m_Size + 8;
+            chunkStart = (nlChunk*)((u8*)chunkStart + topChunk->m_Size + 8);
         }
     }
 

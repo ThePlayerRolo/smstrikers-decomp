@@ -618,18 +618,18 @@ void HUDOverlay::SceneCreated()
 
     m_pTextInstanceClock[0] = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash(CLOCK_NAME)),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_IN_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash(CLOCK_NAME)),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
 
     m_pTextInstanceClock[1] = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash(CLOCK_NAME)),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_OUT_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash(CLOCK_NAME)),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -638,9 +638,9 @@ void HUDOverlay::SceneCreated()
 
     pScoreComp = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("left_score")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_IN_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("left_score")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -657,9 +657,9 @@ void HUDOverlay::SceneCreated()
 
     pScoreComp = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("right_score")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_IN_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("right_score")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -676,9 +676,9 @@ void HUDOverlay::SceneCreated()
 
     pScoreComp = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("left_score")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_OUT_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("left_score")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -695,9 +695,9 @@ void HUDOverlay::SceneCreated()
 
     pScoreComp = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("right_score")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_OUT_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("right_score")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -714,18 +714,18 @@ void HUDOverlay::SceneCreated()
 
     mSuddenDeath[0] = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("SUDDEN DEATH")),
-        InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_IN_NAME)),
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("SUDDEN DEATH")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
 
     mSuddenDeath[1] = FEFinder<TLComponentInstance, 4>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("SUDDEN DEATH")),
-        InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_OUT_NAME)),
+        InlineHasher(nlStringLowerHash("Layer")),
+        InlineHasher(nlStringLowerHash("SUDDEN DEATH")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -740,9 +740,9 @@ void HUDOverlay::SceneCreated()
 
     pTeamName = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("LEFT NAME")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_IN_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("LEFT NAME")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -751,9 +751,9 @@ void HUDOverlay::SceneCreated()
 
     pTeamName = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("LEFT NAME")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_OUT_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("LEFT NAME")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -764,9 +764,9 @@ void HUDOverlay::SceneCreated()
 
     pTeamName = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("RIGHT NAME")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_IN_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("RIGHT NAME")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
@@ -775,9 +775,9 @@ void HUDOverlay::SceneCreated()
 
     pTeamName = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
         presentation,
-        InlineHasher(nlStringLowerHash("RIGHT NAME")),
-        InlineHasher(nlStringLowerHash(LAYER_NAME)),
         InlineHasher(nlStringLowerHash(HUD_SLIDE_OUT_NAME)),
+        InlineHasher(nlStringLowerHash(LAYER_NAME)),
+        InlineHasher(nlStringLowerHash("RIGHT NAME")),
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));

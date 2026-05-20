@@ -476,7 +476,7 @@ void PauseMenuScene::SceneCreated()
         static char* MENU_NAMES[6]
             = { "MENU ITEM1", "MENU ITEM2", "MENU ITEM3", "MENU ITEM6", "MENU ITEM4", "MENU ITEM5" };
 
-        static unsigned char E3_BUILD_IS_DISABLED_OPTIONS[6] = { 0, 0, 1, 1, 0, 0 };
+        static bool E3_BUILD_IS_DISABLED_OPTIONS[6] = { false, false, true, true, false, false };
 
         int i;
         for (i = 0; i < 6; i++)
@@ -516,13 +516,16 @@ void PauseMenuScene::SceneCreated()
             menuItem->mType = compinstance;
             mMenuItems.mNumItemsAdded++;
 
-            PauseBind bindOpen = Bind<void>(MemFun<PauseMenuScene, void, TLComponentInstance*>(&PauseMenuScene::OpenItem), this, placeholder0);
+            void (PauseMenuScene::*openCB)(TLComponentInstance*) = &PauseMenuScene::OpenItem;
+            PauseBind bindOpen = Bind<void>(MemFun<PauseMenuScene, void, TLComponentInstance*>(openCB), this, placeholder0);
             menuItem->mCallbacks[ON_HIGHLIGHT] = MenuCallback(bindOpen);
 
-            MenuCallback closeFunc;
-            closeFunc.mTag = FREE_FUNCTION;
-            closeFunc.mFreeFunction = DoubleHighlite::CloseItem;
-            menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunc;
+            {
+                MenuCallback closeFunc;
+                closeFunc.mTag = FREE_FUNCTION;
+                closeFunc.mFreeFunction = DoubleHighlite::CloseItem;
+                menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunc;
+            }
 
             if (PauseMenuCBs[i])
             {
@@ -611,15 +614,19 @@ void PauseMenuScene::SceneCreated()
             menuItem->mType = compinstance;
             mMenuItems.mNumItemsAdded++;
 
-            MenuCallback openFunc;
-            openFunc.mTag = FREE_FUNCTION;
-            openFunc.mFreeFunction = DoubleHighlite::OpenItem;
-            menuItem->mCallbacks[ON_HIGHLIGHT] = openFunc;
+            {
+                MenuCallback openFunc;
+                openFunc.mTag = FREE_FUNCTION;
+                openFunc.mFreeFunction = DoubleHighlite::OpenItem;
+                menuItem->mCallbacks[ON_HIGHLIGHT] = openFunc;
+            }
 
-            MenuCallback closeFunc;
-            closeFunc.mTag = FREE_FUNCTION;
-            closeFunc.mFreeFunction = DoubleHighlite::CloseItem;
-            menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunc;
+            {
+                MenuCallback closeFunc;
+                closeFunc.mTag = FREE_FUNCTION;
+                closeFunc.mFreeFunction = DoubleHighlite::CloseItem;
+                menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunc;
+            }
 
             if (PauseMenuCBs[i])
             {

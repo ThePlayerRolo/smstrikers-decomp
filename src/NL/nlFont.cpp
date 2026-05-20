@@ -365,7 +365,7 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
     unsigned short Base;
     nlFont::KernPair kp;
     nlFont::KernPair* pKP;
-    char sHashFontName[265] = { 0 };
+    char sHashFontName[265];
     unsigned long page;
 
     nlStrNCpy(m_FontName, szFontName, 0x20);
@@ -613,6 +613,9 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
             }
             break;
         }
+
+        case 'V':
+            break;
 
         default:
             break;

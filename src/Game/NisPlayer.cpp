@@ -1088,8 +1088,7 @@ void NisPlayer::Load(const char* nisType, NisTarget target, NisUseStadiumOffset 
 
     if (filter == "myst_sidekick" && strstr(nisType, "goal_winner") != NULL)
     {
-        BasicString<char, Detail::TempStringAllocator> s("mystery");
-        filter = s;
+        filter = BasicString<char, Detail::TempStringAllocator>("mystery");
     }
 
     if (nlStrCmp(nisType, "trophy") == 0 && cupTrophyHash == 0)
@@ -1147,6 +1146,7 @@ void NisPlayer::Load(const char* nisType, NisTarget target, NisUseStadiumOffset 
         else
         {
             float scale = (useStadiumOffset == NIS_AWAY_STADIUM_OFFSET) ? -1.0f : 1.0f;
+            BasicString<char, Detail::TempStringAllocator> formatString("nisHeader/{0}_offset");
 
             const char* stadiumName;
             eStadiumID stadium = GameInfoManager::s_pInstance->GetStadium();
@@ -1183,7 +1183,7 @@ void NisPlayer::Load(const char* nisType, NisTarget target, NisUseStadiumOffset 
                 stadiumName = "";
             }
 
-            BasicString<char, Detail::TempStringAllocator> key = Format(BasicString<char, Detail::TempStringAllocator>("nisHeader/{0}_offset"), stadiumName);
+            BasicString<char, Detail::TempStringAllocator> key = Format(formatString, stadiumName);
 
             Config& cfg = Config::Global();
             Config::TagValuePair& tvp = cfg.FindTvp(key.c_str());

@@ -26,189 +26,109 @@ struct DisplayListEx
 
 /**
  * Offset/Address/Size: 0x0 | 0x801C1E5C | size: 0x2A8
- * TODO: 84.26% match - stream copy loop register/control-flow diffs remain.
+ * TODO: 93.65% match - primType/numVertices setup register allocation still differs.
  */
 DisplayList* dlMakeDisplayList(const glModelPacket* packet, bool permanent)
 {
-    u32 dlSize;
-    u32 allocSize;
-    u8 hasColorStream;
-    u8* displayList;
-
-    u8 numStreams = packet->numStreams;
-    hasColorStream = 0;
-    u8* streams = (u8*)packet->streams;
-    s32 offset = 0;
-
-    // Check for color stream (id 0x0C)
+    DisplayList* pList;
+    u32 actualSize;
+    u32 size;
+    u8* p;
     u32 i;
-    for (i = numStreams; i > 0; i--)
+    u32 j;
+    u8 bStitch;
+
+    u32 numStreams = packet->numStreams;
+
+    bStitch = 0;
+    i = 0;
+    for (j = numStreams; j > 0; j--)
     {
-        s32 idx = offset + 4;
-        if (streams[idx] == 0x0C)
+        if (((u8*)packet->streams)[i + 4] == 0x0C)
         {
-            hasColorStream = 1;
+            bStitch = 1;
             break;
         }
-        offset += 6;
+        i += 6;
     }
 
-    // Calculate display list size
-    if (hasColorStream)
+    if (bStitch)
     {
-        u16 numVerts = packet->numVertices;
-        s32 factor = (numStreams - 1) << 1;
-        u32 product = numVerts * factor;
-        dlSize = product + 3;
-        dlSize = dlSize + numVerts;
+        u16 numVertices = packet->numVertices;
+        actualSize = numVertices * ((numStreams - 1) << 1) + 3;
+        actualSize += numVertices;
     }
     else
     {
-        u16 numVerts = packet->numVertices;
-        dlSize = numVerts * (numStreams << 1) + 3;
+        actualSize = packet->numVertices * (numStreams << 1) + 3;
     }
 
-    // Align to 32 bytes
-    allocSize = (dlSize + 0x1F) & ~0x1F;
-
-    // Allocate display list buffer
+    size = (actualSize + 0x1F) & ~0x1F;
     if (permanent)
     {
-        displayList = (u8*)glResourceAlloc(allocSize, GLM_VertexData);
+        p = (u8*)glResourceAlloc(size, GLM_VertexData);
     }
     else
     {
-        displayList = (u8*)glFrameAlloc(allocSize, GLM_VertexData);
+        p = (u8*)glFrameAlloc(size, GLM_VertexData);
     }
 
-    // Zero padding
-    nlZeroMemory(displayList + dlSize, allocSize - dlSize);
+    nlZeroMemory(p + actualSize, size - actualSize);
 
-    // Write GX display list header
-    u8 primType = packet->primType;
-    u16 nv = packet->numVertices;
-    u8* dst = displayList + 3;
-    u8 opcode = opcodes[primType];
-    u8 hasCol = hasColorStream;
-    u16* indexBuf = (u16*)packet->indexBuffer;
-    u32 vertIdx = 0;
-    displayList[0] = opcode;
-    u16 numV = packet->numVertices;
-    *(u16*)(displayList + 1) = nv;
+    p[0] = opcodes[packet->primType];
+    *(u16*)(p + 1) = packet->numVertices;
 
-    // Write vertex indices for each vertex
-    while (vertIdx < numV)
+    i = 0;
     {
-        u32 n, unroll;
+        u32 numVertices = packet->numVertices;
+        u8 hasColor = bStitch;
+        u8* p8 = p + 3;
+        u16* pInd = (u16*)packet->indexBuffer;
 
-        if (hasCol)
+        while (i < numVertices)
         {
-            // Color stream present - write 0xFF marker, then indices for other streams
-            u32 ns = packet->numStreams;
-            *dst++ = 0xFF;
-            n = ns - 1;
-            if (n > 0)
+            if (hasColor)
             {
-                unroll = n >> 3;
-                if (unroll > 0)
+                *p8++ = 0xFF;
+                for (j = packet->numStreams - 1; j > 0; j--)
                 {
-                    do
-                    {
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                    } while (--unroll);
-                    n &= 7;
-                    if (n == 0)
-                        goto next;
+                    *(u16*)p8 = *pInd;
+                    p8 += 2;
                 }
-                do
-                {
-                    *(u16*)dst = *indexBuf;
-                    dst += 2;
-                } while (--n);
             }
-        }
-        else
-        {
-            // No color stream - write indices for all streams
-            u32 ns = packet->numStreams;
-            n = ns;
-            if (n > 0)
+            else
             {
-                unroll = n >> 3;
-                if (unroll > 0)
+                for (j = packet->numStreams; j > 0; j--)
                 {
-                    do
-                    {
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                        *(u16*)dst = *indexBuf;
-                        dst += 2;
-                    } while (--unroll);
-                    n &= 7;
-                    if (n == 0)
-                        goto next;
+                    *(u16*)p8 = *pInd;
+                    p8 += 2;
                 }
-                do
-                {
-                    *(u16*)dst = *indexBuf;
-                    dst += 2;
-                } while (--n);
             }
+
+            i++;
+            pInd++;
         }
-    next:
-        vertIdx++;
-        indexBuf++;
     }
 
-    // Allocate and fill DisplayList structure
-    DisplayList* result;
     if (permanent)
     {
-        result = (DisplayList*)glResourceAlloc(0x10, GLM_Header);
+        pList = (DisplayList*)glResourceAlloc(0x10, GLM_Header);
     }
     else
     {
-        result = (DisplayList*)glFrameAlloc(0x10, GLM_Header);
+        pList = (DisplayList*)glFrameAlloc(0x10, GLM_Header);
     }
 
-    result->magic = DISPLAY_LIST_HEADER;
-    result->list = displayList;
-    result->size = allocSize;
-    ((u16*)&result->indices)[0] = packet->numStreams;
-    ((u16*)&result->indices)[1] = ((u32)(-hasColorStream | hasColorStream) >> 0x1F);
+    pList->magic = DISPLAY_LIST_HEADER;
+    pList->list = p;
+    pList->size = size;
+    ((u16*)&pList->indices)[0] = packet->numStreams;
+    ((u16*)&pList->indices)[1] = ((u32)(-bStitch | bStitch) >> 31);
 
-    // Flush display list to main memory
-    DCFlushRangeNoSync(result->list, result->size);
+    DCFlushRangeNoSync(pList->list, pList->size);
     PPCSync();
 
-    return result;
+    return pList;
 }
 
 /**

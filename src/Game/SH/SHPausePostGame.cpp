@@ -158,6 +158,12 @@ PausePostGameScene::~PausePostGameScene()
 /**
  * Offset/Address/Size: 0x608 | 0x8010770C | size: 0x187C
  */
+namespace DoubleHighlite
+{
+extern const char* SLIDE_IN;
+extern const char* SLIDE_OUT;
+} // namespace DoubleHighlite
+
 void PausePostGameScene::SceneCreated()
 {
     typedef Detail::MemFunImpl<void, void (PausePostGameScene::*)()> PauseMemFun;
@@ -209,6 +215,8 @@ void PausePostGameScene::SceneCreated()
         InlineHasher(0));
     mButtons.SetState(ButtonComponent::BS_A_AND_B);
 
+    unsigned short wscoreTmp[8];
+
     for (int i = 0; i < 3; i++)
     {
         char menuname[64];
@@ -223,7 +231,7 @@ void PausePostGameScene::SceneCreated()
             InlineHasher(0),
             InlineHasher(0));
 
-        instance->SetActiveSlide(i == 0 ? "in" : "out");
+        instance->SetActiveSlide((i == 0) ? DoubleHighlite::SLIDE_IN : DoubleHighlite::SLIDE_OUT);
 
         MenuItem<TLComponentInstance>* menuItem = &mMenuItems.mMenuItems[mMenuItems.mNumItemsAdded];
         menuItem->mType = instance;
@@ -233,14 +241,14 @@ void PausePostGameScene::SceneCreated()
             Function<TLComponentInstance*> openFunction;
             openFunction.mTag = FREE_FUNCTION;
             openFunction.mFreeFunction = DoubleHighlite::OpenItem;
-            menuItem->mCallbacks[ON_HIGHLIGHT] = openFunction;
+            *(Function<TLComponentInstance*>*)&menuItem->mCallbacks[ON_HIGHLIGHT] = openFunction;
         }
 
         {
             Function<TLComponentInstance*> closeFunction;
             closeFunction.mTag = FREE_FUNCTION;
             closeFunction.mFreeFunction = DoubleHighlite::CloseItem;
-            menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunction;
+            *(Function<TLComponentInstance*>*)&menuItem->mCallbacks[ON_UNHIGHLIGHT] = closeFunction;
         }
 
         {
@@ -251,7 +259,7 @@ void PausePostGameScene::SceneCreated()
             Function<TLComponentInstance*> applyFunction;
             applyFunction.mTag = FUNCTOR;
             applyFunction.mFunctor = impl;
-            menuItem->mCallbacks[ON_APPLY] = applyFunction;
+            *(Function<TLComponentInstance*>*)&menuItem->mCallbacks[ON_APPLY] = applyFunction;
         }
 
         TLComponentInstance* highlite = (TLComponentInstance*)FindComponent(instance->GetActiveSlide(), "highlite");
@@ -304,9 +312,8 @@ void PausePostGameScene::SceneCreated()
 
         BasicString<char, Detail::TempStringAllocator> score = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(
             nlSingleton<StatsTracker>::s_pInstance->mNumGamesWon[i]);
-        unsigned short wscore[8];
-        nlStrToWcs(score.c_str(), wscore, 8);
-        memcpy(mScoreBuffer[i], wscore, sizeof(wscore));
+        nlStrToWcs(score.c_str(), wscoreTmp, 8);
+        memcpy(mScoreBuffer[i], wscoreTmp, sizeof(wscoreTmp));
         mScoreBuffer[i][nlStrLen(score.c_str())] = 0;
         text->SetString(mScoreBuffer[i]);
     }
@@ -315,11 +322,7 @@ void PausePostGameScene::SceneCreated()
     int score0 = tracker->mNumGamesWon[0];
     int score1 = tracker->mNumGamesWon[1];
     int pointdiff = score0 - score1;
-    int absdiff = pointdiff;
-    if (absdiff < 0)
-    {
-        absdiff = -absdiff;
-    }
+    unsigned int absdiff = (pointdiff < 0) ? (unsigned int)(-pointdiff) : (unsigned int)pointdiff;
 
     TLTextInstance* message = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
         m_pFEPresentation->m_currentSlide,
@@ -333,8 +336,8 @@ void PausePostGameScene::SceneCreated()
     GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
     BasicGameInfo* game = gameInfo->mGameInfo[gameInfo->mCurrentMode];
 
-    bool hasHome = (game->mPadSides[0] == 0) || (game->mPadSides[1] == 0) || (game->mPadSides[2] == 0) || (game->mPadSides[3] == 0);
-    bool hasAway = (game->mPadSides[0] == 1) || (game->mPadSides[1] == 1) || (game->mPadSides[2] == 1) || (game->mPadSides[3] == 1);
+    int hasHome = (game->mPadSides[0] == 0) || (game->mPadSides[1] == 0) || (game->mPadSides[2] == 0) || (game->mPadSides[3] == 0);
+    int hasAway = (game->mPadSides[0] == 1) || (game->mPadSides[1] == 1) || (game->mPadSides[2] == 1) || (game->mPadSides[3] == 1);
 
     if (hasHome && hasAway)
     {
@@ -344,12 +347,10 @@ void PausePostGameScene::SceneCreated()
             LOOKUP_LOC_STRING(0x317831E4, formatLoc);
 
             BasicString<char, Detail::TempStringAllocator> score = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(score0 + score1 + 1);
-            unsigned short wscore[8];
-            nlStrToWcs(score.c_str(), wscore, 8);
+            nlStrToWcs(score.c_str(), wscoreTmp, 8);
 
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            BasicString<unsigned short, Detail::TempStringAllocator> formatted = Format(locFmt, wscore);
-            SetText(*message, formatted);
+            SetText(*message, Format(locFmt, wscoreTmp));
         }
         else if (absdiff <= 2)
         {
@@ -361,8 +362,7 @@ void PausePostGameScene::SceneCreated()
             LOOKUP_LOC_STRING(GetLOCCharacterName(winningteam, true, false), charLoc);
 
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            BasicString<unsigned short, Detail::TempStringAllocator> formatted = Format(locFmt, charLoc);
-            SetText(*message, formatted);
+            SetText(*message, Format(locFmt, charLoc));
         }
         else if (absdiff <= 6)
         {
@@ -374,8 +374,7 @@ void PausePostGameScene::SceneCreated()
             LOOKUP_LOC_STRING(GetLOCCharacterName(loosingteam, true, false), charLoc);
 
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            BasicString<unsigned short, Detail::TempStringAllocator> formatted = Format(locFmt, charLoc);
-            SetText(*message, formatted);
+            SetText(*message, Format(locFmt, charLoc));
         }
         else
         {
@@ -387,13 +386,12 @@ void PausePostGameScene::SceneCreated()
             LOOKUP_LOC_STRING(GetLOCCharacterName(loosingteam, true, false), charLoc);
 
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            BasicString<unsigned short, Detail::TempStringAllocator> formatted = Format(locFmt, charLoc);
-            SetText(*message, formatted);
+            SetText(*message, Format(locFmt, charLoc));
         }
     }
     else
     {
-        bool noHomePlayers = !hasHome;
+        int noHomePlayers = (hasHome == 0);
 
         if (pointdiff == 0)
         {
@@ -401,14 +399,12 @@ void PausePostGameScene::SceneCreated()
             LOOKUP_LOC_STRING(0xFF559E6A, formatLoc);
 
             BasicString<char, Detail::TempStringAllocator> score = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(absdiff + 1);
-            unsigned short wscore[8];
-            nlStrToWcs(score.c_str(), wscore, 8);
+            nlStrToWcs(score.c_str(), wscoreTmp, 8);
 
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            BasicString<unsigned short, Detail::TempStringAllocator> formatted = Format(locFmt, wscore);
-            SetText(*message, formatted);
+            SetText(*message, Format(locFmt, wscoreTmp));
         }
-        else if ((!noHomePlayers && pointdiff > 0) || (noHomePlayers && pointdiff < 0))
+        else if (((noHomePlayers == 0) && (pointdiff > 0)) || ((noHomePlayers == 1) && (pointdiff < 0)))
         {
             if (absdiff <= 2)
             {
@@ -425,8 +421,7 @@ void PausePostGameScene::SceneCreated()
                 LOOKUP_LOC_STRING(GetLOCCharacterName(otherteam, true, false), charLoc);
 
                 BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-                BasicString<unsigned short, Detail::TempStringAllocator> formatted = Format(locFmt, charLoc);
-                SetText(*message, formatted);
+                SetText(*message, Format(locFmt, charLoc));
             }
             else
             {
@@ -462,9 +457,6 @@ void PausePostGameScene::SceneCreated()
 #undef LOOKUP_LOC_STRING
 }
 
-/**
- * Offset/Address/Size: 0x28C | 0x80107390 | size: 0x37C
- */
 void PausePostGameScene::Update(float dt)
 {
     BaseSceneHandler::Update(dt);

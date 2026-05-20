@@ -142,9 +142,11 @@ void GoalCamera::Update(float /*dt*/)
 
         {
             f32 invLen = nlRecipSqrt((dirvec.f.y * dirvec.f.y) + (dirvec.f.x * dirvec.f.x) + (dirvec.f.z * dirvec.f.z), 1);
-            _nlVec3Scale(dirvec, invLen);
-            dirvec.f.x = -dirvec.f.x;
-            dirvec.f.y = -dirvec.f.y;
+            dirvec.f.x = invLen * dirvec.f.x;
+            dirvec.f.y = invLen * dirvec.f.y;
+            dirvec.f.z = invLen * dirvec.f.z;
+            dirvec.f.x = -1.0f * dirvec.f.x;
+            dirvec.f.y = -1.0f * dirvec.f.y;
         }
 
         m_vecCamera.f.x = m_vecTarget.f.x + gfDistance * dirvec.f.x;
@@ -218,7 +220,7 @@ void GoalCamera::Update(float /*dt*/)
 
             glMatrixLookAt(m_matView, dirvec, midvec, vecUp);
         }
-        if (gnCamType == 1)
+        else if (gnCamType == 1)
         {
             float y = dirvec.f.y;
             float x = dirvec.f.x;

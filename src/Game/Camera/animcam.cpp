@@ -329,100 +329,93 @@ cAnimCamera::~cAnimCamera()
  */
 void cAnimCamera::BuildAnimViewMatrix(nlMatrix4& mView)
 {
-    float fRealIndex;
-    int nIndex;
-    float fWeightB;
-    float fWeightA;
-    nlVector3 cameraPos = { 0.0f, 0.0f, 0.0f };
-    nlVector3 targetPos = { 0.0f, 0.0f, 0.0f };
-    nlQuaternion cameraRot = { 0.0f, 0.0f, 0.0f, 1.0f };
     nlMatrix4 viewMatrix;
     nlMatrix4 facingAngleMatrix;
-
-    cCameraData* pCameraData = m_pActiveCameraData;
-    fRealIndex = m_fAnimationTime * (float)(pCameraData->m_uKeyCount - 1);
-    nIndex = (int)fRealIndex;
-    fWeightB = fRealIndex - (float)nIndex;
-    fWeightA = 1.0f - fWeightB;
-
+    float fRealIndex = m_fAnimationTime * (float)(m_pActiveCameraData->m_uKeyCount - 1);
+    nlVector3 cameraPos = { };
+    nlVector3 targetPos = { };
+    nlQuaternion cameraRot = { };
+    int nIndex = (int)fRealIndex;
+    float fWeightB = fRealIndex - (float)nIndex;
+    float fWeightA = 1.0f - fWeightB;
     if (m_fAnimationTime >= 1.0f)
     {
-        m_Fov = pCameraData->fFOV[nIndex];
-        cameraPos = pCameraData->cameraPos[nIndex];
-        targetPos = pCameraData->targetPos[nIndex];
-        cameraRot = pCameraData->cameraRot[nIndex];
+        m_Fov = m_pActiveCameraData->fFOV[nIndex];
+        cameraPos = m_pActiveCameraData->cameraPos[nIndex];
+        targetPos = m_pActiveCameraData->targetPos[nIndex];
+        cameraRot = m_pActiveCameraData->cameraRot[nIndex];
     }
     else
     {
-        int nextIndex = nIndex + 1;
-        nlVector3* pNextCameraPos = &pCameraData->cameraPos[nextIndex];
-        nlVector3* pCurrCameraPos = &pCameraData->cameraPos[nIndex];
-
-        float diffY = pCurrCameraPos->f.y - pNextCameraPos->f.y;
-        float diffX = pCurrCameraPos->f.x - pNextCameraPos->f.x;
-        float diffZ = pCurrCameraPos->f.z - pNextCameraPos->f.z;
-
-        if (diffY * diffY + diffX * diffX + diffZ * diffZ > 16.0f)
+        int nNextIndex = nIndex + 1;
+        nlVector3& cpN = m_pActiveCameraData->cameraPos[nNextIndex];
+        nlVector3& cpK = m_pActiveCameraData->cameraPos[nIndex];
+        float dy = cpK.f.y - cpN.f.y;
+        float dx = cpK.f.x - cpN.f.x;
+        float dz = cpK.f.z - cpN.f.z;
+        float distSq = dy * dy + dx * dx + dz * dz;
+        if (distSq > 16.0f)
         {
             if (fWeightB < 0.5f)
             {
-                cameraPos = pCameraData->cameraPos[nIndex];
-                targetPos = pCameraData->targetPos[nIndex];
-                cameraRot = pCameraData->cameraRot[nIndex];
-                m_Fov = pCameraData->fFOV[nIndex];
+                cameraPos = m_pActiveCameraData->cameraPos[nIndex];
+                targetPos = m_pActiveCameraData->targetPos[nIndex];
+                cameraRot = m_pActiveCameraData->cameraRot[nIndex];
+                m_Fov = m_pActiveCameraData->fFOV[nIndex];
             }
             else
             {
-                cameraPos = pCameraData->cameraPos[nextIndex];
-                targetPos = pCameraData->targetPos[nextIndex];
-                cameraRot = pCameraData->cameraRot[nextIndex];
-                m_Fov = pCameraData->fFOV[nIndex + 1];
+                cameraPos = m_pActiveCameraData->cameraPos[nNextIndex];
+                targetPos = m_pActiveCameraData->targetPos[nNextIndex];
+                cameraRot = m_pActiveCameraData->cameraRot[nNextIndex];
+                m_Fov = m_pActiveCameraData->fFOV[nIndex + 1];
             }
         }
         else
         {
-            m_Fov = fWeightA * pCameraData->fFOV[nIndex] + fWeightB * pCameraData->fFOV[nIndex + 1];
-
-            cameraPos.f.x = fWeightA * pCurrCameraPos->f.x + fWeightB * pNextCameraPos->f.x;
-            cameraPos.f.y = fWeightA * pCurrCameraPos->f.y + fWeightB * pNextCameraPos->f.y;
-            cameraPos.f.z = fWeightA * pCurrCameraPos->f.z + fWeightB * pNextCameraPos->f.z;
-
-            nlVector3* pCurrTargetPos = &pCameraData->targetPos[nIndex];
-            nlVector3* pNextTargetPos = &pCameraData->targetPos[nextIndex];
-            targetPos.f.x = fWeightA * pCurrTargetPos->f.x + fWeightB * pNextTargetPos->f.x;
-            targetPos.f.y = fWeightA * pCurrTargetPos->f.y + fWeightB * pNextTargetPos->f.y;
-            targetPos.f.z = fWeightA * pCurrTargetPos->f.z + fWeightB * pNextTargetPos->f.z;
-
-            nlQuatSlerp(cameraRot, pCameraData->cameraRot[nIndex], pCameraData->cameraRot[nextIndex], fWeightB);
+            m_Fov = fWeightA * m_pActiveCameraData->fFOV[nIndex] + fWeightB * m_pActiveCameraData->fFOV[nIndex + 1];
+            nlVector3& cpIdx = m_pActiveCameraData->cameraPos[nIndex];
+            nlVector3& cpNxt = m_pActiveCameraData->cameraPos[nNextIndex];
+            nlVector3& tpIdx = m_pActiveCameraData->targetPos[nIndex];
+            nlVector3& tpNxt = m_pActiveCameraData->targetPos[nNextIndex];
+            cameraPos.f.x = fWeightA * cpIdx.f.x + fWeightB * cpNxt.f.x;
+            cameraPos.f.y = fWeightA * cpIdx.f.y + fWeightB * cpNxt.f.y;
+            cameraPos.f.z = fWeightA * cpIdx.f.z + fWeightB * cpNxt.f.z;
+            targetPos.f.x = fWeightA * tpIdx.f.x + fWeightB * tpNxt.f.x;
+            targetPos.f.y = fWeightA * tpIdx.f.y + fWeightB * tpNxt.f.y;
+            targetPos.f.z = fWeightA * tpIdx.f.z + fWeightB * tpNxt.f.z;
+            nlQuatSlerp(cameraRot, m_pActiveCameraData->cameraRot[nIndex], m_pActiveCameraData->cameraRot[nNextIndex], fWeightB);
         }
     }
 
     float dy = m_vecCamera.f.y - m_vecTarget.f.y;
     float dx = m_vecCamera.f.x - m_vecTarget.f.x;
     float dz = m_vecCamera.f.z - m_vecTarget.f.z;
-    DepthOfFieldManager::instance.m_fDistanceFromCamera = dofBehindTarget + nlSqrt(dy * dy + dx * dx + dz * dz, true);
-
+    float dist = nlSqrt(dy * dy + dx * dx + dz * dz, true);
+    DepthOfFieldManager::instance.m_fDistanceFromCamera = dofBehindTarget + dist;
     cameraPos.f.x *= m_Mirror.f.x;
     cameraPos.f.y *= m_Mirror.f.y;
     cameraPos.f.z *= m_Mirror.f.z;
-
     targetPos.f.x *= m_Mirror.f.x;
     targetPos.f.y *= m_Mirror.f.y;
     targetPos.f.z *= m_Mirror.f.z;
-
     if (m_Mirror.f.x != 1.0f || m_Mirror.f.y != 1.0f || m_Mirror.f.z != 1.0f)
     {
         cameraRot.f.x *= -m_Mirror.f.x;
         cameraRot.f.y *= -m_Mirror.f.y;
         cameraRot.f.z *= -m_Mirror.f.z;
     }
-
-    nlVec3Add(m_vecCamera, cameraPos, m_OffsetPos);
-    nlVec3Add(m_vecTarget, targetPos, m_OffsetPos);
-
+    m_vecCamera.f.x = cameraPos.f.x + m_OffsetPos.f.x;
+    m_vecCamera.f.y = cameraPos.f.y + m_OffsetPos.f.y;
+    m_vecCamera.f.z = cameraPos.f.z + m_OffsetPos.f.z;
+    float tx = targetPos.f.x + m_OffsetPos.f.x;
+    float ty = targetPos.f.y + m_OffsetPos.f.y;
+    float tz = targetPos.f.z + m_OffsetPos.f.z;
+    m_vecTarget.f.x = tx;
+    m_vecTarget.f.y = ty;
+    m_vecTarget.f.z = tz;
     GetLocalPoint(m_vecCamera, m_vecCamera, m_OffsetPos, 0);
     GetWorldPoint(m_vecCamera, m_vecCamera, m_OffsetPos, mFacingAngle);
-
     if (m_bUnusedPad)
     {
         nlVector3 up = { 0.0f, 0.0f, 1.0f };
@@ -431,14 +424,13 @@ void cAnimCamera::BuildAnimViewMatrix(nlMatrix4& mView)
     else
     {
         nlQuatToMatrix(viewMatrix, cameraRot);
-        nlMakeRotationMatrixZ(facingAngleMatrix, 0.0000958738f * (float)mFacingAngle);
+        float facingAngleRadians = (float)mFacingAngle * 0.0000958738f;
+        nlMakeRotationMatrixZ(facingAngleMatrix, facingAngleRadians);
         nlMultMatrices(viewMatrix, viewMatrix, facingAngleMatrix);
-
         viewMatrix.f.m41 = m_vecCamera.f.x;
         viewMatrix.f.m42 = m_vecCamera.f.y;
         viewMatrix.f.m43 = m_vecCamera.f.z;
         viewMatrix.f.m44 = 1.0f;
-
         nlInvertMatrix(mView, viewMatrix);
     }
 }

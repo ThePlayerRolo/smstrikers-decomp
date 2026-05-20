@@ -588,7 +588,8 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
     }
     if (uQueuedThoughtHash != 0)
     {
-        QueueDesire(eDesireType, fDuration, opt1, opt2);
+        void (cFielder::*queueDesireFn)(eFielderDesireState, float, FuzzyVariant, FuzzyVariant) = &cFielder::QueueDesire;
+        (this->*queueDesireFn)(eDesireType, fDuration, opt1, opt2);
         InitDesire(FIELDERDESIRE_WAIT_FOR_THOUGHT_CAP, 0.5f, -1.0f, fvNotSet, fvNotSet);
         bDesireInitSuccess = false;
     }
@@ -612,7 +613,7 @@ void cFielder::UpdateDesireState(float fDeltaT)
 
         if (GetDistanceToDesiredPos() < 0.5f || m_pTeam->m_pBallInterceptOrderedFielders[0] == this)
         {
-            if (m_DesireCommonVars.tAge.GetSeconds() > 0.5f)
+            if ((m_DesireCommonVars.tAge.GetSeconds() > 0.5f) != false)
             {
                 SetDesireDuration(0.0f, true);
             }
@@ -683,7 +684,7 @@ void cFielder::UpdateDesireState(float fDeltaT)
 
         if (g_pBall->m_pOwner != m_DesireCommonVars.pBallOwner || m_pTeam->m_pBallInterceptOrderedFielders[0] == this)
         {
-            if (m_DesireCommonVars.tAge.GetSeconds() > 0.5f)
+            if ((m_DesireCommonVars.tAge.GetSeconds() > 0.5f) != false)
             {
                 SetDesireDuration(0.0f, true);
             }
@@ -705,7 +706,7 @@ void cFielder::UpdateDesireState(float fDeltaT)
 
         if (pSBC == NULL || pSBC != m_DesireCommonVars.pSBC || m_pTeam->m_pBallInterceptOrderedFielders[0] == this)
         {
-            if (m_DesireCommonVars.tAge.GetSeconds() > 0.5f)
+            if ((m_DesireCommonVars.tAge.GetSeconds() > 0.5f) != false)
             {
                 SetDesireDuration(0.0f, true);
             }
@@ -737,7 +738,7 @@ void cFielder::UpdateDesireState(float fDeltaT)
         break;
 
     case FIELDERDESIRE_PROTECT_BALL:
-        if (g_pBall->m_pOwner != this && m_DesireCommonVars.tAge.GetSeconds() > 0.5f)
+        if (g_pBall->m_pOwner != this && (m_DesireCommonVars.tAge.GetSeconds() > 0.5f) != false)
         {
             SetDesireDuration(0.0f, true);
         }
@@ -777,7 +778,7 @@ void cFielder::UpdateDesireState(float fDeltaT)
 
         if (GetDistanceToDesiredPos() <= 1.5f || NearToTheirGoalie(g_pScriptCurrentFielder) >= 0.5f)
         {
-            if (m_DesireCommonVars.tAge.GetSeconds() > 0.5f)
+            if ((m_DesireCommonVars.tAge.GetSeconds() > 0.5f) != false)
             {
                 SetDesireDuration(0.0f, true);
             }
@@ -833,7 +834,7 @@ void cFielder::UpdateDesireState(float fDeltaT)
 
         if (m_pBall != NULL || m_pTeam->m_pBallInterceptOrderedFielders[0] == this)
         {
-            if (m_DesireCommonVars.tAge.GetSeconds() > 0.5f)
+            if ((m_DesireCommonVars.tAge.GetSeconds() > 0.5f) != false)
             {
                 SetDesireDuration(0.0f, true);
             }
@@ -874,7 +875,7 @@ void cFielder::UpdateDesireState(float fDeltaT)
 
         if (m_pBall != NULL || m_pTeam->m_pBallInterceptOrderedFielders[0] == this)
         {
-            if (m_DesireCommonVars.tAge.GetSeconds() > 0.5f)
+            if ((m_DesireCommonVars.tAge.GetSeconds() > 0.5f) != false)
             {
                 SetDesireDuration(0.0f, true);
             }
@@ -1074,10 +1075,6 @@ void cFielder::UpdateDesireState(float fDeltaT)
         StartRunning();
     }
 }
-
-/**
- * Offset/Address/Size: 0x469C | 0x80035420 | size: 0x64
- */
 void cFielder::EndDesire(bool bCheckTimer)
 {
     bool bShouldSetDuration = true;

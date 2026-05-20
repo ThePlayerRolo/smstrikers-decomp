@@ -374,7 +374,47 @@ void CheckResults()
 
     switch (gResult)
     {
-    case -1001:
+    case 0:
+    {
+        sceneType = gSceneTypeStack[gSceneTypeStackDepth - 1];
+
+        if (sceneType == ST_ASK_SAVE)
+        {
+            FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+
+            Function<FnVoidVoid> continueCB;
+            continueCB.mTag = FREE_FUNCTION;
+            continueCB.mFreeFunction = ContinueWithoutSavingCB;
+
+            Function<FnVoidVoid> overwriteCB;
+            overwriteCB.mTag = FREE_FUNCTION;
+            overwriteCB.mFreeFunction = OverwriteFileAndContinueCB;
+
+            pPopup->Create(POPUP_MEMCARD_ASK_SAVE_OVERWRITE, continueCB, overwriteCB);
+            return;
+        }
+
+        if (sceneType == ST_ASK_LOAD)
+        {
+            FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+
+            Function<FnVoidVoid> continueWithoutLoadingCB;
+            continueWithoutLoadingCB.mTag = FREE_FUNCTION;
+            continueWithoutLoadingCB.mFreeFunction = ContinueWithoutLoadingCB;
+
+            Function<FnVoidVoid> continueLoadingCB;
+            continueLoadingCB.mTag = FREE_FUNCTION;
+            continueLoadingCB.mFreeFunction = ContinueLoadingCB;
+
+            pPopup->Create((ePopupMenu)0x1D, continueWithoutLoadingCB, continueLoadingCB);
+            return;
+        }
+
+        gSaveLoadFinished = true;
+        return;
+    }
+
+    case -3:
     {
         FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
 
@@ -386,54 +426,9 @@ void CheckResults()
         continueCB.mTag = FREE_FUNCTION;
         continueCB.mFreeFunction = ContinueWithoutSavingCB;
 
-        pPopup->Create(POPUP_NOTSAMECARD, retryCB, continueCB);
+        pPopup->Create(POPUP_NO_MEMCARD, retryCB, continueCB);
         return;
     }
-
-    case -1000:
-    case -11:
-    {
-        FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
-
-        Function<FnVoidVoid> retryCB;
-        retryCB.mTag = FREE_FUNCTION;
-        retryCB.mFreeFunction = RetryCB;
-
-        Function<FnVoidVoid> continueCB;
-        continueCB.mTag = FREE_FUNCTION;
-        continueCB.mFreeFunction = ContinueWithoutSavingCB;
-
-        Function<FnVoidVoid> deleteCB;
-        deleteCB.mTag = FREE_FUNCTION;
-        deleteCB.mFreeFunction = DeleteFileCB;
-
-        pPopup->Create(POPUP_FILE_CORRUPTED, retryCB, continueCB, deleteCB);
-        return;
-    }
-
-    case -13:
-    {
-        FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
-
-        Function<FnVoidVoid> retryCB;
-        retryCB.mTag = FREE_FUNCTION;
-        retryCB.mFreeFunction = RetryCB;
-
-        Function<FnVoidVoid> continueCB;
-        continueCB.mTag = FREE_FUNCTION;
-        continueCB.mFreeFunction = ContinueWithoutSavingCB;
-
-        Function<FnVoidVoid> formatConfirmCB;
-        formatConfirmCB.mTag = FREE_FUNCTION;
-        formatConfirmCB.mFreeFunction = FormatConfirmCB;
-
-        pPopup->Create(POPUP_MEMCARD_WRONGFORMAT, retryCB, continueCB, formatConfirmCB);
-        return;
-    }
-
-    case -10:
-    case -7:
-        return;
 
     case -9:
     case -8:
@@ -441,39 +436,66 @@ void CheckResults()
         FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
 
         sceneType = gSceneTypeStack[gSceneTypeStackDepth - 1];
-        if (sceneType == ST_SAVE || sceneType == ST_LOAD || sceneType == ST_GAMESAVEIDTEST || sceneType == ST_ASK_SAVE || sceneType == ST_SHOULD_LOAD_OR_SAVE)
+        if (sceneType != ST_ASK_SAVE)
         {
-            if (SaveLoadScene::mInstance->mSaveLoadMode == SaveLoadScene::SLM_AT_BOOT)
+            if (sceneType >= ST_ASK_SAVE)
             {
-                Function<FnVoidVoid> retryCB;
-                retryCB.mTag = FREE_FUNCTION;
-                retryCB.mFreeFunction = RetryCB;
-
-                Function<FnVoidVoid> continueCB;
-                continueCB.mTag = FREE_FUNCTION;
-                continueCB.mFreeFunction = ContinueWithoutSavingCB;
-
-                Function<FnVoidVoid> manageMemCardCB;
-                manageMemCardCB.mTag = FREE_FUNCTION;
-                manageMemCardCB.mFreeFunction = ManageMemCardCB;
-
-                pPopup->Create(POPUP_NOT_ENOUGH_SPACE_CANMANAGE, retryCB, continueCB, manageMemCardCB);
-                return;
+                if (sceneType != ST_SHOULD_LOAD_OR_SAVE)
+                {
+                    return;
+                }
             }
-            else
+            else if (sceneType >= ST_DELETE || sceneType < ST_SAVE)
             {
-                Function<FnVoidVoid> retryCB;
-                retryCB.mTag = FREE_FUNCTION;
-                retryCB.mFreeFunction = RetryCB;
-
-                Function<FnVoidVoid> continueCB;
-                continueCB.mTag = FREE_FUNCTION;
-                continueCB.mFreeFunction = ContinueWithoutSavingCB;
-
-                pPopup->Create(POPUP_NOT_ENOUGH_SPACE, retryCB, continueCB);
                 return;
             }
         }
+
+        if (SaveLoadScene::mInstance->mSaveLoadMode == SaveLoadScene::SLM_AT_BOOT)
+        {
+            Function<FnVoidVoid> retryCB;
+            retryCB.mTag = FREE_FUNCTION;
+            retryCB.mFreeFunction = RetryCB;
+
+            Function<FnVoidVoid> continueCB;
+            continueCB.mTag = FREE_FUNCTION;
+            continueCB.mFreeFunction = ContinueWithoutSavingCB;
+
+            Function<FnVoidVoid> manageMemCardCB;
+            manageMemCardCB.mTag = FREE_FUNCTION;
+            manageMemCardCB.mFreeFunction = ManageMemCardCB;
+
+            pPopup->Create(POPUP_NOT_ENOUGH_SPACE_CANMANAGE, retryCB, continueCB, manageMemCardCB);
+            return;
+        }
+        else
+        {
+            Function<FnVoidVoid> retryCB;
+            retryCB.mTag = FREE_FUNCTION;
+            retryCB.mFreeFunction = RetryCB;
+
+            Function<FnVoidVoid> continueCB;
+            continueCB.mTag = FREE_FUNCTION;
+            continueCB.mFreeFunction = ContinueWithoutSavingCB;
+
+            pPopup->Create(POPUP_NOT_ENOUGH_SPACE, retryCB, continueCB);
+            return;
+        }
+    }
+
+    case -2:
+    {
+        FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+
+        Function<FnVoidVoid> retryCB;
+        retryCB.mTag = FREE_FUNCTION;
+        retryCB.mFreeFunction = RetryCB;
+
+        Function<FnVoidVoid> continueCB;
+        continueCB.mTag = FREE_FUNCTION;
+        continueCB.mFreeFunction = ContinueWithoutSavingCB;
+
+        pPopup->Create(POPUP_WRONG_DEVICE, retryCB, continueCB);
         return;
     }
 
@@ -497,6 +519,26 @@ void CheckResults()
         return;
     }
 
+    case -13:
+    {
+        FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+
+        Function<FnVoidVoid> retryCB;
+        retryCB.mTag = FREE_FUNCTION;
+        retryCB.mFreeFunction = RetryCB;
+
+        Function<FnVoidVoid> continueCB;
+        continueCB.mTag = FREE_FUNCTION;
+        continueCB.mFreeFunction = ContinueWithoutSavingCB;
+
+        Function<FnVoidVoid> formatConfirmCB;
+        formatConfirmCB.mTag = FREE_FUNCTION;
+        formatConfirmCB.mFreeFunction = FormatConfirmCB;
+
+        pPopup->Create(POPUP_MEMCARD_WRONGFORMAT, retryCB, continueCB, formatConfirmCB);
+        return;
+    }
+
     case -5:
     {
         FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
@@ -510,6 +552,27 @@ void CheckResults()
         continueCB.mFreeFunction = ContinueWithoutSavingCB;
 
         pPopup->Create(POPUP_MEMCARD_DAMAGED, retryCB, continueCB);
+        return;
+    }
+
+    case -1000:
+    case -11:
+    {
+        FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
+
+        Function<FnVoidVoid> retryCB;
+        retryCB.mTag = FREE_FUNCTION;
+        retryCB.mFreeFunction = RetryCB;
+
+        Function<FnVoidVoid> continueCB;
+        continueCB.mTag = FREE_FUNCTION;
+        continueCB.mFreeFunction = ContinueWithoutSavingCB;
+
+        Function<FnVoidVoid> deleteCB;
+        deleteCB.mTag = FREE_FUNCTION;
+        deleteCB.mFreeFunction = DeleteFileCB;
+
+        pPopup->Create(POPUP_FILE_CORRUPTED, retryCB, continueCB, deleteCB);
         return;
     }
 
@@ -581,7 +644,7 @@ void CheckResults()
         return;
     }
 
-    case -3:
+    case -1001:
     {
         FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
 
@@ -593,65 +656,13 @@ void CheckResults()
         continueCB.mTag = FREE_FUNCTION;
         continueCB.mFreeFunction = ContinueWithoutSavingCB;
 
-        pPopup->Create(POPUP_NO_MEMCARD, retryCB, continueCB);
+        pPopup->Create(POPUP_NOTSAMECARD, retryCB, continueCB);
         return;
     }
 
-    case -2:
-    {
-        FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
-
-        Function<FnVoidVoid> retryCB;
-        retryCB.mTag = FREE_FUNCTION;
-        retryCB.mFreeFunction = RetryCB;
-
-        Function<FnVoidVoid> continueCB;
-        continueCB.mTag = FREE_FUNCTION;
-        continueCB.mFreeFunction = ContinueWithoutSavingCB;
-
-        pPopup->Create(POPUP_WRONG_DEVICE, retryCB, continueCB);
+    case -10:
+    case -7:
         return;
-    }
-
-    case 0:
-    {
-        sceneType = gSceneTypeStack[gSceneTypeStackDepth - 1];
-
-        if (sceneType == ST_ASK_SAVE)
-        {
-            FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
-
-            Function<FnVoidVoid> continueCB;
-            continueCB.mTag = FREE_FUNCTION;
-            continueCB.mFreeFunction = ContinueWithoutSavingCB;
-
-            Function<FnVoidVoid> overwriteCB;
-            overwriteCB.mTag = FREE_FUNCTION;
-            overwriteCB.mFreeFunction = OverwriteFileAndContinueCB;
-
-            pPopup->Create(POPUP_MEMCARD_ASK_SAVE_OVERWRITE, continueCB, overwriteCB);
-            return;
-        }
-
-        if (sceneType == ST_ASK_LOAD)
-        {
-            FEPopupMenu* pPopup = (FEPopupMenu*)nlSingleton<GameSceneManager>::s_pInstance->Push(SCENE_POPUP_MENU, SCREEN_NOTHING, false);
-
-            Function<FnVoidVoid> continueWithoutLoadingCB;
-            continueWithoutLoadingCB.mTag = FREE_FUNCTION;
-            continueWithoutLoadingCB.mFreeFunction = ContinueWithoutLoadingCB;
-
-            Function<FnVoidVoid> continueLoadingCB;
-            continueLoadingCB.mTag = FREE_FUNCTION;
-            continueLoadingCB.mFreeFunction = ContinueLoadingCB;
-
-            pPopup->Create((ePopupMenu)0x1D, continueWithoutLoadingCB, continueLoadingCB);
-            return;
-        }
-
-        gSaveLoadFinished = true;
-        return;
-    }
 
     default:
         return;

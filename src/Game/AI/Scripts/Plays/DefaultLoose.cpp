@@ -68,16 +68,11 @@ FuzzyVariant Fuzzy::AbortLoosePlay(cDecisionEntity*)
 
 /**
  * Offset/Address/Size: 0x0 | 0x8008B084 | size: 0x15CC
- * TODO: 71.62% match - remaining diffs include ABI/stack-frame and control-flow
+ * TODO: 78.17% match - remaining diffs include ABI/stack-frame and control-flow
  * divergence against target assembly.
  */
 FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
 {
-    class cPlayer;
-    class cFielder;
-    class cBall;
-    class Goalie;
-
     extern cFielder* g_pScriptCurrentFielder;
     extern cFielder* g_pScriptCurrentMark;
     extern cTeam* g_pScriptCurrentTeam;
@@ -86,34 +81,30 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
     extern cBall* g_pScriptBall;
     extern FuzzyVariant fvNotSet;
 
-    extern float ChasingBall__FP7cPlayer(cPlayer*);
-    extern float GonnaGetBall__FP5cTeam(cTeam*);
-    extern float RepeatingLastDesire__FP8cFielder20eScriptFielderDesire(cFielder*, int);
-    extern float AtIdealDistanceForTackling__FP7cPlayerP7cPlayer(cPlayer*, cPlayer*);
-    extern float Winger__FP8cFielder(cFielder*);
-    extern float InOffensiveZoneOfPlayer__FP5cBallP7cPlayer(cBall*, cPlayer*);
-    extern float InDefensiveZoneOfPlayer__FP5cBallP7cPlayer(cBall*, cPlayer*);
-    extern float InDefensiveZone__FP7cPlayer(cPlayer*);
-    extern float InOffensiveZone__FP7cPlayer(cPlayer*);
-    extern float Midfield__FP8cFielder(cFielder*);
-    extern float Defence__FP8cFielder(cFielder*);
-    extern float NearToMyNet__FP7cPlayer(cPlayer*);
-    extern float NearToBall__FP7cPlayer(cPlayer*);
-    extern float Stunned__FP6Goalie(Goalie*);
-    extern float Aggressive__FP8cFielder(cFielder*);
-    extern float CalcSelectChance__Fff(float, float);
+    extern float ChasingBall(cPlayer*);
+    extern float GonnaGetBall(cTeam*);
+    extern float RepeatingLastDesire(cFielder*, int);
+    extern float AtIdealDistanceForTackling(cPlayer*, cPlayer*);
+    extern float Winger(cFielder*);
+    extern float InOffensiveZoneOfPlayer(cBall*, cPlayer*);
+    extern float InDefensiveZoneOfPlayer(cBall*, cPlayer*);
+    extern float InDefensiveZone(cPlayer*);
+    extern float InOffensiveZone(cPlayer*);
+    extern float Midfield(cFielder*);
+    extern float Defence(cFielder*);
+    extern float NearToMyNet(cPlayer*);
+    extern float NearToBall(cPlayer*);
+    extern float Stunned(Goalie*);
+    extern float Aggressive(cFielder*);
+    extern float CalcSelectChance(float, float);
 
-    extern cFielder* GetFielder__5cTeamFi(cTeam*, int);
-    extern cTeam* GetOtherTeam__5cTeamFv(cTeam*);
-    extern Goalie* GetGoalie__5cTeamFv(cTeam*);
-
-    extern FuzzyVariant GetBestBallInterceptor__5FuzzyFP5cTeam(cTeam*);
-    extern FuzzyVariant GoalieAndGonnaPickupBall__5FuzzyFP7cPlayer(cPlayer*);
+    extern FuzzyVariant GetBestBallInterceptor(cTeam*);
+    extern FuzzyVariant GoalieAndGonnaPickupBall(cPlayer*);
 
     float fConfidence = 1.0f;
     float fBestConfidence = 0.0f;
 
-    float fTrueConfidence = ChasingBall__FP7cPlayer((cPlayer*)g_pScriptCurrentFielder);
+    float fTrueConfidence = ChasingBall((cPlayer*)g_pScriptCurrentFielder);
     float fFalseConfidence = 1.0f - fTrueConfidence;
     float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
     float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
@@ -126,10 +117,11 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
         if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
             fConfidence = fConfidence * fBranchRatio;
 
-        fTrueConfidence = GonnaGetBall__FP5cTeam(g_pScriptCurrentTeam);
+        fTrueConfidence = GonnaGetBall(g_pScriptCurrentTeam);
         fFalseConfidence = 1.0f - fTrueConfidence;
-        fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+        fTrueConfidence = 1.0f - fFalseConfidence;
+        fMin = (fFalseConfidence <= fTrueConfidence) ? fFalseConfidence : fTrueConfidence;
+        fMax = (fFalseConfidence >= fTrueConfidence) ? fFalseConfidence : fTrueConfidence;
         fBranchRatio = fMin / fMax;
 
         if (fFalseConfidence > 0.0f)
@@ -141,11 +133,11 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
 
             for (int i = 0; i < 4; i++)
             {
-                cFielder* theOpponent = GetFielder__5cTeamFi(g_pScriptOtherTeam, i);
+                cFielder* theOpponent = g_pScriptOtherTeam->GetFielder(i);
 
-                float fNotRepeating = 1.0f - RepeatingLastDesire__FP8cFielder20eScriptFielderDesire(g_pScriptCurrentFielder, 5);
-                float fNotChasing = 1.0f - ChasingBall__FP7cPlayer((cPlayer*)theOpponent);
-                float fIdealTackle = AtIdealDistanceForTackling__FP7cPlayerP7cPlayer((cPlayer*)g_pScriptCurrentFielder, (cPlayer*)theOpponent);
+                float fNotRepeating = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, 5);
+                float fNotChasing = 1.0f - ChasingBall((cPlayer*)theOpponent);
+                float fIdealTackle = AtIdealDistanceForTackling((cPlayer*)g_pScriptCurrentFielder, (cPlayer*)theOpponent);
 
                 fNotChasing = (fNotChasing <= fIdealTackle) ? fNotChasing : fIdealTackle;
                 fNotChasing = (fNotChasing <= fNotRepeating) ? fNotChasing : fNotRepeating;
@@ -161,10 +153,10 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
             {
                 pDecision->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant((cPlayer*)g_pScriptCurrentMark), fvNotSet);
                 SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance__Fff(pTweaks->Loose_HeavyAttackChance, Aggressive__FP8cFielder(g_pScriptCurrentFielder));
+                pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Loose_HeavyAttackChance, Aggressive(g_pScriptCurrentFielder));
             }
 
-            FuzzyVariant bestBallInterceptor = GetBestBallInterceptor__5FuzzyFP5cTeam(g_pScriptCurrentTeam);
+            FuzzyVariant bestBallInterceptor = GetBestBallInterceptor(g_pScriptCurrentTeam);
             fTrueConfidence = (bestBallInterceptor.mData.u == (unsigned long)g_pScriptCurrentFielder) ? 1.0f : 0.0f;
             fFalseConfidence = 1.0f - fTrueConfidence;
             fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
@@ -178,9 +170,9 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
                 if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                     fConfidence = fConfidence * fBranchRatio;
 
-                cTeam* pOtherTeam = GetOtherTeam__5cTeamFv(g_pScriptCurrentTeam);
-                float fOtherGoaliePickup = GoalieAndGonnaPickupBall__5FuzzyFP7cPlayer((cPlayer*)GetGoalie__5cTeamFv(pOtherTeam)).Confidence;
-                float fGoaliePickup = GoalieAndGonnaPickupBall__5FuzzyFP7cPlayer((cPlayer*)GetGoalie__5cTeamFv(g_pScriptCurrentTeam)).Confidence;
+                cTeam* pOtherTeam = g_pScriptCurrentTeam->GetOtherTeam();
+                float fOtherGoaliePickup = GoalieAndGonnaPickupBall((cPlayer*)pOtherTeam->GetGoalie()).Confidence;
+                float fGoaliePickup = GoalieAndGonnaPickupBall((cPlayer*)g_pScriptCurrentTeam->GetGoalie()).Confidence;
                 float fNotOtherGoaliePickup = 1.0f - fOtherGoaliePickup;
                 fFalseConfidence = 1.0f - fGoaliePickup;
 
@@ -227,7 +219,7 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
         if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
             fConfidence = fConfidence * fBranchRatio;
 
-        float fWinger = Winger__FP8cFielder(g_pScriptCurrentFielder);
+        float fWinger = Winger(g_pScriptCurrentFielder);
         float fNotWinger = 1.0f - fWinger;
         float fMin3 = (fWinger <= fNotWinger) ? fWinger : fNotWinger;
         float fMax3 = (fWinger >= fNotWinger) ? fWinger : fNotWinger;
@@ -240,9 +232,9 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
             if (fConfidence < fWinger && fWinger < 0.5f)
                 fConfidence = fConfidence * fBranchRatio3;
 
-            float fCanGetBall = GonnaGetBall__FP5cTeam(g_pScriptCurrentTeam);
-            float fNotInOffZone = 1.0f - InOffensiveZoneOfPlayer__FP5cBallP7cPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
-            float fNotInDefZone = 1.0f - InDefensiveZoneOfPlayer__FP5cBallP7cPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
+            float fCanGetBall = GonnaGetBall(g_pScriptCurrentTeam);
+            float fNotInOffZone = 1.0f - InOffensiveZoneOfPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
+            float fNotInDefZone = 1.0f - InDefensiveZoneOfPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
 
             fCanGetBall = (fCanGetBall <= fNotInOffZone) ? fCanGetBall : fNotInOffZone;
             fCanGetBall = (fCanGetBall <= fNotInDefZone) ? fCanGetBall : fNotInDefZone;
@@ -271,7 +263,7 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
                 if (fConfidence < fCannotGetBall && fCannotGetBall < 0.5f)
                     fConfidence = fConfidence * fBranchRatio4;
 
-                float fInDefensive = InDefensiveZone__FP7cPlayer((cPlayer*)g_pScriptCurrentFielder);
+                float fInDefensive = InDefensiveZone((cPlayer*)g_pScriptCurrentFielder);
                 float fNotDef = 1.0f - fInDefensive;
                 float fMin5 = (fInDefensive <= fNotDef) ? fInDefensive : fNotDef;
                 float fMax5 = (fInDefensive >= fNotDef) ? fInDefensive : fNotDef;
@@ -295,7 +287,7 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
                     if (fConfidence < fNotDef && fNotDef < 0.5f)
                         fConfidence = fConfidence * fBranchRatio5;
 
-                    float fInOffensive = InOffensiveZone__FP7cPlayer((cPlayer*)g_pScriptCurrentFielder);
+                    float fInOffensive = InOffensiveZone((cPlayer*)g_pScriptCurrentFielder);
                     float fNotOffensive = 1.0f - fInOffensive;
                     float fMin6 = (fInOffensive <= fNotOffensive) ? fInOffensive : fNotOffensive;
                     float fMax6 = (fInOffensive >= fNotOffensive) ? fInOffensive : fNotOffensive;
@@ -333,13 +325,13 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
             if (fConfidence < fNotWinger && fNotWinger < 0.5f)
                 fConfidence = fConfidence * fBranchRatio3;
 
-            float fRoleMid = Midfield__FP8cFielder(g_pScriptCurrentFielder);
-            float fRoleDef = Defence__FP8cFielder(g_pScriptCurrentFielder);
+            float fRoleMid = Midfield(g_pScriptCurrentFielder);
+            float fRoleDef = Defence(g_pScriptCurrentFielder);
             float fRole = (fRoleMid >= fRoleDef) ? fRoleMid : fRoleDef;
 
-            float fCanGetBall2 = GonnaGetBall__FP5cTeam(g_pScriptCurrentTeam);
-            float fNotInOffZone2 = 1.0f - InOffensiveZoneOfPlayer__FP5cBallP7cPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
-            float fNotInDefZone2 = 1.0f - InDefensiveZoneOfPlayer__FP5cBallP7cPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
+            float fCanGetBall2 = GonnaGetBall(g_pScriptCurrentTeam);
+            float fNotInOffZone2 = 1.0f - InOffensiveZoneOfPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
+            float fNotInDefZone2 = 1.0f - InDefensiveZoneOfPlayer(g_pScriptBall, (cPlayer*)g_pScriptCurrentFielder);
 
             fRole = (fRole <= fCanGetBall2) ? fRole : fCanGetBall2;
             fRole = (fRole <= fNotInOffZone2) ? fRole : fNotInOffZone2;
@@ -368,7 +360,7 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
                 if (fConfidence < fNotRole && fNotRole < 0.5f)
                     fConfidence = fConfidence * fBranchRatio7;
 
-                float fNearMyNet = NearToMyNet__FP7cPlayer((cPlayer*)g_pScriptCurrentFielder);
+                float fNearMyNet = NearToMyNet((cPlayer*)g_pScriptCurrentFielder);
                 float fNotNearMyNet = 1.0f - fNearMyNet;
                 float fMin8 = (fNearMyNet <= fNotNearMyNet) ? fNearMyNet : fNotNearMyNet;
                 float fMax8 = (fNearMyNet >= fNotNearMyNet) ? fNearMyNet : fNotNearMyNet;
@@ -392,7 +384,7 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
                     if (fConfidence < fNotNearMyNet && fNotNearMyNet < 0.5f)
                         fConfidence = fConfidence * fBranchRatio8;
 
-                    float fInOffensive2 = InOffensiveZone__FP7cPlayer((cPlayer*)g_pScriptCurrentFielder);
+                    float fInOffensive2 = InOffensiveZone((cPlayer*)g_pScriptCurrentFielder);
                     float fNotInOffensive2 = 1.0f - fInOffensive2;
                     float fMin9 = (fInOffensive2 <= fNotInOffensive2) ? fInOffensive2 : fNotInOffensive2;
                     float fMax9 = (fInOffensive2 >= fNotInOffensive2) ? fInOffensive2 : fNotInOffensive2;
@@ -424,9 +416,9 @@ FuzzyVariant Fuzzy::DefaultLoosePlay(cDecisionEntity* pDecision)
         }
     }
 
-    float fNearBall = NearToBall__FP7cPlayer((cPlayer*)g_pScriptCurrentFielder);
-    float fGoalieStunned = Stunned__FP6Goalie(GetGoalie__5cTeamFv(g_pScriptCurrentTeam));
-    float fIdealTackle = AtIdealDistanceForTackling__FP7cPlayerP7cPlayer((cPlayer*)g_pScriptCurrentFielder, (cPlayer*)g_pScriptCurrentMark);
+    float fNearBall = NearToBall((cPlayer*)g_pScriptCurrentFielder);
+    float fGoalieStunned = Stunned(g_pScriptCurrentTeam->GetGoalie());
+    float fIdealTackle = AtIdealDistanceForTackling((cPlayer*)g_pScriptCurrentFielder, (cPlayer*)g_pScriptCurrentMark);
 
     fNearBall = (fNearBall <= (1.0f - fGoalieStunned)) ? fNearBall : (1.0f - fGoalieStunned);
     fNearBall = (fNearBall <= fIdealTackle) ? fNearBall : fIdealTackle;

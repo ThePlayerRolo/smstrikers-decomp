@@ -825,7 +825,7 @@ unsigned long GCAudioStreaming::MonoAudioStream::DoUpdateRead(unsigned long MRAM
 
 /**
  * Offset/Address/Size: 0xA48 | 0x801C81F8 | size: 0x384
- * TODO: 82.77% match - buffer loop register swaps and callback pool register allocation around OSDisableInterrupts
+ * TODO: 87.93% match - buffer allocation loops and callback-pool path still have register-allocation differences
  */
 void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
 {
@@ -833,7 +833,6 @@ void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
     m_Flags &= ~(1 << SF_SeriousStop);
     m_Flags = (m_Flags & ~(1 << SF_CoolOnStop)) | ((unsigned long)CoolOnStop << SF_CoolOnStop);
 
-    AudioBufferMgr& mgr = m_BuffMgr;
     AudioStreamBuffer* pBuf;
     unsigned long i = 0;
     unsigned long buffer;
@@ -841,64 +840,68 @@ void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
     unsigned long mask;
     unsigned long test;
 
-    for (unsigned long j = 0; j < mgr.m_BufferCount; j++)
     {
-        freeBuffer = mgr.m_BuffersFree;
-        mask = 1 << i;
-        test = freeBuffer & mask;
-        test = (-(long)test | test) >> 31;
-        if ((int)test == 1)
+        AudioBufferMgr& mgr = m_BuffMgr;
+
+        for (unsigned long j = 0; j < mgr.m_BufferCount; j++)
         {
-            mgr.m_BuffersFree = freeBuffer & ~mask;
-            pBuf = &mgr.m_Buffers[i];
-            pBuf->m_pStream = this;
-            pBuf->m_UpdateOffset = 0;
-            pBuf->m_Volume = 0x7F;
-            pBuf->m_Pan = 0x40;
-
-            unsigned long remaining = mgr.m_BuffersFree;
-            int count = 0;
-            while (remaining)
+            freeBuffer = mgr.m_BuffersFree;
+            mask = 1 << i;
+            test = freeBuffer & mask;
+            test = (-(long)test | test) >> 31;
+            if ((int)test == 1)
             {
-                remaining &= (remaining - 1);
-                count++;
-            }
-            ___blank("After buffer alloc there are %d availible\n", count);
-            break;
-        }
-        i++;
-    }
-    m_Buffers[0] = pBuf;
+                mgr.m_BuffersFree = freeBuffer & ~mask;
+                pBuf = &mgr.m_Buffers[i];
+                pBuf->m_pStream = this;
+                pBuf->m_UpdateOffset = 0;
+                pBuf->m_Volume = 0x7F;
+                pBuf->m_Pan = 0x40;
 
-    i = 0;
-    for (unsigned long j = 0; j < mgr.m_BufferCount; j++)
-    {
-        freeBuffer = mgr.m_BuffersFree;
-        mask = 1 << i;
-        test = freeBuffer & mask;
-        test = (-(long)test | test) >> 31;
-        if ((int)test == 1)
+                unsigned long remaining = mgr.m_BuffersFree;
+                int count = 0;
+                while (remaining)
+                {
+                    remaining &= (remaining - 1);
+                    count++;
+                }
+                ___blank("After buffer alloc there are %d availible\n", count);
+                break;
+            }
+            i++;
+        }
+        m_Buffers[0] = pBuf;
+
+        i = 0;
+        for (unsigned long j = 0; j < mgr.m_BufferCount; j++)
         {
-            mgr.m_BuffersFree = freeBuffer & ~mask;
-            pBuf = &mgr.m_Buffers[i];
-            pBuf->m_pStream = this;
-            pBuf->m_UpdateOffset = 0;
-            pBuf->m_Volume = 0x7F;
-            pBuf->m_Pan = 0x40;
-
-            unsigned long remaining = mgr.m_BuffersFree;
-            int count = 0;
-            while (remaining)
+            freeBuffer = mgr.m_BuffersFree;
+            mask = 1 << i;
+            test = freeBuffer & mask;
+            test = (-(long)test | test) >> 31;
+            if ((int)test == 1)
             {
-                remaining &= (remaining - 1);
-                count++;
+                mgr.m_BuffersFree = freeBuffer & ~mask;
+                pBuf = &mgr.m_Buffers[i];
+                pBuf->m_pStream = this;
+                pBuf->m_UpdateOffset = 0;
+                pBuf->m_Volume = 0x7F;
+                pBuf->m_Pan = 0x40;
+
+                unsigned long remaining = mgr.m_BuffersFree;
+                int count = 0;
+                while (remaining)
+                {
+                    remaining &= (remaining - 1);
+                    count++;
+                }
+                ___blank("After buffer alloc there are %d availible\n", count);
+                break;
             }
-            ___blank("After buffer alloc there are %d availible\n", count);
-            break;
+            i++;
         }
-        i++;
+        m_Buffers[1] = pBuf;
     }
-    m_Buffers[1] = pBuf;
 
     m_Buffers[0]->m_Pan = 0;
     sndStreamMixParameterEx(m_Buffers[0]->m_StreamId, m_Buffers[0]->m_Volume, m_Buffers[0]->m_Pan, m_Buffers[0]->m_SurroundPan, 0, 0);
@@ -943,31 +946,29 @@ void GCAudioStreaming::StereoAudioStream::Warm(bool CoolOnStop)
     void* pInterlvHdr = nlMalloc(sizeof(INTERLEAVED_ADPCM_HEADER), 0x20, true);
     nlReadAsync(m_pFile, pInterlvHdr, sizeof(INTERLEAVED_ADPCM_HEADER), _InterleavedHdrReadCB, (unsigned long)this);
 
-    AudioStreamBuffer** pBufferIndex = m_Buffers;
     for (buffer = 0; buffer < 2; buffer++)
     {
-        void* pADPCMHdr = (void*)(((unsigned long)mgr.m_ADPCMHdrMem + 0x1F) & ~0x1F);
+        void* pADPCMHdr = (void*)(((unsigned long)m_BuffMgr.m_ADPCMHdrMem + 0x1F) & ~0x1F);
 
-        unsigned long enabled = OSDisableInterrupts();
+        bool enabled = OSDisableInterrupts();
         READ_CB_INFO* pCBInfo = READ_CB_INFO::s_AllocPool.m_pFree;
-        if (pCBInfo)
+        if (!pCBInfo)
         {
-            READ_CB_INFO::s_AllocPool.m_pFree = pCBInfo->m_next;
+            pCBInfo = 0;
         }
         else
         {
-            pCBInfo = 0;
+            READ_CB_INFO::s_AllocPool.m_pFree = pCBInfo->m_next;
         }
         OSRestoreInterrupts(enabled);
 
         if (pCBInfo)
         {
             pCBInfo->m_next = (READ_CB_INFO*)this;
-            pCBInfo->pBuffer = *pBufferIndex;
+            pCBInfo->pBuffer = m_Buffers[buffer];
         }
 
         nlReadAsync(m_pFile, pADPCMHdr, sizeof(sDSPADPCM), _HdrReadCB, (unsigned long)pCBInfo);
-        pBufferIndex++;
     }
 }
 

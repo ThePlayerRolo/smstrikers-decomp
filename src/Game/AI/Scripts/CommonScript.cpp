@@ -1,3 +1,4 @@
+#define FUZZYVARIANT_COPY_CTOR_DECL_ONLY
 #include "Game/AI/Scripts/CommonScript.h"
 #include "Game/AI/Scripts/ScriptQuestions.h"
 
@@ -208,9 +209,11 @@ const FuzzyVariant& ScriptQuestionCache::AddToCache(unsigned long key, const Fuz
 /**
  * Offset/Address/Size: 0x0 | 0x80079B54 | size: 0xE4
  */
-// FuzzyVariant::FuzzyVariant(const FuzzyVariant&)
-// {
-// }
+FuzzyVariant::FuzzyVariant(const FuzzyVariant& other)
+{
+    Reset();
+    *this = other;
+}
 
 /**
  * Offset/Address/Size: 0xF1B0 | 0x80079380 | size: 0x7D4
@@ -3280,8 +3283,9 @@ FuzzyVariant Fuzzy::GetBestLooseBallAction(cFielder* TheFielder)
     float fBestConfidence = 0.0f;
 
     FuzzyVariant fvFielder((cPlayer*)TheFielder);
-    unsigned long funcAddr = (unsigned long)GetBestLooseBallAction;
-    unsigned long hash = funcAddr + ((Variant*)&fvFielder)->GetHash();
+    volatile unsigned long funcAddr = (unsigned long)GetBestLooseBallAction;
+    unsigned long hash = ((Variant*)&fvFielder)->GetHash();
+    hash += funcAddr;
     FuzzyVariant fvFielder2((cPlayer*)TheFielder);
 
     if (ScriptQuestionCache::Instance()->Lookup(hash, bestValue, NULL))

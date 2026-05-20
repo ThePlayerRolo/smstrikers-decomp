@@ -255,9 +255,7 @@ void ReadTrophyModel(void* data, unsigned long size, void* userData)
 
 /**
  * Offset/Address/Size: 0x1848 | 0x8012602C | size: 0x460
- * TODO: 67.90% match - -inline deferred codegen diff: target has destructor flag pattern
- * (3 zero-inits + flag-checked cleanup), inline dtor after bl __as__ vs deferred cleanup,
- * extra mr r31,r3 after each LexicalCast (cupName in saved register vs target r3 pass-through)
+ * TODO: 67.91% match - remaining diffs in temporary string lifetime/cleanup ordering
  */
 void Presentation::LoadTrophyModel()
 {
@@ -279,9 +277,9 @@ void Presentation::LoadTrophyModel()
     cupTrophyHash = 1;
 
     BasicString<char, Detail::TempStringAllocator> trophyName;
-    const char* cupName = NULL;
     if (hasCupOverride)
     {
+        const char* cupName = NULL;
         BasicString<char, Detail::TempStringAllocator> prefix("Gameplay/");
         Config& cfg = Config::Global();
         TagValuePair& tvp = cfg.FindTvp("gimme_cup_trophy");

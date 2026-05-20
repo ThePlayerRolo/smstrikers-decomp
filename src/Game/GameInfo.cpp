@@ -2669,15 +2669,6 @@ void GameInfoManager::OnPreCupGameState()
 
     eTrophyType tourneyCup = INVALID_TROPHY;
     int i;
-    int userTeamBuf[16];
-    int opponentTeamBuf[16];
-    int highestTeamBuf[16];
-    TeamStats* userTeam = (TeamStats*)userTeamBuf;
-    TeamStats* opponentTeam = (TeamStats*)opponentTeamBuf;
-    TeamStats* highestTeam = (TeamStats*)highestTeamBuf;
-    int highPoints;
-    int teamBuf[16];
-    TeamStats* team = (TeamStats*)teamBuf;
 
     switch (mCurrentMode)
     {
@@ -2876,21 +2867,45 @@ void GameInfoManager::OnPreCupGameState()
         return;
     }
 
+    TeamStats userTeam;
+    TeamStats opponentTeam;
+    TeamStats highestTeam;
+    int highPoints;
+    int j;
+    int teamBuf[16];
+    int tempBuf[16];
+    TeamStats* team = (TeamStats*)teamBuf;
+    TeamStats* pTemp = (TeamStats*)tempBuf;
+
     highPoints = 0;
 
-    for (i = 0; i < mCurrentCup->GetNumTeams(); i++)
+    for (j = 0; j < ((mCurrentMode == GM_BOWSER_CUP || mCurrentMode == GM_SUPER_BOWSER_CUP) ? 8 : mCurrentCup->GetNumTeams()); j++)
     {
-        *team = *mCurrentCup->GetTeamStats((unsigned short)i);
+        if (mCurrentMode == GM_BOWSER_CUP)
+        {
+            *pTemp = *mBowserCupSeries.GetTeamStats((unsigned short)j);
+            *team = *pTemp;
+        }
+        else if (mCurrentMode == GM_SUPER_BOWSER_CUP)
+        {
+            *pTemp = *mSuperBowserCupSeries.GetTeamStats((unsigned short)j);
+            *team = *pTemp;
+        }
+        else
+        {
+            *pTemp = *mCurrentCup->GetTeamStats((unsigned short)j);
+            *team = *pTemp;
+        }
 
         if (team->mNumPoints > highPoints)
         {
-            *highestTeam = *team;
+            highestTeam = *team;
             highPoints = team->mNumPoints;
         }
 
         if (team->mTeamIndex == mCurrentCup->mUserSelectedTeam)
         {
-            *userTeam = *team;
+            userTeam = *team;
         }
         else
         {
@@ -2906,24 +2921,24 @@ void GameInfoManager::OnPreCupGameState()
 
             if (team->mTeamIndex == team0 || team->mTeamIndex == team1)
             {
-                *opponentTeam = *team;
+                opponentTeam = *team;
             }
         }
     }
 
-    if (userTeam->mNumPoints >= opponentTeam->mNumPoints && userTeam->mNumPoints >= highestTeam->mNumPoints + 3)
+    if (userTeam.mNumPoints >= opponentTeam.mNumPoints && userTeam.mNumPoints >= highestTeam.mNumPoints + 3)
     {
         mCupMatchRequirement = RESULT_CUP_WIN;
     }
-    else if (userTeam->mNumPoints + 1 >= opponentTeam->mNumPoints && userTeam->mNumPoints + 1 >= highestTeam->mNumPoints + 3)
+    else if (userTeam.mNumPoints + 1 >= opponentTeam.mNumPoints && userTeam.mNumPoints + 1 >= highestTeam.mNumPoints + 3)
     {
         mCupMatchRequirement = RESULT_USER_OT_LOSES;
     }
-    else if (userTeam->mNumPoints + 3 >= opponentTeam->mNumPoints && userTeam->mNumPoints + 3 >= highestTeam->mNumPoints + 1)
+    else if (userTeam.mNumPoints + 3 >= opponentTeam.mNumPoints && userTeam.mNumPoints + 3 >= highestTeam.mNumPoints + 1)
     {
         mCupMatchRequirement = RESULT_USER_OT_WINS;
     }
-    else if (userTeam->mNumPoints + 3 >= opponentTeam->mNumPoints && userTeam->mNumPoints + 3 >= highestTeam->mNumPoints)
+    else if (userTeam.mNumPoints + 3 >= opponentTeam.mNumPoints && userTeam.mNumPoints + 3 >= highestTeam.mNumPoints)
     {
         mCupMatchRequirement = RESULT_USER_WINS;
     }

@@ -1044,9 +1044,10 @@ unsigned long SaveCallbacks::CreateFileCB(unsigned long Slot, long Result, void*
     void* srcIcon = (u8*)iconBuf + idataOfs;
     u32 iconCopySize = iconFmtS << 10;
     memcpy(destIcon, srcIcon, iconCopySize);
-    u8 bannerFmt2 = m_pSaveFile->IconCfg.BannerFormat;
-    s8 iconFmt2 = m_pSaveFile->IconCfg.IconFormat;
-    u8 iconCount2 = m_pSaveFile->IconCfg.IconCount;
+    MemCard::MC_FILE* pFile = m_pSaveFile;
+    u8 bannerFmt2 = pFile->IconCfg.BannerFormat;
+    s8 iconFmt2 = pFile->IconCfg.IconFormat;
+    u8 iconCount2 = pFile->IconCfg.IconCount;
     int bf1 = bannerFmt2 - 1;
     int bf2 = 1 - bannerFmt2;
     int banClutMask = ~(bf1 | bf2);
@@ -1059,7 +1060,7 @@ unsigned long SaveCallbacks::CreateFileCB(unsigned long Slot, long Result, void*
     u32 icnPixels = iconCount2 * (iconFmt2 << 10);
     int headerTotal = banClutH + banDatH + icnPixels + icnClutH;
     u32 headerSize = headerTotal + 0x40;
-    m_pSaveFile->IconCfg.HeaderSize = headerSize;
+    pFile->IconCfg.HeaderSize = headerSize;
     u32 crc = nlChecksum32(cache->mIconHdrBuffer, headerSize);
     m_IconCRC = crc;
     gIconCRC = m_IconCRC;

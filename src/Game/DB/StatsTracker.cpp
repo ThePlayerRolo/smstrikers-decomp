@@ -2261,8 +2261,31 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
         header.AppendInPlace("Stadium, ");
         header.AppendInPlace("Game Time, ");
         header.AppendInPlace("Actual Time, ");
+        BasicStringInternal* homeAwayData = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+        if (homeAwayData != 0)
+        {
+            const char* homeAwayText = "H ";
+            homeAwayData->mData = 0;
+            homeAwayData->mSize = 0;
+            homeAwayData->mCapacity = 0;
 
-        BasicString<char, Detail::TempStringAllocator> homeAway("H ");
+            const char* p = homeAwayText;
+            while ((signed char)*p++ != 0)
+            {
+                homeAwayData->mSize++;
+            }
+
+            homeAwayData->mSize++;
+            homeAwayData->mData = (char*)nlMalloc((homeAwayData->mSize + 1) * sizeof(char), 8, true);
+            homeAwayData->mCapacity = homeAwayData->mSize;
+            for (int copyIndex = 0; copyIndex < homeAwayData->mSize; copyIndex++)
+            {
+                homeAwayData->mData[copyIndex] = *homeAwayText++;
+            }
+            homeAwayData->mRefCount = 1;
+        }
+
+        BasicString<char, Detail::TempStringAllocator> homeAway(homeAwayData);
         for (i = 0; i < 2; i++)
         {
             header.AppendInPlace(homeAway.Append("Num Players, "));
@@ -2305,7 +2328,34 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
     }
 
     BasicString<char, Detail::TempStringAllocator> stats;
-    bool allCaptains = Config::Global().Get("allcaptains", false);
+    Config& cfg = Config::Global();
+    TagValuePair& tvp = cfg.FindTvp("allcaptains");
+    bool allCaptains;
+    if (tvp.tag == NULL)
+    {
+        cfg.Set("allcaptains", false);
+        allCaptains = false;
+    }
+    else if (tvp.type == _BOOL)
+    {
+        allCaptains = LexicalCast<bool, bool>(tvp.value.b);
+    }
+    else if (tvp.type == _INT)
+    {
+        allCaptains = LexicalCast<bool, int>(tvp.value.i);
+    }
+    else if (tvp.type == _FLOAT)
+    {
+        allCaptains = LexicalCast<bool, float>(tvp.value.f);
+    }
+    else if (tvp.type == _STRING)
+    {
+        allCaptains = LexicalCast<bool, const char*>(tvp.value.s);
+    }
+    else
+    {
+        allCaptains = false;
+    }
 
     if (allCaptains)
     {

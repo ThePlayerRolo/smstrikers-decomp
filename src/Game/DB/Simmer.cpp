@@ -157,8 +157,8 @@ Simulator::Simulator()
 
 /**
  * Offset/Address/Size: 0x0 | 0x8019087C | size: 0xC18
- * TODO: 72.88% match - register allocation differs (this=r22 vs r31, booleans shifted by 2)
- *       due to MWCC -O4 -inline deferred stack address hoisting optimization.
+ * TODO: 78.26% match - persistent register and stack-slot drift:
+ *       `this` stays in r22 instead of r31 and string temporaries are shifted by 0x4.
  */
 void Simulator::InitializeStats()
 {
@@ -211,55 +211,48 @@ void Simulator::InitializeStats()
     char line[0x100];
     while (fgets(line, 0x100, pFile) != 0)
     {
-        bool isLineFound = false;
-        unsigned long meanLen = meanString.m_data ? (unsigned long)(meanString.m_data->mSize - 1) : 0;
-        const char* meanCstr = meanString.c_str();
+        int isLineFound = 0;
 
-        if (nlStrNCmp<char>(meanCstr, line, meanLen) == 0)
+        if (nlStrNCmp<char>(meanString.c_str(), line, meanString.m_data ? (unsigned long)(meanString.m_data->mSize - 1) : 0)
+            == 0)
         {
             isMeanFound = true;
             doMean = true;
             statString = BasicString<char, Detail::TempStringAllocator>(line);
-            isLineFound = true;
+            isLineFound = 1;
         }
-        else
+        else if (nlStrNCmp<char>(SDString.c_str(), line, SDString.m_data ? (unsigned long)(SDString.m_data->mSize - 1) : 0)
+                 == 0)
         {
-            unsigned long sdLen = SDString.m_data ? (unsigned long)(SDString.m_data->mSize - 1) : 0;
-            const char* sdCstr = SDString.c_str();
-
-            if (nlStrNCmp<char>(sdCstr, line, sdLen) == 0)
-            {
-                isSDFound = true;
-                doMean = false;
-                statString = BasicString<char, Detail::TempStringAllocator>(line);
-                isLineFound = true;
-            }
+            isSDFound = true;
+            doMean = false;
+            statString = BasicString<char, Detail::TempStringAllocator>(line);
+            isLineFound = 1;
         }
 
         if (isLineFound)
         {
             BasicString<char, Detail::TempStringAllocator> comma(",");
-            Tokenizer<BasicString<char, Detail::TempStringAllocator> > tokenizer(statString, comma);
-            int idx = 0;
+            Tokenizer<BasicString<char, Detail::TempStringAllocator> > tokenizer(statString,
+                comma);
+            int i = 0;
 
-            for (Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator it = tokenizer.begin(); it != tokenizer.end(); ++it)
+            for (Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator iter = tokenizer.begin();
+                iter != tokenizer.end();
+                ++iter)
             {
-                if (idx == 2 || (idx >= 6 && idx <= 9) || idx == 16 || idx == 18)
+                if (i != 2 && (i < 6 || i > 9) && i != 16 && i != 18)
                 {
-                    idx++;
-                    continue;
+                    if (doMean)
+                    {
+                        ((StatsPair*)this)[i].mMean = (float)atof(iter.mToken.c_str());
+                    }
+                    else
+                    {
+                        ((StatsPair*)this)[i].mStandardDeviation = (float)atof(iter.mToken.c_str());
+                    }
                 }
-
-                float val = (float)atof(it.mToken.c_str());
-                if (doMean)
-                {
-                    ((StatsPair*)this)[idx].mMean = val;
-                }
-                else
-                {
-                    ((StatsPair*)this)[idx].mStandardDeviation = val;
-                }
-                idx++;
+                i++;
             }
 
             if (isMeanFound && isSDFound)
