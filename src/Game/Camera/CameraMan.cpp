@@ -13,6 +13,7 @@
 #include "Game/Drawable/DrawableObj.h"
 #include "Game/Field.h"
 #include "Game/Net.h"
+#include "Game/WorldManager.h"
 #include "Game/AI/AiUtil.h"
 
 #include "math.h"
@@ -237,8 +238,6 @@ handle_end:
     m_aJoystickRemap += 0x8000;
 }
 
-extern World* s_World__12WorldManager;
-
 class Config
 {
 public:
@@ -374,7 +373,7 @@ void cCameraManager::UpdateGameCameraType()
             }
         }
 
-        s_World__12WorldManager->HandleCameraSwitch();
+        WorldManager::s_World->HandleCameraSwitch();
         pBaseCamera->m_pFilter = NULL;
         nlDLRingRemoveEnd(&cCameraManager::m_cameraStack);
         delete pBaseCamera;

@@ -1,7 +1,14 @@
+#define NO_BASICSTRING_IMPL
 #include "Game/SH/SHCupChooseCaptain.h"
 #include "Game/GameInfo.h"
 #include "Game/GameSceneManager.h"
 #include "Game/FE/feHelpFuncs.h"
+#include "NL/nlLocalization.h"
+#include "NL/nlBSearch.h"
+
+extern nlLocalization* g_pLocalization;
+extern unsigned short LocalizationTableNotFound[];
+extern unsigned short MissingLocString[];
 
 static unsigned long CAPTAIN_DESCRIPTIONS[] = {
     0xFF68ABBA,
@@ -139,7 +146,9 @@ void CupChooseCaptainSceneV2::SceneCreated()
     FEPresentation* presentation = m_pFEScene->m_pFEPackage->GetPresentation();
     TLSlide* slide = presentation->m_currentSlide;
 
-    mComponents[3] = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+    TLComponentInstance* comp;
+
+    comp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         slide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("CHOOSE_SIDEKICKS_LEFT")),
@@ -147,9 +156,10 @@ void CupChooseCaptainSceneV2::SceneCreated()
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    mComponents[3]->m_bVisible = false;
+    comp->m_bVisible = false;
+    mComponents[3] = comp;
 
-    mComponents[4] = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+    comp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         slide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("LEFT_SK")),
@@ -157,9 +167,10 @@ void CupChooseCaptainSceneV2::SceneCreated()
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    mComponents[4]->m_bVisible = false;
+    comp->m_bVisible = false;
+    mComponents[4] = comp;
 
-    mComponents[2] = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+    comp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         slide,
         InlineHasher(nlStringLowerHash("Layer")),
         InlineHasher(nlStringLowerHash("LEFT_CAPT")),
@@ -167,10 +178,11 @@ void CupChooseCaptainSceneV2::SceneCreated()
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
-    mComponents[2]->m_bVisible = false;
+    comp->m_bVisible = false;
+    mComponents[2] = comp;
 
     {
-        TLSlide* active = mComponents[2]->GetActiveSlide();
+        TLSlide* active = comp->GetActiveSlide();
         mSoundDelay = (active->m_start + active->m_duration) / 1.75f;
     }
 
@@ -207,9 +219,9 @@ void CupChooseCaptainSceneV2::SceneCreated()
             InlineHasher(0));
 
         extern void* glGetScreenInfo();
-        int screenWidth = *(int*)glGetScreenInfo();
+        void* screenInfo = glGetScreenInfo();
 
-        FEScrollText* ticker = new (nlMalloc(0x22C, 0x20, true)) FEScrollText(scrollText, 0, screenWidth + 0x32);
+        FEScrollText* ticker = new (nlMalloc(0x22C, 0x20, true)) FEScrollText(scrollText, 0, *(int*)screenInfo + 0x32);
         mTicker = ticker;
         mTicker->SetDisplayMessage("CHOOSE_CAPTAIN_TICKER_CHOOSE_CAPTAIN");
     }
@@ -249,7 +261,7 @@ void CupChooseCaptainSceneV2::SceneCreated()
     }
 
     {
-        TLSlide* active = mComponents[3]->GetActiveSlide();
+        TLSlide* active = mComponents[4]->GetActiveSlide();
 
         TLImageInstance* image = FEFinder<TLImageInstance, 2>::Find<TLSlide>(
             active,
@@ -289,8 +301,9 @@ void CupChooseCaptainSceneV2::SceneCreated()
     mSKGrid->BuildMapMenu();
 
     {
+        const char* sidekickName;
         const char* captainName = GetTeamName(mCurrentCaptain);
-        const char* sidekickName = GetSidekickName(mCurrentSK);
+        sidekickName = GetSidekickName(mCurrentSK);
 
         char filename[128];
         char filenamebg[128];
@@ -330,6 +343,55 @@ void CupChooseCaptainSceneV2::SceneCreated()
         InlineHasher(0),
         InlineHasher(0));
     mPressAComponent->m_bVisible = false;
+
+    {
+        GameInfoManager* pGameInfo = nlSingleton<GameInfoManager>::s_pInstance;
+        GameInfoManager::eGameModes gameMode = pGameInfo->mCurrentMode;
+        unsigned long _hash = 0xB862AB94;
+        nlLocalization* _loc = g_pLocalization;
+
+        const unsigned short* teamStr;
+        if (_loc->m_LookupTable == 0)
+        {
+            teamStr = LocalizationTableNotFound;
+        }
+        else
+        {
+            nlLocalization::StringLookup* _entry = nlBSearch(_hash, _loc->m_LookupTable, (int)_loc->m_pFile->StringCount);
+            if (_entry != 0)
+            {
+                teamStr = _loc->m_FirstString + _entry->StringOffset;
+            }
+            else
+            {
+                teamStr = MissingLocString;
+            }
+        }
+
+        BasicString<unsigned short, Detail::TempStringAllocator> teamNameBS(teamStr);
+
+        unsigned long modeHash = GetLOCModeName(gameMode);
+        const unsigned short* modeStr;
+        _loc = g_pLocalization;
+        if (_loc->m_LookupTable == 0)
+        {
+            modeStr = LocalizationTableNotFound;
+        }
+        else
+        {
+            nlLocalization::StringLookup* _entry = nlBSearch(modeHash, _loc->m_LookupTable, (int)_loc->m_pFile->StringCount);
+            if (_entry != 0)
+            {
+                modeStr = _loc->m_FirstString + _entry->StringOffset;
+            }
+            else
+            {
+                modeStr = MissingLocString;
+            }
+        }
+
+        mCupStartString = Format(teamNameBS, modeStr);
+    }
 
     mButtons.mButtonInstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         m_pFEPresentation->m_currentSlide,

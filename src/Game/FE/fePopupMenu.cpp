@@ -177,6 +177,7 @@ void FEPopupMenu::ResizeHighlight()
  */
 void FEPopupMenu::CentrePopup(float totalHeight, float topOfMessageBox)
 {
+    FORCE_DONT_INLINE;
     float half;
     float offset;
     FEPresentation* presentation;
@@ -225,7 +226,7 @@ void FEPopupMenu::SetPositions()
     feVector3 optionPosition;
     float optionHeight;
     float prevOptionHeight;
-    float totalHeight;
+    float totalHeight = 0.0f;
     float topOfMessage;
     FEPresentation* presentation;
     TLTextInstance* pText;
@@ -234,12 +235,11 @@ void FEPopupMenu::SetPositions()
     nlTextBox::StringDrawInfo drawInfo;
     float messageHeight;
     float highlightScale;
-    volatile float keepF22;
     nlColour colour;
     int i;
     nlColour colour2;
     int i2;
-    float optionY;
+    double optionY;
     nlColour optionColour;
     feVector3 highlightPosition;
     TLInstance* pImage;
@@ -272,11 +272,10 @@ void FEPopupMenu::SetPositions()
     *(Copy88*)&drawInfo = *(Copy88*)&pText->m_DrawInfo;
     messageHeight = (float)(drawInfo.RowCount * drawInfo.pFont->m_Metrics.RenderHeight);
     prevOptionHeight = messageHeight * 0.5f;
-    totalHeight = messageHeight;
+    totalHeight += messageHeight;
     topOfMessage = messagePosition.e[1] + prevOptionHeight;
-    keepF22 = topOfMessage;
 
-    if (messageHeight == 0.0f)
+    if (messageHeight == 0.0)
     {
         pHighlight->m_bVisible = false;
 
@@ -368,8 +367,6 @@ void FEPopupMenu::SetPositions()
         otherOptionSpacing = 0.0f;
     }
 
-    highlightScale = 0.0f;
-
     for (i2 = 0; i2 < mPopup.numOptions; i2++)
     {
         pText = FEFinder<TLTextInstance, 3>::Find<FEPresentation>(
@@ -408,7 +405,7 @@ void FEPopupMenu::SetPositions()
 
         if (i2 == mHighlightedOption)
         {
-            highlightScale = (float)drawInfo.RowCount;
+            highlightScale = (float)(unsigned int)drawInfo.RowCount;
         }
     }
 
@@ -449,8 +446,6 @@ void FEPopupMenu::SetPositions()
     pHighlight->SetAssetPosition(highlightPosition.e[0], optionPosition.e[1], highlightPosition.e[2]);
 
     pImage->SetAssetScale(mHighlightSize.e[0], mHighlightSize.e[1] * highlightScale, mHighlightSize.e[2]);
-
-    keepF22 += optionY;
 
     pHighlight->m_bVisible = true;
     mMenuDisplayed = true;

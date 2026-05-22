@@ -260,7 +260,14 @@ void AudioStreamTrack::TrackManagerBase::Update(float)
     }
 }
 
-extern float GetVolume__Q25Audio12MasterVolumeFQ35Audio12MasterVolume12VOLUME_GROUP(Audio::MasterVolume::VOLUME_GROUP);
+namespace Audio
+{
+namespace MasterVolume
+{
+float GetVolume(VOLUME_GROUP);
+}
+} // namespace Audio
+
 extern "C" void sndStreamMixParameterEx(unsigned long stid, unsigned char vol, unsigned char pan,
     unsigned char span, unsigned char auxa, unsigned char auxb);
 
@@ -298,7 +305,7 @@ void AudioStreamTrack::TrackManagerBase::FadeManager::UpdateFade(STREAM_FADE_CTR
     float absDiff = (float)__fabs(pFade->Interp - 1.0f);
     if (absDiff <= 0.0001f)
     {
-        float masterVol = GetVolume__Q25Audio12MasterVolumeFQ35Audio12MasterVolume12VOLUME_GROUP(
+        float masterVol = Audio::MasterVolume::GetVolume(
             (Audio::MasterVolume::VOLUME_GROUP)pFade->VolumeGroup);
 
         int clampedVol = 0x7F;
@@ -371,7 +378,7 @@ void AudioStreamTrack::TrackManagerBase::FadeManager::UpdateFade(STREAM_FADE_CTR
         float interpVol = pFade->Interp * (float)diff + (float)startVol;
         int interpVolInt = (int)interpVol;
 
-        float masterVol = GetVolume__Q25Audio12MasterVolumeFQ35Audio12MasterVolume12VOLUME_GROUP(vg);
+        float masterVol = Audio::MasterVolume::GetVolume(vg);
 
         int clampedVol = 0x7F;
         GCAudioStreaming::StereoAudioStream* pStream = pFade->pStream;

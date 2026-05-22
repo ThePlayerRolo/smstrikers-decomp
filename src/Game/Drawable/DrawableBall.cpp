@@ -1,5 +1,6 @@
 #include "Game/Drawable/DrawableBall.h"
 #include "Game/Drawable/DrawableCharacter.h"
+#include "Game/Drawable/DrawableModel.h"
 #include "Game/RenderSnapshot.h"
 #include "Game/Ball.h"
 #include "Game/CharacterTemplate.h"
@@ -14,7 +15,6 @@ extern float g_fMotionBlurAlphaScale;
 static float g_fBallBlur;
 
 extern const unsigned long eOC_NO_LIGHT;
-extern unsigned char sbBallShadowDisabled__13DrawableModel;
 
 static glModel* BallLightingCB(glModel* pModel, eGLView& view, unsigned long& uLayer);
 static glModel* BallBlurCB(glModel* pModel, eGLView& view, unsigned long& uLayer);
@@ -106,8 +106,8 @@ void DrawableBall::Render() const
     blurOffsetY = blurOffsetScale * viewMatrix.f.m23;
     blurOffsetX = blurOffsetScale * viewMatrix.f.m13;
 
-    savedBallShadowDisabled = sbBallShadowDisabled__13DrawableModel;
-    sbBallShadowDisabled__13DrawableModel = 1;
+    savedBallShadowDisabled = DrawableModel::sbBallShadowDisabled;
+    DrawableModel::sbBallShadowDisabled = 1;
 
     savedWorldMatrix = pDrawableBall->GetWorldMatrix();
     savedBlurCB = pDrawableBall->m_CB;
@@ -135,13 +135,13 @@ void DrawableBall::Render() const
         pDrawableBall->Draw();
     }
 
-    sbBallShadowDisabled__13DrawableModel = savedBallShadowDisabled;
+    DrawableModel::sbBallShadowDisabled = savedBallShadowDisabled;
     pDrawableBall->m_worldMatrix = savedWorldMatrix;
     pDrawableBall->m_CB = savedBlurCB;
     pDrawableBall->m_uObjectCreationFlags = savedBlurCreationFlags;
 
-    savedBallShadowDisabled2 = sbBallShadowDisabled__13DrawableModel;
-    sbBallShadowDisabled__13DrawableModel = 1;
+    savedBallShadowDisabled2 = DrawableModel::sbBallShadowDisabled;
+    DrawableModel::sbBallShadowDisabled = 1;
 
     savedLightingCB = pDrawableBall->m_CB;
     pDrawableBall->m_CB = BallLightingCB;
@@ -150,7 +150,7 @@ void DrawableBall::Render() const
     pDrawableBall->m_uObjectCreationFlags &= ~0x80;
     pDrawableBall->Draw();
 
-    sbBallShadowDisabled__13DrawableModel = savedBallShadowDisabled2;
+    DrawableModel::sbBallShadowDisabled = savedBallShadowDisabled2;
     pDrawableBall->m_CB = savedLightingCB;
     pDrawableBall->m_uObjectCreationFlags = savedLightingFlags;
 }

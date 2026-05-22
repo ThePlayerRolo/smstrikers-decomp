@@ -40,6 +40,7 @@ GoalCamera::~GoalCamera()
 
 /**
  * Offset/Address/Size: 0x0 | 0x801AA59C | size: 0x670
+ * TODO: 77.34% match - f30/f31 register swap for ballpos.f.y/f.z callee-saved allocation
  */
 void GoalCamera::Update(float /*dt*/)
 {
@@ -60,12 +61,7 @@ void GoalCamera::Update(float /*dt*/)
 
     if (gnCamType == 0)
     {
-        if (g_pBall->m_tShotTimer.m_uPackedTime != 0)
-        {
-            return;
-        }
-
-        if (g_pBall->GetOwnerGoalie() != 0)
+        if (g_pBall->m_tShotTimer.m_uPackedTime != 0 || g_pBall->GetOwnerGoalie() != NULL)
         {
             return;
         }
@@ -92,42 +88,25 @@ void GoalCamera::Update(float /*dt*/)
 
     if (gnCamType == 0)
     {
-        float bx;
-        float by;
-        float bz;
-        float lpx;
-        float lpy;
-        float lpz;
-
         m_vecTarget.f.x = fDir * cField::GetGoalLineX((unsigned int)1);
         m_vecTarget.f.y = 0.0f;
         m_vecTarget.f.z = 0.0f;
 
-        m_vecCamera.f.x = ballpos.f.x - m_vecTarget.f.x;
-        m_vecCamera.f.y = ballpos.f.y - m_vecTarget.f.y;
-        m_vecCamera.f.z = ballpos.f.z - m_vecTarget.f.z;
+        nlVec3Sub(m_vecCamera, ballpos, m_vecTarget);
 
         {
             f32 invLen = nlRecipSqrt((m_vecCamera.f.x * m_vecCamera.f.x) + (m_vecCamera.f.y * m_vecCamera.f.y) + (m_vecCamera.f.z * m_vecCamera.f.z), 1);
             _nlVec3Scale(m_vecCamera, invLen);
         }
 
-        bx = ballpos.f.x;
-        by = ballpos.f.y;
-        bz = ballpos.f.z;
-
-        m_vecCamera.f.x = gfDistance * m_vecCamera.f.x + bx;
-        m_vecCamera.f.y = gfDistance * m_vecCamera.f.y + by;
-        m_vecCamera.f.z = gfDistance * m_vecCamera.f.z + bz;
+        m_vecCamera.f.x = gfDistance * m_vecCamera.f.x + ballpos.f.x;
+        m_vecCamera.f.y = gfDistance * m_vecCamera.f.y + ballpos.f.y;
+        m_vecCamera.f.z = gfDistance * m_vecCamera.f.z + ballpos.f.z;
         m_vecCamera.f.z = gfHeight;
 
-        lpx = lastpos.f.x;
-        lpy = lastpos.f.y;
-        lpz = lastpos.f.z;
-
-        m_vecCamera.f.x = 0.1f * m_vecCamera.f.x + 0.9f * lpx;
-        m_vecCamera.f.y = 0.1f * m_vecCamera.f.y + 0.9f * lpy;
-        m_vecCamera.f.z = 0.1f * m_vecCamera.f.z + 0.9f * lpz;
+        m_vecCamera.f.x = 0.1f * m_vecCamera.f.x + 0.9f * lastpos.f.x;
+        m_vecCamera.f.y = 0.1f * m_vecCamera.f.y + 0.9f * lastpos.f.y;
+        m_vecCamera.f.z = 0.1f * m_vecCamera.f.z + 0.9f * lastpos.f.z;
     }
     else if (gnCamType == 1)
     {
@@ -141,10 +120,8 @@ void GoalCamera::Update(float /*dt*/)
         dirvec.f.z = 0.3f;
 
         {
-            f32 invLen = nlRecipSqrt((dirvec.f.y * dirvec.f.y) + (dirvec.f.x * dirvec.f.x) + (dirvec.f.z * dirvec.f.z), 1);
-            dirvec.f.x = invLen * dirvec.f.x;
-            dirvec.f.y = invLen * dirvec.f.y;
-            dirvec.f.z = invLen * dirvec.f.z;
+            f32 invLen = nlRecipSqrt((dirvec.f.x * dirvec.f.x) + (dirvec.f.y * dirvec.f.y) + (dirvec.f.z * dirvec.f.z), 1);
+            _nlVec3Scale(dirvec, invLen);
             dirvec.f.x = -1.0f * dirvec.f.x;
             dirvec.f.y = -1.0f * dirvec.f.y;
         }

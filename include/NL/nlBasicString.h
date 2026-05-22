@@ -94,6 +94,7 @@ public:
     }
 
     BasicString(const CharT* str)
+#ifndef BASICSTRING_OUTLINE_CTOR
     {
         BasicStringData<CharT>* data = (BasicStringData<CharT>*)Allocator::allocate(sizeof(BasicStringData<CharT>));
         if (data != 0)
@@ -117,6 +118,8 @@ public:
         }
         m_data = data;
     }
+#endif
+    ;
 
     BasicString(BasicStringData<CharT>* p)
         : m_data(p)
@@ -129,6 +132,7 @@ public:
         if (data != 0)
         {
             data->mRefCount++;
+            data = other.m_data;
         }
         else
         {
@@ -259,7 +263,16 @@ public:
     {
         BasicString r(*this);
         r.AppendInPlace(rhs);
-        return r;
+        BasicStringData<CharT>* data = r.m_data;
+        if (data != 0)
+        {
+            data->mRefCount++;
+        }
+        else
+        {
+            data = 0;
+        }
+        return BasicString(data);
     }
 
     template <typename OtherAllocator>
@@ -267,9 +280,46 @@ public:
     {
         BasicString r(*this);
         r.AppendInPlace(rhs);
-        return r;
+        BasicStringData<CharT>* data = r.m_data;
+        if (data != 0)
+        {
+            data->mRefCount++;
+        }
+        else
+        {
+            data = 0;
+        }
+        return BasicString(data);
     }
 };
+
+#ifdef BASICSTRING_OUTLINE_CTOR
+template <typename CharT, typename Allocator>
+BasicString<CharT, Allocator>::BasicString(const CharT* str)
+{
+    BasicStringData<CharT>* data = (BasicStringData<CharT>*)Allocator::allocate(sizeof(BasicStringData<CharT>));
+    if (data != 0)
+    {
+        data->mData = 0;
+        data->mSize = 0;
+        data->mCapacity = 0;
+        const CharT* s = str;
+        while (*s++ != 0)
+        {
+            data->mSize++;
+        }
+        data->mSize++;
+        data->mData = (CharT*)Allocator::allocate((data->mSize + 1) * sizeof(CharT));
+        data->mCapacity = data->mSize;
+        for (int i = 0; i < data->mSize; i++)
+        {
+            data->mData[i] = *str++;
+        }
+        data->mRefCount = 1;
+    }
+    m_data = data;
+}
+#endif
 
 #ifndef NO_BASICSTRING_IMPL
 template <typename CharT, typename Allocator>
@@ -457,7 +507,16 @@ BasicString<CharT, Allocator> BasicString<CharT, Allocator>::Trim(const CharT* c
 {
     BasicString r(*this);
     r.TrimInPlace(chars);
-    return r;
+    BasicStringData<CharT>* data = r.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+    return BasicString(data);
 }
 
 template <typename CharT, typename Allocator>

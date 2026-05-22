@@ -38,6 +38,7 @@ static f32 CANT_COLLIDE = *(f32*)__float_max;
 template <>
 void Replayable<0, LoadFrame, RenderSnapshot>(LoadFrame& frame, RenderSnapshot& current)
 {
+    FORCE_DONT_INLINE;
     current.Replay<LoadFrame>(frame);
 }
 
@@ -47,6 +48,7 @@ void Replayable<0, LoadFrame, RenderSnapshot>(LoadFrame& frame, RenderSnapshot& 
 template <>
 void Replayable<0, SaveFrame, RenderSnapshot>(SaveFrame& frame, RenderSnapshot& current)
 {
+    FORCE_DONT_INLINE;
     current.Replay<SaveFrame>(frame);
 }
 

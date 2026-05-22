@@ -106,7 +106,6 @@ inline StringType Format(const StringType& format, const T1& value1, const T2& v
 
 /**
  * Offset/Address/Size: 0xFB4 | 0x800CD994 | size: 0x118
- * TODO: 98.43% match - return copy path still stores null/data via r4 instead of stack reload into r0.
  */
 template <>
 inline BasicString<unsigned short, Detail::TempStringAllocator> Format<BasicString<unsigned short, Detail::TempStringAllocator>, unsigned short[32]>(
@@ -191,8 +190,6 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>,
 
 /**
  * Offset/Address/Size: 0x3DCC | 0x800F5D94 | size: 0x128
- * TODO: 98.51% match - return copy path still reuses r4 for the null/result
- * store instead of reloading the temporary slot before final assignment.
  */
 template <>
 inline BasicString<unsigned short, Detail::TempStringAllocator>
@@ -219,8 +216,6 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>, const unsigned 
 
 /**
  * Offset/Address/Size: 0x0 | 0x800F414C | size: 0x140
- * TODO: 98.62% match - return copy path stores null/data via r4 instead of
- * stack reload into r0 (same systemic issue as all Format specializations).
  */
 template <>
 inline BasicString<unsigned short, Detail::TempStringAllocator>
@@ -250,8 +245,6 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>,
 
 /**
  * Offset/Address/Size: 0xE30 | 0x800F4F7C | size: 0x128
- * TODO: 98.51% match - return copy path still reuses r4 for the null/result
- * store instead of reloading the temporary slot before final assignment.
  */
 template <>
 inline BasicString<unsigned short, Detail::TempStringAllocator>
@@ -330,7 +323,6 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>,
 
 /**
  * Offset/Address/Size: 0xE08 | 0x800A9794 | size: 0x118
- * TODO: 98.43% match - return copy path still stores through r4 instead of reloading the temporary slot before final store.
  */
 template <>
 inline BasicString<unsigned short, Detail::TempStringAllocator> Format<BasicString<unsigned short, Detail::TempStringAllocator>, unsigned short[16]>(
@@ -511,8 +503,6 @@ inline BasicString<char, Detail::TempStringAllocator> Format<BasicString<char, D
 
 /**
  * Offset/Address/Size: 0x0 | 0x801935F8 | size: 0x128
- * TODO: 98.51% match - return copy/null handling still stores through r4
- * instead of reloading the temporary slot before the final store.
  */
 template <>
 inline BasicString<char, Detail::TempStringAllocator> Format<BasicString<char, Detail::TempStringAllocator>, int, int>(
@@ -602,8 +592,6 @@ inline BasicString<char, Detail::TempStringAllocator> Format<BasicString<char, D
 }
 /**
  * Offset/Address/Size: 0x2BC0 | 0x80069E18 | size: 0x114
- * TODO: 98.41% match - return copy path still uses r4 for null handling and
- * direct store, rather than reloading/storing through the expected temporary slot.
  */
 template <>
 inline BasicString<char, Detail::TempStringAllocator> Format<BasicString<char, Detail::TempStringAllocator>, float>(

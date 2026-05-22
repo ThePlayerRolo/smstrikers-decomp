@@ -1119,47 +1119,47 @@ void HUDOverlay::SetTeamIcons()
         InlineHasher(0),
         InlineHasher(0));
 
-    BasicString<char, Detail::TempStringAllocator> iconfilename[2];
+    NLString iconfilename[2];
 
     for (int i = 0; i < 2; i++)
     {
-        eTeamID teamid = nlSingleton<GameInfoManager>::s_pInstance->GetTeam(i);
+        eTeamID teamid = nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)i);
 
         switch (teamid)
         {
         case TEAM_DAISY:
-            iconfilename[i] = "fe/captain_icons/captain_icons_daisy";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_daisy");
             break;
         case TEAM_DONKEYKONG:
             if (i == 0)
             {
-                iconfilename[i] = "fe/captain_icons/captain_icons_dk";
+                iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_dk");
             }
             else
             {
-                iconfilename[i] = "fe/captain_icons/captain_icons_dk_r";
+                iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_dk_r");
             }
             break;
         case TEAM_LUIGI:
-            iconfilename[i] = "fe/captain_icons/captain_icons_luigi";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_luigi");
             break;
         case TEAM_MARIO:
-            iconfilename[i] = "fe/captain_icons/captain_icons_mario";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_mario");
             break;
         case TEAM_PEACH:
-            iconfilename[i] = "fe/captain_icons/captain_icons_peach";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_peach");
             break;
         case TEAM_WALUIGI:
-            iconfilename[i] = "fe/captain_icons/captain_icons_waluigi";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_waluigi");
             break;
         case TEAM_WARIO:
-            iconfilename[i] = "fe/captain_icons/captain_icons_wario";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_wario");
             break;
         case TEAM_YOSHI:
-            iconfilename[i] = "fe/captain_icons/captain_icons_yoshi";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_yoshi");
             break;
         case TEAM_MYSTERY:
-            iconfilename[i] = "fe/captain_icons/captain_icons_super";
+            iconfilename[i] = BasicString<char, Detail::TempStringAllocator>("fe/captain_icons/captain_icons_super");
             break;
         }
 

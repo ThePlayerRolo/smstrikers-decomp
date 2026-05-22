@@ -48,19 +48,16 @@ bool gxSetCoPlanar(bool coplanar)
  */
 nlColour gxSetChanAmbColour(int chan, const nlColour& color)
 {
-    u32* amb = (u32*)gx_ambColour;
-    u32 prev = amb[chan];
-    u32 col = *(u32*)&color;
+    nlColour* pAmb = &gx_ambColour[chan];
+    nlColour prev = *pAmb;
     nlColour temp;
-
-    if (prev != col)
+    if (prev != color)
     {
-        amb[chan] = *(volatile u32*)&color;
+        *(volatile u32*)pAmb = *(volatile u32*)&color;
         temp = color;
         GXSetChanAmbColor((GXChannelID)chan, *(GXColor*)&temp);
     }
-
-    return *(nlColour*)&prev;
+    return prev;
 }
 
 /**
@@ -113,13 +110,13 @@ void gxSetTevColourOp(int stage, _GXTevOp op, _GXTevBias bias, _GXTevScale scale
  */
 u32 gxSetNumTexGens(unsigned long numGens)
 {
-    u32 temp_r31 = gx_numGens;
+    u32 prev = gx_numGens;
     if (numGens != gx_numGens)
     {
         GXSetNumTexGens(numGens);
         gx_numGens = numGens;
     }
-    return temp_r31;
+    return prev;
 }
 
 /**
@@ -127,13 +124,13 @@ u32 gxSetNumTexGens(unsigned long numGens)
  */
 u32 gxSetNumTevStages(unsigned long numTEV)
 {
-    u32 temp_r31 = gx_numTEV;
+    u32 prev = gx_numTEV;
     if (numTEV != gx_numTEV)
     {
         GXSetNumTevStages(numTEV);
         gx_numTEV = numTEV;
     }
-    return temp_r31;
+    return prev;
 }
 
 /**

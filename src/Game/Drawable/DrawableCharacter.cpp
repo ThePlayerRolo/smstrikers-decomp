@@ -1439,6 +1439,7 @@ void cPN_Feather::Replay<LoadFrame>(LoadFrame& frame)
 template <>
 void cPN_Feather::Replay<SaveFrame>(SaveFrame& frame)
 {
+    FORCE_DONT_INLINE;
     Replayable<0>(frame, (cPoseNode&)*this);
 }
 

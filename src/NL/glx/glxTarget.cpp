@@ -14,18 +14,8 @@
 #include "NL/nlString.h"
 #include "Game/Sys/debug.h"
 
-struct glx_DOFTexture
-{
-    /* 0x00 */ u32 m_unk_0x00;
-    /* 0x04 */ u32 m_unk_0x04;
-    /* 0x08 */ u32 m_unk_0x08;
-    /* 0x0C */ u32 m_unk_0x0C;
-    /* 0x10 */ u32 m_unk_0x10;
-    /* 0x14 */ void* m_unk_0x14;
-};
-
-u32 GrabTextureName = glGetTexture("target/grab_texture");
-u32 DOFTextureName = glGetTexture("target/dof");
+static u32 GrabTextureName = glGetTexture("target/grab_texture");
+static u32 DOFTextureName = glGetTexture("target/dof");
 void* clearz_mem = 0;
 u32 glx_SharedMemory = 0;
 u32 glx_SharedSize = 0;
@@ -43,7 +33,7 @@ void glPlatGrabFrameBufferToTexture(unsigned long texHandle, unsigned int width,
         GX_TF_RGBA8,
         GX_TF_I8,
         GX_TF_I4,
-        GX_TF_A8,
+        GX_TF_I8,
         GX_TF_IA8,
         (GXTexFmt)GX_TF_C8,
     };
@@ -122,7 +112,7 @@ void glx_DOFGrab()
         gxSetZMode(1, GX_LEQUAL, 1);
         GXSetTexCopySrc(0, 0, 0x280, 0x1C0);
         GXSetTexCopyDst(0x140, 0xE0, GX_TF_RGB565, 1);
-        GXCopyTex(((glx_DOFTexture*)glx_GetTex(DOFTextureName, true, true))->m_unk_0x14, 0);
+        GXCopyTex(glx_GetTex(DOFTextureName, true, true)->m_SwizzledData, 0);
         GXPixModeSync();
         gxSetColourUpdate(colorUpdate);
         gxSetAlphaUpdate(alphaUpdate);
@@ -336,10 +326,3 @@ u32 glx_GetSharedMemory()
 {
     return glx_SharedMemory;
 }
-
-/**
- * Offset/Address/Size: 0x898 | 0x801C2F74 | size: 0x3C
-//  */
-// void 0x8028D520..0x8028D524 | size: 0x4
-// {
-// }

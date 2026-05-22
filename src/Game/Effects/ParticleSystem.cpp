@@ -432,8 +432,8 @@ void EmitSpindularPosition(nlVector3& vPosition, nlVector3& vDirection, EffectsT
 
 /**
  * Offset/Address/Size: 0x1900 | 0x801F6A58 | size: 0x390
- * TODO: 97.29% match - remaining diffs are register-allocation only
- * in persistent emitter/loop state and velocity-normalization temporaries.
+ * TODO: 97.61% match - remaining diffs are register-allocation only
+ * in persistent emitter/loop state.
  */
 #pragma opt_common_subs off
 void ParticleSystem::CreateNewParticles(int numParticles)
@@ -446,7 +446,8 @@ void ParticleSystem::CreateNewParticles(int numParticles)
     nlMatrix4 mCoordSys;
 
     UpdateCoordSys(mCoordSys);
-    if (m_pTemplate->m_bLocalSpace)
+    EffectsTemplate* pTempl = m_pTemplate;
+    if (pTempl->m_bLocalSpace)
     {
         baseDir.f.x = 0.0f;
         baseDir.f.y = 0.0f;
@@ -456,7 +457,7 @@ void ParticleSystem::CreateNewParticles(int numParticles)
     {
         baseDir = m_vForward;
     }
-    switch (m_pTemplate->m_eEmitter)
+    switch (pTempl->m_eEmitter)
     {
     case Emitter_Circle:
         emit = EmitCircularPosition;
@@ -503,13 +504,17 @@ void ParticleSystem::CreateNewParticles(int numParticles)
         pPart->lifeSpan = RandomizedValue(m_pTemplate->m_rParticleLife.base, m_pTemplate->m_rParticleLife.range);
         oneOverLife = 1.0f / pPart->lifeSpan;
         pPart->dRot = RandomizedValue(m_pTemplate->m_rRotation.base, m_pTemplate->m_rRotation.range);
-        if (pPart->dRot == 0.0f)
         {
-            pPart->rot = 0.0f;
-        }
-        else
-        {
-            pPart->rot = RandomizedValue(0.0f, 360.0f);
+            f32 rot;
+            if (pPart->dRot == 0.0f)
+            {
+                rot = 0.0f;
+            }
+            else
+            {
+                rot = RandomizedValue(0.0f, 360.0f);
+            }
+            pPart->rot = rot;
         }
         pPart->mass = RandomizedValue(m_pTemplate->m_rMass.base, m_pTemplate->m_rMass.range);
         EffectsTemplate* pTemplate = m_pTemplate;
@@ -518,14 +523,14 @@ void ParticleSystem::CreateNewParticles(int numParticles)
         pPart->size = sizeBegin;
         pPart->dSize = oneOverLife * (sizeEnd - sizeBegin);
         float inheritVelocity = RandomizedValue(m_pTemplate->m_rInheritVelocity.base, m_pTemplate->m_rInheritVelocity.range);
+        float velX = inheritVelocity * m_vVelocity.f.x;
         float velZ = inheritVelocity * m_vVelocity.f.z;
         float velY = inheritVelocity * m_vVelocity.f.y;
-        float velX = inheritVelocity * m_vVelocity.f.x;
         float vel = RandomizedValue(m_pTemplate->m_rVelocity.base, m_pTemplate->m_rVelocity.range);
+        float velDirZ = vel * dir.f.z + velZ;
         float velDirY = vel * dir.f.y + velY;
         float velDirX = vel * dir.f.x + velX;
-        float velDirZ = vel * dir.f.z + velZ;
-        float speedSquared = (velDirY * velDirY) + (velDirX * velDirX) + (velDirZ * velDirZ);
+        float speedSquared = (velDirX * velDirX) + (velDirY * velDirY) + (velDirZ * velDirZ);
         pPart->velocity = nlSqrt(speedSquared, true);
         if (pPart->velocity == 0.0f)
         {

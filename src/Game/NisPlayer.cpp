@@ -44,8 +44,19 @@ static unsigned char useAsyncLoading;
 
 /**
  * Offset/Address/Size: 0x74 | 0x80118E84 | size: 0x2C
- * TODO: 98.18% match - r3/r4 register swap for str++/n++ increment order in loop body
  */
+template <>
+unsigned long nlStrLen<char>(const char* str)
+{
+    unsigned long n = 0;
+    if (str)
+    {
+        for (; *str; n++, str++)
+            ;
+    }
+    return n;
+}
+
 // REMOVE once real callers exist.
 void NisPlayer_stub()
 {
@@ -1039,12 +1050,7 @@ BasicString<char, Detail::TempStringAllocator> NisPlayer::GetTargetFilter(NisTar
 
     if (target == NIS_TARGET_LOSER_SIDEKICK)
     {
-        int side = mWinnerSide[wt] + 1;
-        if (side < 0)
-        {
-            side = -side;
-        }
-
+        int side = (mWinnerSide[wt] + 1) % 2;
         return BasicString<char, Detail::TempStringAllocator>(GetSidekickName(nlSingleton<GameInfoManager>::s_pInstance->GetSidekick((short)side)));
     }
 
@@ -1055,11 +1061,7 @@ BasicString<char, Detail::TempStringAllocator> NisPlayer::GetTargetFilter(NisTar
 
     if (target == NIS_TARGET_LOSER_CAPTAIN)
     {
-        int side = mWinnerSide[wt] + 1;
-        if (side < 0)
-        {
-            side = -side;
-        }
+        int side = (mWinnerSide[wt] + 1) % 2;
 
         return BasicString<char, Detail::TempStringAllocator>(GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)side)));
     }

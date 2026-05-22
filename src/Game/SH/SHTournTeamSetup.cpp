@@ -2383,8 +2383,8 @@ BasicString<char, Detail::TempStringAllocator> TournTeamSetupSceneV2::FindCaptai
 
 /**
  * Offset/Address/Size: 0x76C | 0x800E2610 | size: 0x4C8
- * TODO: 96.21% match - string literal address is loaded at case entry rather than
- * after temporary BasicString allocation in each sidekick branch
+ * TODO: 97.97% match - temporary string object and literal pointer registers are
+ * swapped in sidekick branches
  */
 #pragma optimization_level 2
 BasicString<char, Detail::TempStringAllocator> TournTeamSetupSceneV2::FindSidekickSlideName(eSidekickID sidekick)
@@ -2394,17 +2394,129 @@ BasicString<char, Detail::TempStringAllocator> TournTeamSetupSceneV2::FindSideki
     switch (sidekick)
     {
     case SK_TOAD:
-        returnValue = BasicString<char, Detail::TempStringAllocator>("toad");
+    {
+        BasicStringData<char>* data = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
+        if (data != 0)
+        {
+            data->mData = 0;
+            data->mSize = 0;
+            data->mCapacity = 0;
+
+            const char* text = "toad";
+            const char* scan = text;
+            while (*scan++ != 0)
+            {
+                data->mSize++;
+            }
+
+            data->mSize++;
+            data->mData = (char*)nlMalloc(data->mSize + 1, 8, true);
+            data->mCapacity = data->mSize;
+
+            for (int i = 0; i < data->mSize; i++)
+            {
+                data->mData[i] = *text++;
+            }
+
+            data->mRefCount = 1;
+        }
+
+        returnValue = BasicString<char, Detail::TempStringAllocator>(data);
         break;
+    }
     case SK_KOOPA:
-        returnValue = BasicString<char, Detail::TempStringAllocator>("koopa");
+    {
+        BasicStringData<char>* data = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
+        if (data != 0)
+        {
+            data->mData = 0;
+            data->mSize = 0;
+            data->mCapacity = 0;
+
+            const char* text = "koopa";
+            const char* scan = text;
+            while (*scan++ != 0)
+            {
+                data->mSize++;
+            }
+
+            data->mSize++;
+            data->mData = (char*)nlMalloc(data->mSize + 1, 8, true);
+            data->mCapacity = data->mSize;
+
+            for (int i = 0; i < data->mSize; i++)
+            {
+                data->mData[i] = *text++;
+            }
+
+            data->mRefCount = 1;
+        }
+
+        returnValue = BasicString<char, Detail::TempStringAllocator>(data);
         break;
+    }
     case SK_HAMMERBROS:
-        returnValue = BasicString<char, Detail::TempStringAllocator>("hammer");
+    {
+        BasicStringData<char>* data = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
+        if (data != 0)
+        {
+            data->mData = 0;
+            data->mSize = 0;
+            data->mCapacity = 0;
+
+            const char* text = "hammer";
+            const char* scan = text;
+            while (*scan++ != 0)
+            {
+                data->mSize++;
+            }
+
+            data->mSize++;
+            data->mData = (char*)nlMalloc(data->mSize + 1, 8, true);
+            data->mCapacity = data->mSize;
+
+            for (int i = 0; i < data->mSize; i++)
+            {
+                data->mData[i] = *text++;
+            }
+
+            data->mRefCount = 1;
+        }
+
+        returnValue = BasicString<char, Detail::TempStringAllocator>(data);
         break;
+    }
     case SK_BIRDO:
-        returnValue = BasicString<char, Detail::TempStringAllocator>("birdo");
+    {
+        BasicStringData<char>* data = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
+        if (data != 0)
+        {
+            data->mData = 0;
+            data->mSize = 0;
+            data->mCapacity = 0;
+
+            const char* text = "birdo";
+            const char* scan = text;
+            while (*scan++ != 0)
+            {
+                data->mSize++;
+            }
+
+            data->mSize++;
+            data->mData = (char*)nlMalloc(data->mSize + 1, 8, true);
+            data->mCapacity = data->mSize;
+
+            for (int i = 0; i < data->mSize; i++)
+            {
+                data->mData[i] = *text++;
+            }
+
+            data->mRefCount = 1;
+        }
+
+        returnValue = BasicString<char, Detail::TempStringAllocator>(data);
         break;
+    }
     }
 
     return returnValue;

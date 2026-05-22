@@ -1,3 +1,4 @@
+#define BASICSTRING_OUTLINE_CTOR
 #include "Game/SH/SHPausePostGame.h"
 
 #include "Game/Audio/AudioLoader.h"
@@ -23,6 +24,21 @@ template <typename T, typename R>
 Detail::MemFunImpl<R, void (T::*)()> MemFun(void (T::*fn)())
 {
     return Detail::MemFunImpl<R, void (T::*)()>(fn);
+}
+
+static inline const unsigned short* LookupLocHash(unsigned long hash)
+{
+    nlLocalization* loc = g_pLocalization;
+    if (loc->m_LookupTable == 0)
+    {
+        return LocalizationTableNotFound;
+    }
+    nlLocalization::StringLookup* entry = nlBSearch(hash, loc->m_LookupTable, (int)loc->m_pFile->StringCount);
+    if (entry)
+    {
+        return loc->m_FirstString + entry->StringOffset;
+    }
+    return MissingLocString;
 }
 
 // /**
@@ -170,28 +186,6 @@ void PausePostGameScene::SceneCreated()
     typedef BindExp1<void, PauseMemFun, PausePostGameScene*> PauseBind;
     typedef Function1<void, TLComponentInstance*>::FunctorImpl<PauseBind> PauseFunctorImpl;
 
-#define LOOKUP_LOC_STRING(_hashExpr, _locVar)                                                                              \
-    {                                                                                                                      \
-        unsigned long _hash = (_hashExpr);                                                                                 \
-        nlLocalization* _loc = g_pLocalization;                                                                            \
-        if (_loc->m_LookupTable == 0)                                                                                      \
-        {                                                                                                                  \
-            (_locVar) = LocalizationTableNotFound;                                                                         \
-        }                                                                                                                  \
-        else                                                                                                               \
-        {                                                                                                                  \
-            nlLocalization::StringLookup* _entry = nlBSearch(_hash, _loc->m_LookupTable, (int)_loc->m_pFile->StringCount); \
-            if (_entry != 0)                                                                                               \
-            {                                                                                                              \
-                (_locVar) = _loc->m_FirstString + _entry->StringOffset;                                                    \
-            }                                                                                                              \
-            else                                                                                                           \
-            {                                                                                                              \
-                (_locVar) = MissingLocString;                                                                              \
-            }                                                                                                              \
-        }                                                                                                                  \
-    }
-
     EnableAutoPressed();
 
     static void (PausePostGameScene::* FunctionTable[3])();
@@ -205,7 +199,7 @@ void PausePostGameScene::SceneCreated()
         init = 1;
     }
 
-    mButtons.mButtonInstance = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
+    TLComponentInstance* pButtonComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
         m_pFEPresentation->m_currentSlide,
         InlineHasher(nlStringLowerHash("buttons")),
         InlineHasher(nlStringLowerHash("Layer")),
@@ -213,9 +207,8 @@ void PausePostGameScene::SceneCreated()
         InlineHasher(0),
         InlineHasher(0),
         InlineHasher(0));
+    mButtons.mButtonInstance = pButtonComp;
     mButtons.SetState(ButtonComponent::BS_A_AND_B);
-
-    unsigned short wscoreTmp[8];
 
     for (int i = 0; i < 3; i++)
     {
@@ -262,8 +255,7 @@ void PausePostGameScene::SceneCreated()
             *(Function<TLComponentInstance*>*)&menuItem->mCallbacks[ON_APPLY] = applyFunction;
         }
 
-        TLComponentInstance* highlite = (TLComponentInstance*)FindComponent(instance->GetActiveSlide(), "highlite");
-        (void)highlite;
+        FindComponent(instance->GetActiveSlide(), "highlite");
 
         if (i == 0)
         {
@@ -312,17 +304,16 @@ void PausePostGameScene::SceneCreated()
 
         BasicString<char, Detail::TempStringAllocator> score = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(
             nlSingleton<StatsTracker>::s_pInstance->mNumGamesWon[i]);
-        nlStrToWcs(score.c_str(), wscoreTmp, 8);
-        memcpy(mScoreBuffer[i], wscoreTmp, sizeof(wscoreTmp));
-        mScoreBuffer[i][nlStrLen(score.c_str())] = 0;
+        unsigned short wscore[8];
+        nlStrToWcs(score.c_str(), wscore, 8);
+        memcpy(mScoreBuffer[i], wscore, sizeof(wscore));
+        mScoreBuffer[i][score.size() - 1] = 0;
         text->SetString(mScoreBuffer[i]);
     }
 
     StatsTracker* tracker = nlSingleton<StatsTracker>::s_pInstance;
-    int score0 = tracker->mNumGamesWon[0];
-    int score1 = tracker->mNumGamesWon[1];
-    int pointdiff = score0 - score1;
-    unsigned int absdiff = (pointdiff < 0) ? (unsigned int)(-pointdiff) : (unsigned int)pointdiff;
+    int pointdiff = tracker->mNumGamesWon[0] - tracker->mNumGamesWon[1];
+    unsigned int absdiff = (pointdiff < 0) ? -pointdiff : pointdiff;
 
     TLTextInstance* message = FEFinder<TLTextInstance, 3>::Find<TLSlide>(
         m_pFEPresentation->m_currentSlide,
@@ -333,78 +324,135 @@ void PausePostGameScene::SceneCreated()
         InlineHasher(0),
         InlineHasher(0));
 
-    GameInfoManager* gameInfo = nlSingleton<GameInfoManager>::s_pInstance;
-    BasicGameInfo* game = gameInfo->mGameInfo[gameInfo->mCurrentMode];
+    BasicGameInfo* game = nlSingleton<GameInfoManager>::s_pInstance->mGameInfo[nlSingleton<GameInfoManager>::s_pInstance->mCurrentMode];
 
-    int hasHome = (game->mPadSides[0] == 0) || (game->mPadSides[1] == 0) || (game->mPadSides[2] == 0) || (game->mPadSides[3] == 0);
-    int hasAway = (game->mPadSides[0] == 1) || (game->mPadSides[1] == 1) || (game->mPadSides[2] == 1) || (game->mPadSides[3] == 1);
+    u8 hasAway = 0;
+    if (game->mPadSides[0] == 1)
+    {
+        hasAway = 1;
+    }
+    else if (game->mPadSides[1] == 1)
+    {
+        hasAway = 1;
+    }
+    else if (game->mPadSides[2] == 1)
+    {
+        hasAway = 1;
+    }
+    else if (game->mPadSides[3] == 1)
+    {
+        hasAway = 1;
+    }
 
-    if (hasHome && hasAway)
+    u8 hasHome = 0;
+    if (game->mPadSides[0] == 0)
+    {
+        hasHome = 1;
+    }
+    else if (game->mPadSides[1] == 0)
+    {
+        hasHome = 1;
+    }
+    else if (game->mPadSides[2] == 0)
+    {
+        hasHome = 1;
+    }
+    else if (game->mPadSides[3] == 0)
+    {
+        hasHome = 1;
+    }
+
+    if (hasAway && hasHome)
     {
         if (absdiff == 0)
         {
             const unsigned short* formatLoc;
-            LOOKUP_LOC_STRING(0x317831E4, formatLoc);
+            formatLoc = LookupLocHash(0x317831E4);
 
-            BasicString<char, Detail::TempStringAllocator> score = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(score0 + score1 + 1);
-            nlStrToWcs(score.c_str(), wscoreTmp, 8);
+            BasicString<char, Detail::TempStringAllocator> score = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(
+                tracker->mNumGamesWon[0] + tracker->mNumGamesWon[1] + 1);
+            unsigned short wscore[8];
+            nlStrToWcs(score.c_str(), wscore, 8);
 
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            SetText(*message, Format(locFmt, wscoreTmp));
+            BasicString<unsigned short, Detail::TempStringAllocator> msg = Format(locFmt, wscore);
+            SetText(*message, msg);
         }
         else if (absdiff <= 2)
         {
             const unsigned short* formatLoc;
-            LOOKUP_LOC_STRING(0x291A9065, formatLoc);
+            formatLoc = LookupLocHash(0x291A9065);
 
-            eTeamID winningteam = gameInfo->GetTeam((short)((pointdiff > 0) ? 1 : 0));
-            const unsigned short* charLoc;
-            LOOKUP_LOC_STRING(GetLOCCharacterName(winningteam, true, false), charLoc);
-
+            eTeamID winningteam = nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)((pointdiff < 0) ? 1 : 0));
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            SetText(*message, Format(locFmt, charLoc));
+            const unsigned short* charLoc;
+            charLoc = LookupLocHash(GetLOCCharacterName(winningteam, true, false));
+
+            BasicString<unsigned short, Detail::TempStringAllocator> msg = Format(locFmt, charLoc);
+            SetText(*message, msg);
         }
         else if (absdiff <= 6)
         {
             const unsigned short* formatLoc;
-            LOOKUP_LOC_STRING(0x1214A3EB, formatLoc);
+            formatLoc = LookupLocHash(0x1214A3EB);
 
-            eTeamID loosingteam = gameInfo->GetTeam((short)((pointdiff > 0) ? 1 : 0));
-            const unsigned short* charLoc;
-            LOOKUP_LOC_STRING(GetLOCCharacterName(loosingteam, true, false), charLoc);
-
+            eTeamID loosingteam = nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)((pointdiff > 0) ? 1 : 0));
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            SetText(*message, Format(locFmt, charLoc));
+            const unsigned short* charLoc;
+            charLoc = LookupLocHash(GetLOCCharacterName(loosingteam, true, false));
+
+            BasicString<unsigned short, Detail::TempStringAllocator> msg = Format(locFmt, charLoc);
+            SetText(*message, msg);
         }
         else
         {
             const unsigned short* formatLoc;
-            LOOKUP_LOC_STRING(0xAACD893B, formatLoc);
+            formatLoc = LookupLocHash(0xAACD893B);
 
-            eTeamID loosingteam = gameInfo->GetTeam((short)((pointdiff > 0) ? 1 : 0));
-            const unsigned short* charLoc;
-            LOOKUP_LOC_STRING(GetLOCCharacterName(loosingteam, true, false), charLoc);
-
+            eTeamID loosingteam = nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)((pointdiff > 0) ? 1 : 0));
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            SetText(*message, Format(locFmt, charLoc));
+            const unsigned short* charLoc;
+            charLoc = LookupLocHash(GetLOCCharacterName(loosingteam, true, false));
+
+            BasicString<unsigned short, Detail::TempStringAllocator> msg = Format(locFmt, charLoc);
+            SetText(*message, msg);
         }
     }
     else
     {
-        int noHomePlayers = (hasHome == 0);
+        u8 newHasHome = 0;
+        if (game->mPadSides[0] == 0)
+        {
+            newHasHome = 1;
+        }
+        else if (game->mPadSides[1] == 0)
+        {
+            newHasHome = 1;
+        }
+        else if (game->mPadSides[2] == 0)
+        {
+            newHasHome = 1;
+        }
+        else if (game->mPadSides[3] == 0)
+        {
+            newHasHome = 1;
+        }
+        int humanside = (newHasHome == 0);
 
         if (pointdiff == 0)
         {
             const unsigned short* formatLoc;
-            LOOKUP_LOC_STRING(0xFF559E6A, formatLoc);
+            formatLoc = LookupLocHash(0xFF559E6A);
 
             BasicString<char, Detail::TempStringAllocator> score = LexicalCast<BasicString<char, Detail::TempStringAllocator>, int>(absdiff + 1);
-            nlStrToWcs(score.c_str(), wscoreTmp, 8);
+            unsigned short wscore[8];
+            nlStrToWcs(score.c_str(), wscore, 8);
 
             BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-            SetText(*message, Format(locFmt, wscoreTmp));
+            BasicString<unsigned short, Detail::TempStringAllocator> msg = Format(locFmt, wscore);
+            SetText(*message, msg);
         }
-        else if (((noHomePlayers == 0) && (pointdiff > 0)) || ((noHomePlayers == 1) && (pointdiff < 0)))
+        else if (((humanside == 0) && (pointdiff > 0)) || ((humanside == 1) && (pointdiff < 0)))
         {
             if (absdiff <= 2)
             {
@@ -414,18 +462,19 @@ void PausePostGameScene::SceneCreated()
             else if (absdiff <= 6)
             {
                 const unsigned short* formatLoc;
-                LOOKUP_LOC_STRING(0xDBBFA4DE, formatLoc);
+                formatLoc = LookupLocHash(0xDBBFA4DE);
 
-                eTeamID otherteam = gameInfo->GetTeam((short)(noHomePlayers ? 0 : 1));
-                const unsigned short* charLoc;
-                LOOKUP_LOC_STRING(GetLOCCharacterName(otherteam, true, false), charLoc);
-
+                eTeamID otherteam = nlSingleton<GameInfoManager>::s_pInstance->GetTeam((short)(humanside ? 0 : 1));
                 BasicString<unsigned short, Detail::TempStringAllocator> locFmt(formatLoc);
-                SetText(*message, Format(locFmt, charLoc));
+                const unsigned short* charLoc;
+                charLoc = LookupLocHash(GetLOCCharacterName(otherteam, true, false));
+
+                BasicString<unsigned short, Detail::TempStringAllocator> msg = Format(locFmt, charLoc);
+                SetText(*message, msg);
             }
             else
             {
-                if (gameInfo->GetSkillLevel() == GameplaySettings::LEGEND)
+                if (nlSingleton<GameInfoManager>::s_pInstance->GetSkillLevel() == GameplaySettings::LEGEND)
                 {
                     message->m_LocStrId = 0xA4CA441C;
                 }
@@ -453,8 +502,6 @@ void PausePostGameScene::SceneCreated()
             message->m_OverloadFlags |= 8;
         }
     }
-
-#undef LOOKUP_LOC_STRING
 }
 
 void PausePostGameScene::Update(float dt)
@@ -726,9 +773,11 @@ void PausePostGameScene::OnSelectChangeTeams()
 /**
  * Offset/Address/Size: 0x0 | 0x80107104 | size: 0x88
  */
+#pragma dont_inline on
 void PausePostGameScene::SetText(TLTextInstance& textinstance, const BasicString<unsigned short, Detail::TempStringAllocator>& string)
 {
     nlStrNCpy(mRematchTextBuffer, string.c_str(), 128);
     mRematchTextBuffer[127] = 0;
     textinstance.SetString(mRematchTextBuffer);
 }
+#pragma dont_inline reset

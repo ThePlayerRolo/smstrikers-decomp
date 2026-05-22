@@ -43,7 +43,10 @@ struct LastScorerInfo
     /* 0x04 */ u32 scorerID;
 };
 
-extern LastScorerInfo* g_pLastScorer__5Audio;
+namespace Audio
+{
+extern LastScorerInfo* g_pLastScorer;
+} // namespace Audio
 
 // Team name strings
 static const char* s_TeamNames[] = {
@@ -218,7 +221,7 @@ bool Audio::TrackMgrFileNameParamLookup(const char* param, char* out, unsigned l
         break;
 
     case (s32)0xAEDB83D0:
-        switch (g_pLastScorer__5Audio->scorerID)
+        switch (Audio::g_pLastScorer->scorerID)
         {
         case 0:
         case 3:

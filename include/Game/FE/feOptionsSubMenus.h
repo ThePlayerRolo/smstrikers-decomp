@@ -22,6 +22,22 @@ class CheatSettings;
 class OptionsSubMenu
 {
 public:
+    OptionsSubMenu(FEPresentation* pres, ButtonComponent::ButtonState buttonstate)
+        : m_pres(pres)
+        , m_buttons(NULL)
+        , m_currentButtonState(buttonstate)
+        , mSettingsCRC(0)
+    {
+        mSlideMenuLists[0] = NULL;
+        mSlideMenuLists[1] = NULL;
+        mSlideMenuLists[2] = NULL;
+        mSlideMenuLists[3] = NULL;
+        mSlideMenuLists[4] = NULL;
+        mSlideMenuLists[5] = NULL;
+        mSlideMenuLists[6] = NULL;
+        mSlideMenuLists[7] = NULL;
+    }
+
     virtual ~OptionsSubMenu();
     virtual void Update(float);
     virtual void Save() = 0;

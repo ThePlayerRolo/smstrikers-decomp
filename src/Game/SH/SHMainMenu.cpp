@@ -538,6 +538,7 @@ void SHMainMenu::SceneCreated()
         }
         if (i == 2)
         {
+            TLComponentInstance* lockedType = item.mType;
             volatile InlineHasher b7, b6, b5, b4, b3, b2, b1, b0;
             b0.m_Hash = 0;
             h1.m_Hash = 0;
@@ -558,13 +559,21 @@ void SHMainMenu::SceneCreated()
                 FindComponentByRef byRef;
             } fc0;
             fc0.byValue = FEFinder<TLComponentInstance, 4>::Find<TLSlide>;
-            TLComponentInstance* lockedComp = fc0.byRef(item.mType->GetActiveSlide(), (InlineHasher&)b7, (InlineHasher&)b5, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
-            lockedComp->m_bVisible = (bool)item.mLocked;
+            TLComponentInstance* lockedComp = fc0.byRef(lockedType->GetActiveSlide(), (InlineHasher&)b7, (InlineHasher&)b5, (InlineHasher&)h7, (InlineHasher&)h5, (InlineHasher&)h3, (InlineHasher&)h1);
+            u8 locked = item.mLocked;
+            lockedComp->m_bVisible = (bool)locked;
         }
     }
-    mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[2](mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType);
-    mMenuItems.mCurrentIndex = mLastMenuItem;
-    mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[1](mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType);
+    int lastItem = mLastMenuItem;
+    {
+        MenuItem<TLComponentInstance>& cur = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex];
+        cur.mCallbacks[2](cur.mType);
+    }
+    mMenuItems.mCurrentIndex = lastItem;
+    {
+        MenuItem<TLComponentInstance>& cur = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex];
+        cur.mCallbacks[1](cur.mType);
+    }
     mMenuItems.mFlags = 1;
     scene->SetVisible(true);
     scene->mDesiredPlayMode = PM_STOP_AT_END;
@@ -599,7 +608,10 @@ void SHMainMenu::SceneCreated()
         BaseSceneHandler::Update(slide->m_start + slide->m_duration);
         FEAudio::EnableSounds(true);
     }
-    mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mCallbacks[1](mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].mType);
+    {
+        MenuItem<TLComponentInstance>& cur = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex];
+        cur.mCallbacks[1](cur.mType);
+    }
     mSnapMenuIntoPosition = true;
 }
 

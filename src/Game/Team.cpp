@@ -37,8 +37,6 @@ static const unsigned short g_aAdvantagePlayerFacingDirections[5] = {
     0,
 };
 
-extern FormationSpec* GetFormationSpec__16FormationManagerF10eFormation(eFormation);
-
 /**
  * Offset/Address/Size: 0x1CF0 | 0x8006609C | size: 0x138
  */
@@ -674,12 +672,12 @@ void cTeam::ResetCharacters()
     if (g_pGame->m_nLastTeamToScore == g_pTeams[m_nSide == 0 ? 1 : 0]->m_nSide)
     {
         pFacingDirectionTable = g_aAdvantagePlayerFacingDirections;
-        pFormation = GetFormationSpec__16FormationManagerF10eFormation(FORMATION_OFF_DEF_KICKOFF_ADVANTAGE);
+        pFormation = m_pFormationManager->GetFormationSpec(FORMATION_OFF_DEF_KICKOFF_ADVANTAGE);
     }
     else
     {
         pFacingDirectionTable = g_aNeutralPlayerFacingDirections;
-        pFormation = GetFormationSpec__16FormationManagerF10eFormation(FORMATION_OFF_DEF_KICKOFF_NEUTRAL);
+        pFormation = m_pFormationManager->GetFormationSpec(FORMATION_OFF_DEF_KICKOFF_NEUTRAL);
     }
 
     bFlipPositions = 0;

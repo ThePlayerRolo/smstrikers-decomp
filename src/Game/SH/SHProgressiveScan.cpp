@@ -477,6 +477,36 @@ void ProgressiveScanScene::Update(float fDeltaT)
 /**
  * Offset/Address/Size: 0x0 | 0x801104D0 | size: 0x940
  */
+/**
+ * TODO: 97.24% match - r31/r30 register swap (this vs confirmationText)
+ *       and r29/r28 swap (data vs str) across 8 switch cases
+ */
+#define ASSIGN_LANG(langLiteral)                                                                                \
+    {                                                                                                           \
+        BasicStringData<char>* data = (BasicStringData<char>*)nlMalloc(sizeof(BasicStringData<char>), 8, true); \
+        if (data != 0)                                                                                          \
+        {                                                                                                       \
+            const char* str = langLiteral;                                                                      \
+            data->mData = 0;                                                                                    \
+            data->mSize = 0;                                                                                    \
+            data->mCapacity = 0;                                                                                \
+            const char* s = str;                                                                                \
+            while (*s++ != 0)                                                                                   \
+            {                                                                                                   \
+                data->mSize++;                                                                                  \
+            }                                                                                                   \
+            data->mSize++;                                                                                      \
+            data->mData = (char*)nlMalloc((data->mSize + 1) * sizeof(char), 8, true);                           \
+            data->mCapacity = data->mSize;                                                                      \
+            for (int i = 0; i < data->mSize; i++)                                                               \
+            {                                                                                                   \
+                data->mData[i] = *str++;                                                                        \
+            }                                                                                                   \
+            data->mRefCount = 1;                                                                                \
+        }                                                                                                       \
+        languageString = BasicString<char, Detail::TempStringAllocator>(data);                                  \
+    }
+
 void ProgressiveScanScene::SwitchMessageImage()
 {
     const char* confirmationText = "No";
@@ -494,28 +524,28 @@ void ProgressiveScanScene::SwitchMessageImage()
     switch (g_Language)
     {
     case 0:
-        languageString = "eng";
+        ASSIGN_LANG("eng");
         break;
     case 1:
-        languageString = "fre";
+        ASSIGN_LANG("fre");
         break;
     case 2:
-        languageString = "deu";
+        ASSIGN_LANG("deu");
         break;
     case 3:
-        languageString = "spa";
+        ASSIGN_LANG("spa");
         break;
     case 4:
-        languageString = "ita";
+        ASSIGN_LANG("ita");
         break;
     case 5:
-        languageString = "jpn";
+        ASSIGN_LANG("jpn");
         break;
     case 6:
-        languageString = "uke";
+        ASSIGN_LANG("uke");
         break;
     default:
-        languageString = "eng";
+        ASSIGN_LANG("eng");
         break;
     }
 
@@ -525,3 +555,4 @@ void ProgressiveScanScene::SwitchMessageImage()
 
     mConfirmationImage->QueueLoad(textureName, true);
 }
+#undef ASSIGN_LANG

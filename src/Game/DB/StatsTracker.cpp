@@ -2304,7 +2304,31 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
             header.AppendInPlace(homeAway.Append("Steals, "));
             header.AppendInPlace(homeAway.Append("Hits Made, "));
             header.AppendInPlace(homeAway.Append("Goals One Timers, "));
-            homeAway = "A ";
+            homeAwayData = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+            if (homeAwayData != 0)
+            {
+                const char* awayText = "A ";
+                homeAwayData->mData = 0;
+                homeAwayData->mSize = 0;
+                homeAwayData->mCapacity = 0;
+
+                const char* p = awayText;
+                while ((signed char)*p++ != 0)
+                {
+                    homeAwayData->mSize++;
+                }
+
+                homeAwayData->mSize++;
+                homeAwayData->mData = (char*)nlMalloc((homeAwayData->mSize + 1) * sizeof(char), 8, true);
+                homeAwayData->mCapacity = homeAwayData->mSize;
+                for (int copyIndex = 0; copyIndex < homeAwayData->mSize; copyIndex++)
+                {
+                    homeAwayData->mData[copyIndex] = *awayText++;
+                }
+                homeAwayData->mRefCount = 1;
+            }
+
+            homeAway = BasicString<char, Detail::TempStringAllocator>(homeAwayData);
         }
 
         header.AppendInPlace("\n");
@@ -2359,7 +2383,30 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
 
     if (allCaptains)
     {
-        BasicString<char, Detail::TempStringAllocator> formatTemplate("{0},{1},{2},{3},{4},{5},{6},");
+        BasicStringInternal* fmtData = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+        if (fmtData != 0)
+        {
+            const char* fmtText = "{0},{1},{2},{3},{4},{5},{6},";
+            fmtData->mData = 0;
+            fmtData->mSize = 0;
+            fmtData->mCapacity = 0;
+
+            const char* p = fmtText;
+            while ((signed char)*p++ != 0)
+            {
+                fmtData->mSize++;
+            }
+
+            fmtData->mSize++;
+            fmtData->mData = (char*)nlMalloc((fmtData->mSize + 1) * sizeof(char), 8, true);
+            fmtData->mCapacity = fmtData->mSize;
+            for (int copyIndex = 0; copyIndex < fmtData->mSize; copyIndex++)
+            {
+                fmtData->mData[copyIndex] = *fmtText++;
+            }
+            fmtData->mRefCount = 1;
+        }
+        BasicString<char, Detail::TempStringAllocator> formatTemplate(fmtData);
 
         stats = Format(formatTemplate,
             GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0)),
@@ -2372,7 +2419,30 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
     }
     else
     {
-        BasicString<char, Detail::TempStringAllocator> formatTemplate("{0},{1},{2},{3},{4},{5},{6},");
+        BasicStringInternal* fmtData2 = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+        if (fmtData2 != 0)
+        {
+            const char* fmtText2 = "{0},{1},{2},{3},{4},{5},{6},";
+            fmtData2->mData = 0;
+            fmtData2->mSize = 0;
+            fmtData2->mCapacity = 0;
+
+            const char* p = fmtText2;
+            while ((signed char)*p++ != 0)
+            {
+                fmtData2->mSize++;
+            }
+
+            fmtData2->mSize++;
+            fmtData2->mData = (char*)nlMalloc((fmtData2->mSize + 1) * sizeof(char), 8, true);
+            fmtData2->mCapacity = fmtData2->mSize;
+            for (int copyIndex = 0; copyIndex < fmtData2->mSize; copyIndex++)
+            {
+                fmtData2->mData[copyIndex] = *fmtText2++;
+            }
+            fmtData2->mRefCount = 1;
+        }
+        BasicString<char, Detail::TempStringAllocator> formatTemplate(fmtData2);
 
         stats = Format(formatTemplate,
             GetTeamName(nlSingleton<GameInfoManager>::s_pInstance->GetTeam(0)),
@@ -2389,10 +2459,52 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
         int possession = (int)(mCurrentTeamStats[team].mPlayerTotalStats.mBallPossessionTime / 100);
         int difficulty = (int)nlSingleton<GameInfoManager>::s_pInstance->mCurrentDifficulty[team];
 
-        BasicString<char, Detail::TempStringAllocator> numPlayersTemplate("{0},");
+        BasicStringInternal* npData = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+        if (npData != 0)
+        {
+            const char* npText = "{0},";
+            npData->mData = 0;
+            npData->mSize = 0;
+            npData->mCapacity = 0;
+            const char* p = npText;
+            while ((signed char)*p++ != 0)
+            {
+                npData->mSize++;
+            }
+            npData->mSize++;
+            npData->mData = (char*)nlMalloc((npData->mSize + 1) * sizeof(char), 8, true);
+            npData->mCapacity = npData->mSize;
+            for (int copyIndex = 0; copyIndex < npData->mSize; copyIndex++)
+            {
+                npData->mData[copyIndex] = *npText++;
+            }
+            npData->mRefCount = 1;
+        }
+        BasicString<char, Detail::TempStringAllocator> numPlayersTemplate(npData);
         BasicString<char, Detail::TempStringAllocator> statsAfterPlayers = stats.Append(Format(numPlayersTemplate, numHumans[team]));
 
-        BasicString<char, Detail::TempStringAllocator> firstStatsTemplate("{0},{1},{2},{3},{4},{5},{6},");
+        BasicStringInternal* fsData = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+        if (fsData != 0)
+        {
+            const char* fsText = "{0},{1},{2},{3},{4},{5},{6},";
+            fsData->mData = 0;
+            fsData->mSize = 0;
+            fsData->mCapacity = 0;
+            const char* p = fsText;
+            while ((signed char)*p++ != 0)
+            {
+                fsData->mSize++;
+            }
+            fsData->mSize++;
+            fsData->mData = (char*)nlMalloc((fsData->mSize + 1) * sizeof(char), 8, true);
+            fsData->mCapacity = fsData->mSize;
+            for (int copyIndex = 0; copyIndex < fsData->mSize; copyIndex++)
+            {
+                fsData->mData[copyIndex] = *fsText++;
+            }
+            fsData->mRefCount = 1;
+        }
+        BasicString<char, Detail::TempStringAllocator> firstStatsTemplate(fsData);
         BasicString<char, Detail::TempStringAllocator> statsAfterFirst = statsAfterPlayers.Append(Format(firstStatsTemplate,
             difficulty,
             (int)mCurrentTeamStats[team].mPlayerTotalStats.mNumShotsOnGoal,
@@ -2402,7 +2514,28 @@ void StatsTracker::WriteStats(float gameTime, float gameDuration, const char* fi
             (int)mCurrentTeamStats[team].mPlayerTotalStats.mNumFouls,
             (int)mCurrentTeamStats[team].mPlayerTotalStats.mNumPowerupsUsed));
 
-        BasicString<char, Detail::TempStringAllocator> secondStatsTemplate("{0},{1},{2},{3},{4},{5},{6},{7}");
+        BasicStringInternal* ssData = (BasicStringInternal*)nlMalloc(0x10, 8, true);
+        if (ssData != 0)
+        {
+            const char* ssText = "{0},{1},{2},{3},{4},{5},{6},{7}";
+            ssData->mData = 0;
+            ssData->mSize = 0;
+            ssData->mCapacity = 0;
+            const char* p = ssText;
+            while ((signed char)*p++ != 0)
+            {
+                ssData->mSize++;
+            }
+            ssData->mSize++;
+            ssData->mData = (char*)nlMalloc((ssData->mSize + 1) * sizeof(char), 8, true);
+            ssData->mCapacity = ssData->mSize;
+            for (int copyIndex = 0; copyIndex < ssData->mSize; copyIndex++)
+            {
+                ssData->mData[copyIndex] = *ssText++;
+            }
+            ssData->mRefCount = 1;
+        }
+        BasicString<char, Detail::TempStringAllocator> secondStatsTemplate(ssData);
         BasicString<char, Detail::TempStringAllocator> fullStats = statsAfterFirst.Append(Format(secondStatsTemplate,
             (int)mCurrentTeamStats[team].mPlayerTotalStats.mNumPowerupsHit,
             (int)mCurrentTeamStats[team].mPlayerTotalStats.mNumPassesMade,

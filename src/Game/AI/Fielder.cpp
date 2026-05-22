@@ -3982,10 +3982,19 @@ void cFielder::ClearVolleyPass()
 {
 }
 
+struct ShootToScoreMeterScratch
+{
+    u8 pad[0x28];
+    u8 m_bMeterVisible;
+};
+
+extern "C" ShootToScoreMeterScratch instance__17ShootToScoreMeter;
+extern "C" void RumbleMeter__17ShootToScoreMeterFfff(ShootToScoreMeterScratch*, float, float, float);
+
 /**
  * Offset/Address/Size: 0x5B34 | 0x8001EE70 | size: 0x26C
- * TODO: 98.00% match - r29/r31 register swap (this vs team-name str pointer)
- * through BasicString construction/copy loop
+ * TODO: 97.10% match - r29/r31 register ownership remains swapped between
+ * this and team-name pointer in BasicString setup/copy.
  */
 void cFielder::CleanActionShootToScore()
 {
@@ -3998,11 +4007,12 @@ void cFielder::CleanActionShootToScore()
     extern void Remove__14cCameraManagerFRC11cBaseCamera(void*);
     extern void AppendInPlace__45BasicString_c_Q26Detail19TempStringAllocator_FPCc(BasicString<char, Detail::TempStringAllocator>*, const char*);
 
-    extern unsigned char instance__17ShootToScoreMeter[];
     extern unsigned char sSTSLighting__17DrawableCharacter;
     extern unsigned char sbIsHyperShootToScoreRenderingEnabled__5World;
 
-    cFielder* pSelf = this;
+    register cFielder* pSelf = this;
+    char* teamName;
+    BasicStringData<char>* strData;
 
     Audio::FadeFilterFromCurrentToZero();
     FixedUpdateTask::mTimeScale = 1.0f;
@@ -4013,14 +4023,44 @@ void cFielder::CleanActionShootToScore()
     pSelf->mActionShootToScoreVars.isInUnbreakablePart = false;
 
     Fade__14WorldDarkeningFff(Instance__14WorldDarkeningFv(), 1.0f, 0.0f);
-    instance__17ShootToScoreMeter[0x28] = 0;
+    instance__17ShootToScoreMeter.m_bMeterVisible = 0;
     RenderAllCharacters__17DrawableCharacterFv();
     sSTSLighting__17DrawableCharacter = 0;
     g_pGame->mbCaptainShotToScoreOn = false;
 
     g_pBall->m_pDrawableBall->m_uObjectFlags &= ~0x40;
 
-    BasicString<char, Detail::TempStringAllocator> effectName(GetTeamName__F7eTeamID(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((s16)pSelf->m_pTeam->m_nSide)));
+    teamName = GetTeamName__F7eTeamID(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((s16)pSelf->m_pTeam->m_nSide));
+
+    strData = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
+    if (strData != NULL)
+    {
+        strData->mData = NULL;
+        strData->mSize = 0;
+        strData->mCapacity = 0;
+
+        char* s = teamName;
+        while (*s++ != 0)
+        {
+            strData->mSize++;
+        }
+
+        strData->mSize++;
+        strData->mData = (char*)nlMalloc(strData->mSize + 1, 8, true);
+        strData->mCapacity = strData->mSize;
+
+        int i = 0;
+        while (i < strData->mSize)
+        {
+            strData->mData[i] = *teamName;
+            i++;
+            teamName++;
+        }
+
+        strData->mRefCount = 1;
+    }
+
+    BasicString<char, Detail::TempStringAllocator> effectName(strData);
     AppendInPlace__45BasicString_c_Q26Detail19TempStringAllocator_FPCc(&effectName, "shoot_to_score_shot");
     EffectsGroup* pGroup = fxGetGroup(effectName.c_str());
     pSelf->KillEffect(pGroup);
@@ -6234,15 +6274,6 @@ void cFielder::UpdateHeadTracking(float)
  * Offset/Address/Size: 0x13C4 | 0x8001A700 | size: 0x408
  * TODO: 98.99% match - MWCC generates blt instead of bge+b for SkillLevel >= SUPERSTAR check (compiler code layout quirk)
  */
-struct ShootToScoreMeterScratch
-{
-    u8 pad[0x28];
-    u8 m_bMeterVisible;
-};
-
-extern "C" ShootToScoreMeterScratch instance__17ShootToScoreMeter;
-extern "C" void RumbleMeter__17ShootToScoreMeterFfff(ShootToScoreMeterScratch*, float, float, float);
-
 void cFielder::UpdateController(float)
 {
     extern cTeam* g_pCurrentlyUpdatingTeam;

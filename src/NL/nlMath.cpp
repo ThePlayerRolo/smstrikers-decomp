@@ -164,7 +164,7 @@ float nlTan(unsigned short angle)
  * TODO: 98.20% match - clamp handoff still materializes a temp in f5 (extra fmr)
  *       instead of keeping clamped rad in f7 through the rsqrt/compare path
  */
-unsigned short nlACos(float x)
+int nlACos(float x)
 {
     u8 complement = (x < 0.0f);
     f32 y, temp, sqrtVal, rad, rad2;

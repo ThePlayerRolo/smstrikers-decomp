@@ -51,7 +51,6 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>, unsigned short[
 
 /**
  * Offset/Address/Size: 0xF44 | 0x800D0CC4 | size: 0x114
- * TODO: 98.33% match - return copy stores null/data via r4 instead of stack reload into r0.
  */
 template <>
 BasicString<unsigned short, Detail::TempStringAllocator>
@@ -77,7 +76,6 @@ Format<BasicString<unsigned short, Detail::TempStringAllocator>, const unsigned 
 
 /**
  * Offset/Address/Size: 0xE20 | 0x800D0BA0 | size: 0x124
- * TODO: 98.36% match - return copy null/data path still stores through r4 instead of reloading through r0.
  */
 template <>
 BasicString<unsigned short, Detail::TempStringAllocator>

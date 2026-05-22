@@ -16,40 +16,56 @@
 
 #include "direct_io.h"
 
-u32 count0 = 0;
-int glx_nBuffer = 0;
-int _shotno = 0;
-int glx_SwapMode = 0;
-u8 glx_ResetCaptureFrame = 0;
+static u8 glx_bAllowDrawSync = true;
+static int LoadWaitSeconds = 2;
 
-static u8 glx_bLoadingIndicator = 0;
-static u8 glx_bAllowDrawSync = 0;
+u8 glx_ScreenShot;
+static int _shotno;
+u8 glx_MovieOutput;
+u8 glx_ResetCaptureFrame;
+u8 glx_bLoadingIndicator;
+s32 glx_nBlitXor;
+static void* glx_FrameBuffer[2];
+static int glx_nBuffer;
+static int nFirstFrame;
+u8 bInRetrace;
+int glx_SwapMode;
+static int glx_nLoadFrame;
+static int glx_nLoadWaitFrames;
+static int loadCounter;
+static int nSelected;
+static bool glx_bLoadOtherPosition;
+static u8 bSaved;
+static u8 bSavedState;
+static u32 count0;
 
-u8 glx_ScreenShot = 0;
-u8 glx_MovieOutput = 0;
-int nFirstFrame = 0;
-int glx_nLoadFrame = 0;
-int glx_nLoadWaitFrames = 0;
+static u16 _ImageData[32][32] = {
+#include "NL/glx/_ImageData.inc"
+};
 
-void* glx_FrameBuffer[2];
+static u16 _SelectedImageData[32][32] = {
+#include "NL/glx/_SelectedImageData.inc"
+};
 
-static u8 bSaved = 0;
-static u8 bSavedState = 0;
+typedef BasicString<char, Detail::TempStringAllocator> TempString;
 
-bool glx_bLoadOtherPosition = false;
-int loadCounter = 0;
-int nSelected = 0;
-static int LoadWaitSeconds = 0;
-
-extern u8 bInRetrace;
-extern s32 glx_nBlitXor;
-extern u16 _ImageData[0x400];
-extern u16 _SelectedImageData[0x400];
+static void DrawLoadingIndicator();
+static void BlitImage(int, int, float, float, bool);
+static void hitz_Post(bool);
+static void hitz_Pre(bool);
+static void hitz_SwapBuffers();
+static void hitz_AdvanceFrame();
+static void simple_Post(bool);
+static void simple_Pre(bool);
+static void vi_post_cb(unsigned long);
+static void vi_pre_cb(unsigned long);
+static void loading_indicator();
+static void glx_ScreenCapture(bool);
 
 /**
  * Offset/Address/Size: 0x0 | 0x801BED50 | size: 0x118
  */
-void DrawLoadingIndicator()
+static void DrawLoadingIndicator()
 {
     u32 targetFPS = glx_GetTargetFPS();
     int counterLimit;
@@ -110,16 +126,16 @@ void DrawLoadingIndicator()
 /**
  * Offset/Address/Size: 0x118 | 0x801BEE68 | size: 0x2D0
  */
-void BlitImage(int arg0, int arg1, float arg2, float arg3, bool arg4)
+static void BlitImage(int arg0, int arg1, float arg2, float arg3, bool arg4)
 {
-    float limit = 24.0f;
+    float limit = 32.0f;
     float xStep = limit / (float)(int)(limit * arg2);
     float yStep = limit / (float)(int)(limit * arg3);
     float ySample = 0.0f;
     int x2 = arg0 << 1;
     u8 useSelected = arg4;
-    const u16* selectedBase = _SelectedImageData;
-    const u16* imageBase = _ImageData;
+    const u16* selectedBase = (const u16*)_SelectedImageData;
+    const u16* imageBase = (const u16*)_ImageData;
     int yOffset = 0;
 
     while (ySample < limit)
@@ -195,8 +211,9 @@ void BlitImage(int arg0, int arg1, float arg2, float arg3, bool arg4)
 /**
  * Offset/Address/Size: 0x3E8 | 0x801BF138 | size: 0xC0
  */
-void hitz_Post(bool arg0)
+static void hitz_Post(bool arg0)
 {
+    FORCE_DONT_INLINE;
     if ((u8)glx_ResetCaptureFrame != 0)
     {
         _shotno = 0;
@@ -225,8 +242,9 @@ void hitz_Post(bool arg0)
 /**
  * Offset/Address/Size: 0x4A8 | 0x801BF1F8 | size: 0xD4
  */
-void hitz_Pre(bool)
+static void hitz_Pre(bool)
 {
+    FORCE_DONT_INLINE;
     GXWaitDrawDone();
     u32 retraceCount = VIGetRetraceCount();
     float value = glConstantGet("glxswap/vwait").f.x;
@@ -270,16 +288,18 @@ void hitz_Pre(bool)
 /**
  * Offset/Address/Size: 0x57C | 0x801BF2CC | size: 0x10
  */
-void hitz_SwapBuffers()
+static void hitz_SwapBuffers()
 {
+    FORCE_DONT_INLINE;
     glx_nBuffer ^= 1;
 }
 
 /**
  * Offset/Address/Size: 0x58C | 0x801BF2DC | size: 0x54
  */
-void hitz_AdvanceFrame()
+static void hitz_AdvanceFrame()
 {
+    FORCE_DONT_INLINE;
     VISetNextFrameBuffer(glx_FrameBuffer[glx_nBuffer]);
     if (nFirstFrame > 0)
     {
@@ -295,8 +315,9 @@ void hitz_AdvanceFrame()
 /**
  * Offset/Address/Size: 0x5E0 | 0x801BF330 | size: 0xA0
  */
-void simple_Post(bool arg0)
+static void simple_Post(bool arg0)
 {
+    FORCE_DONT_INLINE;
     gxSetZMode(true, GX_LEQUAL, true);
     gxSetColourUpdate(true);
     gxSetAlphaUpdate(true);
@@ -319,9 +340,9 @@ void simple_Post(bool arg0)
 /**
  * Offset/Address/Size: 0x680 | 0x801BF3D0 | size: 0x4
  */
-void simple_Pre(bool)
+static void simple_Pre(bool)
 {
-    // EMPTY
+    FORCE_DONT_INLINE;
 }
 
 /**
@@ -370,13 +391,14 @@ void glxSwapPre(bool bSend)
 
 /**
  * Offset/Address/Size: 0x734 | 0x801BF484 | size: 0x260
- * TODO: 97.99% match - r30/r31 register swap for data and str pointers
- * in the string construction section (offsets 0x48-0xE4). MWCC allocator
- * assigns data=r31/str=r30 instead of target data=r30/str=r31.
+ * TODO: 97.8% match - r30/r31 register swap (data/str) and copy ctor
+ * missing reload at 0x11c. Fixing nlBasicString.h copy ctor regresses 26
+ * other functions.
  */
 void glxInitSwap(void* arg0, void* arg1)
 {
     BasicStringInternal* data;
+    const char* str;
 
     glx_FrameBuffer[0] = arg0;
     glx_FrameBuffer[1] = arg1;
@@ -387,7 +409,7 @@ void glxInitSwap(void* arg0, void* arg1)
     data = (BasicStringInternal*)nlMalloc(0x10, 8, true);
     if (data != 0)
     {
-        const char* str = "hitz";
+        str = "hitz";
         data->mData = 0;
         const char* s = str;
         data->mSize = 0;
@@ -397,7 +419,7 @@ void glxInitSwap(void* arg0, void* arg1)
             data->mSize++;
         }
         data->mSize++;
-        data->mData = (char*)Detail::TempStringAllocator::allocate(data->mSize + 1);
+        data->mData = (char*)nlMalloc(data->mSize + 1, 8, true);
         data->mCapacity = data->mSize;
         for (s32 i = 0; i < data->mSize; i++)
         {
@@ -410,7 +432,7 @@ void glxInitSwap(void* arg0, void* arg1)
         Config::Global().Get<BasicString<char, Detail::TempStringAllocator> >(
             "swapmode", BasicString<char, Detail::TempStringAllocator>(data)));
 
-    glx_SwapMode = !(mode == "simple");
+    glx_SwapMode = (mode == "simple") ? 0 : 1;
     switch (glx_SwapMode)
     {
     case 1:
@@ -440,7 +462,7 @@ void glxSwapWaitDrawDone()
 /**
  * Offset/Address/Size: 0x9BC | 0x801BF70C | size: 0x50
  */
-void vi_post_cb(unsigned long)
+static void vi_post_cb(unsigned long)
 {
     HandleSoftReset();
     if (glx_bLoadingIndicator != false)
@@ -457,7 +479,7 @@ void vi_post_cb(unsigned long)
 /**
  * Offset/Address/Size: 0xA0C | 0x801BF75C | size: 0xC
  */
-void vi_pre_cb(unsigned long)
+static void vi_pre_cb(unsigned long)
 {
     bInRetrace = 1;
 }
@@ -465,8 +487,9 @@ void vi_pre_cb(unsigned long)
 /**
  * Offset/Address/Size: 0xA18 | 0x801BF768 | size: 0x88
  */
-void loading_indicator()
+static void loading_indicator()
 {
+    FORCE_DONT_INLINE;
     if (nFirstFrame == 0)
     {
         DrawLoadingIndicator();
@@ -521,6 +544,7 @@ void glxLoadSaveState()
  */
 void glxSwapLoading(bool arg0, bool arg1)
 {
+    FORCE_DONT_INLINE;
     u32 loadWaitFrames;
     u32 targetFPS;
     u32 lws;
@@ -578,7 +602,7 @@ struct TargaHeader
  * rowPixelOffset). MWCC allocates r27=imageData r28=rowPixelOffset r29=dead_copy
  * instead of target r29=imageData r28=dead_copy r27=rowPixelOffset.
  */
-void glx_ScreenCapture(bool isMovie)
+static void glx_ScreenCapture(bool isMovie)
 {
     char filename[0x40];
     FILE* file;

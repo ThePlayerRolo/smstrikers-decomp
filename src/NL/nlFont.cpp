@@ -347,14 +347,14 @@ void nlFont::DrawString(eGLView View, const FontCharString& Text, const nlVector
     }
 }
 
+static const nlFont::GlyphInfo sZeroGlyphInfo = { };
+
 /**
  * Offset/Address/Size: 0x830 | 0x8021116C | size: 0x9C0
  */
 unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned long HashId)
 {
     char* pCurrentLine;
-    ListContainerBase<nlFont::KernPair, BasicSlotPoolHigh<ListEntry<nlFont::KernPair> > > KernList;
-    ListContainerBase<nlFont::GlyphInfo, BasicSlotPoolHigh<ListEntry<nlFont::GlyphInfo> > > ExtendedGlyphList;
     unsigned long CurrentPage;
     unsigned long CurrentTexelX;
     unsigned long CurrentTexelY;
@@ -370,11 +370,15 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
 
     nlStrNCpy(m_FontName, szFontName, 0x20);
 
+    pCurrentLine = pFontDescData;
+
+    ListContainerBase<nlFont::KernPair, BasicSlotPoolHigh<ListEntry<nlFont::KernPair> > > KernList;
     KernList.m_Allocator.m_Initial = 0x10;
     SlotPoolBase::BaseAddNewBlock(&KernList.m_Allocator, sizeof(ListEntry<nlFont::KernPair>));
     KernList.m_Allocator.m_Delta = 0x10;
     m_KernTableSize = 0;
 
+    ListContainerBase<nlFont::GlyphInfo, BasicSlotPoolHigh<ListEntry<nlFont::GlyphInfo> > > ExtendedGlyphList;
     ExtendedGlyphList.m_Allocator.m_Initial = 0x10;
     SlotPoolBase::BaseAddNewBlock(&ExtendedGlyphList.m_Allocator, sizeof(ListEntry<nlFont::GlyphInfo>));
     ExtendedGlyphList.m_Allocator.m_Delta = 0x10;
@@ -386,9 +390,10 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
     m_bScissorBox = false;
     m_Metrics.FontName = HashId;
 
-    pCurrentLine = pFontDescData;
-    while (nlToUpper(*pCurrentLine) != 'E')
+    for (;;)
     {
+        if (nlToUpper(*pCurrentLine) == 'E')
+            break;
         pEOL = nlStrChr(pCurrentLine, '\r');
         if (pEOL != NULL)
         {
@@ -409,8 +414,8 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
             m_PageCount = atoi(pCurrentLine);
 
             pCurrentLine = nlStrChr(pCurrentLine, ' ') + 1;
-            pCurrentLine = nlStrChr(pCurrentLine, ' ');
-            switch (nlToLower((char)pCurrentLine[1]))
+            pCurrentLine = nlStrChr(pCurrentLine, ' ') + 1;
+            switch (nlToLower(*pCurrentLine))
             {
             case 'c':
                 m_TextureType = Colour;
@@ -427,7 +432,7 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
 
             pCurrentLine = nlStrChr(pCurrentLine, ' ') + 1;
             pCurrentLine = nlStrChr(pCurrentLine, ' ');
-            switch (nlToLower((char)pCurrentLine[1]))
+            switch (nlToLower(pCurrentLine[1]))
             {
             case 'e':
                 m_Distribution = English;
@@ -491,6 +496,8 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
             else
             {
                 ListEntry<nlFont::GlyphInfo>* pEntry = NULL;
+                nlFont::GlyphInfo zeroedInfo = sZeroGlyphInfo;
+
                 if (ExtendedGlyphList.m_Allocator.m_FreeList == NULL)
                 {
                     SlotPoolBase::BaseAddNewBlock(&ExtendedGlyphList.m_Allocator, sizeof(ListEntry<nlFont::GlyphInfo>));
@@ -505,14 +512,7 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
                 if (pEntry != NULL)
                 {
                     pEntry->next = NULL;
-                    pEntry->data.uv.f.x = 0.0f;
-                    pEntry->data.uv.f.y = 0.0f;
-                    pEntry->data.Advance = 0;
-                    pEntry->data.RenderWidth = 0;
-                    pEntry->data.Offset = 0;
-                    pEntry->data.Page = 0;
-                    pEntry->data.HasKernPairs = 0;
-                    pEntry->data.UnicodeChar = 0;
+                    pEntry->data = zeroedInfo;
                 }
 
                 nlListAddStart(&ExtendedGlyphList.m_Head, pEntry, &ExtendedGlyphList.m_Tail);
@@ -578,6 +578,7 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
             while ((unsigned long)pToken != 1)
             {
                 ListEntry<nlFont::KernPair>* pEntry;
+                nlFont::KernPair entryData;
 
                 kp.s.A = Base;
                 if (pToken[1] != ' ')
@@ -592,6 +593,9 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
                 pToken = nlStrChr(pToken, ' ') + 1;
                 kp.Kern = atoi(pToken);
 
+                entryData.hash = kp.hash;
+                entryData.Kern = kp.Kern;
+
                 if (KernList.m_Allocator.m_FreeList == NULL)
                 {
                     SlotPoolBase::BaseAddNewBlock(&KernList.m_Allocator, sizeof(ListEntry<nlFont::KernPair>));
@@ -602,8 +606,7 @@ unsigned char nlFont::Load(const char* szFontName, char* pFontDescData, unsigned
                 {
                     KernList.m_Allocator.m_FreeList = KernList.m_Allocator.m_FreeList->m_next;
                     pEntry->next = NULL;
-                    pEntry->data.hash = kp.hash;
-                    pEntry->data.Kern = kp.Kern;
+                    pEntry->data = entryData;
                 }
 
                 nlListAddStart(&KernList.m_Head, pEntry, &KernList.m_Tail);

@@ -1,7 +1,8 @@
 #include "NL/gl/glAppAttach.h"
 
-#include "NL/gl/glState.h"
+#include "Game/Render/ShootToScoreArrow.h"
 #include "NL/gl/glMemory.h"
+#include "NL/gl/glState.h"
 
 const u32 UnlitProgram = glGetProgram("3d unlit");
 const u32 LitProgram = glGetProgram("3d pointlit");
@@ -68,7 +69,6 @@ const char* view_names[0x22] = {
 void glplatAttachPacket(eGLView view, unsigned long layer, const glModelPacket* pPacket)
 {
     extern void gl_ViewAttachPacket(eGLView, unsigned long, const glModelPacket*);
-    extern void* Instance__14WorldDarkeningFv();
 
     unsigned long newLayer = layer;
     eGLView newView = view;
@@ -189,7 +189,7 @@ void glplatAttachPacket(eGLView view, unsigned long layer, const glModelPacket* 
     {
         if (glGetRasterState(pPacket->state.raster, (eGLState)5) != 0)
         {
-            if (*(u8*)((u8*)Instance__14WorldDarkeningFv() + 0xC) != 0)
+            if (WorldDarkening::Instance().mActive)
             {
                 newView = (eGLView)7;
                 newLayer++;

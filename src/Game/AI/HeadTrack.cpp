@@ -22,8 +22,7 @@ cHeadTrack::cHeadTrack()
 
 /**
  * Offset/Address/Size: 0x160 | 0x80056F64 | size: 0x450
- * TODO: 97.13% match - remaining diffs are FP register allocation in vector-normalization stores
- * and signed angle-conversion sequence around head-tilt computation.
+ * TODO: 98.19% match - 1 extra instruction causes branch target offset diff (beq 36c vs 370)
  */
 void cHeadTrack::Update(const nlMatrix4& m4HeadMatrix, const nlMatrix4& m4ConstraintMatrix, float fDeltaT, unsigned short aOOIConstraint, int nHeadSpinMax, int nHeadTiltMax, float fSmoothTime)
 {
@@ -54,17 +53,12 @@ void cHeadTrack::Update(const nlMatrix4& m4HeadMatrix, const nlMatrix4& m4Constr
             float y2 = v3OOIConstraintSpace.f.y * v3OOIConstraintSpace.f.y;
             float z2 = v3OOIConstraintSpace.f.z * v3OOIConstraintSpace.f.z;
             float invLen = nlRecipSqrt(x2 + y2 + z2, true);
-            float z = invLen * v3OOIConstraintSpace.f.z;
-            float y = invLen * v3OOIConstraintSpace.f.y;
-            float x = invLen * v3OOIConstraintSpace.f.x;
-
-            v3OOIConstraintSpace.f.z = z;
-            v3OOIConstraintSpace.f.x = x;
-            v3OOIConstraintSpace.f.y = y;
+            _nlVec3Scale(v3OOIConstraintSpace, invLen);
         }
 
         nHeadSpin = ((int)(10430.378f * nlATan2f(v3OOIConstraintSpace.f.z, v3OOIConstraintSpace.f.y)) << 16) >> 16;
-        nHeadTilt = ((0x4000 - nlACos(-v3OOIConstraintSpace.f.x)) << 16) >> 16;
+        nHeadTilt = 0x4000 - nlACos(-v3OOIConstraintSpace.f.x);
+        nHeadTilt = (nHeadTilt << 16) >> 16;
 
         {
             int sign = nHeadSpin >> 31;
@@ -72,10 +66,9 @@ void cHeadTrack::Update(const nlMatrix4& m4HeadMatrix, const nlMatrix4& m4Constr
 
             if ((absSpin < (int)(unsigned int)aOOIConstraint) || (m_v3OOI.f.z > 1.5f))
             {
-                nAmountOfDeadZoneBehindHeadtrack = (((int)(unsigned int)aOOIConstraint - nHeadSpinMax) * 3) / 4;
-
                 nHeadSpin = (int)(float)nHeadSpin;
                 nHeadTilt = (int)(0.5f * (float)nHeadTilt);
+                nAmountOfDeadZoneBehindHeadtrack = (((int)(unsigned int)aOOIConstraint - nHeadSpinMax) * 3) / 4;
 
                 sign = nHeadSpin >> 31;
                 absSpin = (nHeadSpin ^ sign) - sign;
@@ -116,13 +109,13 @@ void cHeadTrack::Update(const nlMatrix4& m4HeadMatrix, const nlMatrix4& m4Constr
 
         if (&m4HeadMatrix != &m4ConstraintMatrix)
         {
-            float headM22 = m4HeadMatrix.f.m22;
             float headM21 = m4HeadMatrix.f.m21;
+            float headM22 = m4HeadMatrix.f.m22;
             float constraintAtan = nlATan2f(m4Constrain.f.m22, m4Constrain.f.m21);
             float headAtan = nlATan2f(headM22, headM21);
             unsigned short spinConstraint = (unsigned short)(int)(10430.378f * constraintAtan);
             unsigned short spinHead = (unsigned short)(int)(10430.378f * headAtan);
-            nHeadSpin += ((spinConstraint - spinHead) << 16) >> 16;
+            nHeadSpin += (short)(spinConstraint - spinHead);
         }
         m_fDesiredHeadSpin = nHeadSpin;
         m_fDesiredHeadTilt = nHeadTilt;

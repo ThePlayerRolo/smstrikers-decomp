@@ -130,7 +130,16 @@ BasicString<unsigned short, Detail::TempStringAllocator>::Append<Detail::TempStr
 {
     BasicString r(*this);
     r.AppendInPlace(rhs);
-    return r;
+    BasicStringData<unsigned short>* data = r.m_data;
+    if (data != 0)
+    {
+        data->mRefCount++;
+    }
+    else
+    {
+        data = 0;
+    }
+    return BasicString(data);
 }
 
 /**

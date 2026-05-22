@@ -7,7 +7,7 @@
 float nlBezier(float*, int, float);
 float nlATan2f(float, float);
 float nlTan(unsigned short);
-unsigned short nlACos(float);
+int nlACos(float);
 void nlSinCos(float* presult_sin, float* presult_cos, unsigned short angle);
 float nlSin(unsigned short);
 float nlRecipSqrt(float, bool);

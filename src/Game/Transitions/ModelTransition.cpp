@@ -1,5 +1,6 @@
 #include "Game/Transitions/ModelTransition.h"
 
+#include "Game/SHierarchy.h"
 #include "NL/nlMath.h"
 #include "NL/nlMemory.h"
 #include "NL/nlSlotPool.h"
@@ -20,8 +21,6 @@
 #include "NL/glx/glxLoadModel.h"
 #include "NL/glx/glxDisplayList.h"
 #include "Game/GL/gluMeshWriter.h"
-
-extern "C" cSHierarchy* Initialize__11cSHierarchyFP7nlChunk(nlChunk*);
 
 struct TransitionModelStore
 {
@@ -780,7 +779,7 @@ ModeledScreenTransition* ModeledScreenTransition::LoadFromParser(SimpleParser* p
 
             nlSNPrintf(buf, 128, "art/transitions/%s.shier", pToken);
             m_pSkelFile = (char*)nlLoadEntireFile(buf, &fileSize, 0x20, AllocateStart);
-            m_pSkeleton = Initialize__11cSHierarchyFP7nlChunk((nlChunk*)m_pSkelFile);
+            m_pSkeleton = ((cSHierarchy*)m_pSkelFile)->Initialize((nlChunk*)m_pSkelFile);
 
             m_pModelMap = (int*)nlMalloc(m_nModels * 4, 8, false);
             for (u32 i = 0; i < m_nModels; i++)

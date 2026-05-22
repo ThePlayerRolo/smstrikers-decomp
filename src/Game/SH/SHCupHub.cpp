@@ -4721,14 +4721,13 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
     }
 
     GameInfoManager* gameInfo = *(GameInfoManager* volatile*)&nlSingleton<GameInfoManager>::s_pInstance;
-    int roundNumber = gameInfo->GetCurrentRoundNumber();
+    s16 roundNumber = gameInfo->GetCurrentRoundNumber();
 
     TLSlide* pCurrentSlide = m_pFEScene->m_pFEPackage->GetPresentation()->m_currentSlide;
 
     TLSlide* pSlide;
+    volatile InlineHasher hB, hA, h9, h8, h7, h6, h5, h4, h3, h2, h1, h0;
     {
-        volatile InlineHasher hB, hA, h9, h8, h7, h6, h5, h4, h3, h2, h1, h0;
-
         h0.m_Hash = 0;
         h1.m_Hash = 0;
         h2.m_Hash = 0;
@@ -4767,22 +4766,22 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
 
     TLTextInstance* pText;
     {
-        volatile InlineHasher hB, hA, h9, h8, h7, h6, h5, h4, h3, h2, h1, h0;
+        volatile InlineHasher tB, tA, t9, t8, t7, t6, t5, t4;
 
-        h0.m_Hash = 0;
+        t4.m_Hash = 0;
         h1.m_Hash = 0;
-        h2.m_Hash = 0;
+        t5.m_Hash = 0;
         h3.m_Hash = 0;
-        h4.m_Hash = 0;
+        t6.m_Hash = 0;
         h5.m_Hash = 0;
-        h6.m_Hash = 0;
+        t7.m_Hash = 0;
         h7.m_Hash = 0;
-        h8.m_Hash = 0;
-        h9.m_Hash = 0;
+        t8.m_Hash = 0;
+        t9.m_Hash = 0;
 
         unsigned long hash = nlStringLowerHash("Text");
-        hA.m_Hash = hash;
-        hB.m_Hash = hash;
+        tA.m_Hash = hash;
+        tB.m_Hash = hash;
 
         union
         {
@@ -4793,8 +4792,8 @@ void CupHubScene::UpdateRoundMessage(bool hideMessage)
         findText.byValue = FEFinder<TLTextInstance, 3>::Find<TLSlide>;
         pText = findText.byRef(
             pSlide,
-            (InlineHasher&)hB,
-            (InlineHasher&)h9,
+            (InlineHasher&)tB,
+            (InlineHasher&)t9,
             (InlineHasher&)h7,
             (InlineHasher&)h5,
             (InlineHasher&)h3,

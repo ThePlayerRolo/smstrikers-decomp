@@ -8,31 +8,8 @@
 
 extern FEInput* g_pFEInput;
 
-extern "C"
-{
-    void __ct__12SlotPoolBaseFv(void*);
-    void* __register_global_object(void* object, void* destructor, void* registration);
-}
-
-struct FeSceneManagerDestructorChain
-{
-    FeSceneManagerDestructorChain* next;
-    void* destructor;
-    void* object;
-};
-
-void PushPopMessageSlotPoolDtor(void* obj, int)
-{
-    ((SlotPool<PackagePushPopMessage>*)obj)->~SlotPool<PackagePushPopMessage>();
-}
-
-void PushPopMessageQueueDtor(void* obj, int)
-{
-    ((nlDLListSlotPool<PackagePushPopMessage*>*)obj)->~nlDLListSlotPool<PackagePushPopMessage*>();
-}
-
-static SlotPool<PackagePushPopMessage> m_PushPopMessageSlotPool__21PackagePushPopMessage;
-static nlDLListSlotPool<PackagePushPopMessage*> m_pushPopMessageQueue;
+SlotPool<PackagePushPopMessage> m_PushPopMessageSlotPool__21PackagePushPopMessage(0x14, 0);
+nlDLListSlotPool<PackagePushPopMessage*> m_pushPopMessageQueue(0x14, 0);
 
 /**
  * Offset/Address/Size: 0x0 | 0x8020D64C | size: 0xC0
@@ -492,34 +469,6 @@ FESceneManager::FESceneManager()
 // {
 // }
 
-/**
- * Offset/Address/Size: 0xA34 | 0x8020E090 | size: 0xC0
- * TODO: 98.75% match - r30/r31 assignment order differs for queue aliases and
- * relocation symbols differ for destructor/registration chain labels.
- */
-extern "C" void __sinit_feSceneManager_cpp()
-{
-    static FeSceneManagerDestructorChain chain1;
-    static FeSceneManagerDestructorChain chain2;
-    SlotPoolBase* messagePoolBase = (SlotPoolBase*)&m_PushPopMessageSlotPool__21PackagePushPopMessage;
-
-    __ct__12SlotPoolBaseFv(messagePoolBase);
-    messagePoolBase->m_Initial = 0x14;
-    SlotPoolBase::BaseAddNewBlock(messagePoolBase, sizeof(PackagePushPopMessage));
-    messagePoolBase->m_Delta = 0;
-    __register_global_object(messagePoolBase, (void*)PushPopMessageSlotPoolDtor, &chain1);
-
-    volatile SlotPoolBase* queueBaseCopy = (SlotPoolBase*)&m_pushPopMessageQueue;
-    SlotPoolBase* messageQueueBase = (SlotPoolBase*)queueBaseCopy;
-
-    __ct__12SlotPoolBaseFv((void*)queueBaseCopy);
-    ((nlDLListSlotPool<PackagePushPopMessage*>*)queueBaseCopy)->m_Head = 0;
-    messageQueueBase->m_Initial = 0x14;
-    SlotPoolBase::BaseAddNewBlock(messageQueueBase, sizeof(DLListEntry<PackagePushPopMessage*>));
-    ((SlotPoolBase*)queueBaseCopy)->m_Delta = 0;
-    __register_global_object((void*)queueBaseCopy, (void*)PushPopMessageQueueDtor, &chain2);
-}
-
 // /**
 //  * Offset/Address/Size: 0xD0 | 0x8020E150 | size: 0x10
 //  */
@@ -528,12 +477,16 @@ extern "C" void __sinit_feSceneManager_cpp()
 // {
 // }
 
-// /**
-//  * Offset/Address/Size: 0xE0 | 0x8020E160 | size: 0xA8
-//  */
-// void nlDLListSlotPool<PackagePushPopMessage*>::~nlDLListSlotPool()
-// {
-// }
+/**
+ * Offset/Address/Size: 0xE0 | 0x8020E160 | size: 0xA8
+ */
+#pragma dont_inline on
+void __force_PackagePushPop_dt()
+{
+    nlDLListSlotPool<PackagePushPopMessage*> x;
+    x.~nlDLListSlotPool();
+}
+#pragma dont_inline off
 
 // /**
 //  * Offset/Address/Size: 0x0 | 0x8020E208 | size: 0x64

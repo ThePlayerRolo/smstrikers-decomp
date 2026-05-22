@@ -11,6 +11,8 @@
 #include "dolphin/PPCArch.h"
 #include "dolphin/os/OSCache.h"
 
+#define qr0 0
+
 /**
  * Offset/Address/Size: 0x20 | 0x801B64A8 | size: 0x18
  */
@@ -87,9 +89,9 @@ void TempMatrixCopier::CopyMatrix(const unsigned long& boneId, unsigned long* ou
  */
 void ShaderSkinMesh::AttachSkinData(unsigned long program, const nlMatrix4* pReflect)
 {
-    nlAVLTree<unsigned long, unsigned long, DefaultKeyCompare<unsigned long> >* boneMap = &nlRingGetStart<BoneMapList>(boneMaps)->boneMap;
     nlVector3* outVertices = NULL;
     nlVector3* outNormals = NULL;
+    nlAVLTree<unsigned long, unsigned long, DefaultKeyCompare<unsigned long> >* boneMap = &nlRingGetStart<BoneMapList>(boneMaps)->boneMap;
 
     if (boneMap->m_NumElements != 0)
     {
@@ -103,6 +105,8 @@ void ShaderSkinMesh::AttachSkinData(unsigned long program, const nlMatrix4* pRef
 
         nlZeroMemory(outVertices, numSoftwareVerts * sizeof(nlVector3));
         nlZeroMemory(outNormals, numSoftwareVerts * sizeof(nlVector3));
+
+        float vertexWeight;
 
         TempMatrixCopier matCopier;
         matCopier.m_TempMatrices = tempMatrices;
@@ -119,15 +123,30 @@ void ShaderSkinMesh::AttachSkinData(unsigned long program, const nlMatrix4* pRef
 
             while (true)
             {
-                const nlMatrix4& matrix = tempMatrices[matrixOffset];
+                register const nlMatrix4* pMatrix = &tempMatrices[matrixOffset];
+
+                // clang-format off
+                if (curr->num != 0) {
+                    asm {
+                        psq_l f2, 0x0(pMatrix), 0, qr0
+                        psq_l f3, 0x8(pMatrix), 0, qr0
+                        psq_l f4, 0x10(pMatrix), 0, qr0
+                        psq_l f5, 0x18(pMatrix), 0, qr0
+                        psq_l f6, 0x20(pMatrix), 0, qr0
+                        psq_l f7, 0x28(pMatrix), 0, qr0
+                        psq_l f8, 0x30(pMatrix), 0, qr0
+                        psq_l f9, 0x38(pMatrix), 0, qr0
+                    }
+                }
+                // clang-format on
 
                 for (unsigned int i = 0; i < curr->num; i++)
                 {
                     SkinPair& pair = curr->pairs[i];
-                    float vertexWeight = (float)pair.vertexWeight / 65535.0f;
+                    vertexWeight = (float)pair.vertexWeight / 65535.0f;
                     int index = pair.vertexIndex;
 
-                    const nlVector3* inVertex;
+                    register const nlVector3* inVertex;
                     if (morphBuffer != NULL)
                     {
                         inVertex = &morphBuffer[index];
@@ -143,19 +162,45 @@ void ShaderSkinMesh::AttachSkinData(unsigned long program, const nlMatrix4* pRef
                     inNormal.f.y = (float)packed[1] * invNormalScale;
                     inNormal.f.z = (float)packed[2] * invNormalScale;
 
-                    nlVector3 transformedVertex;
-                    nlMultPosVectorMatrix(transformedVertex, *inVertex, matrix);
+                    register const nlVector3* pInN = &inNormal;
+                    register nlVector3* pOutV = &outVertices[index];
+                    register nlVector3* pOutN = &outNormals[index];
 
-                    nlVector3 transformedNormal;
-                    nlMultDirVectorMatrix(transformedNormal, inNormal, matrix);
-
-                    outVertices[index].f.x += transformedVertex.f.x * vertexWeight;
-                    outVertices[index].f.y += transformedVertex.f.y * vertexWeight;
-                    outVertices[index].f.z += transformedVertex.f.z * vertexWeight;
-
-                    outNormals[index].f.x += transformedNormal.f.x * vertexWeight;
-                    outNormals[index].f.y += transformedNormal.f.y * vertexWeight;
-                    outNormals[index].f.z += transformedNormal.f.z * vertexWeight;
+                    // clang-format off
+                    asm {
+                        psq_l f17, 0x0(inVertex), 0, qr0
+                        psq_l f18, 0x8(inVertex), 1, qr0
+                        ps_muls0 f15, f2, f17
+                        ps_muls0 f16, f3, f17
+                        ps_madds1 f15, f4, f17, f15
+                        ps_madds1 f16, f5, f17, f16
+                        ps_madds0 f15, f6, f18, f15
+                        ps_madds0 f16, f7, f18, f16
+                        ps_add f15, f8, f15
+                        ps_add f16, f9, f16
+                        psq_l f0, 0x0(pInN), 0, qr0
+                        psq_l f1, 0x8(pInN), 1, qr0
+                        ps_muls0 f10, f2, f0
+                        ps_muls0 f11, f3, f0
+                        ps_madds1 f10, f4, f0, f10
+                        ps_madds1 f11, f5, f0, f11
+                        ps_madds0 f10, f6, f1, f10
+                        ps_madds0 f11, f7, f1, f11
+                        psq_l f19, 0x0(pOutV), 0, qr0
+                        psq_l f20, 0x8(pOutV), 1, qr0
+                        psq_l f13, 0x0(pOutN), 0, qr0
+                        psq_l f14, 0x8(pOutN), 1, qr0
+                        lfs f12, vertexWeight
+                        ps_madds0 f15, f15, f12, f19
+                        ps_madds0 f16, f16, f12, f20
+                        ps_madds0 f10, f10, f12, f13
+                        ps_madds0 f11, f11, f12, f14
+                        psq_st f15, 0x0(pOutV), 0, qr0
+                        psq_st f16, 0x8(pOutV), 1, qr0
+                        psq_st f10, 0x0(pOutN), 0, qr0
+                        psq_st f11, 0x8(pOutN), 1, qr0
+                    }
+                    // clang-format on
                 }
 
                 if (nlRingIsEnd<SkinPairList>(skinPairs, curr))

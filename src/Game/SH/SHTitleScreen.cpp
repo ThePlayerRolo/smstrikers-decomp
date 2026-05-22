@@ -10,8 +10,6 @@
 #include "Game/SH/SHMainMenu.h"
 #include "Game/main.h"
 
-extern eStadiumID PickStadium__15GameInfoManagerCFb10eStadiumID(const GameInfoManager*, bool, eStadiumID);
-
 // /**
 //  * Offset/Address/Size: 0x2D4 | 0x800AD39C | size: 0x15C
 //  */
@@ -306,7 +304,7 @@ void TitleScene::Update(float dt)
                     awaySidekick = SK_KOOPA;
                 }
 
-                gim->SetStadium(PickStadium__15GameInfoManagerCFb10eStadiumID(gim, false, STAD_INVALID));
+                gim->SetStadium(gim->PickStadium(false, STAD_INVALID));
                 gim->SetTeam(0, homeTeam);
                 gim->SetTeam(1, awayTeam);
                 gim->SetSidekick(0, homeSidekick);

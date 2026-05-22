@@ -120,6 +120,7 @@ void ButtonComponent::CentreButtons()
 
 /**
  * Offset/Address/Size: 0x3F8 | 0x8010DFFC | size: 0x8D8
+ * TODO: 99.45% match - stack frame 0x3D0 vs target 0x260, MWCC not reusing InlineHasher argument copy slots across FEFinder::Find calls
  */
 void ButtonComponent::SetState(ButtonComponent::ButtonState buttonstate)
 {
@@ -130,57 +131,111 @@ void ButtonComponent::SetState(ButtonComponent::ButtonState buttonstate)
 
     mAlreadyCentred = false;
 
-    InlineHasher zero0 = InlineHasher(0);
-    InlineHasher zero1 = InlineHasher(0);
-    InlineHasher zero2 = InlineHasher(0);
-    InlineHasher zero3 = InlineHasher(0);
-    InlineHasher zero4 = InlineHasher(0);
-
     switch (buttonstate)
     {
     case BS_A_AND_B:
         mButtonInstance->SetActiveSlide("a and b");
         mNumButtons = 2;
-        mButtonImages[1] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), zero0, zero1, zero2, zero3, zero4);
-        mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), zero0, zero1, zero2, zero3, zero4);
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[1] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), z0, z1, z2, z3, z4);
+        }
         break;
 
     case BS_A_ONLY:
         mButtonInstance->SetActiveSlide("a");
         mNumButtons = 1;
-        mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), zero0, zero1, zero2, zero3, zero4);
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), z0, z1, z2, z3, z4);
+        }
         break;
 
     case BS_B_ONLY:
         mButtonInstance->SetActiveSlide("b");
         mNumButtons = 1;
-        mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), zero0, zero1, zero2, zero3, zero4);
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), z0, z1, z2, z3, z4);
+        }
         break;
 
     case BS_A_AND_B_AND_Y:
         mButtonInstance->SetActiveSlide("a b y");
         mNumButtons = 3;
-        mButtonImages[1] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), zero0, zero1, zero2, zero3, zero4);
-        mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), zero0, zero1, zero2, zero3, zero4);
-        mButtonImages[2] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("y_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[2] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("OPTIONS")), zero0, zero1, zero2, zero3, zero4);
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[1] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[2] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("y_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[2] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("OPTIONS")), z0, z1, z2, z3, z4);
+        }
         break;
 
     case 4:
         mButtonInstance->SetActiveSlide("a and b and start");
         mNumButtons = 3;
-        mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("start_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("start")), zero0, zero1, zero2, zero3, zero4);
-        mButtonImages[1] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), zero0, zero1, zero2, zero3, zero4);
-        mButtonImages[2] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), zero0, zero1, zero2, zero3, zero4);
-        mButtonLabels[2] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), zero0, zero1, zero2, zero3, zero4);
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[0] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("start_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[0] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("start")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[1] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("B_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[1] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("back")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonImages[2] = FEFinder<TLImageInstance, 2>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("A_button")), z0, z1, z2, z3, z4);
+        }
+        {
+            InlineHasher z0(0), z1(0), z2(0), z3(0), z4(0);
+            mButtonLabels[2] = FEFinder<TLTextInstance, 3>::Find<TLSlide>(mButtonInstance->GetActiveSlide(), InlineHasher(nlStringLowerHash("accept")), z0, z1, z2, z3, z4);
+        }
         break;
 
     default:

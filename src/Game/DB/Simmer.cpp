@@ -157,18 +157,17 @@ Simulator::Simulator()
 
 /**
  * Offset/Address/Size: 0x0 | 0x8019087C | size: 0xC18
- * TODO: 78.26% match - persistent register and stack-slot drift:
- *       `this` stays in r22 instead of r31 and string temporaries are shifted by 0x4.
+ * TODO: register allocation drift remains (`this`/flags/temps), plus a stable 0x4 stack-slot
+ *       offset shift in the early BasicString temporaries before file processing.
  */
 void Simulator::InitializeStats()
 {
+    eDifficultyID diff;
     GameplaySettings::eSkillLevel skillLevel = GameInfoManager::s_pInstance->GetGameplayOptions().SkillLevel;
     int length = GameInfoManager::s_pInstance->GetGameplayOptions().GameTime;
-    bool isMeanFound = false;
-    bool isSDFound = false;
-    bool doMean = true;
-    eDifficultyID diff;
-
+    unsigned char isMeanFound = 0;
+    unsigned char isSDFound = 0;
+    unsigned char doMean = 1;
     if (skillLevel == GameplaySettings::ROOKIE)
     {
         diff = (eDifficultyID)1;
@@ -181,10 +180,7 @@ void Simulator::InitializeStats()
     {
         diff = (eDifficultyID)3;
     }
-
-    int pad = diff;
-    BasicString<char, Detail::TempStringAllocator> searchString = LexicalCast<BasicString<char, Detail::TempStringAllocator> >(pad);
-
+    BasicString<char, Detail::TempStringAllocator> searchString = LexicalCast<BasicString<char, Detail::TempStringAllocator> >((int)diff);
     if (length <= 120)
     {
         searchString = searchString.Append(" 120");
@@ -197,70 +193,63 @@ void Simulator::InitializeStats()
     {
         searchString = searchString.Append(" 600");
     }
-
     BasicString<char, Detail::TempStringAllocator> meanString = searchString.Append(" Average");
     BasicString<char, Detail::TempStringAllocator> SDString = searchString.Append(" StdDev");
     BasicString<char, Detail::TempStringAllocator> statString;
-
-    FILE* pFile = fopen(SIM_FILE, "r");
-    if (pFile == 0)
-    {
-        return;
-    }
-
     char line[0x100];
-    while (fgets(line, 0x100, pFile) != 0)
+    FILE* pFile = fopen(SIM_FILE, "r");
+    if (pFile)
     {
-        int isLineFound = 0;
-
-        if (nlStrNCmp<char>(meanString.c_str(), line, meanString.m_data ? (unsigned long)(meanString.m_data->mSize - 1) : 0)
-            == 0)
+        while (fgets(line, 0x100, pFile) != 0)
         {
-            isMeanFound = true;
-            doMean = true;
-            statString = BasicString<char, Detail::TempStringAllocator>(line);
-            isLineFound = 1;
-        }
-        else if (nlStrNCmp<char>(SDString.c_str(), line, SDString.m_data ? (unsigned long)(SDString.m_data->mSize - 1) : 0)
-                 == 0)
-        {
-            isSDFound = true;
-            doMean = false;
-            statString = BasicString<char, Detail::TempStringAllocator>(line);
-            isLineFound = 1;
-        }
-
-        if (isLineFound)
-        {
-            BasicString<char, Detail::TempStringAllocator> comma(",");
-            Tokenizer<BasicString<char, Detail::TempStringAllocator> > tokenizer(statString,
-                comma);
-            int i = 0;
-
-            for (Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator iter = tokenizer.begin();
-                iter != tokenizer.end();
-                ++iter)
+            unsigned char isLineFound;
+            if (nlStrNCmp<char>(meanString.c_str(), line, meanString.m_data ? (unsigned long)(meanString.m_data->mSize - 1) : 0) == 0)
             {
-                if (i != 2 && (i < 6 || i > 9) && i != 16 && i != 18)
+                statString = BasicString<char, Detail::TempStringAllocator>(line);
+                isLineFound = 1;
+                isMeanFound = 1;
+                doMean = 1;
+            }
+            else if (nlStrNCmp<char>(SDString.c_str(), line, SDString.m_data ? (unsigned long)(SDString.m_data->mSize - 1) : 0) == 0)
+            {
+                statString = BasicString<char, Detail::TempStringAllocator>(line);
+                isLineFound = 1;
+                isSDFound = 1;
+                doMean = 0;
+            }
+            else
+            {
+                isLineFound = 0;
+            }
+            if (isLineFound == 1)
+            {
+                Tokenizer<BasicString<char, Detail::TempStringAllocator> > tokenizer(statString, ",");
+                int i = 0;
+                for (Tokenizer<BasicString<char, Detail::TempStringAllocator> >::iterator iter = tokenizer.begin();
+                    iter != tokenizer.end();
+                    ++iter)
                 {
-                    if (doMean)
+                    while (i == 2 || (unsigned)(i - 6) <= 3u || i == 16 || i == 18)
                     {
-                        ((StatsPair*)this)[i].mMean = (float)atof(iter.mToken.c_str());
+                        i++;
+                    }
+                    ePlayerStats stat = (ePlayerStats)i;
+                    if (doMean == 1)
+                    {
+                        ((StatsPair*)this)[stat].mMean = (float)atof(iter.mToken.c_str());
                     }
                     else
                     {
-                        ((StatsPair*)this)[i].mStandardDeviation = (float)atof(iter.mToken.c_str());
+                        ((StatsPair*)this)[stat].mStandardDeviation = (float)atof(iter.mToken.c_str());
                     }
+                    i = (int)(stat + 1);
                 }
-                i++;
-            }
-
-            if (isMeanFound && isSDFound)
-            {
-                break;
+                if (isMeanFound == 1 && isSDFound == 1)
+                {
+                    break;
+                }
             }
         }
+        fclose(pFile);
     }
-
-    fclose(pFile);
 }

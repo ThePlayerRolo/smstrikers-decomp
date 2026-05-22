@@ -1,4 +1,5 @@
 #include "Game/Render/ShootToScoreMeter.h"
+#include "Game/Camera/CameraMan.h"
 #include "Game/Game.h"
 #include "NL/nlString.h"
 #include "NL/gl/glDraw3.h"
@@ -25,7 +26,6 @@ ShootToScoreMeter ShootToScoreMeter::instance;
 // static u32 WHITE_COLOR = 0xFFFFFFFF;
 
 extern u8 sbMakeSTSMeterOrthographic;
-extern float GetDistanceFromCameraToObject__14cCameraManagerFRC9nlVector3(const nlVector3& objectPosition);
 
 static nlColour sWhiteBarColour = { 255, 255, 255, 255 };
 static nlColour sHyperColour = { 181, 240, 255, 255 };
@@ -49,7 +49,7 @@ static inline void DrawIndicatorBar(ShootToScoreMeter* pMeter, float angle, cons
     glSetCurrentTexture(WhiteTexture, GLTT_Diffuse);
     glSetTextureState(GLTS_DiffuseWrap, 0);
     glSetCurrentTextureState(glHandleizeTextureState());
-    GetDistanceFromCameraToObject__14cCameraManagerFRC9nlVector3(pMeter->m_v3MeterPosition);
+    cCameraManager::GetDistanceFromCameraToObject(pMeter->m_v3MeterPosition);
 
     glQuad3 barQuad;
     float scaledMeterWidth = ShootToScoreMeter::MeterWidth * scale;
@@ -218,7 +218,7 @@ void ShootToScoreMeter::DrawMeter()
     }
     else
     {
-        scale = GetDistanceFromCameraToObject__14cCameraManagerFRC9nlVector3(m_v3MeterPosition);
+        scale = cCameraManager::GetDistanceFromCameraToObject(m_v3MeterPosition);
         scaledMeterWidth = MeterWidth * scale;
 
         matrix.m[3][0] = m_v3MeterPosition.f.x;

@@ -1,6 +1,7 @@
 #include "Game/Render/NPCManager.h"
 
 #include "Game/Game.h"
+#include "Game/SHierarchy.h"
 #include "Game/GameInfo.h"
 #include "Game/Render/AnimatedModelExplodable.h"
 #include "Game/Render/CameraGuy.h"
@@ -29,8 +30,6 @@ struct glModelData
     /* 0x00 */ u32 pad;
     /* 0x04 */ s32 numModels;
 };
-
-extern "C" cSHierarchy* Initialize__11cSHierarchyFP7nlChunk(nlChunk*);
 
 // /**
 //  * Offset/Address/Size: 0x68 | 0x80167338 | size: 0x28
@@ -466,7 +465,7 @@ void NPCManager::CreateNPCTemplate(int templateIndex, bool loadTextures)
     {
         if ((hierData->m_ID & 0x80FFFFFF) == 0x80018000)
         {
-            cSHierarchy* hier = Initialize__11cSHierarchyFP7nlChunk(hierData);
+            cSHierarchy* hier = ((cSHierarchy*)hierData)->Initialize(hierData);
 
             ListEntry<cSHierarchy*>* itemEntry = (ListEntry<cSHierarchy*>*)nlMalloc(8, 8, false);
             if (itemEntry != NULL)

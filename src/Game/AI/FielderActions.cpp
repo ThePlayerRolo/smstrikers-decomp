@@ -119,6 +119,11 @@ extern unsigned char sSTSLighting__17DrawableCharacter;
 extern unsigned char sbIsHyperShootToScoreRenderingEnabled__5World;
 extern unsigned char sbShowPositiveXNetDuringHyperStrike__5World;
 extern void Flash__10PhotoFlashFv();
+class PhotoFlash
+{
+public:
+    static void Flash();
+};
 
 template <typename StringType, typename ValueType>
 StringType Format(const StringType&, const ValueType&);
@@ -3040,13 +3045,11 @@ void MatrixCamFinishedCallback(MatrixEffectCam*)
 
 /**
  * Offset/Address/Size: 0x2D08 | 0x80029840 | size: 0x450
- * TODO: 95.26% match - persistent r28/r29/r30 register-allocation drift around
- *       BasicString construction and a remaining Flash symbol relocation mismatch.
+ * TODO: 95.67% match - persistent r28/r29/r30 register-allocation drift around
+ *       BasicString temporary setup.
  */
 void cFielder::SetupCaptainSTSAnimCam(bool arg1)
 {
-    extern void Flash__10PhotoFlashFv();
-
     mActionShootToScoreVars.captainStsCamera = new ((cAnimCamera*)nlMalloc(sizeof(cAnimCamera), 8, false)) cAnimCamera();
 
     BasicString<char, Detail::TempStringAllocator> cameraName = Format(BasicString<char, Detail::TempStringAllocator>("{0}_ShootToScoreCamera"),
@@ -3098,7 +3101,7 @@ void cFielder::SetupCaptainSTSAnimCam(bool arg1)
     {
         mActionShootToScoreVars.captainStsCamera->m_fAnimationTime = sfHyperStrikeAnimCamStartTime;
         mActionShootToScoreVars.captainStsCamera->BuildAnimViewMatrix(mActionShootToScoreVars.captainStsCamera->m_matView);
-        Flash__10PhotoFlashFv();
+        PhotoFlash::Flash();
         cCameraManager::PushCamera(mActionShootToScoreVars.captainStsCamera);
     }
     else

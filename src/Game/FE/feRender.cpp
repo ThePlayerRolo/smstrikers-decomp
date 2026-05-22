@@ -257,7 +257,6 @@ void FERender::RenderPresentation(const FEPresentation* presentation)
  */
 void FERender::RenderComponentInstance(TLComponentInstance* componentInstance)
 {
-    extern nlFloatColour& __as__13nlFloatColourFRC13nlFloatColour(nlFloatColour*, const nlFloatColour&);
     TLComponent* component = ((TLInstance*)componentInstance)->m_component;
     if (component == 0)
     {
@@ -402,7 +401,7 @@ void FERender::RenderComponentInstance(TLComponentInstance* componentInstance)
 
                                 RenderTimeLineAsset(grandchild, time);
 
-                                __as__13nlFloatColourFRC13nlFloatColour(&s_currentAssetColour, oldGrandchildColour);
+                                s_currentAssetColour = oldGrandchildColour;
 
                                 if (grandchild == child->pChildren)
                                 {

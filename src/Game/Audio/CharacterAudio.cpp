@@ -511,15 +511,11 @@ unsigned long cCharacterSFX::PlayRandomCharDialogue(CharDialogueType dType, PosU
 
 /**
  * Offset/Address/Size: 0x7C4 | 0x8014CB68 | size: 0x498
- * TODO: 98.32% match - register-only diffs (this=r30/sndAttributes=r31 swap,
- *       bAvoidCurrent/pOutSfx register mismatch). Likely -inline deferred context issue.
+ * TODO: 99.54% match - r6/r7 register swap in footstep flag-clearing loops,
+ *       r27/r29 swap in dialogue cleanup loop (MWCC allocator quirk).
  */
 unsigned long cCharacterSFX::PlayRandomCharDialogue(CharDialogueType dType, Audio::SoundAttributes& sndAttributes, bool bAvoidCurrent, unsigned long* pOutSfx)
 {
-    s32 randomIndex;
-    eCharSFX sfxType;
-    eCharSFX* pSFX;
-
     if (mbInited == 0)
     {
         return -1;
@@ -533,9 +529,9 @@ unsigned long cCharacterSFX::PlayRandomCharDialogue(CharDialogueType dType, Audi
             return -1;
 
         sndAttributes.me_ClassType = 1;
-        randomIndex = nlRandom(5, &nlDefaultSeed);
-        pSFX = charFootstepSFX[1];
-        sfxType = pSFX[randomIndex];
+        s32 randomIndex = nlRandom(5, &nlDefaultSeed);
+        eCharSFX* pSFX = charFootstepSFX[1];
+        eCharSFX sfxType = pSFX[randomIndex];
 
         if (mCharSFX[sfxType].m_unk_0x40 != 0)
         {
@@ -565,9 +561,9 @@ unsigned long cCharacterSFX::PlayRandomCharDialogue(CharDialogueType dType, Audi
             return -1;
 
         sndAttributes.me_ClassType = 1;
-        randomIndex = nlRandom(5, &nlDefaultSeed);
-        pSFX = charFootstepSFX[0];
-        sfxType = pSFX[randomIndex];
+        s32 randomIndex = nlRandom(5, &nlDefaultSeed);
+        eCharSFX* pSFX = charFootstepSFX[0];
+        eCharSFX sfxType = pSFX[randomIndex];
 
         if (mCharSFX[sfxType].m_unk_0x40 != 0)
         {
@@ -599,13 +595,13 @@ unsigned long cCharacterSFX::PlayRandomCharDialogue(CharDialogueType dType, Audi
     }
 
     {
-        s32 i = 0;
         s32 limit = charDialogueSFXInfo[6].numRandomSFX + 0x14;
+        s32 i = 0;
         for (; i < limit; i++)
         {
             if (IsKeepingTrackOf(charDialogueSFX[i], NULL))
             {
-                cGameSFX::Stop(charDialogueSFX[i], cGameSFX::SFX_STOP_FIRST);
+                Stop(charDialogueSFX[i], cGameSFX::SFX_STOP_FIRST);
             }
         }
     }
@@ -619,8 +615,8 @@ unsigned long cCharacterSFX::PlayRandomCharDialogue(CharDialogueType dType, Audi
 
     s32 baseIndex = charDialogueSFXInfo[dType].charDialogueSFXIndex;
     s32 numRandom = charDialogueSFXInfo[dType].numRandomSFX;
-    randomIndex = nlRandom(numRandom, &nlDefaultSeed);
-    sfxType = charDialogueSFX[baseIndex + randomIndex];
+    s32 randomIndex = nlRandom(numRandom, &nlDefaultSeed);
+    eCharSFX sfxType = charDialogueSFX[baseIndex + randomIndex];
 
     if (bAvoidCurrent)
     {

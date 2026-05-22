@@ -1,5 +1,6 @@
 #include "Game/Render/NetMesh.h"
 
+#include "Game/Camera/CameraMan.h"
 #include "dolphin/types.h"
 #include "NL/glx/glxTexture.h"
 #include "NL/nlMemory.h"
@@ -154,14 +155,12 @@ static inline nlVector3* VecAt(nlVector3* arr, int i)
 void NetMesh::Update(float dt, const nlVector3& ballPosition, const nlVector3& ballPrevPosition, bool bExaggerateBallSize, PhysicsSphere* sphere)
 {
     extern float s_fDampening__7NetMesh;
-    extern int m_UpVectorStackSize__14cCameraManager;
-    extern nlVector3 m_UpVectorStack__14cCameraManager[2];
 
     struct cAccumForces
     {
         static void Run(NetMesh* self, nlVector3& newPos)
         {
-            nlVector3* upVector = &m_UpVectorStack__14cCameraManager[m_UpVectorStackSize__14cCameraManager];
+            nlVector3* upVector = &cCameraManager::m_UpVectorStack[cCameraManager::m_UpVectorStackSize];
             float gravityMagnitude = -NetMesh::s_fNetGravityMagnitude;
 
             newPos.f.x = gravityMagnitude * upVector->f.x;

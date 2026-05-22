@@ -90,57 +90,61 @@ void InitializeGameObjectLighting()
     extern PlatTexture* g_pGameObjectLightRamp;
 
     GameObjectLightArray* pLightArray;
+    GLLightUserData* pLight;
     s32 i;
-    nlMatrix4 matY;
-    nlMatrix4 matZ;
-    nlVector3 initialDirection;
-    nlVector3 keyDirection;
-    nlVector3 fillDirection;
-    s32 stadium;
-    StadiumLightingParamsInit* pParams;
-    PlatTexture* pRampTexture;
+    f32 deltaB;
+    f32 deltaG;
+    f32 deltaR;
     u8* pTextureData;
-    s32 deltaR;
-    s32 deltaG;
-    s32 deltaB;
+    PlatTexture* pRampTexture;
+    StadiumLightingParamsInit* pParams;
+    s32 stadium;
+    nlMatrix4 matZ;
+    nlMatrix4 matY;
+    nlVector3 fillDirection;
+    nlVector3 keyDirection;
 
     g_pCameraRelativeLightData = glUserAlloc(GLUD_Light, 0x54, true);
     pLightArray = (GameObjectLightArray*)glUserGetData(g_pCameraRelativeLightData);
     pLightArray->numLights = 2;
+    pLight = pLightArray->lights;
 
     for (i = 0; i < 2; i++)
     {
-        nlZeroMemory(&pLightArray->lights[i], 0x28);
-        pLightArray->lights[i].colour.c[0] = 1.0f;
-        pLightArray->lights[i].colour.c[1] = 0.0f;
-        pLightArray->lights[i].colour.c[2] = 0.0f;
-        pLightArray->lights[i].colour.c[3] = 1.0f;
-        pLightArray->lights[i].intensity = 1.0f;
-        pLightArray->lights[i].innerRadius = 0.0f;
-        pLightArray->lights[i].outerRadius = 0.0f;
+        nlZeroMemory(pLight, 0x28);
+        pLight->colour.c[0] = 1.0f;
+        pLight->colour.c[1] = 0.0f;
+        pLight->colour.c[2] = 0.0f;
+        pLight->colour.c[3] = 1.0f;
+        pLight->intensity = 1.0f;
+        pLight->innerRadius = 0.0f;
+        pLight->outerRadius = 0.0f;
+        pLight++;
     }
 
     g_pInGameLightData = glUserAlloc(GLUD_Light, 0x54, true);
     pLightArray = (GameObjectLightArray*)glUserGetData(g_pInGameLightData);
     pLightArray->numLights = 2;
+    pLight = pLightArray->lights;
 
     for (i = 0; i < 2; i++)
     {
-        nlZeroMemory(&pLightArray->lights[i], 0x28);
-        pLightArray->lights[i].colour.c[0] = 1.0f;
-        pLightArray->lights[i].colour.c[1] = 0.0f;
-        pLightArray->lights[i].colour.c[2] = 0.0f;
-        pLightArray->lights[i].colour.c[3] = 1.0f;
-        pLightArray->lights[i].intensity = 1.0f;
-        pLightArray->lights[i].innerRadius = 0.0f;
-        pLightArray->lights[i].outerRadius = 0.0f;
+        nlZeroMemory(pLight, 0x28);
+        pLight->colour.c[0] = 1.0f;
+        pLight->colour.c[1] = 0.0f;
+        pLight->colour.c[2] = 0.0f;
+        pLight->colour.c[3] = 1.0f;
+        pLight->intensity = 1.0f;
+        pLight->innerRadius = 0.0f;
+        pLight->outerRadius = 0.0f;
+        pLight++;
     }
 
     pLightArray = (GameObjectLightArray*)glUserGetData(g_pInGameLightData);
     stadium = nlSingleton<GameInfoManager>::s_pInstance->GetStadium();
     pParams = (StadiumLightingParamsInit*)&gStadiumGameObjectLightingParams[stadium];
 
-    nlVec3Set(initialDirection, 1.0f, 0.0f, 0.0f);
+    nlVector3 initialDirection = { 1.0f, 0.0f, 0.0f };
 
     nlMakeRotationMatrixY(matY, (3.1415927f * pParams->inGameKeyRotYDeg) / 180.0f);
     nlMakeRotationMatrixZ(matZ, (3.1415927f * pParams->inGameKeyRotZDeg) / 180.0f);
@@ -152,10 +156,14 @@ void InitializeGameObjectLighting()
     nlMultDirVectorMatrix(fillDirection, initialDirection, matY);
     nlMultDirVectorMatrix(fillDirection, fillDirection, matZ);
 
-    nlVec3Set(pLightArray->lights[0].worldPosition, -keyDirection.f.x, -keyDirection.f.y, -keyDirection.f.z);
+    pLightArray->lights[0].worldPosition.f.x = -keyDirection.f.x;
+    pLightArray->lights[0].worldPosition.f.y = -keyDirection.f.y;
+    pLightArray->lights[0].worldPosition.f.z = -keyDirection.f.z;
     pLightArray->lights[0].intensity = pParams->inGameKeyIntensity;
 
-    nlVec3Set(pLightArray->lights[1].worldPosition, -fillDirection.f.x, -fillDirection.f.y, -fillDirection.f.z);
+    pLightArray->lights[1].worldPosition.f.x = -fillDirection.f.x;
+    pLightArray->lights[1].worldPosition.f.y = -fillDirection.f.y;
+    pLightArray->lights[1].worldPosition.f.z = -fillDirection.f.z;
     pLightArray->lights[1].intensity = pParams->inGameFillIntensity;
 
     stadium = nlSingleton<GameInfoManager>::s_pInstance->GetStadium();
@@ -167,17 +175,17 @@ void InitializeGameObjectLighting()
     stadium = nlSingleton<GameInfoManager>::s_pInstance->GetStadium();
     pParams = (StadiumLightingParamsInit*)&gStadiumGameObjectLightingParams[stadium];
 
-    deltaR = pParams->rampEndR - pParams->rampStartR;
-    deltaG = pParams->rampEndG - pParams->rampStartG;
-    deltaB = pParams->rampEndB - pParams->rampStartB;
+    deltaR = (f32)(pParams->rampEndR - pParams->rampStartR);
+    deltaG = (f32)(pParams->rampEndG - pParams->rampStartG);
+    deltaB = (f32)(pParams->rampEndB - pParams->rampStartB);
 
     pTextureData = (u8*)g_pGameObjectLightRamp->m_LinearData;
     for (i = 0; i < 0x100; i++)
     {
         f32 t = (f32)i * (1.0f / 256.0f);
-        pTextureData[0] = (u8)((t * (f32)deltaR) + (f32)pParams->rampStartR);
-        pTextureData[1] = (u8)((t * (f32)deltaG) + (f32)pParams->rampStartG);
-        pTextureData[2] = (u8)((t * (f32)deltaB) + (f32)pParams->rampStartB);
+        pTextureData[0] = (u8)(t * deltaR + (f32)pParams->rampStartR);
+        pTextureData[1] = (u8)(t * deltaG + (f32)pParams->rampStartG);
+        pTextureData[2] = (u8)(t * deltaB + (f32)pParams->rampStartB);
         pTextureData[3] = 0xFF;
         pTextureData += 4;
     }

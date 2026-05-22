@@ -336,7 +336,7 @@ public:
     void DesireReceivePassFromIdle(float);
     void InitDesireReceivePassFromRun(const LooseBallContactAnimInfo*, const nlVector3&, bool, const nlVector3&);
     void DesireReceivePassFromRun(float);
-    u8 InitDesireRunToNet();
+    bool InitDesireRunToNet();
     void DesireSlideAttack(float);
     void DesireUserControlled(float);
     void DesireUsePowerup(float);

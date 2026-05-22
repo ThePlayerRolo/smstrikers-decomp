@@ -1,5 +1,7 @@
 #define NL_LEXICALCAST_DEFINE_BOOL
 #include "Game/CharacterTemplate.h"
+#include "Game/SHierarchy.h"
+#include "Game/SAnim/AnimRetargeter.h"
 #include "Game/Player.h"
 #include "Game/AI/Fielder.h"
 #include "Game/CharacterTweaks.h"
@@ -63,15 +65,15 @@ static tCharacterTemplate* g_GoalieTemplate;
 s32 skiptexture = 0xFFFFFFFF;
 
 tGoalieTemplateInfo g_GoalieTextureInfo[9] = {
-    { "daisygoalie",      "characters/daisygoalie/daisygoalie.glt",           0 },
+    { "daisygoalie", "characters/daisygoalie/daisygoalie.glt", 0 },
     { "donkeykonggoalie", "characters/donkeykonggoalie/donkeykonggoalie.glt", 0 },
-    { "luigigoalie",      "characters/luigigoalie/luigigoalie.glt",           0 },
-    { "mariogoalie",      "characters/mariogoalie/mariogoalie.glt",           0 },
-    { "peachgoalie",      "characters/peachgoalie/peachgoalie.glt",           0 },
-    { "waluigigoalie",    "characters/waluigigoalie/waluigigoalie.glt",       0 },
-    { "wariogoalie",      "characters/wariogoalie/wariogoalie.glt",           0 },
-    { "yoshigoalie",      "characters/yoshigoalie/yoshigoalie.glt",           0 },
-    { "superteamgoalie",  "characters/superteamgoalie/superteamgoalie.glt",   0 },
+    { "luigigoalie", "characters/luigigoalie/luigigoalie.glt", 0 },
+    { "mariogoalie", "characters/mariogoalie/mariogoalie.glt", 0 },
+    { "peachgoalie", "characters/peachgoalie/peachgoalie.glt", 0 },
+    { "waluigigoalie", "characters/waluigigoalie/waluigigoalie.glt", 0 },
+    { "wariogoalie", "characters/wariogoalie/wariogoalie.glt", 0 },
+    { "yoshigoalie", "characters/yoshigoalie/yoshigoalie.glt", 0 },
+    { "superteamgoalie", "characters/superteamgoalie/superteamgoalie.glt", 0 },
 };
 
 /**
@@ -1006,9 +1008,6 @@ hierFound:
     return pPlayer;
 }
 
-extern "C" cSHierarchy* Initialize__11cSHierarchyFP7nlChunk(nlChunk*);
-extern "C" AnimRetargetList* Initialize__16AnimRetargetListFP7nlChunk(nlChunk*);
-
 extern SebringAnimTagScriptInterpreter* g_pAnimScriptInterp;
 
 static cAnimInventory* FindDuplicateAnimInventory(int nCurIndex, unsigned long uHashID);
@@ -1049,7 +1048,7 @@ void CharacterLoadingGuts(tCharacterTemplate* pCharacterTemplate, const tCharact
     {
         if ((hierData->m_ID & 0x80FFFFFF) == 0x80018000)
         {
-            cSHierarchy* hier = Initialize__11cSHierarchyFP7nlChunk(hierData);
+            cSHierarchy* hier = ((cSHierarchy*)hierData)->Initialize(hierData);
 
             ListEntry<cSHierarchy*>* itemEntry = (ListEntry<cSHierarchy*>*)nlMalloc(8, 8, false);
             if (itemEntry != NULL)
@@ -1138,7 +1137,8 @@ void CharacterLoadingGuts(tCharacterTemplate* pCharacterTemplate, const tCharact
         {
             if ((retargetData->m_ID & 0x80FFFFFF) == 0x80017104)
             {
-                AnimRetargetList* retarget = Initialize__16AnimRetargetListFP7nlChunk(retargetData);
+                AnimRetargetList* retarget = (AnimRetargetList*)retargetData;
+                retarget->Initialize(retargetData);
 
                 ListEntry<AnimRetargetList*>* retItemEntry = (ListEntry<AnimRetargetList*>*)nlMalloc(8, 8, false);
                 if (retItemEntry != NULL)

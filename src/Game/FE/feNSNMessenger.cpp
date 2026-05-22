@@ -39,7 +39,6 @@ extern "C" FEScrollText* __ct__12FEScrollTextFP14TLTextInstanceii(FEScrollText*,
 
 /**
  * Offset/Address/Size: 0x0 | 0x800A131C | size: 0x1C0
- * TODO: 99.11% match - one redundant beq remains before callback teardown in delete path
  */
 void NSNMessengerScene::EnableScrolling(bool state)
 {
@@ -105,27 +104,9 @@ void NSNMessengerScene::EnableScrolling(bool state)
     }
     else
     {
-        struct FEScrollTextDeleteType
-        {
-            TLTextInstance* m_controlText;
-            BasicString<unsigned short, Detail::TempStringAllocator> m_message;
-            int m_messageWidth;
-            int m_pos;
-            int m_width;
-            float m_leftEdge;
-            float m_msgTime;
-            unsigned short m_textBuffer[256];
-            Function<FnVoidVoid> m_messageFinishedCB;
-            unsigned char m_visible;
-            nlFont* m_textFont;
-        };
-
         if (m_scrollText != NULL)
         {
-            if (m_scrollText != NULL)
-            {
-                delete (FEScrollTextDeleteType*)m_scrollText;
-            }
+            delete m_scrollText;
             m_scrollText = NULL;
         }
     }

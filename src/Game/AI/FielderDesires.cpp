@@ -17,6 +17,7 @@
 extern FuzzyVariant fvNotSet;
 extern cTeam* g_pCurrentlyUpdatingTeam;
 static float g_fLooseBallActionRethinkTime;
+static float g_fPostWhistleDelayToFinishAction = 2.0f;
 extern cFielder* g_pScriptCurrentFielder;
 
 enum eShotMeterState
@@ -195,6 +196,7 @@ CommonDesireData::CommonDesireData(const CommonDesireData& other)
 {
 }
 
+#pragma dont_inline on
 /**
  * Offset/Address/Size: 0x6484 | 0x80037208 | size: 0x174
  */
@@ -207,6 +209,7 @@ void cFielder::QueueDesire(eFielderDesireState eDesireType, float fDuration, Fuz
     m_sQueuedDesireParams.opt1 = opt1;
     m_sQueuedDesireParams.opt2 = opt2;
 }
+#pragma dont_inline off
 
 /**
  * Offset/Address/Size: 0x63C8 | 0x8003714C | size: 0xBC
@@ -229,13 +232,11 @@ bool cFielder::InitDesire(const sDesireParams* pParams, float fConfidence)
 
 /**
  * Offset/Address/Size: 0x54DC | 0x80036260 | size: 0xD30
- * TODO: 50.43% match - stack frame/register allocation and second-switch branch flow still diverge from target asm.
  */
 bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, float fDuration, FuzzyVariant opt1, FuzzyVariant opt2)
 {
     unsigned long uQueuedThoughtHash;
     bool bDesireInitSuccess;
-    FORCE_DONT_INLINE;
     if (GetGlobalPad() == NULL && m_pBall != NULL && m_eFielderDesireState == FIELDERDESIRE_WINDUP_SHOT
         && (u32)(eDesireType - FIELDERDESIRE_PASS) > 1 && eDesireType != FIELDERDESIRE_DEKE)
     {
@@ -314,6 +315,7 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
     {
         if (g_pGame->IsThoughtAllowed(mThoughtHashInitCutAndBreak))
         {
+            bool bResult;
             if (m_pBall != NULL)
             {
                 if (m_sQueuedDesireParams.eDesireType == FIELDERDESIRE_CUT_AND_BREAK)
@@ -323,7 +325,7 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
                     m_sQueuedDesireParams.opt1 = fvNotSet;
                     m_sQueuedDesireParams.opt2 = fvNotSet;
                 }
-                bDesireInitSuccess = false;
+                bResult = false;
             }
             else
             {
@@ -331,8 +333,9 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
                 m_pSpaceSearch->m_bDebugOn = false;
                 m_pSpaceSearch->FindBestPosition(m_DesireCommonVars.v3DesiredPosition, m_v3Position, DIR_NONE, NULL, 4.0f, 0x8000);
                 m_pAvoidance->SetThingsToAvoid(0x1F);
-                bDesireInitSuccess = true;
+                bResult = true;
             }
+            bDesireInitSuccess = bResult;
         }
         else
         {
@@ -340,12 +343,6 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-    case FIELDERDESIRE_DEKE:
-        m_pAvoidance->SetThingsToAvoid(0);
-        break;
-    case FIELDERDESIRE_GET_IN_POSITION:
-        m_pAvoidance->SetThingsToAvoid(0x1F);
-        break;
     case FIELDERDESIRE_GET_OPEN:
         if (g_pGame->IsThoughtAllowed(mThoughtHashInitGetOpen))
         {
@@ -356,33 +353,79 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
             uQueuedThoughtHash = mThoughtHashInitGetOpen;
         }
         break;
-    case FIELDERDESIRE_HIT:
+    case FIELDERDESIRE_RUN_TO_NET:
+        bDesireInitSuccess = InitDesireRunToNet();
+        break;
+    case FIELDERDESIRE_WINDUP_PASS:
     {
-        cFielder* pTarget = (cFielder*)opt1.mData.pPlayer;
-        if (pTarget != NULL && pTarget->m_eClassType == FIELDER)
+        if (g_pGame->IsThoughtAllowed(mThoughtHashInitWindupPass))
         {
-            if (pTarget == NULL)
+            cPlayer* pTarget = (cPlayer*)opt1.mData.pPlayer;
+            if (pTarget != NULL)
             {
-                pTarget = DoFindBestHitTarget();
+                bool bHighPass = opt2.mData.b;
+                bool bResult;
+                if (m_pBall == NULL)
+                {
+                    if (m_sQueuedDesireParams.eDesireType == FIELDERDESIRE_WINDUP_PASS)
+                    {
+                        m_sQueuedDesireParams.fDuration = 0.0f;
+                        m_sQueuedDesireParams.eDesireType = FIELDERDESIRE_NEED_DESIRE;
+                        m_sQueuedDesireParams.opt1 = fvNotSet;
+                        m_sQueuedDesireParams.opt2 = fvNotSet;
+                    }
+                    bResult = false;
+                }
+                else
+                {
+                    mActionPassingVars.pPassTarget = pTarget;
+                    mActionPassingVars.bVolleyPass = bHighPass;
+                    SetDesireDuration(3.2f, true);
+                    if (bHighPass)
+                    {
+                        m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
+                    }
+                    else
+                    {
+                        m_DesireCommonVars.tMiscTimer.SetSeconds(3.0f);
+                    }
+                    SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                    float fReactionTimeRange = 0.85f * (0.3f * (1.0f - pSkillTweaks->Off_Reaction));
+                    m_DesireCommonVars.fMisc = 0.85f + (nlRandomf(fReactionTimeRange, &nlDefaultSeed) - (0.5f * fReactionTimeRange));
+                    SetSpaceSearch(new (nlMalloc(0x28, 8, false)) SSearchOpenLane(this, pTarget));
+                    m_pSpaceSearch->m_bDebugOn = false;
+                    m_pSpaceSearch->FindBestPosition(m_DesireCommonVars.v3DesiredPosition, m_v3Position, DIR_UPFIELD, &pTarget->m_v3Position, 4.5f, 0x8000);
+                    m_pAvoidance->SetThingsToAvoid(0x1F);
+                    bResult = true;
+                }
+                bDesireInitSuccess = bResult;
             }
-            InitActionHit(pTarget);
-            m_pAvoidance->SetThingsToAvoid(0);
+            else
+            {
+                bDesireInitSuccess = false;
+                AbortPendingThoughts();
+            }
         }
         else
         {
-            bDesireInitSuccess = false;
-            AbortPendingThoughts();
+            uQueuedThoughtHash = mThoughtHashInitWindupPass;
         }
         break;
     }
+    case FIELDERDESIRE_DEKE:
+        m_pAvoidance->SetThingsToAvoid(0);
+        break;
+    case FIELDERDESIRE_GET_IN_POSITION:
+        m_pAvoidance->SetThingsToAvoid(0x1F);
+        break;
     case FIELDERDESIRE_INTERCEPT_BALL:
     {
         m_eDesireSubState = 0;
         m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
         if (g_pBall->m_pPassTarget != NULL)
         {
-            float fRandomTime = nlRandomf(0.15f, &nlDefaultSeed) - 0.075f;
-            m_DesireCommonVars.tMiscTimer.SetSeconds(g_pBall->m_tPassTargetTimer.GetSeconds() * (0.5f + fRandomTime));
+            float fMultiplier = 0.5f + (nlRandomf(0.15f, &nlDefaultSeed) - 0.075f);
+            m_DesireCommonVars.tMiscTimer.SetSeconds(g_pBall->m_tPassTargetTimer.GetSeconds() * fMultiplier);
         }
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
@@ -391,13 +434,21 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         m_pAvoidance->SetThingsToAvoid(0x1F);
         m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
         break;
+    case FIELDERDESIRE_POST_WHISTLE:
+        if (m_pBall != NULL)
+        {
+            ReleaseBall();
+            g_pBall->ShootRelease(m_v3Velocity, SPINTYPE_NONE);
+        }
+        m_DesireCommonVars.tMiscTimer.SetSeconds(g_fPostWhistleDelayToFinishAction);
+        m_pAvoidance->SetThingsToAvoid(0x1F);
+        break;
     case FIELDERDESIRE_PROTECT_BALL:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-    case FIELDERDESIRE_RUN_TO_NET:
-        bDesireInitSuccess = InitDesireRunToNet();
-        break;
     case FIELDERDESIRE_RUN_UPFIELD:
+        m_pAvoidance->SetThingsToAvoid(0x1F);
+        break;
     case FIELDERDESIRE_RUN_DOWNFIELD:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
@@ -409,44 +460,20 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
             ReleaseBall();
         }
         m_DesireCommonVars.v3DesiredPosition = opt1.mData.vector;
-        m_DesireCommonVars.turboRequest = bTurbo ? TR_FORCED_OFF : TR_FAR_DISTANCE;
+        m_DesireCommonVars.turboRequest = bTurbo ? TR_FORCED_ON : TR_FAR_DISTANCE;
         m_pAvoidance->SetThingsToAvoid(0x1F);
-        break;
-    }
-    case FIELDERDESIRE_PASS:
-    {
-        cPlayer* pTarget = (cPlayer*)opt1.mData.pPlayer;
-        if (pTarget != NULL)
-        {
-            mActionPassingVars.pPassTarget = pTarget;
-            mActionPassingVars.bVolleyPass = opt2.mData.b;
-            if (m_fActualSpeed > m_pTweaks->fRunningSpeed)
-            {
-                m_fDesiredSpeed = m_pTweaks->fRunningSpeed;
-            }
-            else
-            {
-                m_fDesiredSpeed = m_fActualSpeed;
-            }
-            m_pAvoidance->SetThingsToAvoid(0);
-        }
-        else
-        {
-            bDesireInitSuccess = false;
-            AbortPendingThoughts();
-        }
         break;
     }
     case FIELDERDESIRE_SHOOT:
     {
-        bool bShootToScore = opt1.mData.b;
         bool bChipShot = opt2.mData.b;
+        bool bShootToScore = opt1.mData.b;
         if (m_pBall != NULL)
         {
             if (bShootToScore)
             {
                 SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                if (GenerateFilteredRandom() <= pSkillTweaks->Off_CaptainS2SChance)
+                if (GenerateFilteredRandom() < pSkillTweaks->Shoot_CaptainS2SFirstButtonChance)
                 {
                     m_DesireCommonVars.fMisc = g_pGame->m_pGameTweaks->unk294;
                 }
@@ -466,80 +493,19 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-    case FIELDERDESIRE_SLIDE_ATTACK:
-    {
-        cFielder* pTarget = (cFielder*)opt1.mData.pPlayer;
-        if (pTarget != NULL && pTarget->m_eClassType == FIELDER)
-        {
-            m_DesireSlideAttackVars.m_pSlideAttackTarget = pTarget;
-            m_eDesireSubState = 0;
-            m_pAvoidance->SetThingsToAvoid(0x1F);
-        }
-        else
-        {
-            bDesireInitSuccess = false;
-            AbortPendingThoughts();
-        }
-        break;
-    }
-    case FIELDERDESIRE_SUPPORT_BALL_DEFENSIVE:
     case FIELDERDESIRE_SUPPORT_BALL_OFFENSIVE:
         m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-    case FIELDERDESIRE_WINDUP_PASS:
-    {
-        if (g_pGame->IsThoughtAllowed(mThoughtHashInitWindupPass))
-        {
-            cPlayer* pTarget = (cPlayer*)opt1.mData.pPlayer;
-            if (pTarget != NULL)
-            {
-                bool bHighPass = opt2.mData.b;
-                if (m_pBall != NULL)
-                {
-                    mActionPassingVars.pPassTarget = pTarget;
-                    SetDesireDuration(3.2f, true);
-                    mActionPassingVars.bVolleyPass = bHighPass;
-                    if (bHighPass)
-                    {
-                        m_DesireCommonVars.tMiscTimer.m_uPackedTime = 0;
-                    }
-                    else
-                    {
-                        m_DesireCommonVars.tMiscTimer.SetSeconds(3.0f);
-                    }
-                    SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                    float fReactionTimeRange = 0.85f * (0.3f * (1.0f - pSkillTweaks->Off_Reaction));
-                    m_DesireCommonVars.fMisc = 0.85f + (nlRandomf(fReactionTimeRange, &nlDefaultSeed) - (0.5f * fReactionTimeRange));
-                    SetSpaceSearch(new (nlMalloc(0x28, 8, false)) SSearchOpenLane(this, pTarget));
-                    m_pSpaceSearch->m_bDebugOn = false;
-                    m_pSpaceSearch->FindBestPosition(m_DesireCommonVars.v3DesiredPosition, m_v3Position, DIR_TOWARD_TARGET, &pTarget->m_v3Position, 4.5f, 0x8000);
-                    m_pAvoidance->SetThingsToAvoid(0x1F);
-                    bDesireInitSuccess = true;
-                }
-                else
-                {
-                    if (m_sQueuedDesireParams.eDesireType == FIELDERDESIRE_WINDUP_PASS)
-                    {
-                        m_sQueuedDesireParams.fDuration = 0.0f;
-                        m_sQueuedDesireParams.eDesireType = FIELDERDESIRE_NEED_DESIRE;
-                        m_sQueuedDesireParams.opt1 = fvNotSet;
-                        m_sQueuedDesireParams.opt2 = fvNotSet;
-                    }
-                    bDesireInitSuccess = false;
-                }
-            }
-            else
-            {
-                bDesireInitSuccess = false;
-                AbortPendingThoughts();
-            }
-        }
-        else
-        {
-            uQueuedThoughtHash = mThoughtHashInitWindupPass;
-        }
+    case FIELDERDESIRE_SUPPORT_BALL_DEFENSIVE:
+        m_pAvoidance->SetThingsToAvoid(0x1F);
         break;
-    }
+    case FIELDERDESIRE_WAIT:
+        m_fDesiredSpeed = 0.0f;
+        break;
+    case FIELDERDESIRE_USER_CONTROLLED:
+        StartRunning();
+        m_pAvoidance->SetThingsToAvoid(8);
+        break;
     case FIELDERDESIRE_WINDUP_SHOT:
     {
         if (m_pBall != NULL)
@@ -559,37 +525,93 @@ bool cFielder::InitDesire(eFielderDesireState eDesireType, float fConfidence, fl
         }
         break;
     }
-    case FIELDERDESIRE_USER_CONTROLLED:
-        StartRunning();
-        m_pAvoidance->SetThingsToAvoid(8);
-        break;
     case FIELDERDESIRE_FINISH_ACTION:
         m_pAvoidance->SetThingsToAvoid(0);
         break;
-    case FIELDERDESIRE_POST_WHISTLE:
-        if (m_pBall != NULL)
+    case FIELDERDESIRE_PASS:
+    {
+        cPlayer* pTarget = (cPlayer*)opt1.mData.pPlayer;
+        if (pTarget != NULL)
         {
-            ReleaseBall();
-            g_pBall->ShootRelease(m_v3Velocity, SPINTYPE_NONE);
+            mActionPassingVars.pPassTarget = pTarget;
+            mActionPassingVars.bVolleyPass = opt2.mData.b;
+            if (m_fActualSpeed > ((FielderTweaks*)m_pTweaks)->fRunningWBSpeed)
+            {
+                m_fDesiredSpeed = ((FielderTweaks*)m_pTweaks)->fRunningWBSpeed;
+            }
+            m_pAvoidance->SetThingsToAvoid(0);
         }
-        m_DesireCommonVars.tMiscTimer.SetSeconds(2.0f);
-        m_pAvoidance->SetThingsToAvoid(0x1F);
+        else
+        {
+            bDesireInitSuccess = false;
+            AbortPendingThoughts();
+        }
         break;
-    case FIELDERDESIRE_WAIT:
-        m_fDesiredSpeed = 0.0f;
+    }
+    case FIELDERDESIRE_SLIDE_ATTACK:
+    {
+        cFielder* pTarget = (cFielder*)opt1.mData.pPlayer;
+        if (pTarget != NULL && pTarget->m_eClassType == FIELDER)
+        {
+            m_DesireSlideAttackVars.m_pSlideAttackTarget = pTarget;
+            m_eDesireSubState = 0;
+            m_pAvoidance->SetThingsToAvoid(0x1F);
+        }
+        else
+        {
+            bDesireInitSuccess = false;
+            AbortPendingThoughts();
+        }
         break;
+    }
+    case FIELDERDESIRE_HIT:
+    {
+        cFielder* pTarget = (cFielder*)opt1.mData.pPlayer;
+        if (pTarget != NULL && pTarget->m_eClassType == FIELDER)
+        {
+            if (pTarget == NULL)
+            {
+                pTarget = DoFindBestHitTarget();
+            }
+            InitActionHit(pTarget);
+            m_pAvoidance->SetThingsToAvoid(0);
+        }
+        else
+        {
+            bDesireInitSuccess = false;
+            AbortPendingThoughts();
+        }
+        break;
+    }
+    case FIELDERDESIRE_USE_POWERUP:
+    {
+        cFielder* pTarget = (cFielder*)opt2.mData.pPlayer;
+        if (pTarget != NULL && pTarget->m_eClassType == FIELDER)
+        {
+            ePowerUpType powerupType = (ePowerUpType)opt1.mData.i;
+            if (powerupType == m_pTeam->GetCurrentPowerUp().eType && !IsPlayingPowerupAnim())
+            {
+                UseTeamPowerup(pTarget);
+            }
+        }
+        else
+        {
+            bDesireInitSuccess = false;
+            AbortPendingThoughts();
+        }
+        break;
+    }
     case FIELDERDESIRE_NEED_DESIRE:
+    case FIELDERDESIRE_WAIT_FOR_THOUGHT_CAP:
     case FIELDERDESIRE_ONETIMER:
     case FIELDERDESIRE_RECEIVE_PASS_FROM_IDLE:
     case FIELDERDESIRE_RECEIVE_PASS_FROM_RUN:
-    case FIELDERDESIRE_WAIT_FOR_THOUGHT_CAP:
     default:
         break;
     }
     if (uQueuedThoughtHash != 0)
     {
-        void (cFielder::*queueDesireFn)(eFielderDesireState, float, FuzzyVariant, FuzzyVariant) = &cFielder::QueueDesire;
-        (this->*queueDesireFn)(eDesireType, fDuration, opt1, opt2);
+        QueueDesire(eDesireType, fDuration, opt1, opt2);
         InitDesire(FIELDERDESIRE_WAIT_FOR_THOUGHT_CAP, 0.5f, -1.0f, fvNotSet, fvNotSet);
         bDesireInitSuccess = false;
     }
@@ -1611,6 +1633,7 @@ void cFielder::DesireSupportBall(float fDeltaT, bool bDefensive)
     ShouldIStrafe();
 }
 
+#pragma dont_inline on
 /**
  * Offset/Address/Size: 0x33A0 | 0x80034124 | size: 0x244
  */
@@ -1661,6 +1684,7 @@ bool cFielder::InitDesireGetOpen()
 
     return true;
 }
+#pragma dont_inline off
 
 /**
  * Offset/Address/Size: 0x30B4 | 0x80033E38 | size: 0x2EC
@@ -2609,7 +2633,7 @@ void cFielder::DesireReceivePassFromRun(float fDeltaT)
  * Offset/Address/Size: 0xEE4 | 0x80031C68 | size: 0x428
  * TODO: 91.25% match - normalization instruction scheduling (fmuls/fadds swap) cascades to callee-saved FPR allocation diffs in turbo/reaction sections
  */
-u8 cFielder::InitDesireRunToNet()
+bool cFielder::InitDesireRunToNet()
 {
     if (m_pBall == NULL)
     {

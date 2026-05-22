@@ -46,8 +46,6 @@ bool inline CheckUnlockStatus(const bool& globalFlag, const unsigned char& troph
 
 /**
  * Offset/Address/Size: 0x9E90 | 0x8017F534 | size: 0xB84
- * TODO: 99.66% repo match. Remaining diff: skipFE path register allocation for
- *       mGameInfo[mCurrentMode] stores (team/stadium and pad-side assignments).
  */
 GameInfoManager::GameInfoManager()
     : mCurrentMode(GM_INVALID)
@@ -118,27 +116,34 @@ GameInfoManager::GameInfoManager()
     if (skipFE)
     {
         SetMode(GM_FRIENDLY);
-        mGameInfo[mCurrentMode]->mTeamIndex[0] = TEAM_MARIO;
-        mGameInfo[mCurrentMode]->mTeamIndex[1] = TEAM_LUIGI;
-        mGameInfo[mCurrentMode]->mStadiumIndex = STAD_PEACH_TOAD_STADIUM;
+        BasicGameInfo* skipFEInfo = mGameInfo[mCurrentMode];
+        skipFEInfo->mTeamIndex[0] = TEAM_MARIO;
+        skipFEInfo = mGameInfo[mCurrentMode];
+        skipFEInfo->mTeamIndex[1] = TEAM_LUIGI;
+        skipFEInfo = mGameInfo[mCurrentMode];
+        skipFEInfo->mStadiumIndex = STAD_PEACH_TOAD_STADIUM;
         bool dontSetSides = GetConfigBool(Config::Global(), "dont_set_sides_when_skipfe", false);
         if (!dontSetSides)
         {
             if (g_pFEInput->IsConnected((eFEINPUT_PAD)0))
             {
-                mGameInfo[mCurrentMode]->mPadSides[0] = 0;
+                skipFEInfo = mGameInfo[mCurrentMode];
+                skipFEInfo->mPadSides[0] = 0;
             }
             if (g_pFEInput->IsConnected((eFEINPUT_PAD)1))
             {
-                mGameInfo[mCurrentMode]->mPadSides[1] = 1;
+                skipFEInfo = mGameInfo[mCurrentMode];
+                skipFEInfo->mPadSides[1] = 1;
             }
             if (g_pFEInput->IsConnected((eFEINPUT_PAD)2))
             {
-                mGameInfo[mCurrentMode]->mPadSides[2] = 0;
+                skipFEInfo = mGameInfo[mCurrentMode];
+                skipFEInfo->mPadSides[2] = 0;
             }
             if (g_pFEInput->IsConnected((eFEINPUT_PAD)3))
             {
-                mGameInfo[mCurrentMode]->mPadSides[3] = 1;
+                skipFEInfo = mGameInfo[mCurrentMode];
+                skipFEInfo->mPadSides[3] = 1;
             }
         }
     }

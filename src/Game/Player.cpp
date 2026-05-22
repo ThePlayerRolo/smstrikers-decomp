@@ -438,6 +438,14 @@ void cPlayer::ClearPowerupAnimState(bool bIsEndGame)
  */
 static const nlVector3 v3Zero = { 0.0f, 0.0f, 0.0f };
 
+static inline float DoCalculatePassSpeed(const nlVector3& teammatePosition, const nlVector3& teammateVelocity, float passSpeedMin, float passSpeedMax, float passDistMin, float passDistMax)
+{
+    float distToTarget = nlSqrt((teammatePosition.f.y - g_pBall->m_v3Position.f.y) * (teammatePosition.f.y - g_pBall->m_v3Position.f.y) + (teammatePosition.f.x - g_pBall->m_v3Position.f.x) * (teammatePosition.f.x - g_pBall->m_v3Position.f.x), true);
+    float passGroundSpeed = InterpolateRangeClamped(passSpeedMin, passSpeedMax, passDistMin, passDistMax, distToTarget);
+    float closingSpeed = GetClosingSpeed2D(teammatePosition, teammateVelocity, g_pBall->m_v3Position, v3Zero);
+    return passGroundSpeed - 0.5f * closingSpeed;
+}
+
 void cPlayer::DoRegularPassing(cPlayer* pTeammate, bool bVolleyPass, bool bAllowLeadPass, bool bParam3, bool bParam4)
 {
     g_pBall->m_tNoPickupTimer.SetSeconds(0.1f);
@@ -493,40 +501,44 @@ void cPlayer::DoRegularPassing(cPlayer* pTeammate, bool bVolleyPass, bool bAllow
                 }
                 if (bVolleyPass || bParam4)
                 {
-                    float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
-                    fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassVolleySpeedMin, m_pTweaks->fPassVolleySpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
-                    float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, teammateLeadPassVelocity, g_pBall->m_v3Position, v3Zero);
-                    float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
-                    if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+                    float adjustedSpeed = DoCalculatePassSpeed(pTeammate->m_v3Position, teammateLeadPassVelocity, m_pTweaks->fPassVolleySpeedMin, m_pTweaks->fPassVolleySpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist);
+                    float fMinPassSpeed = m_pTweaks->fPassGroundSpeedMin;
+                    float fMaxPassSpeed = m_pTweaks->fPassGroundSpeedMax;
+                    if (adjustedSpeed >= fMinPassSpeed)
                     {
-                        fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
-                    }
-                    if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
-                    {
-                        fPassGroundSpeed = fAdjustedSpeed;
                     }
                     else
                     {
-                        fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+                        adjustedSpeed = fMinPassSpeed;
+                    }
+                    if (adjustedSpeed <= fMaxPassSpeed)
+                    {
+                        fPassGroundSpeed = adjustedSpeed;
+                    }
+                    else
+                    {
+                        fPassGroundSpeed = fMaxPassSpeed;
                     }
                 }
                 else
                 {
-                    float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
-                    fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassGroundSpeedMin, m_pTweaks->fPassGroundSpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
-                    float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, teammateLeadPassVelocity, g_pBall->m_v3Position, v3Zero);
-                    float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
-                    if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+                    float adjustedSpeed = DoCalculatePassSpeed(pTeammate->m_v3Position, teammateLeadPassVelocity, m_pTweaks->fPassGroundSpeedMin, m_pTweaks->fPassGroundSpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist);
+                    float fMinPassSpeed = m_pTweaks->fPassGroundSpeedMin;
+                    float fMaxPassSpeed = m_pTweaks->fPassGroundSpeedMax;
+                    if (adjustedSpeed >= fMinPassSpeed)
                     {
-                        fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
-                    }
-                    if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
-                    {
-                        fPassGroundSpeed = fAdjustedSpeed;
                     }
                     else
                     {
-                        fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+                        adjustedSpeed = fMinPassSpeed;
+                    }
+                    if (adjustedSpeed <= fMaxPassSpeed)
+                    {
+                        fPassGroundSpeed = adjustedSpeed;
+                    }
+                    else
+                    {
+                        fPassGroundSpeed = fMaxPassSpeed;
                     }
                 }
                 if (!bLeadPass)
@@ -613,40 +625,44 @@ void cPlayer::DoRegularPassing(cPlayer* pTeammate, bool bVolleyPass, bool bAllow
         v3PassIntercept = pTeammate->m_v3Position;
         if (bVolleyPass)
         {
-            float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
-            fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassVolleySpeedMin, m_pTweaks->fPassVolleySpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
-            float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, pTeammate->m_v3Velocity, g_pBall->m_v3Position, v3Zero);
-            float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
-            if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+            float adjustedSpeed = DoCalculatePassSpeed(pTeammate->m_v3Position, pTeammate->m_v3Velocity, m_pTweaks->fPassVolleySpeedMin, m_pTweaks->fPassVolleySpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist);
+            float fMinPassSpeed = m_pTweaks->fPassGroundSpeedMin;
+            float fMaxPassSpeed = m_pTweaks->fPassGroundSpeedMax;
+            if (adjustedSpeed >= fMinPassSpeed)
             {
-                fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
-            }
-            if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
-            {
-                fPassGroundSpeed = fAdjustedSpeed;
             }
             else
             {
-                fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+                adjustedSpeed = fMinPassSpeed;
+            }
+            if (adjustedSpeed <= fMaxPassSpeed)
+            {
+                fPassGroundSpeed = adjustedSpeed;
+            }
+            else
+            {
+                fPassGroundSpeed = fMaxPassSpeed;
             }
         }
         else
         {
-            float fDistToTarget = nlSqrt((pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) * (pTeammate->m_v3Position.f.y - g_pBall->m_v3Position.f.y) + (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x) * (pTeammate->m_v3Position.f.x - g_pBall->m_v3Position.f.x), true);
-            fPassGroundSpeed = InterpolateRangeClamped(m_pTweaks->fPassGroundSpeedMin, m_pTweaks->fPassGroundSpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist, fDistToTarget);
-            float fClosingSpeed = GetClosingSpeed2D(pTeammate->m_v3Position, pTeammate->m_v3Velocity, g_pBall->m_v3Position, v3Zero);
-            float fAdjustedSpeed = fPassGroundSpeed - 0.5f * fClosingSpeed;
-            if (fAdjustedSpeed < m_pTweaks->fPassGroundSpeedMin)
+            float adjustedSpeed = DoCalculatePassSpeed(pTeammate->m_v3Position, pTeammate->m_v3Velocity, m_pTweaks->fPassGroundSpeedMin, m_pTweaks->fPassGroundSpeedMax, g_pGame->m_pGameTweaks->fPassSpeedMinDist, g_pGame->m_pGameTweaks->fPassSpeedMaxDist);
+            float fMinPassSpeed = m_pTweaks->fPassGroundSpeedMin;
+            float fMaxPassSpeed = m_pTweaks->fPassGroundSpeedMax;
+            if (adjustedSpeed >= fMinPassSpeed)
             {
-                fAdjustedSpeed = m_pTweaks->fPassGroundSpeedMin;
-            }
-            if (fAdjustedSpeed <= m_pTweaks->fPassGroundSpeedMax)
-            {
-                fPassGroundSpeed = fAdjustedSpeed;
             }
             else
             {
-                fPassGroundSpeed = m_pTweaks->fPassGroundSpeedMax;
+                adjustedSpeed = fMinPassSpeed;
+            }
+            if (adjustedSpeed <= fMaxPassSpeed)
+            {
+                fPassGroundSpeed = adjustedSpeed;
+            }
+            else
+            {
+                fPassGroundSpeed = fMaxPassSpeed;
             }
         }
     }

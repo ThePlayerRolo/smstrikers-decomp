@@ -12,46 +12,40 @@
 #include "Game/Sys/debug.h"
 #include "Game/GL/GLInventory.h"
 
-bool glx_MemoryDump;
-u32 ResourceMemSize;
-u32 p_phys;
-u32 n_phys;
-u32 i_frame;
-u32 glx_mem0;
-u32 g_uResourceMarker;
+static u8 glx_MemoryDump;
+static u32 ResourceMemSize;
+static u32 FrameMemSizeReal;
+static u32 FrameMemSizeVirt;
+static u32 p_phys;
+static u32 n_phys;
+static int i_frame;
+static u32 glx_mem0;
+static int g_uResourceMarker;
 
-u32 p_frame[4];
-u32 n_frame[4];
+static u32 p_frame[2][2];
+static u32 n_frame[2][2];
 
-u32 FrameMemSizeVirt;
-u32 FrameMemSizeReal;
-u32 FrameMemSizes[2];
+static u32 FrameMemSizes[2] = { 0x0, 0x0 };
 
-GLXMemoryInfo g_uResourceAlloc[16];
-
-// GLInventory glInventory;
-
-extern "C"
+namespace
 {
-    typedef void (*ConstructorDestructor)(void*);
-    void __construct_array(void* ptr, ConstructorDestructor ctor, ConstructorDestructor dtor, unsigned long size, unsigned long n);
-    void __ct__13GLXMemoryInfoFv(void*);
-}
-
-/**
- * Offset/Address/Size: 0x930 | 0x801B7258 | size: 0x64
- */
-extern "C" void __sinit_glxMemory_cpp(void)
+struct glxMemoryGlobalsInit
 {
-    ResourceMemSize = 0xBFD000;
-    FrameMemSizeReal = 0xE0000;
-    FrameMemSizeVirt = 0xA0000;
-    FrameMemSizes[0] = FrameMemSizeReal;
-    FrameMemSizes[1] = FrameMemSizeVirt;
-    __construct_array(g_uResourceAlloc, (ConstructorDestructor)__ct__13GLXMemoryInfoFv, 0, sizeof(GLXMemoryInfo), 16);
-}
+    glxMemoryGlobalsInit()
+    {
+        ResourceMemSize = 0xBFD000;
+        FrameMemSizeReal = 0xE0000;
+        FrameMemSizeVirt = 0xA0000;
+        FrameMemSizes[0] = FrameMemSizeReal;
+        FrameMemSizes[1] = FrameMemSizeVirt;
+    }
+};
+glxMemoryGlobalsInit s_glxMemoryGlobalsInit;
+} // namespace
 
-const char* szMemoryNames[] = {
+static GLXMemoryInfo g_uResourceAlloc[16];
+
+static char* szMemoryNames[6] = {
     "header",
     "matrix",
     "index",
@@ -85,17 +79,17 @@ void glplatFrameAllocNextFrame()
 {
     if (glx_MemoryDump)
     {
-        tDebugPrintManager::Print(DC_GLPLAT, "memory used: %uKB resource, %uKB frame real, %uKB frame virt\n", n_phys >> 10, n_frame[i_frame * 2] >> 10, n_frame[i_frame * 2 + 1] >> 10);
+        tDebugPrintManager::Print(DC_GLPLAT, "memory used: %uKB resource, %uKB frame real, %uKB frame virt\n", n_phys >> 10, n_frame[i_frame][0] >> 10, n_frame[i_frame][1] >> 10);
 
-        tDebugPrintManager::Print(DC_GLPLAT, "       free: %uKB resource, %uKB frame real, %uKB frame virt\n", (ResourceMemSize - n_phys) >> 10, (FrameMemSizes[0] - n_frame[i_frame * 2]) >> 10, (FrameMemSizes[1] - n_frame[i_frame * 2 + 1]) >> 10);
+        tDebugPrintManager::Print(DC_GLPLAT, "       free: %uKB resource, %uKB frame real, %uKB frame virt\n", (ResourceMemSize - n_phys) >> 10, (FrameMemSizes[0] - n_frame[i_frame][0]) >> 10, (FrameMemSizes[1] - n_frame[i_frame][1]) >> 10);
 
         glx_MemoryDump = false;
     }
 
-    u32 newFrame = i_frame ^ 1;
+    int newFrame = i_frame ^ 1;
     i_frame = newFrame;
-    n_frame[newFrame * 2] = 0;
-    n_frame[newFrame * 2 + 1] = 0;
+    n_frame[newFrame][0] = 0;
+    n_frame[newFrame][1] = 0;
 
     GXInvalidateVtxCache();
     GXInvalidateTexAll();
@@ -119,11 +113,9 @@ u32 glplatFrameAlloc(unsigned long size, eGLMemory mem)
         break;
     }
 
-    u32(*nf)[2] = (u32(*)[2])n_frame;
-    u32(*pf)[2] = (u32(*)[2])p_frame;
     u32 out;
-    u32 n = nf[i_frame][isLow];
-    u32 p = pf[i_frame][isLow];
+    u32 n = n_frame[i_frame][isLow];
+    u32 p = p_frame[i_frame][isLow];
     u32 sum = p + n + 0x1F;
     out = sum & ~0x1F;
     u32 next = size + (out - p);
@@ -136,7 +128,7 @@ u32 glplatFrameAlloc(unsigned long size, eGLMemory mem)
     }
     else
     {
-        nf[i_frame][isLow] = next;
+        n_frame[i_frame][isLow] = next;
     }
 
     return out;
@@ -326,8 +318,8 @@ bool glxInitMemory()
     pMem = (u32)nlMalloc(frameMemReal * 2, 32, false);
     if (pMem == 0)
         return false;
-    p_frame[0] = pMem;
-    p_frame[2] = pMem + FrameMemSizeReal;
+    p_frame[0][0] = pMem;
+    p_frame[1][0] = pMem + FrameMemSizeReal;
 
     u32 frameMemVirt;
     {
@@ -348,14 +340,14 @@ bool glxInitMemory()
     if (pVirt == 0)
         return false;
 
-    p_frame[1] = pVirt;
-    p_frame[3] = pVirt + FrameMemSizeVirt;
+    p_frame[0][1] = pVirt;
+    p_frame[1][1] = pVirt + FrameMemSizeVirt;
     i_frame = 0;
     n_phys = 0;
-    n_frame[2] = 0;
-    n_frame[0] = 0;
-    n_frame[3] = 0;
-    n_frame[1] = 0;
+    n_frame[1][0] = 0;
+    n_frame[0][0] = 0;
+    n_frame[1][1] = 0;
+    n_frame[0][1] = 0;
     FrameMemSizes[0] = FrameMemSizeReal;
     FrameMemSizes[1] = FrameMemSizeVirt;
 

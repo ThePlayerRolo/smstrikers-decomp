@@ -32,7 +32,6 @@ static const char* VISUAL_MENU_SLIDE = "Slide6";
 static const char* GAMEPLAY_MENU_SLIDE = "Slide3";
 static const char* SAVE_LOAD_SLIDE = "Slide_SaveLoad";
 static const char* CHEATS_MENU_SLIDE = "Slide5";
-static char* MENU_ITEMS_OSL[] = { "Item_Save", "Item_Load" };
 
 /**
  * Offset/Address/Size: 0x0 | 0x800B5044 | size: 0x4
@@ -117,23 +116,11 @@ void TempDisableSound();
 
 /**
  * Offset/Address/Size: 0x210 | 0x800B5254 | size: 0x410
- * TODO: 88.76% match - prologue register/save layout still differs (r24 vs r25 path and
- * missing early li r0,0 before stmw), plus member store ordering around ButtonComponent ctor.
  */
 OptionsSaveLoad::OptionsSaveLoad(FEPresentation* presentation, ButtonComponent::ButtonState buttonstate)
+    : OptionsSubMenu(presentation, buttonstate)
 {
-    m_pres = presentation;
-    m_buttons = NULL;
-    m_currentButtonState = buttonstate;
-    mSettingsCRC = 0;
-    mSlideMenuLists[0] = NULL;
-    mSlideMenuLists[1] = NULL;
-    mSlideMenuLists[2] = NULL;
-    mSlideMenuLists[3] = NULL;
-    mSlideMenuLists[4] = NULL;
-    mSlideMenuLists[5] = NULL;
-    mSlideMenuLists[6] = NULL;
-    mSlideMenuLists[7] = NULL;
+    static char* MENU_ITEMS[] = { "Item_Save", "Item_Load" };
 
     presentation->SetActiveSlide(SAVE_LOAD_SLIDE);
     presentation->Update(0.0f);
@@ -151,7 +138,7 @@ OptionsSaveLoad::OptionsSaveLoad(FEPresentation* presentation, ButtonComponent::
         TLComponentInstance* instance = FEFinder<TLComponentInstance, 4>::Find(
             slide,
             InlineHasher(nlStringLowerHash("Layer")),
-            InlineHasher(nlStringLowerHash(MENU_ITEMS_OSL[i])),
+            InlineHasher(nlStringLowerHash(MENU_ITEMS[i])),
             InlineHasher(0),
             InlineHasher(0),
             InlineHasher(0),
@@ -488,7 +475,8 @@ void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstanc
  * FEFinder hash temporary stack placement still mismatches.
  */
 OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, ButtonComponent::ButtonState buttonstate, GameplaySettings& settings, int skilltoskip)
-    : mSettings(settings)
+    : OptionsSubMenu(presentation, buttonstate)
+    , mSettings(settings)
 {
     extern int nlSNPrintf(char*, unsigned long, const char*, ...);
 
@@ -497,19 +485,6 @@ OptionsGameplayMenuV2::OptionsGameplayMenuV2(FEPresentation* presentation, Butto
     TLInstance* instance;
     TLComponentInstance* compinstance;
     int gtindex;
-
-    m_pres = presentation;
-    m_buttons = NULL;
-    m_currentButtonState = buttonstate;
-    mSettingsCRC = 0;
-    mSlideMenuLists[0] = NULL;
-    mSlideMenuLists[1] = NULL;
-    mSlideMenuLists[2] = NULL;
-    mSlideMenuLists[3] = NULL;
-    mSlideMenuLists[4] = NULL;
-    mSlideMenuLists[5] = NULL;
-    mSlideMenuLists[6] = NULL;
-    mSlideMenuLists[7] = NULL;
 
     presentation->SetActiveSlide(GAMEPLAY_MENU_SLIDE);
     presentation->Update(0.0f);
@@ -826,19 +801,8 @@ static char* MENU_ITEMS_VISUAL[] = {
  * Offset/Address/Size: 0x19E0 | 0x800B6A24 | size: 0x6E8
  */
 OptionsVisualMenuV2::OptionsVisualMenuV2(FEPresentation* pres, ButtonComponent::ButtonState btnState, VisualSettings& settings)
-    : mSettings((m_pres = pres,
-          m_buttons = NULL,
-          m_currentButtonState = btnState,
-          mSettingsCRC = 0,
-          mSlideMenuLists[0] = NULL,
-          mSlideMenuLists[1] = NULL,
-          mSlideMenuLists[2] = NULL,
-          mSlideMenuLists[3] = NULL,
-          mSlideMenuLists[4] = NULL,
-          mSlideMenuLists[5] = NULL,
-          mSlideMenuLists[6] = NULL,
-          mSlideMenuLists[7] = NULL,
-          settings))
+    : OptionsSubMenu(pres, btnState)
+    , mSettings(settings)
 {
     if (nlTaskManager::m_pInstance->m_CurrState == 1)
     {
@@ -1537,7 +1501,8 @@ OptionsAudioMenuV2::~OptionsAudioMenuV2()
  * Offset/Address/Size: 0x2D44 | 0x800B7D88 | size: 0x76C
  */
 OptionsAudioMenuV2::OptionsAudioMenuV2(FEPresentation* presentation, ButtonComponent::ButtonState buttonstate, AudioSettings& settings)
-    : mSettings(settings)
+    : OptionsSubMenu(presentation, buttonstate)
+    , mSettings(settings)
 {
     extern int nlSNPrintf(char*, unsigned long, const char*, ...);
 
@@ -1546,19 +1511,6 @@ OptionsAudioMenuV2::OptionsAudioMenuV2(FEPresentation* presentation, ButtonCompo
     int i;
     TLInstance* instance;
     TLComponentInstance* compinstance;
-
-    m_pres = presentation;
-    m_buttons = NULL;
-    m_currentButtonState = buttonstate;
-    mSettingsCRC = 0;
-    mSlideMenuLists[0] = NULL;
-    mSlideMenuLists[1] = NULL;
-    mSlideMenuLists[2] = NULL;
-    mSlideMenuLists[3] = NULL;
-    mSlideMenuLists[4] = NULL;
-    mSlideMenuLists[5] = NULL;
-    mSlideMenuLists[6] = NULL;
-    mSlideMenuLists[7] = NULL;
 
     inpausestate = (nlTaskManager::m_pInstance->m_CurrState == 1);
     if (inpausestate)
@@ -2165,7 +2117,8 @@ OptionsCheatsMenu::~OptionsCheatsMenu()
  * callback setup and hash temporary stack offsets are still mismatched.
  */
 OptionsCheatsMenu::OptionsCheatsMenu(FEPresentation* pres, ButtonComponent::ButtonState btnState, CheatSettings& settings)
-    : mSettings(settings)
+    : OptionsSubMenu(pres, btnState)
+    , mSettings(settings)
 {
     extern int nlSNPrintf(char*, unsigned long, const char*, ...);
 
@@ -2173,19 +2126,6 @@ OptionsCheatsMenu::OptionsCheatsMenu(FEPresentation* pres, ButtonComponent::Butt
     int i;
     TLInstance* instance;
     TLComponentInstance* compinstance;
-
-    m_pres = pres;
-    m_buttons = NULL;
-    m_currentButtonState = btnState;
-    mSettingsCRC = 0;
-    mSlideMenuLists[0] = NULL;
-    mSlideMenuLists[1] = NULL;
-    mSlideMenuLists[2] = NULL;
-    mSlideMenuLists[3] = NULL;
-    mSlideMenuLists[4] = NULL;
-    mSlideMenuLists[5] = NULL;
-    mSlideMenuLists[6] = NULL;
-    mSlideMenuLists[7] = NULL;
 
     pres->SetActiveSlide(CHEATS_MENU_SLIDE);
     pres->Update(0.0f);

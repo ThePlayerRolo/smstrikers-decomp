@@ -27,7 +27,7 @@ unsigned long nlStrLen(const CharT* str)
     unsigned long n = 0;
     if (str)
     {
-        for (; *str; n++, str++)
+        for (; *str; str++, n++)
             ;
     }
     return n;
