@@ -297,8 +297,8 @@ static void DrawIndicator(int xCentre, int yCentre, float fPixelWidth, float fPi
 
 /**
  * Offset/Address/Size: 0xA8 | 0x8015F30C | size: 0x7C0
- * TODO: 93.64% match - remaining diffs are register allocation and stack-slot
- * placement differences around inlined DrawIndicator paths.
+ * TODO: 97.04% match - remaining diffs are register allocation differences in
+ * loop-carried pointers and inlined DrawIndicator argument setup.
  */
 void UpdateAndRenderPlayerIndicators(float)
 {
@@ -325,15 +325,13 @@ void UpdateAndRenderPlayerIndicators(float)
 
     for (i = 0; i < 10; i++)
     {
-        cPlayer* pCharacter = (cPlayer*)g_pCharacters[i];
-        cPlayerIndicatorState* pState;
         ReplayManager* pReplay;
         ReplayIndicatorSnapshot* pSnapshot;
         GameTweaksOverlay* pTweaks;
         unsigned long indicatorTexID;
         unsigned long glowTexID;
 
-        if (pCharacter->GetGlobalPad() == 0)
+        if (((cPlayer*)g_pCharacters[i])->GetGlobalPad() == 0)
         {
             continue;
         }
@@ -344,9 +342,9 @@ void UpdateAndRenderPlayerIndicators(float)
             continue;
         }
 
-        pController = pCharacter->GetGlobalPad();
+        pController = ((cPlayer*)g_pCharacters[i])->GetGlobalPad();
         indicatorTexID = uIndicatorTexID[pController->m_padIndex];
-        pController = pCharacter->GetGlobalPad();
+        pController = ((cPlayer*)g_pCharacters[i])->GetGlobalPad();
         glowTexID = uGlowTexID[pController->m_padIndex];
 
         pReplay = ReplayManager::Instance();
@@ -363,18 +361,16 @@ void UpdateAndRenderPlayerIndicators(float)
         fX = 320.0f * v3ScreenPosition.f.x + 320.0f;
         fY -= switchScale;
 
-        pState = (cPlayerIndicatorState*)pCharacter;
-
-        if (pState->mSwitchScale < 0.5f)
+        if (((cPlayerIndicatorState*)g_pCharacters[i])->mSwitchScale < 0.5f)
         {
-            switchScale = (0.5f - pState->mSwitchScale) / 0.5f;
+            switchScale = (0.5f - ((cPlayerIndicatorState*)g_pCharacters[i])->mSwitchScale) / 0.5f;
             sizeScale = Interpolate(1.0f, 2.0f, switchScale);
 
             fDistInPixels = s_fOverheadSize * sizeScale;
             DrawIndicator((int)fX, (int)fY, s_fAdditiveTextureScale * fDistInPixels, s_fAdditiveTextureScale * fDistInPixels, s_fAdditiveBlendingIntensity * switchScale, glowTexID, 0.0f, 2);
             DrawIndicator((int)fX, (int)fY, fDistInPixels, fDistInPixels, fOpacity, indicatorTexID, 0.0f, 1);
         }
-        else if (pState->mPossessionObject)
+        else if (((cPlayerIndicatorState*)g_pCharacters[i])->mPossessionObject)
         {
             whoHasBall = i;
 

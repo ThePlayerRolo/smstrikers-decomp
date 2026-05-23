@@ -186,8 +186,8 @@ static inline void ShiftCreateFileLookup(MemCard* self, nlSortedSlot<MemCard::MC
         nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* src = &self->m_OpenFiles.m_pEntryLookup[next];
         nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* dst = &self->m_OpenFiles.m_pEntryLookup[idx];
         idx = next;
-        unsigned long id = src->hash;
-        MemCard::MC_FILE* entry = src->pEntry;
+        register unsigned long id = src->hash;
+        register MemCard::MC_FILE* entry = src->pEntry;
         dst->pEntry = entry;
         dst->hash = id;
     }
@@ -734,8 +734,8 @@ long MemCard::CreateFile(const char* FileName, unsigned long FileSize, MemCard::
 
 /**
  * Offset/Address/Size: 0xBE8 | 0x801CA358 | size: 0x340
- * TODO: 95.96% match - shift-down loop insert variable gets r4 instead of target r6
- * (MWCC register re-homing), nlBSearch mangled name diff (nested vs standalone EntryLookup type).
+ * TODO: 96.13% match - insert shift loop still uses r5/r6 for destination index and
+ * lookup base where target keeps r6/r8.
  */
 extern "C" void* memset(void*, int, unsigned long);
 
@@ -780,13 +780,11 @@ long MemCard::OpenFile(const char* FileName, MemCard::MC_FILE*& pFile, unsigned 
     {
         unsigned long prev = count - 1;
         nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* lookup = m_OpenFiles.m_pEntryLookup;
-        nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* src = &lookup[prev];
-        nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* dst = &lookup[count];
+        unsigned long id = lookup[prev].hash;
+        MC_FILE* entry = lookup[prev].pEntry;
+        lookup[count].pEntry = entry;
+        lookup[count].hash = id;
         count = prev;
-        unsigned long id = src->hash;
-        MC_FILE* entry = src->pEntry;
-        dst->pEntry = entry;
-        dst->hash = id;
     }
 
     m_OpenFiles.m_pEntryLookup[high].hash = hash;
@@ -960,8 +958,8 @@ static inline void ShiftOpenLookup(MemCard* self, nlSortedSlot<MemCard::MC_FILE,
     while ((unsigned long)idx != total)
     {
         next = idx + 1;
-        nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* src = &self->m_OpenFiles.m_pEntryLookup[next];
         nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* dst = &self->m_OpenFiles.m_pEntryLookup[idx];
+        nlSortedSlot<MemCard::MC_FILE, 16>::EntryLookup<MemCard::MC_FILE>* src = &self->m_OpenFiles.m_pEntryLookup[next];
         idx = next;
         unsigned long id = src->hash;
         MemCard::MC_FILE* entry = src->pEntry;
@@ -974,8 +972,8 @@ static inline void ShiftOpenLookup(MemCard* self, nlSortedSlot<MemCard::MC_FILE,
 
 /**
  * Offset/Address/Size: 0x3060 | 0x801CA0A0 | size: 0x1F8
- * TODO: 99.72% match - ShiftOpenLookup entry copy loop still emits a register
- * permutation in the two load/store pairs.
+ * TODO: 99.76% match - ShiftOpenLookup entry copy loop still swaps slwi/add
+ * offset temp registers and keeps src->pEntry in r0 instead of r5.
  */
 long MemCard::DeleteFile(const char* FileName, const MemCardFunctor& Callback)
 {

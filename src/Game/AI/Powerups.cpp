@@ -1255,7 +1255,7 @@ void PowerupBase::Update(float dt)
 
 /**
  * Offset/Address/Size: 0x3DFC | 0x8005E6E8 | size: 0x608
- * TODO: 96.4% match - remaining register allocation diffs in nonvolatile register assignment
+ * TODO: 97.5% match - remaining register allocation and arithmetic operand-order diffs
  */
 int PowerupBase::AwardPowerup(cTeam* pTeam)
 {
@@ -1336,7 +1336,9 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
     cFielder* pCaptain = pTeam->GetCaptain();
     cFielder* pSideKick = pTeam->GetFielder(1);
 
-    int nChanceForStar = (nChanceForChainChomp > 0 ? nChanceForChainChomp : 0) + g_pGame->m_pGameTweaks->nChanceForStar - nDifference;
+    int nChanceForStar = nChanceForChainChomp > 0 ? nChanceForChainChomp : 0;
+    nChanceForStar += g_pGame->m_pGameTweaks->nChanceForStar;
+    nChanceForStar -= nDifference;
 
     if (nDifference >= -1)
     {
@@ -1347,13 +1349,39 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
     FielderTweaks* pCapTweaks = (FielderTweaks*)pCaptain->m_pTweaks;
     FielderTweaks* pSkTweaks = (FielderTweaks*)pSideKick->m_pTweaks;
 
-    int nChanceForSpinyShell = g_pGame->m_pGameTweaks->nChanceForSpinyShell + pCapTweaks->nChanceForSpinyShell + pSkTweaks->nChanceForSpinyShell + (nChanceForStar > 0 ? nChanceForStar : 0) - nDifference;
-    int nChanceForRedShell = g_pGame->m_pGameTweaks->nChanceForRedShell + pCapTweaks->nChanceForRedShell + pSkTweaks->nChanceForRedShell + (nChanceForSpinyShell > 0 ? nChanceForSpinyShell : 0) - nDifference;
-    int nChanceForBanana = g_pGame->m_pGameTweaks->nChanceForBanana + pCapTweaks->nChanceForBanana + pSkTweaks->nChanceForBanana + (nChanceForRedShell > 0 ? nChanceForRedShell : 0) + nDifference;
-    int nChanceForBoBomb = g_pGame->m_pGameTweaks->nChanceForBoBomb + pCapTweaks->nChanceForBoBomb + pSkTweaks->nChanceForBoBomb + (nChanceForBanana > 0 ? nChanceForBanana : 0);
-    int nChanceForMushroom = g_pGame->m_pGameTweaks->nChanceForMushroom + pCapTweaks->nChanceForMushroom + pSkTweaks->nChanceForMushroom + (nChanceForBoBomb > 0 ? nChanceForBoBomb : 0) + nDifference;
-    int nChanceForGreenShell = g_pGame->m_pGameTweaks->nChanceForGreenShell + pCapTweaks->nChanceForGreenShell + pSkTweaks->nChanceForGreenShell + (nChanceForMushroom > 0 ? nChanceForMushroom : 0) + nDifference;
-    int nChanceForFreezeShell = g_pGame->m_pGameTweaks->nChanceForFreezeShell + pCapTweaks->nChanceForFreezeShell + pSkTweaks->nChanceForFreezeShell + (nChanceForGreenShell > 0 ? nChanceForGreenShell : 0) + nDifference;
+    int nChanceForSpinyShell = pCapTweaks->nChanceForSpinyShell + pSkTweaks->nChanceForSpinyShell;
+    nChanceForSpinyShell += nChanceForStar > 0 ? nChanceForStar : 0;
+    nChanceForSpinyShell += g_pGame->m_pGameTweaks->nChanceForSpinyShell;
+    nChanceForSpinyShell -= nDifference;
+
+    int nChanceForRedShell = pCapTweaks->nChanceForRedShell + pSkTweaks->nChanceForRedShell;
+    nChanceForRedShell += nChanceForSpinyShell > 0 ? nChanceForSpinyShell : 0;
+    nChanceForRedShell += g_pGame->m_pGameTweaks->nChanceForRedShell;
+    nChanceForRedShell -= nDifference;
+
+    int nChanceForBanana = pCapTweaks->nChanceForBanana + pSkTweaks->nChanceForBanana;
+    nChanceForBanana += nChanceForRedShell > 0 ? nChanceForRedShell : 0;
+    nChanceForBanana += g_pGame->m_pGameTweaks->nChanceForBanana;
+    nChanceForBanana += nDifference;
+
+    int nChanceForBoBomb = pCapTweaks->nChanceForBoBomb + pSkTweaks->nChanceForBoBomb;
+    nChanceForBoBomb += nChanceForBanana > 0 ? nChanceForBanana : 0;
+    nChanceForBoBomb += g_pGame->m_pGameTweaks->nChanceForBoBomb;
+
+    int nChanceForMushroom = pCapTweaks->nChanceForMushroom + pSkTweaks->nChanceForMushroom;
+    nChanceForMushroom += nChanceForBoBomb > 0 ? nChanceForBoBomb : 0;
+    nChanceForMushroom += g_pGame->m_pGameTweaks->nChanceForMushroom;
+    nChanceForMushroom += nDifference;
+
+    int nChanceForGreenShell = pCapTweaks->nChanceForGreenShell + pSkTweaks->nChanceForGreenShell;
+    nChanceForGreenShell += nChanceForMushroom > 0 ? nChanceForMushroom : 0;
+    nChanceForGreenShell += g_pGame->m_pGameTweaks->nChanceForGreenShell;
+    nChanceForGreenShell += nDifference;
+
+    int nChanceForFreezeShell = pCapTweaks->nChanceForFreezeShell + pSkTweaks->nChanceForFreezeShell;
+    nChanceForFreezeShell += nChanceForGreenShell > 0 ? nChanceForGreenShell : 0;
+    nChanceForFreezeShell += g_pGame->m_pGameTweaks->nChanceForFreezeShell;
+    nChanceForFreezeShell += nDifference;
 
     int nChance = nlRandom(nChanceForFreezeShell, &nlDefaultSeed);
 
@@ -1449,7 +1477,7 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
     }
 
     int nNumOfPowerups = 1;
-    float fMultiplesBonus = ((FielderTweaks*)pCaptain->m_pTweaks)->fChanceForMultiples * 0.5f;
+    float fMultiplesBonus = 0.5f * ((FielderTweaks*)pCaptain->m_pTweaks)->fChanceForMultiples;
     float fRandom = nlRandomf(1.0f, &nlDefaultSeed);
     float fFiveChance;
     float fThreeChance;
@@ -1459,7 +1487,8 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
     case POWER_UP_GREEN_SHELL:
     case POWER_UP_FREEZE_SHELL:
         fFiveChance = fMultiplesBonus + g_pGame->m_pGameTweaks->fShellFiveChance;
-        fThreeChance = fMultiplesBonus + fFiveChance + g_pGame->m_pGameTweaks->fShellThreeChance;
+        fThreeChance = fFiveChance + g_pGame->m_pGameTweaks->fShellThreeChance;
+        fThreeChance += fMultiplesBonus;
         if (fThreeChance > fRandom)
         {
             nNumOfPowerups = 3;
@@ -1471,7 +1500,8 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
         break;
     case POWER_UP_RED_SHELL:
     case POWER_UP_SPINY_SHELL:
-        fThreeChance = ((FielderTweaks*)pCaptain->m_pTweaks)->fChanceForMultiples + g_pGame->m_pGameTweaks->fShellFiveChance + g_pGame->m_pGameTweaks->fShellThreeChance;
+        fThreeChance = ((FielderTweaks*)pCaptain->m_pTweaks)->fChanceForMultiples + g_pGame->m_pGameTweaks->fShellFiveChance;
+        fThreeChance += g_pGame->m_pGameTweaks->fShellThreeChance;
         if (fThreeChance > fRandom)
         {
             nNumOfPowerups = 3;
@@ -1479,7 +1509,8 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
         break;
     case POWER_UP_BOBOMB:
         fFiveChance = fMultiplesBonus + g_pGame->m_pGameTweaks->fBobombFiveChance;
-        fThreeChance = fMultiplesBonus + fFiveChance + g_pGame->m_pGameTweaks->fBobombThreeChance;
+        fThreeChance = fFiveChance + g_pGame->m_pGameTweaks->fBobombThreeChance;
+        fThreeChance += fMultiplesBonus;
         if (fThreeChance > fRandom)
         {
             nNumOfPowerups = 3;
@@ -1491,7 +1522,8 @@ int PowerupBase::AwardPowerup(cTeam* pTeam)
         break;
     case POWER_UP_BANANA:
         fFiveChance = fMultiplesBonus + g_pGame->m_pGameTweaks->fBananaFiveChance;
-        fThreeChance = fMultiplesBonus + fFiveChance + g_pGame->m_pGameTweaks->fBananaThreeChance;
+        fThreeChance = fFiveChance + g_pGame->m_pGameTweaks->fBananaThreeChance;
+        fThreeChance += fMultiplesBonus;
         if (fThreeChance > fRandom)
         {
             nNumOfPowerups = 3;
@@ -1950,7 +1982,7 @@ void PowerupBase::Destroy(bool bSilent)
                         Audio::SoundAttributes attrs;
                         attrs.Init();
 
-                        unsigned long sndType = 0xFFFFFFFF;
+                        unsigned long sndType;
                         switch (pwrSnd)
                         {
                         case PWRUP_SOUND_ACQUIRE:
@@ -2027,7 +2059,7 @@ void PowerupBase::Destroy(bool bSilent)
                         Audio::SoundAttributes attrs;
                         attrs.Init();
 
-                        unsigned long sndType = 0xFFFFFFFF;
+                        unsigned long sndType;
                         switch (pwrSnd)
                         {
                         case PWRUP_SOUND_ACQUIRE:
@@ -2104,7 +2136,7 @@ void PowerupBase::Destroy(bool bSilent)
                         Audio::SoundAttributes attrs;
                         attrs.Init();
 
-                        unsigned long sndType = 0xFFFFFFFF;
+                        unsigned long sndType;
                         switch (pwrSnd)
                         {
                         case PWRUP_SOUND_ACQUIRE:
@@ -2335,9 +2367,10 @@ void PowerupBase::Destroy(bool bSilent)
     }
 
 cleanup:
-    if (m_uVoiceID != 0)
+    u32 voiceID = m_uVoiceID;
+    if (voiceID != 0)
     {
-        if (m_uVoiceID != (u32)Audio::GetSndIDError())
+        if (voiceID != (u32)Audio::GetSndIDError())
         {
             Audio::gPowerupSFX.StopEmitter((SFXEmitter*)m_uVoiceID, 0);
             m_uVoiceID = 0;
@@ -2353,8 +2386,8 @@ cleanup:
         m_pBlurHandler = NULL;
     }
 
-    unsigned long hashID = m_pDrawableObj->m_uHashID;
     int i;
+    unsigned long hashID = m_pDrawableObj->m_uHashID;
     for (i = 0; i < 25; i++)
     {
         if (powerupRegistry.registry[i].hashId == hashID)

@@ -388,28 +388,6 @@ void BlurHandler::AddViewOrientedPoint(const nlVector3& position, const nlVector
     }
 }
 
-inline void nlVec3CrossProduct(nlVector3& result, const nlVector3& a, const nlVector3& b)
-{
-    result.f.x = (a.f.y * b.f.z) - (a.f.z * b.f.y);
-    result.f.y = (a.f.z * b.f.x) - (a.f.x * b.f.z);
-    result.f.z = (a.f.x * b.f.y) - (a.f.y * b.f.x);
-}
-
-inline float nlVec3DotProduct(const nlVector3& a, const nlVector3& b)
-{
-    return (a.f.x * b.f.x) + (a.f.y * b.f.y) + (a.f.z * b.f.z);
-}
-
-inline float nlVec3LengthSquared(const nlVector3& a)
-{
-    return (a.f.x * a.f.x) + (a.f.y * a.f.y) + (a.f.z * a.f.z);
-}
-
-inline float nlVec3Length(const nlVector3& a)
-{
-    return sqrtf(nlVec3LengthSquared(a));
-}
-
 /**
  * Offset/Address/Size: 0x3DC | 0x80163158 | size: 0x1C4
  */

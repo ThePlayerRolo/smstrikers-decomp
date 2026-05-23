@@ -112,8 +112,7 @@ FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
         fConfidence = (fConfidence <= fGoalieBallOwner) ? fConfidence : fGoalieBallOwner;
         if (fConfidence < fGoalieBallOwner && fGoalieBallOwner < 0.2f)
             fConfidence = fConfidence * fBranchRatio2;
-        if (fConfidence > fBestConfidence)
-            fBestConfidence = fConfidence;
+        fBestConfidence = (fBestConfidence <= fConfidence) ? fConfidence : fBestConfidence;
         pDecision->QueueActionSetDesire(11, fConfidence, 0.5f, fvNotSet, fvNotSet);
     }
 
@@ -180,8 +179,7 @@ FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
                     fConfidence = (fConfidence <= fMarkBO) ? fConfidence : fMarkBO;
                     if (fConfidence < fMarkBO && fMarkBO < 0.2f)
                         fConfidence = fConfidence * fBranchRatio5;
-                    if (fConfidence > fBestConfidence)
-                        fBestConfidence = fConfidence;
+                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
                     pDecision->QueueActionSetDesire(7, fConfidence, 0.5f, fvNotSet, fvNotSet);
                 }
 
@@ -191,8 +189,7 @@ FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
                     fConfidence = (fConfidence <= fNotMarkBO) ? fConfidence : fNotMarkBO;
                     if (fConfidence < fNotMarkBO && fNotMarkBO < 0.2f)
                         fConfidence = fConfidence * fBranchRatio5;
-                    if (fConfidence > fBestConfidence)
-                        fBestConfidence = fConfidence;
+                    fBestConfidence = (fBestConfidence <= fConfidence) ? fConfidence : fBestConfidence;
                     pDecision->QueueActionSetDesire(11, fConfidence, 0.5f, fvNotSet, fvNotSet);
                 }
             }
@@ -200,7 +197,9 @@ FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
     }
 
     // Fallback: if no action was queued
-    float fFallback = (fBestConfidence == 0.0f) ? 1.0f : 0.0f;
+    float fFallback = 0.0f;
+    if (fBestConfidence == 0.0f)
+        fFallback = 1.0f;
     float fNotFallback = 1.0f - fFallback;
     float fMin6 = (fFallback <= fNotFallback) ? fFallback : fNotFallback;
     float fMax6 = (fFallback >= fNotFallback) ? fFallback : fNotFallback;
@@ -212,8 +211,7 @@ FuzzyVariant Fuzzy::DefaultDefencePlay(cDecisionEntity* pDecision)
         fConfidence = (fConfidence <= fFallback) ? fConfidence : fFallback;
         if (fConfidence < fFallback && fFallback < 0.2f)
             fConfidence = fConfidence * fBranchRatio6;
-        if (fConfidence > fBestConfidence)
-            fBestConfidence = fConfidence;
+        fBestConfidence = (fBestConfidence <= fConfidence) ? fConfidence : fBestConfidence;
         pDecision->QueueActionSetDesire(7, fConfidence, 0.5f, fvNotSet, fvNotSet);
     }
 
@@ -794,8 +792,8 @@ FuzzyVariant Fuzzy::TryAttacking(float fConfidence, cDecisionEntity* pEntity)
 
 /**
  * Offset/Address/Size: 0x1A90 | 0x80087148 | size: 0x6B0
- * TODO: 90.50% match - r29/r30 register swap from pTarget cache, fmadds operand order
- * (const*var vs var*const), inner min fsubs f0 vs f2 register allocation, extra pTarget lwz
+ * TODO: 97.99% match - initial weighted confidence blend still has fmuls/fmadds operand-order
+ * register diffs in the fFacing/fDist combine step.
  */
 FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
 {
@@ -827,7 +825,8 @@ FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
         float fNotFacingSideline = 1.0f - FacingSideline(g_pScriptCurrentFielder);
         float fTrueConfidence2 = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edSlideAttack);
 
-        fTrueConfidence2 = (fTrueConfidence2 <= fNotFacingSideline) ? fTrueConfidence2 : fNotFacingSideline;
+        if (fTrueConfidence2 > fNotFacingSideline)
+            fTrueConfidence2 = fNotFacingSideline;
 
         float fFalseConfidence2 = 1.0f - fTrueConfidence2;
         float fMin2 = (fTrueConfidence2 <= fFalseConfidence2) ? fTrueConfidence2 : fFalseConfidence2;
@@ -841,20 +840,22 @@ FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
             if (fConfidence < fTrueConfidence2 && fTrueConfidence2 < 0.2f)
                 fConfidence = fConfidence * fRatio2;
 
-            if (fConfidence > 0.0f)
+            if (0.0f >= fConfidence)
+                fBestConfidence = 0.0f;
+            else
                 fBestConfidence = fConfidence;
 
             pEntity->QueueActionSetDesire(15, fConfidence, 0.0f, FuzzyVariant(g_pScriptBallOwner), fvNotSet);
 
             SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-            float fAggressive = Aggressive(g_pScriptCurrentFielder);
-            pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_SlideAttackChance, fAggressive);
+            pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_SlideAttackChance, Aggressive(g_pScriptCurrentFielder));
         }
 
         float fNotSeparating = 1.0f - SeparatingFrom(g_pScriptCurrentFielder, g_pScriptBallOwner);
         float fTrueConfidence3 = 1.0f - RepeatingLastDesire(g_pScriptCurrentFielder, edHeavyAttack);
 
-        fTrueConfidence3 = (fTrueConfidence3 <= fNotSeparating) ? fTrueConfidence3 : fNotSeparating;
+        if (fTrueConfidence3 > fNotSeparating)
+            fTrueConfidence3 = fNotSeparating;
 
         float fFalseConfidence3 = 1.0f - fTrueConfidence3;
         float fMin3 = (fTrueConfidence3 <= fFalseConfidence3) ? fTrueConfidence3 : fFalseConfidence3;
@@ -868,14 +869,15 @@ FuzzyVariant Fuzzy::AttackBallOwner(float fConfidence, cDecisionEntity* pEntity)
             if (fConfidence < fTrueConfidence3 && fTrueConfidence3 < 0.2f)
                 fConfidence = fConfidence * fRatio3;
 
-            if (fConfidence > fBestConfidence)
+            if (fBestConfidence >= fConfidence)
+                fBestConfidence = fBestConfidence;
+            else
                 fBestConfidence = fConfidence;
 
             pEntity->QueueActionSetDesire(5, fConfidence, 0.0f, FuzzyVariant(g_pScriptBallOwner), fvNotSet);
 
             SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-            float fAggressive = Aggressive(g_pScriptCurrentFielder);
-            pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_HeavyAttackChance, fAggressive);
+            pEntity->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Def_HeavyAttackChance, Aggressive(g_pScriptCurrentFielder));
         }
     }
 

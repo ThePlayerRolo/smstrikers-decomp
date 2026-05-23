@@ -214,8 +214,8 @@ typedef TLComponentInstance* (*FindCompByRef)(TLSlide*, InlineHasher&, InlineHas
 
 /**
  * Offset/Address/Size: 0xB5C | 0x800B4118 | size: 0x6E0
- * TODO: 88.20% match - stack frame 0x130 vs 0x120 (+0x10 from union inside loop),
- * register shift by 1 (r27-r31 vs r26-r30), item pointer stwx vs stw addressing
+ * TODO: 88.27% match - stack frame 0x130 vs 0x120, register allocation shift,
+ * item pointer stwx vs stw addressing
  */
 void OptionsScene::SceneCreated()
 {
@@ -227,6 +227,7 @@ void OptionsScene::SceneCreated()
     {
         char menuname[64];
         nlSNPrintf(menuname, 64, "MENU ITEM%d", i + 1);
+        MenuItem<TLComponentInstance>* item;
 
         union
         {
@@ -274,7 +275,7 @@ void OptionsScene::SceneCreated()
 
         instance->SetActiveSlide(i == mLastSelectedIndex ? DoubleHighlite::SLIDE_IN : DoubleHighlite::SLIDE_OUT);
 
-        MenuItem<TLComponentInstance>* item = &mMenuItems.mMenuItems[mMenuItems.mNumItemsAdded];
+        item = &mMenuItems.mMenuItems[mMenuItems.mNumItemsAdded];
         item->mType = instance;
         mMenuItems.mNumItemsAdded++;
 

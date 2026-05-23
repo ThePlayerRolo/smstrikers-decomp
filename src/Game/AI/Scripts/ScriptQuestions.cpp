@@ -982,9 +982,9 @@ float FarToTheirNet(cPlayer* pPlayer)
 
 /**
  * Offset/Address/Size: 0x4934 | 0x800833BC | size: 0x394
- * TODO: 91.90% match - remaining diffs are f30/f31 accumulator/check register swap,
- *       goalie action-state branch shape (cmp chain vs cntlzw/extrwi form), and
- *       minor local FPR scheduling in the non-goalie distance path.
+ * TODO: 96.66% match - remaining diffs are f30/f31 accumulator/check register swap,
+ *       extra fmr assignment in goalie near-distance branches, and
+ *       minor register selection differences in goalie action-state checks.
  */
 float Pressured(cFielder* pFielder)
 {
@@ -1045,22 +1045,46 @@ float Pressured(cFielder* pFielder)
             fNearScore = NormalizeVal(nlSqrt(dx * dx + dy * dy, true), *pNearConfidence);
         }
 
-        float fOpponentScore;
-        if (pOpponent == NULL)
+        float fOpponentScore = 0.0f;
+        if (pOpponent != NULL)
         {
-            fOpponentScore = 0.0f;
-        }
-        else
-        {
-            fOpponentScore = 0.0f;
             if (pOpponent->m_eClassType == GOALIE)
             {
                 Goalie* pGoalie = (Goalie*)pOpponent;
-                fOpponentScore = check_goalie(pGoalie, pGoalie->mGoalieActionState);
+                eGoalieActionState actionState = pGoalie->mGoalieActionState;
+                bool result = true;
+                int isRecover = (((int)GOALIEACTION_STS_RECOVER - (int)actionState) == 0);
+
+                if ((isRecover & 0xFF) == 0)
+                {
+                    bool isBusy = (pGoalie->m_pBall != NULL) || (actionState == GOALIEACTION_PASS)
+                               || (actionState == GOALIEACTION_PASS_INTERCEPT) || (actionState == GOALIEACTION_MOVE)
+                               || (actionState == GOALIEACTION_MOVE_WB) || (actionState == GOALIEACTION_PASS_INTERCEPT)
+                               || (actionState == GOALIEACTION_PURSUE_BALL_CARRIER)
+                               || (actionState == GOALIEACTION_PURSUE_BALL_POUNCE)
+                               || (actionState == GOALIEACTION_LOOSEBALL_SETUP)
+                               || (actionState == GOALIEACTION_LOOSEBALL_CATCH)
+                               || (actionState == GOALIEACTION_LOOSEBALL_PICKUP)
+                               || (actionState == GOALIEACTION_LOOSEBALL_PURSUE_BOUNCING)
+                               || (actionState == GOALIEACTION_LOOSEBALL_PURSUE_ROLLING);
+
+                    if (isBusy)
+                    {
+                        result = false;
+                    }
+                }
+
+                fOpponentScore = result ? 1.0f : 0.0f;
             }
             else if (pOpponent->m_eClassType == FIELDER)
             {
-                fOpponentScore = check_fielder(pOpponent);
+                u8 isIncap = 0;
+                if (pOpponent->IsFrozen() || pOpponent->IsFallenDown(25.0f))
+                {
+                    isIncap = 1;
+                }
+
+                fOpponentScore = isIncap ? 1.0f : 0.0f;
             }
         }
 

@@ -32,8 +32,8 @@ ContactType FakePhysicsBall::Contact(PhysicsObject* object, dContact* contact, i
 
 /**
  * Offset/Address/Size: 0x98 | 0x80137484 | size: 0x3EC
- * TODO: 93.18% match - remaining diffs are callee-saved GPR/FPR assignment shifts
- *       and pre-loop instruction ordering around cache-pool pointer setup.
+ * TODO: 99.06% match - remaining diffs are callee-saved register assignment
+ *       in the pre-loop iterator setup and v3PlayerPos carry register.
  */
 bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlayerReach, float fPlayerSpeed, nlVector3& v3InterceptPos, nlVector3& v3InterceptVel, float& fInterceptTime, float& fClosestDist, float fMaxTime)
 {
@@ -79,11 +79,6 @@ bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlaye
     }
 
     float fPlayerDistanceFromStartingPoint = fPlayerReach;
-    float playerPosX = v3PlayerPos.f.x;
-    float playerPosY = v3PlayerPos.f.y;
-
-    SlotPool<BallCacheInfo>* bciPool = &BallCacheInfo::mBallCacheInfoSlotPool;
-    nlDLListSlotPool<BallCacheInfo*>* cacheList = &mBallCacheList;
 
     while (!bDone)
     {
@@ -107,22 +102,19 @@ bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlaye
         else
         {
             float tick = FixedUpdateTask::GetPhysicsUpdateTick();
-            FakeBallWorld* predictWorld = mpPredictWorld;
-            PhysicsUpdate(predictWorld->mpPhysicsWorld, tick);
-
-            predictWorld = mpPredictWorld;
+            PhysicsUpdate(mpPredictWorld->mpPhysicsWorld, tick);
             mfLastCacheTime += tick;
             BallCacheInfo* newInfo = NULL;
-            PhysicsObject* physObj = predictWorld->mpPhysicsBall;
+            PhysicsObject* physObj = mpPredictWorld->mpPhysicsBall;
 
-            if (bciPool->m_FreeList == NULL)
+            if (BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList == NULL)
             {
-                SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)bciPool, sizeof(BallCacheInfo));
+                SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)&BallCacheInfo::mBallCacheInfoSlotPool, sizeof(BallCacheInfo));
             }
-            if (bciPool->m_FreeList != NULL)
+            if (BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList != NULL)
             {
-                newInfo = (BallCacheInfo*)bciPool->m_FreeList;
-                bciPool->m_FreeList = bciPool->m_FreeList->m_next;
+                newInfo = (BallCacheInfo*)BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList;
+                BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList = BallCacheInfo::mBallCacheInfoSlotPool.m_FreeList->m_next;
             }
 
             newInfo->mfTime = mfLastCacheTime;
@@ -130,14 +122,14 @@ bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlaye
             newInfo->mv3LinearVelocity = physObj->GetLinearVelocity();
 
             DLListEntry<BallCacheInfo*>* newEntry = NULL;
-            if (cacheList->m_Allocator.m_FreeList == NULL)
+            if (mBallCacheList.m_Allocator.m_FreeList == NULL)
             {
-                SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)&cacheList->m_Allocator, sizeof(DLListEntry<BallCacheInfo*>));
+                SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)&mBallCacheList.m_Allocator, sizeof(DLListEntry<BallCacheInfo*>));
             }
-            if (cacheList->m_Allocator.m_FreeList != NULL)
+            if (mBallCacheList.m_Allocator.m_FreeList != NULL)
             {
-                newEntry = (DLListEntry<BallCacheInfo*>*)cacheList->m_Allocator.m_FreeList;
-                cacheList->m_Allocator.m_FreeList = cacheList->m_Allocator.m_FreeList->m_next;
+                newEntry = (DLListEntry<BallCacheInfo*>*)mBallCacheList.m_Allocator.m_FreeList;
+                mBallCacheList.m_Allocator.m_FreeList = mBallCacheList.m_Allocator.m_FreeList->m_next;
             }
 
             if (newEntry != NULL)
@@ -147,7 +139,7 @@ bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlaye
                 newEntry->m_data = newInfo;
             }
 
-            nlDLRingAddEnd(&cacheList->m_Head, newEntry);
+            nlDLRingAddEnd(&mBallCacheList.m_Head, newEntry);
 
             v3NewBallPos = newInfo->mv3Position;
             v3NewBallVel = newInfo->mv3LinearVelocity;
@@ -155,8 +147,8 @@ bool FakeBallWorld::FindBallIntercept(const nlVector3& v3PlayerPos, float fPlaye
 
         fPlayerDistanceFromStartingPoint += fPlayerDistPerTick;
 
-        float dx = v3NewBallPos.f.x - playerPosX;
-        float dy = v3NewBallPos.f.y - playerPosY;
+        float dx = v3NewBallPos.f.x - v3PlayerPos.f.x;
+        float dy = v3NewBallPos.f.y - v3PlayerPos.f.y;
         float dist = nlSqrt(dx * dx + dy * dy, true);
         float adjustedDist = fabsf(dist - fPlayerDistanceFromStartingPoint);
 
@@ -627,11 +619,12 @@ float FakeBallWorld::GetPredictedHeightLimitTime(float fHeight, float fMinTime, 
     return -1.0f;
 }
 
+static BallCacheInfo* AddCacheEntry(PhysicsBall* pPhysicsBall);
+
 /**
  * Offset/Address/Size: 0x11AC | 0x80138598 | size: 0x5BC
- * TODO: 93.34% match - remaining diffs are MWCC register allocation:
- *       GPR swap (r28/r31 ppHead/pNext, r24/r30 pHeadRef/pPrev),
- *       cascading FPR swaps for plane locals and tick/simTime.
+ * TODO: 98.17% match - remaining diffs are register assignment in cache
+ *       traversal (pHeadRef/pPrev/pNext) and fPhysicsTick/fSimulationTime.
  */
 float FakeBallWorld::GetPredictedPlaneIntersectTime(const nlVector4& v4Plane, nlVector3& v3ContactPoint, nlVector3& v3ContactVelocity)
 {
@@ -661,7 +654,6 @@ float FakeBallWorld::GetPredictedPlaneIntersectTime(const nlVector4& v4Plane, nl
         return -2.5f;
     }
 
-    float planeX, planeY, planeZ, planeW;
     float fDistanceNext;
     float fPhysicsTick = FixedUpdateTask::GetPhysicsUpdateTick();
     float fSimulationTime = FixedUpdateTask::mSimulationTime;
@@ -674,15 +666,10 @@ float FakeBallWorld::GetPredictedPlaneIntersectTime(const nlVector4& v4Plane, nl
         BallCacheInfo* pNext = pEntry->m_data;
         DLListEntry<BallCacheInfo*>* pListEntry = pEntry;
 
-        planeX = v4Plane.f.x;
-        planeY = v4Plane.f.y;
-        planeZ = v4Plane.f.z;
-        planeW = v4Plane.f.w;
-
-        fDistanceNext = pNext->mv3Position.f.x * planeX
-                      + pNext->mv3Position.f.y * planeY
-                      + pNext->mv3Position.f.z * planeZ
-                      - planeW;
+        fDistanceNext = pNext->mv3Position.f.x * v4Plane.f.x
+                      + pNext->mv3Position.f.y * v4Plane.f.y
+                      + pNext->mv3Position.f.z * v4Plane.f.z
+                      - v4Plane.f.w;
 
         DLListEntry<BallCacheInfo*>* pHeadRef = *ppHead;
 
@@ -701,10 +688,10 @@ float FakeBallWorld::GetPredictedPlaneIntersectTime(const nlVector4& v4Plane, nl
             pNext = pListEntry->m_data;
             float fDistancePrev = fDistanceNext;
 
-            fDistanceNext = pNext->mv3Position.f.x * planeX
-                          + pNext->mv3Position.f.y * planeY
-                          + pNext->mv3Position.f.z * planeZ
-                          - planeW;
+            fDistanceNext = pNext->mv3Position.f.x * v4Plane.f.x
+                          + pNext->mv3Position.f.y * v4Plane.f.y
+                          + pNext->mv3Position.f.z * v4Plane.f.z
+                          - v4Plane.f.w;
 
             if (fDistanceNext < 0.0f)
             {
@@ -731,22 +718,15 @@ float FakeBallWorld::GetPredictedPlaneIntersectTime(const nlVector4& v4Plane, nl
         }
     }
 
-    nlDLListSlotPool<BallCacheInfo*>* pCacheList = &mBallCacheList;
     DLListEntry<BallCacheInfo*>* pLastEntry = nlDLRingGetEnd(*ppHead);
     BallCacheInfo* pCurCache = pLastEntry->m_data;
 
-    SlotPool<BallCacheInfo>* pBCIPool = &BallCacheInfo::mBallCacheInfoSlotPool;
     float fMaxTime = 6.0f + fSimulationTime;
 
-    planeX = v4Plane.f.x;
-    planeY = v4Plane.f.y;
-    planeZ = v4Plane.f.z;
-    planeW = v4Plane.f.w;
-
-    float fDistanceCur = pCurCache->mv3Position.f.x * planeX
-                       + pCurCache->mv3Position.f.y * planeY
-                       + pCurCache->mv3Position.f.z * planeZ
-                       - planeW;
+    float fDistanceCur = pCurCache->mv3Position.f.x * v4Plane.f.x
+                       + pCurCache->mv3Position.f.y * v4Plane.f.y
+                       + pCurCache->mv3Position.f.z * v4Plane.f.z
+                       - v4Plane.f.w;
 
     while (mfLastCacheTime < fMaxTime)
     {
@@ -756,49 +736,14 @@ float FakeBallWorld::GetPredictedPlaneIntersectTime(const nlVector4& v4Plane, nl
         PhysicsUpdate(mpPredictWorld->mpPhysicsWorld, fPhysicsTick);
 
         mfLastCacheTime += fPhysicsTick;
-        BallCacheInfo* pNewInfo = NULL;
-        PhysicsObject* pPhysObj = mpPredictWorld->mpPhysicsBall;
-
-        if (pBCIPool->m_FreeList == NULL)
-        {
-            SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)pBCIPool, sizeof(BallCacheInfo));
-        }
-        if (pBCIPool->m_FreeList != NULL)
-        {
-            pNewInfo = (BallCacheInfo*)pBCIPool->m_FreeList;
-            pBCIPool->m_FreeList = pBCIPool->m_FreeList->m_next;
-        }
-
-        pNewInfo->mfTime = mfLastCacheTime;
-        pNewInfo->mv3Position = pPhysObj->GetPosition();
-        pNewInfo->mv3LinearVelocity = pPhysObj->GetLinearVelocity();
-
-        DLListEntry<BallCacheInfo*>* pNewEntry = NULL;
-        if (pCacheList->m_Allocator.m_FreeList == NULL)
-        {
-            SlotPoolBase::BaseAddNewBlock((SlotPoolBase*)&pCacheList->m_Allocator, sizeof(DLListEntry<BallCacheInfo*>));
-        }
-        if (pCacheList->m_Allocator.m_FreeList != NULL)
-        {
-            pNewEntry = (DLListEntry<BallCacheInfo*>*)pCacheList->m_Allocator.m_FreeList;
-            pCacheList->m_Allocator.m_FreeList = pCacheList->m_Allocator.m_FreeList->m_next;
-        }
-
-        if (pNewEntry != NULL)
-        {
-            pNewEntry->m_next = NULL;
-            pNewEntry->m_prev = NULL;
-            pNewEntry->m_data = pNewInfo;
-        }
-
-        nlDLRingAddEnd(ppHead, pNewEntry);
+        BallCacheInfo* pNewInfo = AddCacheEntry((PhysicsBall*)mpPredictWorld->mpPhysicsBall);
 
         pCurCache = pNewInfo;
 
-        fDistanceCur = pNewInfo->mv3Position.f.x * planeX
-                     + pNewInfo->mv3Position.f.y * planeY
-                     + pNewInfo->mv3Position.f.z * planeZ
-                     - planeW;
+        fDistanceCur = pNewInfo->mv3Position.f.x * v4Plane.f.x
+                     + pNewInfo->mv3Position.f.y * v4Plane.f.y
+                     + pNewInfo->mv3Position.f.z * v4Plane.f.z
+                     - v4Plane.f.w;
 
         if (fDistanceCur < 0.0f)
         {

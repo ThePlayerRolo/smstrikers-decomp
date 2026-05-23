@@ -337,7 +337,7 @@ void ShootToScoreMeter::DrawMeter()
 
 /**
  * Offset/Address/Size: 0x3DC | 0x8016063C | size: 0x5A8
- * TODO: 99.8% match - pre-loop scaled-width/radius constant load/register ordering
+ * TODO: 99.9% match - scaledWhiteBarWidth pre-loop multiply operand ordering remains
  */
 void ShootToScoreMeter::DrawColouredRegion(float startAngle, float endAngle, const nlColour& startColour, const nlColour& endColour, nlMatrix4 meterMatrix, float scale)
 {
@@ -345,16 +345,23 @@ void ShootToScoreMeter::DrawColouredRegion(float startAngle, float endAngle, con
     glSetTextureState(GLTS_DiffuseWrap, 0);
     glSetCurrentTextureState(glHandleizeTextureState());
 
-    float scaledWhiteBarWidth = 0.039f * scale;
-    float radius = 0.198f * (MeterWidth * scale);
+    float scaledWhiteBarWidth;
+    float radius;
     nlVector3 v;
-    float widthAngle = endAngle - startAngle;
+    float widthAngle;
     int i;
     glQuad3 barQuad;
     float frac0;
     float frac1;
-    float radius0 = radius - (scaledWhiteBarWidth * 0.5f);
-    float radius1 = radius + (scaledWhiteBarWidth * 0.5f);
+    float radius0;
+    float radius1;
+
+    scaledWhiteBarWidth = scale;
+    scaledWhiteBarWidth *= 0.039f;
+    widthAngle = endAngle - startAngle;
+    radius = 0.198f * (MeterWidth * scale);
+    radius0 = radius - (scaledWhiteBarWidth * 0.5f);
+    radius1 = radius + (scaledWhiteBarWidth * 0.5f);
 
     float step = 0.125f;
     float sinScale = 10430.378f;

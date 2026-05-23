@@ -2441,9 +2441,9 @@ bool Goalie::InitiatePickup()
                 float fSpeedSq = v3BallVel.f.x * v3BallVel.f.x + v3BallVel.f.y * v3BallVel.f.y + v3BallVel.f.z * v3BallVel.f.z;
                 if (fSpeedSq > 64.0f)
                 {
-                    v3BallVel.f.x *= 0.5f;
-                    v3BallVel.f.y *= 0.5f;
-                    v3BallVel.f.z *= 0.5f;
+                    v3BallVel.f.x = 0.5f * v3BallVel.f.x;
+                    v3BallVel.f.y = 0.5f * v3BallVel.f.y;
+                    v3BallVel.f.z = 0.5f * v3BallVel.f.z;
                     g_pBall->SetVelocity(v3BallVel, SPINTYPE_NONE, NULL);
                 }
 
@@ -2578,7 +2578,7 @@ bool Goalie::IsInsideGoalieBox(const nlVector3& rPos, float fXOffset, float fYOf
 
 /**
  * Offset/Address/Size: 0x6FF0 | 0x80049AE4 | size: 0x268
- * TODO: 99.74% match - f30/f31 register swap between absX and saveIgnoreMargin
+ * TODO: 99.94% match - remaining difference is fmadds operand order in net-width margin check
  */
 float Goalie::CheckForDelflectAwayFromNet()
 {
@@ -2606,17 +2606,17 @@ float Goalie::CheckForDelflectAwayFromNet()
         }
 
         float saveIgnoreMargin;
-        float absX;
+        double absX;
         float result = FakeBallWorld::GetPredictedPlaneIntersectTime(plane, v3TargetPosition, localVelocity);
 
         if (!(result <= 0.0f))
         {
-            absX = (float)fabs(v3TargetPosition.f.x);
+            absX = __fabs(v3TargetPosition.f.x);
             saveIgnoreMargin = ((GoalieTweaks*)m_pTweaks)->fSaveIgnoreMargin;
 
             bool bInNet;
-            if (absX > (cField::GetGoalLineX(1U) - 1.0f)
-                && (float)fabs(v3TargetPosition.f.y) < (saveIgnoreMargin + cNet::m_fNetWidth * 0.5f)
+            if ((float)absX > (cField::GetGoalLineX(1U) - 1.0f)
+                && (float)fabs(v3TargetPosition.f.y) < (saveIgnoreMargin + cNet::m_fNetWidth / 2.0f)
                 && v3TargetPosition.f.z < (saveIgnoreMargin + cNet::m_fNetHeight))
             {
                 bInNet = true;
@@ -6065,6 +6065,10 @@ void Goalie::DoPassRelease()
         {
             InitiatePickup();
         }
+        else
+        {
+            return;
+        }
     }
 
     if (m_pBall == NULL)
@@ -6127,13 +6131,14 @@ void Goalie::DoPassRelease()
                 }
 
                 s16 aDiff = (s16)(aTarget - aFacing);
+                int aAbsDiff = aDiff;
                 if (aDiff < 0)
                 {
-                    aDiff = -aDiff;
+                    aAbsDiff = -aDiff;
                 }
 
                 bool bValidPassTarget;
-                if ((u16)aDiff > 0x2AA8)
+                if ((u16)aAbsDiff > 0x2AA8)
                 {
                     bValidPassTarget = false;
                 }
@@ -6179,6 +6184,9 @@ void Goalie::DoPassRelease()
 
         if (mpShooter != NULL)
         {
+            if (m_pBall == NULL)
+                return;
+
             nlVector3 v3BallVel;
             nlVector3 v3BallTarget = mpShooter->m_v3Position;
             v3BallTarget.f.z += 0.5f;
@@ -6214,7 +6222,7 @@ void Goalie::DoPassRelease()
     }
 
     bool bIsKick = false;
-    if (m_eAnimID >= 2 && m_eAnimID < 6)
+    if (m_eAnimID < 6 && m_eAnimID >= 2)
     {
         Event* pEvent = g_pEventManager->CreateValidEvent(0x10, 0x38);
         GoalieSaveData* pSaveData = new ((u8*)pEvent + 0x10) GoalieSaveData();

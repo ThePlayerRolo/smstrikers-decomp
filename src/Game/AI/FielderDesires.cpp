@@ -1322,6 +1322,18 @@ void cFielder::DesireInterceptBall(float fDeltaT)
 void cFielder::DesireMark(float fDeltaT)
 {
     bool bBestBallInterceptor = (m_pTeam->m_pBallInterceptOrderedFielders[0] == this);
+    float fTimeDelay;
+    nlVector3 v3NetPosition;
+    nlVector3 vAccumulated_v3;
+    float fTotalWeight_v3;
+    float fMarkingNetPassBalance;
+    float fMarkingDistance;
+    float fMarkFormationBalance;
+    float fMarkBallOwnerBalance;
+    float fMarkThreatCoeff;
+    float fDistanceMultiplier;
+    nlVector3 v3FormationPosition;
+    nlVector3 v3DesiredPos;
 
     if (m_pMark == NULL || this == g_pBall->m_pOwner || (bBestBallInterceptor && m_pTeam->mpCurrentSituation == SITUATION_LOOSE))
     {
@@ -1347,52 +1359,59 @@ void cFielder::DesireMark(float fDeltaT)
 
     if (m_DesireCommonVars.tMiscTimer.m_uPackedTime == 0)
     {
-        SkillTweaks* pSkillTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-        float fTimeDelay = Interpolate(g_vMarkFollowTimeDelay.f.x, g_vMarkFollowTimeDelay.f.y, pSkillTweaks->Def_Marking);
-        float fTimeDelayRange = fTimeDelay * 0.8f;
-        float fRandomTime = nlRandomf(fTimeDelayRange, &nlDefaultSeed) - (0.5f * fTimeDelayRange);
-        m_DesireCommonVars.tMiscTimer.SetSeconds(fTimeDelay + fRandomTime);
+        fTimeDelay = Interpolate(
+            g_vMarkFollowTimeDelay.f.x,
+            g_vMarkFollowTimeDelay.f.y,
+            SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
 
-        cPlayer* pMark = m_pMark;
-        cNet* pNet = m_pTeam->m_pNet;
+        {
+            float fTimeDelayRange = fTimeDelay * 0.8f;
+            m_DesireCommonVars.tMiscTimer.SetSeconds(
+                fTimeDelay + (nlRandomf(fTimeDelayRange, &nlDefaultSeed) - (0.5f * fTimeDelayRange)));
+        }
 
-        float fMarkY = pMark->m_v3Position.f.y + (0.1f * pMark->m_v3Velocity.f.y);
-        float fMarkX = pMark->m_v3Position.f.x + (0.1f * pMark->m_v3Velocity.f.x);
+        v3NetPosition = m_pTeam->m_pNet->m_baseLocation;
 
-        float dirY = pNet->m_baseLocation.f.y - fMarkY;
-        float dirX = pNet->m_baseLocation.f.x - fMarkX;
-        float dirZ = pNet->m_baseLocation.f.z - 0.0f;
+        float fMarkY = m_pMark->m_v3Position.f.y + (0.1f * m_pMark->m_v3Velocity.f.y);
+        float fMarkX = m_pMark->m_v3Position.f.x + (0.1f * m_pMark->m_v3Velocity.f.x);
 
-        float fInvLength = nlRecipSqrt((dirY * dirY) + (dirX * dirX) + (dirZ * dirZ), true);
-        dirZ = fInvLength * dirZ;
-        dirY = fInvLength * dirY;
-        dirX = fInvLength * dirX;
+        float dirY = v3NetPosition.f.y - fMarkY;
+        float dirX = v3NetPosition.f.x - fMarkX;
+        float dirZ = v3NetPosition.f.z - 0.0f;
 
-        nlVector3 vAccumulated_v3 = v3Zero;
-        float fTotalWeight_v3 = 0.0f;
+        {
+            float fInvLength = nlRecipSqrt((dirY * dirY) + (dirX * dirX) + (dirZ * dirZ), true);
+            dirY = fInvLength * dirY;
+            dirX = fInvLength * dirX;
+            dirZ = fInvLength * dirZ;
+        }
 
-        float fMarkingNetPassBalance = Interpolate(
+        vAccumulated_v3 = v3Zero;
+        fTotalWeight_v3 = 0.0f;
+
+        fMarkingNetPassBalance = Interpolate(
             g_vMarkingNetPassBalance.f.x,
             g_vMarkingNetPassBalance.f.y,
             SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
-        float fMarkingDistance = Interpolate(
+        fMarkingDistance = Interpolate(
             g_vMarkDistance.f.x,
             g_vMarkDistance.f.y,
             SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
-        float fMarkFormationBalance = Interpolate(
+        fMarkFormationBalance = Interpolate(
             g_vMarkFormationBalance.f.x,
             g_vMarkFormationBalance.f.y,
             SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
-        float fMarkBallOwnerBalance = Interpolate(
+        fMarkBallOwnerBalance = Interpolate(
             g_vMarkBallOwner.f.x,
             g_vMarkBallOwner.f.y,
             SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
-        float fMarkThreatCoeff = Interpolate(
+        fMarkThreatCoeff = Interpolate(
             g_vMarkImmediateThreatCoeff.f.x,
             g_vMarkImmediateThreatCoeff.f.y,
             SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide)->Def_Marking);
 
-        fMarkingDistance = fMarkingDistance * Interpolate(0.5f, 1.0f, FarToTheirNet(m_pMark));
+        fDistanceMultiplier = Interpolate(0.5f, 1.0f, FarToTheirNet(m_pMark));
+        fMarkingDistance = fMarkingDistance * fDistanceMultiplier;
 
         if (UserControlledT(m_pTeam) != 0.0f)
         {
@@ -1416,14 +1435,14 @@ void cFielder::DesireMark(float fDeltaT)
                 float sbcDirX = fSBCX - fMarkX;
                 float sbcDirZ = fSBCZ - 0.0f;
 
-                float fSBCInvLength = nlRecipSqrt((sbcDirY * sbcDirY) + (sbcDirX * sbcDirX) + (sbcDirZ * sbcDirZ), true);
+                {
+                    float fSBCInvLength = nlRecipSqrt((sbcDirY * sbcDirY) + (sbcDirX * sbcDirX) + (sbcDirZ * sbcDirZ), true);
+                    sbcDirY = fSBCInvLength * sbcDirY;
+                    sbcDirX = fSBCInvLength * sbcDirX;
+                    sbcDirZ = fSBCInvLength * sbcDirZ;
+                }
 
-                sbcDirY = fSBCInvLength * sbcDirY;
-                sbcDirX = fSBCInvLength * sbcDirX;
-                sbcDirZ = fSBCInvLength * sbcDirZ;
-
-                float fDotToNet = (sbcDirY * dirY) + (sbcDirX * dirX) + (sbcDirZ * dirZ);
-                if (fDotToNet >= 0.0f)
+                if (((sbcDirY * dirY) + (sbcDirX * dirX) + (sbcDirZ * dirZ)) >= 0.0f)
                 {
                     float fToMarkNetPassBalance = 1.0f - fMarkingNetPassBalance;
                     dirY = (fToMarkNetPassBalance * dirY) + (fMarkingNetPassBalance * sbcDirY);
@@ -1431,9 +1450,9 @@ void cFielder::DesireMark(float fDeltaT)
                     dirZ = (fToMarkNetPassBalance * dirZ) + (fMarkingNetPassBalance * sbcDirZ);
                 }
 
-                float fToNetY = pNet->m_baseLocation.f.y - fSBCY;
-                float fToNetX = pNet->m_baseLocation.f.x - fSBCX;
-                float fToNetZ = pNet->m_baseLocation.f.z - fSBCZ;
+                float fToNetY = v3NetPosition.f.y - fSBCY;
+                float fToNetX = v3NetPosition.f.x - fSBCX;
+                float fToNetZ = v3NetPosition.f.z - fSBCZ;
 
                 float fToNetInvLength = nlRecipSqrt((fToNetY * fToNetY) + (fToNetX * fToNetX) + (fToNetZ * fToNetZ), true);
 
@@ -1445,7 +1464,6 @@ void cFielder::DesireMark(float fDeltaT)
                 if (fMarkBallOwner > 0.0f)
                 {
                     float fWeight = fMarkBallOwner * fMarkBallOwnerBalance;
-
                     vAccumulated_v3.f.z = (fWeight * fThreatTargetZ) + vAccumulated_v3.f.z;
                     vAccumulated_v3.f.x = (fWeight * fThreatTargetX) + vAccumulated_v3.f.x;
                     vAccumulated_v3.f.y = (fWeight * fThreatTargetY) + vAccumulated_v3.f.y;
@@ -1454,42 +1472,44 @@ void cFielder::DesireMark(float fDeltaT)
             }
         }
 
-        float fMarkTargetY = (fMarkingDistance * dirY) + fMarkY;
-        float fMarkTargetX = (fMarkingDistance * dirX) + fMarkX;
-        float fMarkTargetZ = (fMarkingDistance * dirZ) + 0.0f;
+        {
+            float fMarkTargetY = (fMarkingDistance * dirY) + fMarkY;
+            float fMarkTargetX = (fMarkingDistance * dirX) + fMarkX;
+            float fMarkTargetZ = (fMarkingDistance * dirZ) + 0.0f;
 
-        vAccumulated_v3.f.y = (fMarkFormationBalance * fMarkTargetY) + vAccumulated_v3.f.y;
-        vAccumulated_v3.f.x = (fMarkFormationBalance * fMarkTargetX) + vAccumulated_v3.f.x;
-        vAccumulated_v3.f.z = (fMarkFormationBalance * fMarkTargetZ) + vAccumulated_v3.f.z;
-        fTotalWeight_v3 = fTotalWeight_v3 + fMarkFormationBalance;
+            vAccumulated_v3.f.y = (fMarkFormationBalance * fMarkTargetY) + vAccumulated_v3.f.y;
+            vAccumulated_v3.f.x = (fMarkFormationBalance * fMarkTargetX) + vAccumulated_v3.f.x;
+            vAccumulated_v3.f.z = (fMarkFormationBalance * fMarkTargetZ) + vAccumulated_v3.f.z;
+            fTotalWeight_v3 = fTotalWeight_v3 + fMarkFormationBalance;
+        }
 
-        nlVector3 v3FormationPosition;
         m_DesireCommonVars.bInPosition = GetFormationPosition(v3FormationPosition, 0.0f);
         if (m_DesireCommonVars.bInPosition)
         {
             v3FormationPosition = m_v3Position;
         }
 
-        float fFormationWeight = 1.0f - fMarkFormationBalance;
-        fTotalWeight_v3 = fTotalWeight_v3 + fFormationWeight;
-        vAccumulated_v3.f.z = (fFormationWeight * v3FormationPosition.f.z) + vAccumulated_v3.f.z;
-        vAccumulated_v3.f.x = (fFormationWeight * v3FormationPosition.f.x) + vAccumulated_v3.f.x;
-        vAccumulated_v3.f.y = (fFormationWeight * v3FormationPosition.f.y) + vAccumulated_v3.f.y;
+        {
+            float fFormationWeight = 1.0f - fMarkFormationBalance;
+            fTotalWeight_v3 = fTotalWeight_v3 + fFormationWeight;
+            vAccumulated_v3.f.z = (fFormationWeight * v3FormationPosition.f.z) + vAccumulated_v3.f.z;
+            vAccumulated_v3.f.x = (fFormationWeight * v3FormationPosition.f.x) + vAccumulated_v3.f.x;
+            vAccumulated_v3.f.y = (fFormationWeight * v3FormationPosition.f.y) + vAccumulated_v3.f.y;
+        }
 
-        nlVector3 v3DesiredPosition;
         if (fTotalWeight_v3 > 0.0f)
         {
             float fInvTotalWeight = 1.0f / fTotalWeight_v3;
-            v3DesiredPosition.f.x = fInvTotalWeight * vAccumulated_v3.f.x;
-            v3DesiredPosition.f.y = fInvTotalWeight * vAccumulated_v3.f.y;
-            v3DesiredPosition.f.z = fInvTotalWeight * vAccumulated_v3.f.z;
+            v3DesiredPos.f.x = fInvTotalWeight * vAccumulated_v3.f.x;
+            v3DesiredPos.f.y = fInvTotalWeight * vAccumulated_v3.f.y;
+            v3DesiredPos.f.z = fInvTotalWeight * vAccumulated_v3.f.z;
         }
         else
         {
-            v3DesiredPosition = v3Zero;
+            v3DesiredPos = v3Zero;
         }
 
-        m_DesireCommonVars.v3DesiredPosition = v3DesiredPosition;
+        m_DesireCommonVars.v3DesiredPosition = v3DesiredPos;
     }
 
     SetDesiredSpeedAndDirectionToPosition(fDeltaT, m_DesireCommonVars.v3DesiredPosition, TR_FAR_DISTANCE, 0.75f, 0.75f);

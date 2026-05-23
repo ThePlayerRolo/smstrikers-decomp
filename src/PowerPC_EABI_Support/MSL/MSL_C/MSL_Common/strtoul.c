@@ -231,7 +231,8 @@ u64 __strtoull(int base, int max_width, int (*ReadProc)(void*, int, int), void* 
         case start:
             if (isspace(c))
             {
-                c = (*ReadProc)(ReadProcArg, 0, __GetAChar);
+                c = fetch();
+                count--;
                 spaces++;
                 break;
             }

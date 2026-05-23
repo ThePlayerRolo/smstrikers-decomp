@@ -418,7 +418,7 @@ void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstanc
     char slidename[64] = { 0 };
     MenuItem<SlideMenuItem>* menuItem;
     int slidenum = 1;
-    while (true)
+    do
     {
         nlSNPrintf(slidename, 64, "Slide%d", slidenum);
         compinstance->SetActiveSlide(slidename);
@@ -441,7 +441,8 @@ void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstanc
         }
         item->mSlideMenuHash = slideHash;
 
-        menuItem = &sml->mMenuItems[sml->mNumItemsAdded];
+        MenuItem<SlideMenuItem>* menuItems = sml->mMenuItems;
+        menuItem = &menuItems[sml->mNumItemsAdded];
         menuItem->mType = item;
         sml->mNumItemsAdded++;
 
@@ -458,7 +459,7 @@ void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstanc
             menuItem->mDisabled = false;
 
         slidenum++;
-    }
+    } while (slidenum);
 
     SlideMenuList* sml = (SlideMenuList*)mSlideMenuLists[0];
     menuItem = &sml->mMenuItems[sml->mCurrentIndex];
@@ -466,7 +467,7 @@ void OptionsGameplayMenuV2::BuildSkillLevelMenu(TLComponentInstance* compinstanc
     sml->mCurrentIndex = startindex - 1;
     menuItem = &sml->mMenuItems[sml->mCurrentIndex];
     menuItem->mCallbacks[1](menuItem->mType);
-    sml->mFlags = 3;
+    ((SlideMenuList*)mSlideMenuLists[0])->mFlags = 3;
 }
 
 /**
@@ -2824,12 +2825,41 @@ void OptionsSubMenu::Update(float)
                     }
                 }
 
-                slideMenuList->mMenuItems[oldIndex].mCallbacks[2](slideMenuList->mMenuItems[oldIndex].mType);
+                {
+                    MenuItem<SlideMenuItem>* item = &slideMenuList->mMenuItems[oldIndex];
+                    int tag = item->mCallbacks[2].mTag;
+                    if (((u32)((-tag) | tag) >> 31) > 0)
+                    {
+                        SlideMenuItem* type = item->mType;
+                        if (tag == FREE_FUNCTION)
+                        {
+                            item->mCallbacks[2].mFreeFunction(type);
+                        }
+                        else
+                        {
+                            (*item->mCallbacks[2].mFunctor)(type);
+                        }
+                    }
+                }
 
                 slideMenuList->mCurrentIndex = newIndex;
 
-                slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mCallbacks[1](
-                    slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mType);
+                {
+                    MenuItem<SlideMenuItem>* item = &slideMenuList->mMenuItems[slideMenuList->mCurrentIndex];
+                    int tag = item->mCallbacks[1].mTag;
+                    if (((u32)((-tag) | tag) >> 31) > 0)
+                    {
+                        SlideMenuItem* type = item->mType;
+                        if (tag == FREE_FUNCTION)
+                        {
+                            item->mCallbacks[1].mFreeFunction(type);
+                        }
+                        else
+                        {
+                            (*item->mCallbacks[1].mFunctor)(type);
+                        }
+                    }
+                }
 
                 res = RES_OK;
                 break;
@@ -2883,12 +2913,41 @@ void OptionsSubMenu::Update(float)
                     }
                 }
 
-                slideMenuList->mMenuItems[oldIndex].mCallbacks[2](slideMenuList->mMenuItems[oldIndex].mType);
+                {
+                    MenuItem<SlideMenuItem>* item = &slideMenuList->mMenuItems[oldIndex];
+                    int tag = item->mCallbacks[2].mTag;
+                    if (((u32)((-tag) | tag) >> 31) > 0)
+                    {
+                        SlideMenuItem* type = item->mType;
+                        if (tag == FREE_FUNCTION)
+                        {
+                            item->mCallbacks[2].mFreeFunction(type);
+                        }
+                        else
+                        {
+                            (*item->mCallbacks[2].mFunctor)(type);
+                        }
+                    }
+                }
 
                 slideMenuList->mCurrentIndex = newIndex;
 
-                slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mCallbacks[1](
-                    slideMenuList->mMenuItems[slideMenuList->mCurrentIndex].mType);
+                {
+                    MenuItem<SlideMenuItem>* item = &slideMenuList->mMenuItems[slideMenuList->mCurrentIndex];
+                    int tag = item->mCallbacks[1].mTag;
+                    if (((u32)((-tag) | tag) >> 31) > 0)
+                    {
+                        SlideMenuItem* type = item->mType;
+                        if (tag == FREE_FUNCTION)
+                        {
+                            item->mCallbacks[1].mFreeFunction(type);
+                        }
+                        else
+                        {
+                            (*item->mCallbacks[1].mFunctor)(type);
+                        }
+                    }
+                }
 
                 res = RES_OK;
                 break;

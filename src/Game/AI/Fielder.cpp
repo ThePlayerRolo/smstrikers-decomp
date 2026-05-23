@@ -3993,8 +3993,8 @@ extern "C" void RumbleMeter__17ShootToScoreMeterFfff(ShootToScoreMeterScratch*, 
 
 /**
  * Offset/Address/Size: 0x5B34 | 0x8001EE70 | size: 0x26C
- * TODO: 97.10% match - r29/r31 register ownership remains swapped between
- * this and team-name pointer in BasicString setup/copy.
+ * TODO: 98.00% match - r29/r31 register ownership remains swapped between
+ * this and team-name pointer around BasicString construction/copy.
  */
 void cFielder::CleanActionShootToScore()
 {
@@ -4010,17 +4010,13 @@ void cFielder::CleanActionShootToScore()
     extern unsigned char sSTSLighting__17DrawableCharacter;
     extern unsigned char sbIsHyperShootToScoreRenderingEnabled__5World;
 
-    register cFielder* pSelf = this;
-    char* teamName;
-    BasicStringData<char>* strData;
-
     Audio::FadeFilterFromCurrentToZero();
     FixedUpdateTask::mTimeScale = 1.0f;
     SetTimeScale__18ParticleUpdateTaskFf(1.0f);
     g_pEventManager->CreateValidEvent(0x41, 0x14);
 
-    pSelf->mActionShootToScoreVars.isCurrentlyInvincible = false;
-    pSelf->mActionShootToScoreVars.isInUnbreakablePart = false;
+    this->mActionShootToScoreVars.isCurrentlyInvincible = false;
+    this->mActionShootToScoreVars.isInUnbreakablePart = false;
 
     Fade__14WorldDarkeningFff(Instance__14WorldDarkeningFv(), 1.0f, 0.0f);
     instance__17ShootToScoreMeter.m_bMeterVisible = 0;
@@ -4030,47 +4026,18 @@ void cFielder::CleanActionShootToScore()
 
     g_pBall->m_pDrawableBall->m_uObjectFlags &= ~0x40;
 
-    teamName = GetTeamName__F7eTeamID(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((s16)pSelf->m_pTeam->m_nSide));
-
-    strData = (BasicStringData<char>*)nlMalloc(0x10, 8, true);
-    if (strData != NULL)
-    {
-        strData->mData = NULL;
-        strData->mSize = 0;
-        strData->mCapacity = 0;
-
-        char* s = teamName;
-        while (*s++ != 0)
-        {
-            strData->mSize++;
-        }
-
-        strData->mSize++;
-        strData->mData = (char*)nlMalloc(strData->mSize + 1, 8, true);
-        strData->mCapacity = strData->mSize;
-
-        int i = 0;
-        while (i < strData->mSize)
-        {
-            strData->mData[i] = *teamName;
-            i++;
-            teamName++;
-        }
-
-        strData->mRefCount = 1;
-    }
-
-    BasicString<char, Detail::TempStringAllocator> effectName(strData);
+    BasicString<char, Detail::TempStringAllocator> effectName(
+        GetTeamName__F7eTeamID(nlSingleton<GameInfoManager>::s_pInstance->GetTeam((s16)this->m_pTeam->m_nSide)));
     AppendInPlace__45BasicString_c_Q26Detail19TempStringAllocator_FPCc(&effectName, "shoot_to_score_shot");
     EffectsGroup* pGroup = fxGetGroup(effectName.c_str());
-    pSelf->KillEffect(pGroup);
-    pSelf->KillEffect(fxGetGroup("shoot_to_score_hyper"));
+    this->KillEffect(pGroup);
+    this->KillEffect(fxGetGroup("shoot_to_score_hyper"));
 
-    if (pSelf->mActionShootToScoreVars.captainStsCamera != NULL)
+    if (this->mActionShootToScoreVars.captainStsCamera != NULL)
     {
-        Remove__14cCameraManagerFRC11cBaseCamera(pSelf->mActionShootToScoreVars.captainStsCamera);
-        delete pSelf->mActionShootToScoreVars.captainStsCamera;
-        pSelf->mActionShootToScoreVars.captainStsCamera = NULL;
+        Remove__14cCameraManagerFRC11cBaseCamera(this->mActionShootToScoreVars.captainStsCamera);
+        delete this->mActionShootToScoreVars.captainStsCamera;
+        this->mActionShootToScoreVars.captainStsCamera = NULL;
     }
 
     SetTimeScale__18ParticleUpdateTaskFf(1.0f);

@@ -353,9 +353,8 @@ void Bowser::CollisionCallback(PhysicsObject* pObjA, PhysicsObject*, const nlVec
 
 /**
  * Offset/Address/Size: 0x2B64 | 0x8015B8D8 | size: 0x4F0
- * TODO: 98.80% match - remaining diffs are the beq/b vs bne branch pattern in
- *       the Strikers101 gate and lfd constant propagation vs lfs reload for
- *       fabsf(mfYAxisTilt).
+ * TODO: 99.65% match - remaining diff is the Strikers101 gate branch shape
+ *       (target beq+b split vs current bne).
  */
 void Bowser::ActionInit()
 {
@@ -408,10 +407,11 @@ void Bowser::ActionInit()
                     PhysicsAIBall* pPhys = g_pBall->m_pPhysicsBall;
                     if (pPhys != NULL)
                     {
-                        if (fabsf(mfYAxisTilt) > 0.01f)
+                        if ((float)fabs(0.0) > 0.01f)
                         {
+                            float yAxisTilt = -0.0f;
                             nlVector3 tiltForce = { 0.0f, 0.0f, 0.0f };
-                            tiltForce.f.x = -mfYAxisTilt * g_pGame->m_pGameTweaks->unk338;
+                            tiltForce.f.x = yAxisTilt * g_pGame->m_pGameTweaks->unk338;
                             pPhys->m_v3TiltForce = tiltForce;
                             g_pBall->m_pPhysicsBall->m_bUseTiltForce = true;
                         }

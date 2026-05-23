@@ -228,9 +228,8 @@ bool Replay::DidOccurInLastNumSeconds(unsigned int events, float seconds) const
 
 /**
  * Offset/Address/Size: 0x38 | 0x802138E4 | size: 0x39C
- * TODO: 97.59% match (repo). Remaining diffs are register allocation in the
- * first do-while and inner Next(,0) traversals, plus bgt vs ble+return shape
- * around the size-threshold check.
+ * TODO: 99.37% match. Remaining diffs are register allocation in the
+ * first do-while and inner Next(,0) traversals.
  */
 bool Replay::LockReel(float numSeconds, int idx, int quality)
 {
@@ -359,32 +358,32 @@ afterLoops:
         }
     }
 
-    if (size > (int)(0.75f * (float)(mMemorySize / 4)))
+    if (size <= (int)(0.75f * (float)(mMemorySize / 4)))
     {
-        return false;
-    }
-
-    mReels[idx].mAge = quality;
-    {
-        Frame* frame = mReels[0].mBegin;
-
-        while (frame != nullptr)
+        mReels[idx].mAge = quality;
         {
-            if (frame->mTime >= beginTime)
-            {
-                frame->mReelIdx = idx;
-                if (mReels[idx].mBegin == nullptr)
-                {
-                    mReels[idx].mBegin = frame;
-                }
-                mReels[idx].mLast = frame;
-            }
+            Frame* frame = mReels[0].mBegin;
 
-            frame = Next(frame, 0);
+            while (frame != nullptr)
+            {
+                if (frame->mTime >= beginTime)
+                {
+                    frame->mReelIdx = idx;
+                    if (mReels[idx].mBegin == nullptr)
+                    {
+                        mReels[idx].mBegin = frame;
+                    }
+                    mReels[idx].mLast = frame;
+                }
+
+                frame = Next(frame, 0);
+            }
         }
+
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /**

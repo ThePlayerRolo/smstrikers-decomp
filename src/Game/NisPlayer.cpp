@@ -420,7 +420,7 @@ static void SkipLine(const char*& data)
 
 /**
  * Offset/Address/Size: 0x3408 | 0x801180E4 | size: 0x588
- * TODO: 94.47% match - prologue register-save/stack-slot mismatches and small offset diffs near the trailing camera flag stores
+ * TODO: 95.90% match - cleanup-loop register assignment mismatch in the active reset block
  */
 NisPlayer::NisPlayer()
     : InterpreterCore(10)
@@ -479,7 +479,7 @@ NisPlayer::NisPlayer()
                 break;
             SkipLine(d);
 
-            char* (*volatile toLower)(char*) = nlToLower<char>;
+            char* (*toLower)(char*) = nlToLower<char>;
             toLower(header.name);
 
             nlVector3 beginPos = { { 0, 0, 0 } };
@@ -518,8 +518,8 @@ NisPlayer::NisPlayer()
     unsigned long fileSize = 0;
     byteCode = nlLoadEntireFile("art/nis/nis_bytecodes.bin", &fileSize, 0x20, AllocateStart);
     LoadByteCode(byteCode);
-    mCamera.m_bCyclic = false;
     mCamera.m_LetManagerDoUpdate = false;
+    mCamera.m_bCyclic = false;
 }
 
 /**

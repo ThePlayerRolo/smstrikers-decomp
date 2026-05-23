@@ -196,32 +196,84 @@ static inline void RenderElectricFenceFlat(const nlVector3& position, const nlVe
     glAttachQuad3(GLV_ElectricFence, 1, &quad, true);
 }
 
+static inline void DrawPrimitive(const ElectricFenceGeometry& prim, const nlMatrix4& objMatrix, int nPrimType, unsigned long textureHandle, float intensity)
+{
+    extern const unsigned long UnlitProgram;
+
+    const eGLStream stream_decl[3] = { GLStream_Position, GLStream_Colour, GLStream_Diffuse };
+    GLMeshWriter mesh;
+    nlVector2* pTexcoord = (nlVector2*)prim.texcoord;
+
+    glSetDefaultState(true);
+    glSetRasterState(GLS_Culling, 0);
+    glSetRasterState(GLS_DepthWrite, 0);
+    glSetRasterState(GLS_AlphaBlend, 2);
+    glSetCurrentRasterState(glHandleizeRasterState());
+
+    unsigned long matrixHandle = glAllocMatrix();
+    if (matrixHandle != (unsigned long)-1)
+    {
+        glSetMatrix(matrixHandle, objMatrix);
+    }
+    glSetCurrentMatrix(matrixHandle);
+
+    glSetTextureState(GLTS_DiffuseWrap, 0);
+    glSetCurrentTexture(textureHandle, GLTT_Diffuse);
+    glSetCurrentTextureState(glHandleizeTextureState());
+    glSetCurrentProgram(UnlitProgram);
+
+    nlColour c = { 0, 0, 0, 0xFF };
+    u8 lightenAmount = (u8)(255.0f * intensity);
+    c.c[0] = lightenAmount;
+    c.c[1] = lightenAmount;
+    c.c[2] = lightenAmount;
+
+    if (mesh.Begin(prim.vertCount, (eGLPrimitive)nPrimType, 3, stream_decl, false))
+    {
+        nlVector3* pPosition = (nlVector3*)prim.position;
+        int index = 0;
+        while (index < prim.vertCount)
+        {
+            mesh.Colour(c);
+            mesh.Texcoord(*pTexcoord);
+            mesh.Vertex(*pPosition);
+            pTexcoord++;
+            pPosition++;
+            index++;
+        }
+
+        if (!mesh.End())
+        {
+            return;
+        }
+
+        glViewAttachModel(GLV_ElectricFence, mesh.GetModel());
+    }
+}
+
 /**
  * Offset/Address/Size: 0x89C | 0x8016B8CC | size: 0x420
- * TODO: 93.7% match - remaining register allocation and stack-slot ordering diffs
- *       in inlined flat and non-flat render blocks.
+ * TODO: 96.4% match - remaining register allocation diffs in the active-fence
+ *       lookup and inlined DrawPrimitive pointer/index assignments.
  */
 void RenderElectricFence(EmissionController& ec)
 {
     extern float sfFadeOutTime;
     extern float sfGridTextureSize;
-    extern const unsigned long UnlitProgram;
     extern const unsigned long GridTexture;
 
     EmissionController* pController = &ec;
+    ElectricFenceData* pElectricFenceData = NULL;
     ElectricFenceData* p = ElectricFenceData::sActiveElectricFences.m_pStart;
     while (p != NULL)
     {
-        if (p->mpEmissionController != pController)
+        if (p->mpEmissionController == pController)
         {
-            p = p->next;
-        }
-        else
-        {
+            pElectricFenceData = p;
             break;
         }
+        p = p->next;
     }
-    ElectricFenceData* pElectricFenceData = p;
 
     float intensity = 1.0f;
     float remainingTime = pController->GetRemainingTime();
@@ -285,58 +337,7 @@ void RenderElectricFence(EmissionController& ec)
     nlMatrix4 matrix;
     matrix.SetIdentity();
 
-    ElectricFenceGeometry* prim = pElectricFenceData->mpGeometry;
-    const eGLStream streams[3] = { GLStream_Position, GLStream_Colour, GLStream_Diffuse };
-    GLMeshWriter meshWriter;
-
-    glSetDefaultState(true);
-    glSetRasterState(GLS_Culling, 0);
-    glSetRasterState(GLS_DepthWrite, 0);
-    glSetRasterState(GLS_AlphaBlend, 2);
-    glSetCurrentRasterState(glHandleizeRasterState());
-
-    unsigned long matrixHandle = glAllocMatrix();
-    if (matrixHandle != -1)
-    {
-        glSetMatrix(matrixHandle, matrix);
-    }
-
-    glSetCurrentMatrix(matrixHandle);
-
-    glSetTextureState(GLTS_DiffuseWrap, 0);
-    glSetCurrentTexture(GridTexture, GLTT_Diffuse);
-    glSetCurrentTextureState(glHandleizeTextureState());
-    glSetCurrentProgram(UnlitProgram);
-
-    unsigned long colourWord = 0x000000FF;
-    ((unsigned char*)&colourWord)[0] = (u8)(255.0f * intensity);
-    ((unsigned char*)&colourWord)[1] = ((unsigned char*)&colourWord)[0];
-    ((unsigned char*)&colourWord)[2] = ((unsigned char*)&colourWord)[0];
-
-    if (meshWriter.Begin(prim->vertCount, GLP_TriStrip, 3, streams, false))
-    {
-        nlVector3* pPos = prim->position;
-        nlVector2* pUv = prim->texcoord;
-
-        for (int i = 0; i < prim->vertCount; i++)
-        {
-            meshWriter.Colour(*(nlColour*)&colourWord);
-            meshWriter.Texcoord(*pUv);
-            meshWriter.Vertex(*pPos);
-
-            pUv++;
-            pPos++;
-        }
-
-        if (!meshWriter.End())
-        {
-            return;
-        }
-        else
-        {
-            glViewAttachModel(GLV_ElectricFence, meshWriter.GetModel());
-        }
-    }
+    DrawPrimitive(*pElectricFenceData->mpGeometry, matrix, GLP_TriStrip, GridTexture, intensity);
 }
 
 /**

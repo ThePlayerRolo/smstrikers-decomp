@@ -196,26 +196,20 @@ float SeekSpeed(float fCurrent, float fDesired, float fSeekAccel, float fSeekDec
 
 /**
  * Offset/Address/Size: 0xFA4 | 0x80006A50 | size: 0x11C
- * TODO: 98.3% match - float register allocation differs in pre-quadratic math block.
+ * TODO: 98.66% match - speed2Sq lands in f11 instead of target f9, cascading
+ * one register up through the vector math block.
  */
 void CalcInterceptXY(const nlVector3& pos1, f32 speed1, f32 speed2, const nlVector3& pos2, const nlVector3& vel, int& count, f32* times)
 {
     f32 speed2Sq = speed2 * speed2;
     f32 speed1Sq = speed1 * speed1;
 
-    f32 py2 = pos2.f.y;
-    f32 py1 = pos1.f.y;
-    f32 px2 = pos2.f.x;
-    f32 px1 = pos1.f.x;
+    nlVector3 delta;
+    nlVec3Sub2D(delta, pos2, pos1);
 
-    f32 dy = py2 - py1;
-    f32 dx = px2 - px1;
-    f32 vy = vel.f.y;
-    f32 vx = vel.f.x;
-
-    f32 distSq = dx * dx + dy * dy;
-    f32 velSq = vx * vx + vy * vy;
-    f32 dotVelDelta = vx * dx + vy * dy;
+    f32 dotVelDelta = nlVec3DotProduct2D(delta, vel);
+    f32 velSq = vel.GetLengthSq2D();
+    f32 distSq = delta.GetLengthSq2D();
 
     f32 a = velSq - speed1Sq;
 
@@ -462,54 +456,45 @@ void RotateVectorZAxis(nlVector3& v3Out, const nlVector3& v3In, unsigned short a
 
 /**
  * Offset/Address/Size: 0x814 | 0x800062C0 | size: 0x210
- * TODO: 93.52% match - v3Vec1 components allocated to f7/f6/f5 instead of target
- * f8/f7/f6 (off by 1), causing cascading register diffs throughout function.
- * Extra fmr for ax copy. Likely MWCC register allocation behavior difference.
  */
 void GetRotationBetweenVectors(nlQuaternion& quat, const nlVector3& v3Vec1, const nlVector3& v3Vec2)
 {
-    f32 t0;
-    f32 t1;
-    f32 t2;
-
-    f32 fInvR1R2 = 1.0f / nlSqrt((v3Vec1.f.x * v3Vec1.f.x + v3Vec1.f.y * v3Vec1.f.y + v3Vec1.f.z * v3Vec1.f.z) * (v3Vec2.f.x * v3Vec2.f.x + v3Vec2.f.y * v3Vec2.f.y + v3Vec2.f.z * v3Vec2.f.z), true);
-    f32 fCosAngle = fInvR1R2 * (v3Vec1.f.x * v3Vec2.f.x + v3Vec1.f.y * v3Vec2.f.y + v3Vec1.f.z * v3Vec2.f.z);
+    f32 fInvR1R2 = 1.0f / nlSqrt(v3Vec1.GetLengthSq3D() * v3Vec2.GetLengthSq3D(), true);
+    f32 fCosAngle = fInvR1R2 * nlVec3DotProduct(v3Vec1, v3Vec2);
 
     if (fCosAngle > 0.999999f)
     {
-        quat.f.x = 0.0f;
-        quat.f.y = 0.0f;
-        quat.f.z = 0.0f;
-        quat.f.w = 1.0f;
+        nlQuatIdentity(quat);
     }
     else if (fCosAngle < -0.999999f)
     {
+        f32 ax;
         f32 ay;
         f32 az;
-        f32 ax = 1.0f;
 
         if (v3Vec1.f.x > v3Vec1.f.z || v3Vec1.f.y > v3Vec1.f.z)
         {
             ax = 0.0f;
-            az = 1.0f;
             ay = 0.0f;
+            az = 1.0f;
         }
         else
         {
+            ax = 1.0f;
             ay = 0.0f;
             az = 0.0f;
         }
 
         f32 nax = -ax;
-        t1 = az * v3Vec1.f.x + nax * v3Vec1.f.z;
-        t2 = ay * v3Vec1.f.z - az * v3Vec1.f.y;
-        t0 = ax * v3Vec1.f.y - ay * v3Vec1.f.x;
+        f32 cy = az * v3Vec1.f.x + nax * v3Vec1.f.z;
+        f32 cx = ay * v3Vec1.f.z - az * v3Vec1.f.y;
+        f32 cz = ax * v3Vec1.f.y - ay * v3Vec1.f.x;
 
-        f32 invLen = nlRecipSqrt(t1 * t1 + t2 * t2 + t0 * t0, true);
+        f32 invLen = nlRecipSqrt(cx * cx + cy * cy + cz * cz, true);
 
-        quat.f.x = invLen * t2;
-        quat.f.y = invLen * t1;
-        quat.f.z = invLen * t0;
+        quat.f.x = invLen * cx;
+        quat.f.y = invLen * cy;
+        quat.f.z = invLen * cz;
         quat.f.w = 0.0f;
     }
     else
@@ -517,16 +502,16 @@ void GetRotationBetweenVectors(nlQuaternion& quat, const nlVector3& v3Vec1, cons
         f32 fMagic = nlSqrt((f32)(0.5 * (1.0 + fCosAngle)), true);
         f32 fMultiplier = fInvR1R2 / fMagic;
 
-        f32 cx = v3Vec1.f.z * v3Vec2.f.y;
-        f32 cz = v3Vec1.f.y * v3Vec2.f.x;
+        f32 cx_init = v3Vec1.f.z * v3Vec2.f.y;
+        f32 cz_init = v3Vec1.f.y * v3Vec2.f.x;
         f32 negX = -v3Vec1.f.x;
 
         quat.f.w = 0.5f * fMagic;
 
-        f32 cy = v3Vec1.f.z * v3Vec2.f.x;
-        cx = v3Vec1.f.y * v3Vec2.f.z - cx;
-        cz = v3Vec1.f.x * v3Vec2.f.y - cz;
-        cy = negX * v3Vec2.f.z + cy;
+        f32 cy_init = v3Vec1.f.z * v3Vec2.f.x;
+        f32 cx = v3Vec1.f.y * v3Vec2.f.z - cx_init;
+        f32 cz = v3Vec1.f.x * v3Vec2.f.y - cz_init;
+        f32 cy = negX * v3Vec2.f.z + cy_init;
 
         quat.f.x = cx * fMultiplier;
         quat.f.y = cy * fMultiplier;
@@ -646,7 +631,7 @@ float InterpolateRangeClamped(float fResultMin, float fResultMax, float fInputMi
     }
 
     range = fInputMax - fInputMin;
-    if (fabsf(range) < 0.001f)
+    if (fabsf(range) < 0.00001f)
     {
         return fResultMax;
     }
@@ -731,70 +716,51 @@ float AIsgn(float fValue)
 
 /**
  * Offset/Address/Size: 0x2E4 | 0x80005D90 | size: 0x234
- * TODO: 96.77% match - remaining diffs are f30/f31 saved FPR swap in MWCC
- * graph-coloring register allocator (lenSq gets f31 instead of f30)
  */
 nlVector3 GetClosestPointOnLineABFromPointC(const nlVector3& a, const nlVector3& b, const nlVector3& c)
 {
-    f32 v12 = c.f.x - a.f.x;
-    f32 v10 = b.f.x - a.f.x;
-    f32 v13 = c.f.y - a.f.y;
-    f32 v31 = b.f.y - a.f.y;
-    f32 v29 = c.f.z - a.f.z;
-    f32 v28 = b.f.z - a.f.z;
+    nlVector3 ac;
+    nlVector3 ab;
+    nlVec3Sub(ac, c, a);
+    nlVec3Sub(ab, b, a);
 
-    f32 dot = v13 * v31;
-    f32 lenSq = v31 * v31;
-    dot = v12 * v10 + dot;
-    lenSq = v10 * v10 + lenSq;
+    f32 dot = nlVec3DotProduct(ac, ab);
+    f32 t = dot / ab.GetLengthSq3D();
 
-    f32 cX = a.f.x + v12;
-    dot = v29 * v28 + dot;
-    const f32 fLenSq = v28 * v28 + lenSq;
-    f32 cY = a.f.y + v13;
-    f32 cZ = a.f.z + v29;
+    nlVector3 scaledAb;
+    nlVec3Scale(scaledAb, ab, t);
 
-    f32 v1 = dot / fLenSq;
-    f32 tx = v1 * v10;
-    f32 v8 = v1 * v31;
-    v1 = v1 * v28;
+    nlVector3 reconstructed;
+    nlVec3Add(reconstructed, a, ac);
 
-    v8 = v13 - v8;
-    tx = v12 - tx;
-    v1 = v29 - v1;
-
-    f32 projY = cY - v8;
-    f32 projZ = cZ - v1;
-    f32 projX = cX - tx;
+    nlVector3 offset;
+    nlVec3Sub(offset, ac, scaledAb);
 
     nlVector3 projected;
-    projected.f.x = projX;
-    projected.f.y = projY;
-    projected.f.z = projZ;
+    nlVec3Sub(projected, reconstructed, offset);
 
-    f32 v27 = a.f.z - projZ;
-    v29 = a.f.y - projY;
-    v28 = a.f.x - projX;
-    f32 v25 = b.f.y - projY;
-    f32 v26 = b.f.x - projX;
-    v31 = b.f.z - projZ;
+    nlVector3 toA;
+    nlVector3 toB;
+    nlVec3Sub(toA, a, projected);
+    nlVec3Sub(toB, b, projected);
 
+    const f32 fLenSq = ab.GetLengthSq3D();
     f32 lineLen = nlSqrt(fLenSq, true);
-    f32 distASq = v29 * v29 + v28 * v28 + v27 * v27;
+    f32 distASq = toA.GetLengthSq3D();
     f32 distA = nlSqrt(distASq, true);
 
     if (distA > lineLen)
         goto lbl_outside;
     {
         f32 lineLen2 = nlSqrt(fLenSq, true);
-        f32 distBSq = v25 * v25 + v26 * v26 + v31 * v31;
+        f32 distBSq = toB.GetLengthSq3D();
         f32 distB = nlSqrt(distBSq, true);
         if (!(distB > lineLen2))
             goto lbl_return_proj;
     }
 lbl_outside:
 {
-    f32 distBSq2 = v25 * v25 + v26 * v26 + v31 * v31;
+    f32 distBSq2 = toB.GetLengthSq3D();
     f32 distB2 = nlSqrt(distBSq2, true);
     f32 distA2 = nlSqrt(distASq, true);
     if (distA2 < distB2)

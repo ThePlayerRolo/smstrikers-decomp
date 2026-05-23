@@ -489,12 +489,14 @@ void CreateCharacters()
         }
 
         int charIdx = plrindex * 4 + 1;
+        volatile eCharacterClass* vpSidekick = sidekick;
+        volatile eCharacterClass* vpCaptain = captain;
         cCharacter** pChar = &g_pCharacters[charIdx];
         nlVector3* pPos = &posBlock.v[charIdx];
 
         for (int index = 1; index < 4; index++)
         {
-            if (sidekick[plrindex] == captain[plrindex])
+            if (vpSidekick[plrindex] == vpCaptain[plrindex])
             {
                 *pChar = CreateCharacter(index, plrindex, captain[plrindex], false);
             }
@@ -520,17 +522,17 @@ void CreateCharacters()
 
 /**
  * Offset/Address/Size: 0xE70 | 0x80013158 | size: 0x634
- * TODO: 85.70% match - early goalie texture load still differs in lbzu/lbz addressing,
- * and hierarchy/retarget blocks still have branch-shape and register-allocation mismatches.
+ * TODO: 89.10% match - register mapping in unrolled GetHashFromTextureFile
+ * loops (r3/r4/r5/r6/r7 vs r5/r3/r4/r6/r7), copy loop reload pattern,
+ * hierarchy bne+b vs beq branch shape
  */
 cPlayer* CreateGoalie(eCharacterClass gcc, bool bForViewer)
 {
     s32 goalieIdx = gcc - NUM_FIELDER_CLASSES;
-    tGoalieTemplateInfo* pTexInfo = &g_GoalieTextureInfo[goalieIdx];
-    if (!pTexInfo->bLoaded)
+    if (!g_GoalieTextureInfo[goalieIdx].bLoaded)
     {
-        glLoadTextureBundle(pTexInfo->szTextureFilename);
-        pTexInfo->bLoaded = 1;
+        glLoadTextureBundle(g_GoalieTextureInfo[goalieIdx].szTextureFilename);
+        g_GoalieTextureInfo[goalieIdx].bLoaded = 1;
     }
 
     if (g_GoalieTemplate == NULL)
@@ -540,7 +542,6 @@ cPlayer* CreateGoalie(eCharacterClass gcc, bool bForViewer)
     }
 
     cSHierarchy* pHierarchy;
-    AnimRetargetList* pAnimRetarget;
 
     cInventory<cSHierarchy>* pHierInv = g_GoalieTemplate->pHierarchyInventory;
     u32 hash = nlStringHash(g_GoalieTemplateInfo.szHierarchy);
@@ -561,7 +562,7 @@ cPlayer* CreateGoalie(eCharacterClass gcc, bool bForViewer)
     pHierarchy = NULL;
 hierFound:
 
-    pAnimRetarget = NULL;
+    AnimRetargetList* pAnimRetarget = NULL;
     if (g_GoalieTemplate->pAnimRetargetListInventory != NULL)
     {
         int idx = 0;
@@ -600,221 +601,207 @@ hierFound:
 
     pPlayer->m_szEffectsName = g_GoalieTemplateInfo.szEffectsName;
 
-    char buf1[200];
-    char buf2[200];
-    const char* szPath;
-    const char* pStart;
-    char* pDst;
-    int i;
-    u32 texHash;
-
-    szPath = g_GoalieTemplateInfo.szTextureFilename;
-    pStart = NULL;
-    i = 0;
-    for (int j = 0; j < 10; j++)
     {
-        char c = szPath[0];
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
+        char name[200];
+        char* pDest = name;
+        char* pSrc = NULL;
+        int count = 0;
 
-        c = szPath[1];
-        i++;
-        if (c == '\\' || c == '/')
+        const char* szTextureFileName = g_GoalieTemplateInfo.szTextureFilename;
+        const char* szPath = szTextureFileName;
+        for (int j = 0; j < 10; j++)
         {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
+            char c;
+            c = szPath[0];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[1];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[2];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[3];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[4];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[5];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[6];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[7];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[8];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            c = szPath[9];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash1;
+            }
+            count++;
+            szPath += 10;
         }
-
-        c = szPath[2];
-        i++;
-        if (c == '\\' || c == '/')
+    foundSlash1:
+        for (int k = 0; k < 100; k++)
         {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
+            if (*pSrc == '\0')
+                goto copyDone1;
+            if (*pSrc == '.')
+                goto copyDone1;
+            *pDest++ = *pSrc++;
+            continue;
+        copyDone1:
+            *pDest = '\0';
+            pPlayer->m_uNormalTextureID = nlStringLowerHash(name);
+            goto hashDone1;
         }
-
-        c = szPath[3];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
-
-        c = szPath[4];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
-
-        c = szPath[5];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
-
-        c = szPath[6];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
-
-        c = szPath[7];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
-
-        c = szPath[8];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
-
-        c = szPath[9];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash1;
-        }
-
-        i++;
-        szPath += 10;
+        pPlayer->m_uNormalTextureID = 0;
+    hashDone1:;
     }
 
-foundSlash1:
-    pDst = buf1;
-    for (i = 0; i < 100; i++)
     {
-        if (*pStart == '\0' || *pStart == '.')
+        char name[200];
+        char* pDest = name;
+        char* pSrc = NULL;
+        int count = 0;
+
+        const char* szTextureFileName = g_GoalieTextureInfo[goalieIdx].szTextureFilename;
+        const char* szPath = szTextureFileName;
+        for (int j = 0; j < 10; j++)
         {
-            *pDst = '\0';
-            texHash = nlStringLowerHash(buf1);
-            goto copyDone1;
+            char c;
+            c = szPath[0];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[1];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[2];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[3];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[4];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[5];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[6];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[7];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[8];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            c = szPath[9];
+            if (c == '\\' || c == '/')
+            {
+                pSrc = (char*)szTextureFileName + count + 1;
+                goto foundSlash2;
+            }
+            count++;
+            szPath += 10;
         }
-        *pDst++ = *pStart++;
+    foundSlash2:
+        for (int k = 0; k < 100; k++)
+        {
+            if (*pSrc == '\0')
+                goto copyDone2;
+            if (*pSrc == '.')
+                goto copyDone2;
+            *pDest++ = *pSrc++;
+            continue;
+        copyDone2:
+            *pDest = '\0';
+            pPlayer->m_uSwapTextureID = nlStringLowerHash(name);
+            goto hashDone2;
+        }
+        pPlayer->m_uSwapTextureID = 0;
+    hashDone2:;
     }
-    texHash = 0;
-copyDone1:
-    pPlayer->m_uNormalTextureID = texHash;
-
-    szPath = g_GoalieTextureInfo[goalieIdx].szTextureFilename;
-    pStart = NULL;
-    i = 0;
-    for (int j = 0; j < 10; j++)
-    {
-        char c = szPath[0];
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[1];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[2];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[3];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[4];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[5];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[6];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[7];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[8];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        c = szPath[9];
-        i++;
-        if (c == '\\' || c == '/')
-        {
-            pStart = szPath + i + 1;
-            goto foundSlash2;
-        }
-
-        i++;
-        szPath += 10;
-    }
-
-foundSlash2:
-    pDst = buf2;
-    for (i = 0; i < 100; i++)
-    {
-        if (*pStart == '\0' || *pStart == '.')
-        {
-            *pDst = '\0';
-            texHash = nlStringLowerHash(buf2);
-            goto copyDone2;
-        }
-        *pDst++ = *pStart++;
-    }
-    texHash = 0;
-copyDone2:
-    pPlayer->m_uSwapTextureID = texHash;
 
     if (!AudioLoader::gbDisableAudio)
     {

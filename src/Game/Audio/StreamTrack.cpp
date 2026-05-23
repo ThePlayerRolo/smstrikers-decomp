@@ -1140,7 +1140,7 @@ void AudioStreamTrack::StreamTrack::FadeOutDoneStartNext(AudioStreamTrack::Strea
 
 /**
  * Offset/Address/Size: 0x1E8 | 0x80154F40 | size: 0x374
- * TODO: 93.65% match - register allocation drift in fade-list traversal and buffer teardown loops
+ * TODO: 95.51% match - fade-list search register allocation drift and fade-entry teardown mismatch
  */
 void AudioStreamTrack::StreamTrack::Pause(unsigned long Fadeout, bool bPause)
 {
@@ -1183,7 +1183,7 @@ void AudioStreamTrack::StreamTrack::Pause(unsigned long Fadeout, bool bPause)
     FadeEntry* fadeIter = nlDLRingGetStart(mgr.m_FadeMgr.m_Fades.m_Head);
     FadeEntry* fadeHead = mgr.m_FadeMgr.m_Fades.m_Head;
 
-    FadeCtrl* fadeCtrl;
+    FadeCtrl* fadeCtrl = NULL;
     while (fadeIter != NULL)
     {
         if (fadeIter->m_data.pStream == pStream)
@@ -1200,11 +1200,6 @@ void AudioStreamTrack::StreamTrack::Pause(unsigned long Fadeout, bool bPause)
             fadeIter = fadeIter->m_next;
         }
     }
-    if (fadeIter == NULL)
-    {
-        fadeCtrl = NULL;
-    }
-
     unsigned long endVol;
     bool hasEndVol;
     if (fadeCtrl != NULL)
@@ -1272,9 +1267,10 @@ void AudioStreamTrack::StreamTrack::Pause(unsigned long Fadeout, bool bPause)
 
     if (stream->m_State == GCAudioStreaming::SS_Playing)
     {
+        unsigned long zero = 0;
         GCAudioStreaming::AudioStreamBuffer* buf = NULL;
-        volatile unsigned long bufCounter = (unsigned long)buf;
-        if (stream->m_BufferCount > 0)
+        volatile unsigned long bufCounter = zero;
+        if (stream->m_BufferCount > zero)
         {
             buf = stream->m_Buffers[0];
         }
@@ -1297,7 +1293,7 @@ void AudioStreamTrack::StreamTrack::Pause(unsigned long Fadeout, bool bPause)
             }
         }
 
-        stream->m_StreamPos = 0;
+        stream->m_StreamPos = zero;
         stream->m_State = GCAudioStreaming::SS_Warm;
     }
 
@@ -1311,10 +1307,11 @@ void AudioStreamTrack::StreamTrack::Pause(unsigned long Fadeout, bool bPause)
         if (stream->m_State > GCAudioStreaming::SS_Initd)
         {
             unsigned long fl = stream->m_Flags;
+            unsigned long zero2 = 0;
             GCAudioStreaming::AudioStreamBuffer* buf2 = NULL;
             volatile unsigned long bufCounter2 = (unsigned long)buf2;
             stream->m_Flags = (fl & ~0x10) | 0x10;
-            if (stream->m_BufferCount > 0)
+            if (stream->m_BufferCount > zero2)
             {
                 buf2 = stream->m_Buffers[0];
             }

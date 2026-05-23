@@ -449,7 +449,7 @@ void CharacterTriggerHandler(unsigned int uParam)
         bool bPlayLine7 = false;
         if (pBall != NULL && pBall->m_pPassTarget == NULL)
         {
-            if ((cPlayer*)pCharacter == pBall->m_pOwner || (cPlayer*)pCharacter == pBall->m_pPrevOwner)
+            if (pBall->m_pOwner == (cPlayer*)pCharacter || pBall->m_pPrevOwner == (cPlayer*)pCharacter)
                 bPlayLine7 = true;
         }
 
@@ -785,7 +785,7 @@ void CharacterTriggerHandler(unsigned int uParam)
         s32 ownsBall = 0;
         if (g_pBall != NULL && g_pCurrentlyUpdatingCharacter == g_pBall->m_pOwner)
             ownsBall = 1;
-        if (g_pBall != NULL && !hasPad && !ownsBall)
+        if (!ownsBall && !hasPad)
             break;
         pCharacter->Play3DSFX((Audio::eCharSFX)0x0E, (PosUpdateMethod)2, 1.0f);
         break;

@@ -1242,7 +1242,9 @@ void cBall::PostPhysicsUpdate(float fDeltaT)
         float zVelocity = m_v3Velocity.f.z;
         velocity.f.z = zVelocity;
 
-        float speedSq = velocity.f.x * velocity.f.x + velocity.f.y * velocity.f.y + zVelocity * zVelocity;
+        float zVelSq = zVelocity * zVelocity;
+        float speedSq = velocity.f.x * velocity.f.x + velocity.f.y * velocity.f.y;
+        speedSq += zVelSq;
         if (speedSq < 400.0f)
         {
             float speed = nlSqrt(speedSq, true);

@@ -1929,8 +1929,7 @@ static inline void Local2GridCoords(float y, float z, int& i, int& j)
 
 /**
  * Offset/Address/Size: 0x390 | 0x800537B0 | size: 0x3F0
- * TODO: 95.81% match - r27/r28 vs r28/r29 register shift for pSaveData1/pSaveData2.
- * MWCC -inline deferred register allocation quirk (same issue as FindBestSave).
+ * TODO: 95.93% match - r27/r28 vs r28/r29 register shift persists in AddPointToGrid inlined path.
  */
 void GoalieSave::AddSegmentToGrid(SaveData* pSaveData1, SaveData* pSaveData2)
 {
@@ -1942,8 +1941,8 @@ void GoalieSave::AddSegmentToGrid(SaveData* pSaveData1, SaveData* pSaveData2)
 
     Local2GridCoords(pSaveData1->mv3SavePos.f.y, pSaveData1->mv3SavePos.f.z, i, j);
     Local2GridCoords(pSaveData2->mv3SavePos.f.y, pSaveData2->mv3SavePos.f.z, m, n);
-    float dz = pSaveData2->mv3SavePos.f.z - pSaveData1->mv3SavePos.f.z;
     float dy = pSaveData2->mv3SavePos.f.y - pSaveData1->mv3SavePos.f.y;
+    float dz = pSaveData2->mv3SavePos.f.z - pSaveData1->mv3SavePos.f.z;
     float dx = pSaveData2->mv3SavePos.f.x - pSaveData1->mv3SavePos.f.x;
     divisions = abs(j - n) + abs(i - m);
     if (divisions > 0)
@@ -1957,15 +1956,17 @@ void GoalieSave::AddSegmentToGrid(SaveData* pSaveData1, SaveData* pSaveData2)
     for (count = 0; count <= divisions; count++)
     {
         float d2z = pSaveData2->mv3SavePos.f.z - v3CurPos.f.z;
-        float d1z = pSaveData1->mv3SavePos.f.z - v3CurPos.f.z;
         float d2y = pSaveData2->mv3SavePos.f.y - v3CurPos.f.y;
         float d1y = pSaveData1->mv3SavePos.f.y - v3CurPos.f.y;
+        float d1z = pSaveData1->mv3SavePos.f.z - v3CurPos.f.z;
         if (d1z * d1z + d1y * d1y < d2z * d2z + d2y * d2y)
             pCurSaveData = pSaveData1;
         else
             pCurSaveData = pSaveData2;
         AddPointToGrid(pCurSaveData, v3CurPos);
-        nlVec3Add(v3CurPos, dx, dy, dz);
+        v3CurPos.f.z += dz;
+        v3CurPos.f.y += dy;
+        v3CurPos.f.x += dx;
     }
 }
 

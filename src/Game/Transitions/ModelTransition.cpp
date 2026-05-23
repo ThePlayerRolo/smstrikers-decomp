@@ -726,9 +726,23 @@ void ModeledScreenTransition::Cancel()
     m_Effects = NULL;
 }
 
+static unsigned long GetParsedProgram(const char* pToken)
+{
+    char name[128];
+    int i;
+    nlStrNCpy(name, pToken, 128);
+    for (i = 0; i < 128; i++)
+    {
+        if (name[i] == '\0')
+            break;
+        if (name[i] == '_')
+            name[i] = ' ';
+    }
+    return glGetProgram(name);
+}
+
 /**
  * Offset/Address/Size: 0x44 | 0x80202108 | size: 0x6C8
- * TODO: 92.66% match - branch offset diffs remain (consistent 8-byte shift in compiled output)
  */
 ModeledScreenTransition* ModeledScreenTransition::LoadFromParser(SimpleParser* parser)
 {
@@ -808,15 +822,7 @@ ModeledScreenTransition* ModeledScreenTransition::LoadFromParser(SimpleParser* p
         }
         else if (nlStrCmp(pToken, "program") == 0)
         {
-            const char* effect = parser->NextTokenOnLine(true);
-            char buf[128];
-            nlStrNCpy(buf, effect, 128);
-            for (int i = 0; i < 128 && buf[i] != '\0'; i++)
-            {
-                if (buf[i] == '_')
-                    buf[i] = ' ';
-            }
-            m_nProgram = glGetProgram(buf);
+            m_nProgram = GetParsedProgram(parser->NextTokenOnLine(true));
         }
         else if (nlStrCmp(pToken, "light") == 0)
         {

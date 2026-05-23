@@ -99,12 +99,18 @@ public:
         return dx * dx + dy * dy;
     }
 
-    inline float GetLengthSq2D()
+    inline float GetLengthSq2D() const
     {
         return f.x * f.x + f.y * f.y;
     }
 
-    inline float GetLengthSq3D()
+    inline void Sub2D(const nlVector3& a, const nlVector3& b)
+    {
+        f.x = a.f.x - b.f.x;
+        f.y = a.f.y - b.f.y;
+    }
+
+    inline float GetLengthSq3D() const
     {
         return f.x * f.x + f.y * f.y + f.z * f.z;
     }
@@ -165,6 +171,35 @@ inline void nlVec3SetRotatedXY(nlVector3& result, const nlVector3& source, float
 inline void nlVec3Sub(nlVector3& result, const nlVector3& a, const nlVector3& b)
 {
     nlVec3Set(result, a.f.x - b.f.x, a.f.y - b.f.y, a.f.z - b.f.z);
+}
+
+inline void nlVec3Sub2D(nlVector3& result, const nlVector3& a, const nlVector3& b)
+{
+    result.f.x = a.f.x - b.f.x;
+    result.f.y = a.f.y - b.f.y;
+}
+
+inline float nlVec3DotProduct(const nlVector3& a, const nlVector3& b)
+{
+    return (a.f.x * b.f.x) + (a.f.y * b.f.y) + (a.f.z * b.f.z);
+}
+
+inline float nlVec3DotProduct2D(const nlVector3& a, const nlVector3& b)
+{
+    return (a.f.x * b.f.x) + (a.f.y * b.f.y);
+}
+
+inline void nlVec3CrossProduct(nlVector3& result, const nlVector3& a, const nlVector3& b)
+{
+    nlVec3Set(result,
+        (a.f.y * b.f.z) - (a.f.z * b.f.y),
+        (a.f.z * b.f.x) - (a.f.x * b.f.z),
+        (a.f.x * b.f.y) - (a.f.y * b.f.x));
+}
+
+inline float nlVec3LengthSquared(const nlVector3& v)
+{
+    return v.GetLengthSq3D();
 }
 
 inline void nlVec3Add(nlVector3& result, const nlVector3& a, const nlVector3& b)

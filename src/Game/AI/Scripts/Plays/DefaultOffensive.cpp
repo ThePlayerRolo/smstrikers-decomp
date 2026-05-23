@@ -102,6 +102,8 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
     float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
     float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
     float fBranchRatio = fMin / fMax;
+    float fTopLevelBranchRatio = fBranchRatio;
+    float fTopLevelFalseConfidence = fFalseConfidence;
 
     if (fTrueConfidence > 0.0f)
     {
@@ -130,56 +132,26 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
         float fNotCloseSideline = 1.0f - CloseToSideline(g_pScriptCurrentFielder);
         float fNotInvincible = 1.0f - Invincible(g_pScriptCurrentFielder);
 
-        fTrueConfidence = InControlOfBall(g_pScriptCurrentFielder);
-        fNotCloseSideline = (fNotCloseSideline <= fNotRepeatingDeke) ? fNotCloseSideline : fNotRepeatingDeke;
-        fNotInvincible = (fNotInvincible <= fNotCloseSideline) ? fNotInvincible : fNotCloseSideline;
-        fTrueConfidence = (fTrueConfidence <= fNotInvincible) ? fTrueConfidence : fNotInvincible;
-
-        fFalseConfidence = 1.0f - fTrueConfidence;
-        fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fBranchRatio = fMin / fMax;
-
-        if (fTrueConfidence > 0.0f)
         {
-            SaveConfidence PushDOM2(&fConfidence);
-            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+            float fTrueConfidence = InControlOfBall(g_pScriptCurrentFielder);
+            fNotCloseSideline = (fNotCloseSideline <= fNotRepeatingDeke) ? fNotCloseSideline : fNotRepeatingDeke;
+            fNotInvincible = (fNotInvincible <= fNotCloseSideline) ? fNotInvincible : fNotCloseSideline;
+            fTrueConfidence = (fTrueConfidence <= fNotInvincible) ? fTrueConfidence : fNotInvincible;
 
-            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                fConfidence = fConfidence * fBranchRatio;
-
-            fTrueConfidence = 1.0f - FGREATER(Attacked(g_pScriptCurrentFielder), 0.4f);
-            fFalseConfidence = 1.0f - fTrueConfidence;
-
-            fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fBranchRatio = fMin / fMax;
+            float fFalseConfidence = 1.0f - fTrueConfidence;
+            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fBranchRatio = fMin / fMax;
 
             if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM3(&fConfidence);
+                SaveConfidence PushDOM2(&fConfidence);
                 fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
 
                 if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                     fConfidence = fConfidence * fBranchRatio;
 
-                fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
-
-                pDecision->QueueActionSetDesire(2, fConfidence, -1.0f, fvNotSet, fvNotSet);
-
-                SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Off_DekeChance, Deker(g_pScriptCurrentFielder));
-            }
-
-            if (fFalseConfidence > 0.0f)
-            {
-                SaveConfidence PushDOM3(&fConfidence);
-                fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
-
-                if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
-                    fConfidence = fConfidence * fBranchRatio;
-
-                fTrueConfidence = 1.0f - FLESS(Open(g_pScriptCurrentFielder), 0.5f);
+                fTrueConfidence = 1.0f - FGREATER(Attacked(g_pScriptCurrentFielder), 0.4f);
                 fFalseConfidence = 1.0f - fTrueConfidence;
 
                 fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
@@ -188,7 +160,7 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
 
                 if (fTrueConfidence > 0.0f)
                 {
-                    SaveConfidence PushDOM4(&fConfidence);
+                    SaveConfidence PushDOM3(&fConfidence);
                     fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
 
                     if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
@@ -199,59 +171,98 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
                     pDecision->QueueActionSetDesire(2, fConfidence, -1.0f, fvNotSet, fvNotSet);
 
                     SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                    pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(0.5f * pTweaks->Off_DekeChance, Deker(g_pScriptCurrentFielder));
+                    pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Off_DekeChance, Deker(g_pScriptCurrentFielder));
+                }
+
+                if (fFalseConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM3(&fConfidence);
+                    fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
+
+                    if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
+
+                    fTrueConfidence = 1.0f - FLESS(Open(g_pScriptCurrentFielder), 0.5f);
+                    fFalseConfidence = 1.0f - fTrueConfidence;
+
+                    fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                    fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                    fBranchRatio = fMin / fMax;
+
+                    if (fTrueConfidence > 0.0f)
+                    {
+                        SaveConfidence PushDOM4(&fConfidence);
+                        fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+
+                        if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                            fConfidence = fConfidence * fBranchRatio;
+
+                        fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+
+                        pDecision->QueueActionSetDesire(2, fConfidence, -1.0f, fvNotSet, fvNotSet);
+
+                        SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                        pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(0.5f * pTweaks->Off_DekeChance, Deker(g_pScriptCurrentFielder));
+                    }
                 }
             }
         }
 
-        fTrueConfidence = BallOwner(g_pScriptCurrentFielder);
-        float fNotUserControlled = 1.0f - UserControlledT(g_pScriptCurrentTeam);
-        fTrueConfidence = (fTrueConfidence <= fNotUserControlled) ? fTrueConfidence : fNotUserControlled;
-
-        fFalseConfidence = 1.0f - fTrueConfidence;
-        fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fBranchRatio = fMin / fMax;
-
-        if (fTrueConfidence > 0.0f)
         {
-            SaveConfidence PushDOM2(&fConfidence);
-            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+            float fTrueConfidence = BallOwner(g_pScriptCurrentFielder);
+            float fNotUserControlled = 1.0f - UserControlledT(g_pScriptCurrentTeam);
+            fTrueConfidence = (fTrueConfidence <= fNotUserControlled) ? fTrueConfidence : fNotUserControlled;
 
-            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                fConfidence = fConfidence * fBranchRatio;
+            float fFalseConfidence = 1.0f - fTrueConfidence;
+            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fBranchRatio = fMin / fMax;
 
-            FuzzyBuf usePowerupBuf;
-            ((Fuzzy*)&usePowerupBuf)->UsePowerupOffensive(fConfidence, pDecision);
-            if (((FuzzyVariant&)usePowerupBuf).mData.f >= fBestConfidence)
-                fBestConfidence = ((FuzzyVariant&)usePowerupBuf).mData.f;
-        }
+            if (fTrueConfidence > 0.0f)
+            {
+                SaveConfidence PushDOM2(&fConfidence);
+                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
 
-        fTrueConfidence = FGREATER(fGoodBallCarrier, (fDoShooting >= fDoPassing) ? fDoShooting : fDoPassing);
+                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                    fConfidence = fConfidence * fBranchRatio;
 
-        float fDifficult = FLESS(Difficult(g_pScriptCurrentTeam), 0.8f);
-        float fFallback = (0.0f == fBestConfidence) ? 1.0f : 0.0f;
+                FuzzyBuf usePowerupBuf;
+                ((Fuzzy*)&usePowerupBuf)->UsePowerupOffensive(fConfidence, pDecision);
+                if (((FuzzyVariant&)usePowerupBuf).mData.f >= fBestConfidence)
+                    fBestConfidence = ((FuzzyVariant&)usePowerupBuf).mData.f;
+            }
 
-        fTrueConfidence = (fDifficult >= fGoodBallCarrier) ? fDifficult : fGoodBallCarrier;
-        fTrueConfidence = (fFallback >= fTrueConfidence) ? fFallback : fTrueConfidence;
+            {
+                float fTrueConfidence = FGREATER(fGoodBallCarrier, (fDoShooting >= fDoPassing) ? fDoShooting : fDoPassing);
 
-        fFalseConfidence = 1.0f - fTrueConfidence;
-        fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fBranchRatio = fMin / fMax;
+                float fDifficult = FLESS(Difficult(g_pScriptCurrentTeam), 0.8f);
+                float fFallback = (0.0f == fBestConfidence) ? 1.0f : 0.0f;
 
-        if (fTrueConfidence > 0.0f)
-        {
-            SaveConfidence PushDOM2(&fConfidence);
-            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                fTrueConfidence = (fDifficult >= fGoodBallCarrier) ? fDifficult : fGoodBallCarrier;
+                fTrueConfidence = (fFallback >= fTrueConfidence) ? fFallback : fTrueConfidence;
 
-            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                fConfidence = fConfidence * fBranchRatio;
+                float fFalseConfidence = 1.0f - fTrueConfidence;
+                float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                float fBranchRatio = fMin / fMax;
 
-            fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
-            pDecision->QueueActionSetDesire(9, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                if (fTrueConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM2(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
+
+                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    pDecision->QueueActionSetDesire(9, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                }
+            }
         }
     }
+
+    fBranchRatio = fTopLevelBranchRatio;
+    fFalseConfidence = fTopLevelFalseConfidence;
 
     if (fFalseConfidence > 0.0f)
     {
@@ -291,106 +302,108 @@ void Fuzzy::DefaultOffensivePlay(cDecisionEntity* pDecision)
 
         FuzzyVariant strategicBallOwner = GetStrategicBallCarrier__5FuzzyFP5cTeam(g_pScriptCurrentTeam);
 
-        float fBallOwnerGoalie = BallOwner(g_pScriptCurrentTeam->GetGoalie());
-        float fStriker = Striker(g_pScriptCurrentFielder);
-        float fWinger = Winger(g_pScriptCurrentFielder);
-
-        fStriker = (fStriker >= fBallOwnerGoalie) ? fStriker : fBallOwnerGoalie;
-        fWinger = (fWinger >= fStriker) ? fWinger : fStriker;
-
-        fFalseConfidence = 1.0f - fWinger;
-        fTrueConfidence = fWinger;
-
-        fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fBranchRatio = fMin / fMax;
-
-        if (fTrueConfidence > 0.0f)
         {
-            SaveConfidence PushDOM2(&fConfidence);
-            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+            float fBallOwnerGoalie = BallOwner(g_pScriptCurrentTeam->GetGoalie());
+            float fStriker = Striker(g_pScriptCurrentFielder);
+            float fWinger = Winger(g_pScriptCurrentFielder);
 
-            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                fConfidence = fConfidence * fBranchRatio;
+            fStriker = (fStriker >= fBallOwnerGoalie) ? fStriker : fBallOwnerGoalie;
+            fWinger = (fWinger >= fStriker) ? fWinger : fStriker;
 
-            float fWindup = WindingUpForShot((cFielder*)strategicBallOwner.mData.pPlayer);
-            float fNotNearToTheirNet = 1.0f - NearToTheirNet(g_pScriptCurrentFielder);
-            float fNotStrategicConfidence = 1.0f - strategicBallOwner.Confidence;
+            float fFalseConfidence = 1.0f - fWinger;
+            float fTrueConfidence = fWinger;
 
-            fNotNearToTheirNet = (fNotNearToTheirNet >= fWindup) ? fNotNearToTheirNet : fWindup;
-            fNotStrategicConfidence = (fNotStrategicConfidence >= fNotNearToTheirNet) ? fNotStrategicConfidence : fNotNearToTheirNet;
-
-            fFalseConfidence = 1.0f - fNotStrategicConfidence;
-            fTrueConfidence = fNotStrategicConfidence;
-
-            fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fBranchRatio = fMin / fMax;
+            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fBranchRatio = fMin / fMax;
 
             if (fTrueConfidence > 0.0f)
             {
-                SaveConfidence PushDOM3(&fConfidence);
+                SaveConfidence PushDOM2(&fConfidence);
                 fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
 
                 if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                     fConfidence = fConfidence * fBranchRatio;
 
-                fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                float fWindup = WindingUpForShot((cFielder*)strategicBallOwner.mData.pPlayer);
+                float fNotNearToTheirNet = 1.0f - NearToTheirNet(g_pScriptCurrentFielder);
+                float fNotStrategicConfidence = 1.0f - strategicBallOwner.Confidence;
 
-                pDecision->QueueActionSetDesire(10, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                fNotNearToTheirNet = (fNotNearToTheirNet >= fWindup) ? fNotNearToTheirNet : fWindup;
+                fNotStrategicConfidence = (fNotStrategicConfidence >= fNotNearToTheirNet) ? fNotStrategicConfidence : fNotNearToTheirNet;
+
+                fFalseConfidence = 1.0f - fNotStrategicConfidence;
+                fTrueConfidence = fNotStrategicConfidence;
+
+                fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fBranchRatio = fMin / fMax;
+
+                if (fTrueConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM3(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
+
+                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+
+                    pDecision->QueueActionSetDesire(10, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                }
+
+                if (fFalseConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM3(&fConfidence);
+                    fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
+
+                    if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
+
+                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    pDecision->QueueActionSetDesire(4, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                }
             }
 
             if (fFalseConfidence > 0.0f)
             {
-                SaveConfidence PushDOM3(&fConfidence);
+                SaveConfidence PushDOM2(&fConfidence);
                 fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
 
                 if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
                     fConfidence = fConfidence * fBranchRatio;
 
-                fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
-                pDecision->QueueActionSetDesire(4, fConfidence, -1.0f, fvNotSet, fvNotSet);
-            }
-        }
+                float fNotFarToTheirNet = 1.0f - FarToTheirNet(g_pScriptCurrentFielder);
+                fTrueConfidence = (strategicBallOwner.Confidence <= fNotFarToTheirNet) ? strategicBallOwner.Confidence : fNotFarToTheirNet;
+                fFalseConfidence = 1.0f - fTrueConfidence;
 
-        if (fFalseConfidence > 0.0f)
-        {
-            SaveConfidence PushDOM2(&fConfidence);
-            fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
+                fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fBranchRatio = fMin / fMax;
 
-            if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
-                fConfidence = fConfidence * fBranchRatio;
+                if (fTrueConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM3(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
 
-            float fNotFarToTheirNet = 1.0f - FarToTheirNet(g_pScriptCurrentFielder);
-            fTrueConfidence = (strategicBallOwner.Confidence <= fNotFarToTheirNet) ? strategicBallOwner.Confidence : fNotFarToTheirNet;
-            fFalseConfidence = 1.0f - fTrueConfidence;
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
 
-            fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fBranchRatio = fMin / fMax;
+                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    pDecision->QueueActionSetDesire(4, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                }
 
-            if (fTrueConfidence > 0.0f)
-            {
-                SaveConfidence PushDOM3(&fConfidence);
-                fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
+                if (fFalseConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM3(&fConfidence);
+                    fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
 
-                if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                    fConfidence = fConfidence * fBranchRatio;
+                    if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
 
-                fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
-                pDecision->QueueActionSetDesire(4, fConfidence, -1.0f, fvNotSet, fvNotSet);
-            }
-
-            if (fFalseConfidence > 0.0f)
-            {
-                SaveConfidence PushDOM3(&fConfidence);
-                fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
-
-                if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
-                    fConfidence = fConfidence * fBranchRatio;
-
-                fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
-                pDecision->QueueActionSetDesire(3, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                    fBestConfidence = (fBestConfidence >= fConfidence) ? fBestConfidence : fConfidence;
+                    pDecision->QueueActionSetDesire(3, fConfidence, -1.0f, fvNotSet, fvNotSet);
+                }
             }
         }
     }
@@ -408,7 +421,6 @@ void Fuzzy::DoPassing(float fConfidence, cDecisionEntity* pDecision)
     extern FuzzyVariant GetBestPassTarget__5FuzzyFP7cPlayer(cPlayer*);
 
     float fBestConfidence = 0.0f;
-    bool bResult;
 
     float fFalseConfidence = 1.0f - Invincible(g_pScriptCurrentFielder);
     float fTrueConfidence = 1.0f - fFalseConfidence;
@@ -431,24 +443,11 @@ void Fuzzy::DoPassing(float fConfidence, cDecisionEntity* pDecision)
         fTrueConfidence = FGREATER(theBestPassTarget.Confidence, 0.15f);
         fTrueConfidence = (fTrueConfidence <= fAdjustedConfidence) ? fTrueConfidence : fAdjustedConfidence;
 
-        fFalseConfidence = 1.0f - fTrueConfidence;
-        fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-        fBranchRatio = fMin / fMax;
-
-        if (fTrueConfidence > 0.0f)
         {
-            SaveConfidence PushDOM(&fConfidence);
-            fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
-
-            if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
-                fConfidence = fConfidence * fBranchRatio;
-
-            fTrueConfidence = OpenTo(g_pScriptCurrentFielder, theBestPassTarget.mData.pPlayer);
-            fFalseConfidence = 1.0f - fTrueConfidence;
-            fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
-            fBranchRatio = fMin / fMax;
+            float fFalseConfidence = 1.0f - fTrueConfidence;
+            float fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+            float fBranchRatio = fMin / fMax;
 
             if (fTrueConfidence > 0.0f)
             {
@@ -458,31 +457,47 @@ void Fuzzy::DoPassing(float fConfidence, cDecisionEntity* pDecision)
                 if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
                     fConfidence = fConfidence * fBranchRatio;
 
-                fBestConfidence = (0.0f >= fConfidence) ? 0.0f : fConfidence;
+                fTrueConfidence = OpenTo(g_pScriptCurrentFielder, theBestPassTarget.mData.pPlayer);
+                fFalseConfidence = 1.0f - fTrueConfidence;
+                fMin = (fTrueConfidence <= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fMax = (fTrueConfidence >= fFalseConfidence) ? fTrueConfidence : fFalseConfidence;
+                fBranchRatio = fMin / fMax;
 
-                bResult = sFalse;
-                pDecision->QueueActionSetDesire(19, fConfidence, 0.0f, theBestPassTarget, FuzzyVariant(bResult));
+                if (fTrueConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fTrueConfidence) ? fConfidence : fTrueConfidence;
 
-                SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Off_GroundPassChance, Passer(g_pScriptCurrentFielder));
-            }
+                    if (fConfidence < fTrueConfidence && fTrueConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
 
-            if (fFalseConfidence > 0.0f)
-            {
-                SaveConfidence PushDOM(&fConfidence);
-                fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
+                    if (0.0f >= fConfidence)
+                        fBestConfidence = 0.0f;
+                    else
+                        fBestConfidence = fConfidence;
 
-                if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
-                    fConfidence = fConfidence * fBranchRatio;
+                    pDecision->QueueActionSetDesire(19, fConfidence, 0.0f, theBestPassTarget, FuzzyVariant(sFalse));
 
-                if (fConfidence > fBestConfidence)
-                    fBestConfidence = fConfidence;
+                    SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                    pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Off_GroundPassChance, Passer(g_pScriptCurrentFielder));
+                }
 
-                bResult = sTrue;
-                pDecision->QueueActionSetDesire(19, fConfidence, 0.0f, theBestPassTarget, FuzzyVariant(bResult));
+                if (fFalseConfidence > 0.0f)
+                {
+                    SaveConfidence PushDOM(&fConfidence);
+                    fConfidence = (fConfidence <= fFalseConfidence) ? fConfidence : fFalseConfidence;
 
-                SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
-                pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Off_VolleyPassChance, Passer(g_pScriptCurrentFielder));
+                    if (fConfidence < fFalseConfidence && fFalseConfidence < 0.5f)
+                        fConfidence = fConfidence * fBranchRatio;
+
+                    if (fBestConfidence <= fConfidence)
+                        fBestConfidence = fConfidence;
+
+                    pDecision->QueueActionSetDesire(19, fConfidence, 0.0f, theBestPassTarget, FuzzyVariant(sTrue));
+
+                    SkillTweaks* pTweaks = SkillTweaks::GetSkillTweaks(g_pCurrentlyUpdatingTeam->m_nSide);
+                    pDecision->m_pLastQueuedAction->m_fSelectionChance = CalcSelectChance(pTweaks->Off_VolleyPassChance, Passer(g_pScriptCurrentFielder));
+                }
             }
         }
     }

@@ -388,8 +388,6 @@ bool glxParseTextureBundle(const char* filedata)
  */
 /**
  * Offset/Address/Size: 0xAF4 | 0x801B7CB0 | size: 0x1D0
- * TODO: 99.05% match - MWCC still elides uSize/uBaseOffset register copy
- *       before dictionary nlMalloc (missing mr r25,r29; uses r29 directly)
  */
 bool glplatLoadTextureBundle(const char* filename)
 {
@@ -416,9 +414,10 @@ bool glplatLoadTextureBundle(const char* filename)
 
     uNumFiles = pHeader->numTextures;
     uSize = uNumFiles * sizeof(glTexBundleDict);
+    const unsigned long dictionarySize = uSize;
 
-    pDictionary = (glTexBundleDict*)nlMalloc((uBaseOffset = uSize), 0x20, 1);
-    nlRead(pFile, pDictionary, uSize);
+    pDictionary = (glTexBundleDict*)nlMalloc((uBaseOffset = dictionarySize), 0x20, 1);
+    nlRead(pFile, pDictionary, dictionarySize);
 
     pData = (unsigned char*)nlMalloc(0x40800, 0x20, 1);
     nlQSort<glTexBundleDict>(pDictionary, uNumFiles, BundleSortProc);

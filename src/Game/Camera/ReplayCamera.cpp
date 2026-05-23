@@ -279,9 +279,9 @@ nlVector3 ReplayCamera::GetPosition(ReplayCameraPosition position, float directi
     case REPLAY_CAMERA_POSITION_BALL_TO_GOAL:
     {
         RenderSnapshot* render = ReplayManager::Instance()->mRender;
+        nlVector3 ballPos = render->mBall.mPosition;
         nlVector3 goalPos = { 0.0f, 0.0f, 0.0f };
         float goalX = 30.0f * direction + goalLineX;
-        nlVector3 ballPos = render->mBall.mPosition;
 
         float dy = goalPos.f.y - ballPos.f.y;
         float dx = goalX - ballPos.f.x;

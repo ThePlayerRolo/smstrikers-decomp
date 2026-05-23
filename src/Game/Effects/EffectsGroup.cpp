@@ -131,9 +131,9 @@ struct EffectsSpecShadow
 bool parse_spec(SimpleParser* parser, EffectsSpec& spec)
 {
     char* token;
-    char* lingerStartToken = nullptr;
     char* nextToken = nullptr;
     EffectsSpecShadow init;
+    EffectsSpecShadow* initAlias = &init;
     char jointName[128];
 
     init.m_vLocalOffset.f.x = 0.0f;
@@ -189,8 +189,6 @@ bool parse_spec(SimpleParser* parser, EffectsSpec& spec)
         return false;
     }
 
-    lingerStartToken = (char*)"linger_start";
-
     while (true)
     {
         if (nextToken == nullptr)
@@ -209,7 +207,7 @@ bool parse_spec(SimpleParser* parser, EffectsSpec& spec)
             break;
         }
 
-        if (nlStrCmp<char>(token, lingerStartToken) == 0)
+        if (nlStrCmp<char>(token, "linger_start") == 0)
         {
             f32 value = atof(parser->NextTokenOnLine(true));
             spec.m_fLingerEnd = value;
@@ -242,9 +240,10 @@ bool parse_spec(SimpleParser* parser, EffectsSpec& spec)
                 nlStrNCat<char>(jointName, "bip01 ", jointToken, 0x80);
 
                 char* walk = jointName;
-                while (*walk != '\0')
+                char c;
+                while ((c = *walk) != '\0')
                 {
-                    if (*walk == '_')
+                    if (c == '_')
                     {
                         *walk = ' ';
                     }
@@ -342,11 +341,9 @@ bool parse_spec(SimpleParser* parser, EffectsSpec& spec)
 
         if (nlStrCmp<char>(token, "offsetxyz") == 0)
         {
-            f32* pOffset = &spec.m_vLocalOffset.f.x;
             for (s32 i = 0; i < 3; i++)
             {
-                *pOffset = atof(parser->NextTokenOnLine(true));
-                pOffset++;
+                (&spec.m_vLocalOffset.f.x)[i] = atof(parser->NextTokenOnLine(true));
             }
             continue;
         }

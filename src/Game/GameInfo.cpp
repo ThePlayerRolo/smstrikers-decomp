@@ -3369,8 +3369,8 @@ signed char GameInfoManager::DetermineUserPlacement(Spoil* pSpoil)
 
 /**
  * Offset/Address/Size: 0x196C | 0x80177010 | size: 0x43C
- * TODO: 84.75% match - stack frame and register allocation around local record setup
- * and CupHistory shift loop still differ from target.
+ * TODO: 91.04% match - register selection around mNumRecords checks and the
+ * CupHistory shift loop shape still differ from target.
  */
 void GameInfoManager::TimeStampCupEnd()
 {
@@ -3415,25 +3415,16 @@ void GameInfoManager::TimeStampCupEnd()
     }
 
     Spoil* pSpoil = &mUserInfo.mSpoils[trophy];
-    OSCalendarTime calendar;
-    signed char userPlace = 0;
-    eTeamID userTeam = TEAM_INVALID;
-    GameplaySettings::eSkillLevel skill = GameplaySettings::ROOKIE;
-    CupRecordRaw record;
+    CupRecord record;
+    CupRecordRaw copyRecord;
 
-    memset(&calendar, 0, sizeof(calendar));
-    OSTicksToCalendarTime(OSGetTime(), &calendar);
+    OSTicksToCalendarTime(OSGetTime(), &record.mDate);
 
-    userTeam = mCurrentCup->mUserSelectedTeam;
+    record.mTeam = mCurrentCup->mUserSelectedTeam;
+    record.mPlace = DetermineUserPlacement(pSpoil);
+    record.mDifficulty = mCurrentCup->mCupSettings.SkillLevel;
 
-    userPlace = DetermineUserPlacement(pSpoil);
-
-    skill = mCurrentCup->mCupSettings.SkillLevel;
-
-    record.mDate = calendar;
-    record.mPlace = userPlace;
-    record.mTeam = userTeam;
-    record.mDifficulty = skill;
+    copyRecord = *(CupRecordRaw*)&record;
 
     if (pSpoil->mNumRecords < 10)
     {
@@ -3445,7 +3436,7 @@ void GameInfoManager::TimeStampCupEnd()
         pSpoil->mCupHistory[i] = pSpoil->mCupHistory[i - 1];
     }
 
-    pSpoil->mCupHistory[0] = *(CupRecord*)&record;
+    pSpoil->mCupHistory[0] = *(CupRecord*)&copyRecord;
 
     if (pSpoil->mNumWins > 999)
     {

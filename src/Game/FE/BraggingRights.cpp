@@ -309,11 +309,11 @@ void BraggingRightsOverlay::IngameSceneCreated()
     {
         mHighestStats[award] = -1;
         highestTieBreaker[award] = -1;
-        int tieBreaker;
-        int mainStat;
-
         for (int user = 0; user < 4; user++)
         {
+            int mainStat;
+            int tieBreaker;
+
             if ((short)nlSingleton<GameInfoManager>::s_pInstance->GetPlayingSide((unsigned short)user) == -1)
                 continue;
 
@@ -329,7 +329,7 @@ void BraggingRightsOverlay::IngameSceneCreated()
                 }
                 else
                 {
-                    tieBreaker = (int)(100.0f * (float)userStats[user].mNumGoalsFor / (float)shotsOnGoal);
+                    tieBreaker = (int)(((float)userStats[user].mNumGoalsFor / (float)shotsOnGoal) * 100.0f);
                 }
                 break;
             }

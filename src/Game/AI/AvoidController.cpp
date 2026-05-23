@@ -937,8 +937,9 @@ bool AvoidController::AvoidSidelines()
             sSideLinePlane* pSide = (sSideLinePlane*)(pBase + byteOffset);
             nlVector2 vSidelineNormal;
             nlVector2 vSidelinePos = *(nlVector2*)&m_pFielder->m_v3Position;
-            vSidelineNormal.f.y = v2Zero.f.y - pSide->vNormal.f.y;
+            float normY = v2Zero.f.y - pSide->vNormal.f.y;
             vSidelineNormal.f.x = v2Zero.f.x - pSide->vNormal.f.x;
+            vSidelineNormal.f.y = normY;
 
             if (vSidelineNormal.f.x == 0.0f)
             {
@@ -982,7 +983,10 @@ bool AvoidController::AvoidSidelines()
             if (m_pFielder->m_pBall != NULL)
             {
                 f32 fDesiredSpeed = m_pFielder->m_fDesiredSpeed;
-                if (!(fDesiredSpeed <= m_pFTweaks->fRunningWBSpeed))
+                if (fDesiredSpeed <= m_pFTweaks->fRunningWBSpeed)
+                {
+                }
+                else
                 {
                     fDesiredSpeed = m_pFTweaks->fRunningWBSpeed;
                 }

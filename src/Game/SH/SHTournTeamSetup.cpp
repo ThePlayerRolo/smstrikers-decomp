@@ -623,8 +623,7 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
 
         mCurrentState = STATE_SCROLLING;
         presentation->SetActiveSlide("CHANGER");
-        BaseSceneHandler* base = this;
-        base->OnActivate();
+        SceneCreated();
     }
 
     TLComponentInstance* pTickerComp = FEFinder<TLComponentInstance, 4>::Find<TLSlide>(
@@ -650,11 +649,7 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
 
         if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x100, false, NULL))
         {
-            MenuItem<TLComponentInstance>& item = mMenuItems.mMenuItems[mMenuItems.mCurrentIndex];
-            if (item.mCallbacks[ON_APPLY].mTag != EMPTY && !item.mDisabled)
-            {
-                item.mCallbacks[ON_APPLY](item.mType);
-            }
+            mMenuItems.mMenuItems[mMenuItems.mCurrentIndex].ApplyAction(ON_APPLY);
             FEAudio::PlayAnimAudioEvent("sfx_accept", false);
         }
         else if (g_pFEInput->JustPressed(FE_ALL_PADS, 0x200, false, NULL))
@@ -704,7 +699,7 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
                 if (!data->isEmpty)
                 {
                     data->isHumanPlayer = !data->isHumanPlayer;
-                    UpdateControllerIcon(mCurrentRow);
+                    UpdateControllerIcon(mMenuItems.mCurrentIndex);
 
                     int result = 0;
                     int numHumans = 0;
@@ -810,7 +805,7 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
                         mTeamData[mCurrentRow].isHumanPlayer = true;
                         *(u8*)((u8*)this + 0x334) = true;
                     }
-                    UpdateRow(mCurrentRow);
+                    UpdateRow(mMenuItems.mCurrentIndex);
                     ChangeState(mCurrentState, STATE_SCROLLING);
                     lastCaptainSelectSoundStrPlayed = FECharacterSound::PlayCaptainName(mCurrentCaptain);
                     ScrollDown(false);
@@ -864,7 +859,7 @@ void TournTeamSetupSceneV2::Update(float fDeltaT)
                 mTeamData[mCurrentRow].isHumanPlayer = true;
                 *(u8*)((u8*)this + 0x334) = true;
             }
-            UpdateRow(mCurrentRow);
+            UpdateRow(mMenuItems.mCurrentIndex);
             ChangeState(mCurrentState, STATE_SCROLLING);
             FEAudio::PlayAnimAudioEvent("sfx_accept_no_screen_change", false);
             FEAudio::PlayAnimAudioEvent("sfx_character_group_left_exit", false);

@@ -31,6 +31,8 @@ struct glModelData
     /* 0x04 */ s32 numModels;
 };
 
+extern "C" cSHierarchy* Initialize__11cSHierarchyFP7nlChunk(nlChunk*);
+
 // /**
 //  * Offset/Address/Size: 0x68 | 0x80167338 | size: 0x28
 //  */
@@ -465,7 +467,7 @@ void NPCManager::CreateNPCTemplate(int templateIndex, bool loadTextures)
     {
         if ((hierData->m_ID & 0x80FFFFFF) == 0x80018000)
         {
-            cSHierarchy* hier = ((cSHierarchy*)hierData)->Initialize(hierData);
+            cSHierarchy* hier = Initialize__11cSHierarchyFP7nlChunk(hierData);
 
             ListEntry<cSHierarchy*>* itemEntry = (ListEntry<cSHierarchy*>*)nlMalloc(8, 8, false);
             if (itemEntry != NULL)

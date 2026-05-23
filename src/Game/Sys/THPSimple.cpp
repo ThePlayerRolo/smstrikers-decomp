@@ -579,13 +579,13 @@ static int VideoDecode(unsigned char* videoFrame)
  */
 extern "C" long THPSimpleDecode(long audioTrack)
 {
+    THPReadBuffer* readBuffer;
+    long nextDecodeIndex;
     int old;
     unsigned long i;
     unsigned char* ptr;
     unsigned long* compSizePtr;
     unsigned long sample;
-    THPReadBuffer* readBuffer;
-    long nextDecodeIndex;
 
     readBuffer = ((THPSimpleControlWork*)&SimpleControl)->readBuffer;
     nextDecodeIndex = ((THPSimpleControlWork*)&SimpleControl)->nextDecodeIndex;

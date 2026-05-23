@@ -290,7 +290,7 @@ void GameTweaks::Init()
 
 /**
  * Offset/Address/Size: 0x2E8 | 0x800404D4 | size: 0xF44
- * TODO: 98.3% match - r28 vs r26 register allocation for node
+ * TODO: 99.43% match - 12 diffs remaining in loop section
  */
 SkillTweaks::SkillTweaks()
 {
@@ -299,6 +299,7 @@ SkillTweaks::SkillTweaks()
     SkillTweak** pEnd;
     void* mem;
     SkillTweak* node;
+    const char* fmtChance;
 
     mem = nlMalloc(0x88, 8, false);
     node = (SkillTweak*)mem;
@@ -706,6 +707,7 @@ SkillTweaks::SkillTweaks()
     }
     nlListAddEnd<SkillTweak>(&mSkillTweaksList.m_pStart, pEnd, node);
 
+    fmtChance = "%s %s Chance";
     for (int var_r24 = 0; var_r24 < 3; var_r24++)
     {
         const char* var_r29;
@@ -722,21 +724,20 @@ SkillTweaks::SkillTweaks()
             break;
         }
 
-        float* var_r26 = PowerupUsageChance[var_r24]; // cursor within this category
         for (int var_r23 = 0; var_r23 < 9; var_r23++)
         {
-            char sp8[0x40]; // 0x3F usable + NUL
+            char sp8[0x40];
             const char* powerName = GetPowerupName(var_r23);
 
-            nlSNPrintf(sp8, 0x3F, "%s %s Chance", var_r29, powerName);
+            nlSNPrintf(sp8, 0x3F, fmtChance, var_r29, powerName);
 
-            node = (SkillTweak*)nlMalloc(0x88, 8, false);
-            if (node != NULL)
+            SkillTweak* loopNode = (SkillTweak*)nlMalloc(0x88, 8, false);
+            if (loopNode != NULL)
             {
-                node->mpValue = &(var_r26[var_r23]);                   // node->unk84 = &var_r26->unkB8 (cursor)
-                nlSNPrintf(node->mNameInFile, 0x7F, "%s", (char*)sp8); // write label into node+0x04
+                loopNode->mpValue = &PowerupUsageChance[var_r24][var_r23];
+                nlSNPrintf(loopNode->mNameInFile, 0x7F, "%s", sp8);
             }
-            nlListAddEnd<SkillTweak>(&mSkillTweaksList.m_pStart, pEnd, node);
+            nlListAddEnd<SkillTweak>(&mSkillTweaksList.m_pStart, pEnd, loopNode);
         }
     }
 }

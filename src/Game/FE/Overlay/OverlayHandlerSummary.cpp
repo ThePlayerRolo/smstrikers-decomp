@@ -389,8 +389,8 @@ void SummaryOverlay::DisplayMatchSummary(eSummaryType matchSummaryType)
         displayedStats[1] = &mCumulativePlayerStats[1];
         numRows = 6;
 
-        key = nlStringLowerHash("TOTAL_MATCH_SUMMARY");
         loc = (LocalizationLocal*)g_pLocalization;
+        key = nlStringLowerHash("TOTAL_MATCH_SUMMARY");
 
         if (loc->m_LookupTable == 0)
         {

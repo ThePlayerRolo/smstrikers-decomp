@@ -78,8 +78,8 @@ TournSetParamsScene::~TournSetParamsScene()
 
 /**
  * Offset/Address/Size: 0x1CD0 | 0x800E16A4 | size: 0x434
- * TODO: 90.38% match - remaining diffs are r27/r28/r29 register allocation swap,
- * MenuItem address folding (+4 base offset), and minor stack layout differences.
+ * TODO: 91.22% match - remaining diffs are r27/r28/r29 register allocation swap
+ * and stack/layout differences in callback setup.
  */
 void TournSetParamsScene::BuildSubMenuList(int menuitem, TLComponentInstance* compinstance, bool wraps, int startindex)
 {
@@ -118,7 +118,7 @@ void TournSetParamsScene::BuildSubMenuList(int menuitem, TLComponentInstance* co
         }
         item->mSlideMenuHash = slideHash;
 
-        MenuItem<SlideMenuItem>* menuItem = sml->mMenuItems + sml->mNumItemsAdded;
+        MenuItem<SlideMenuItem>* menuItem = ((MenuItem<SlideMenuItem>*)sml) + sml->mNumItemsAdded;
         menuItem->mType = item;
         sml->mNumItemsAdded++;
 
@@ -141,7 +141,7 @@ void TournSetParamsScene::BuildSubMenuList(int menuitem, TLComponentInstance* co
 
     if (wraps)
     {
-        list->mFlags = 1;
+        mSlideMenuLists[menuitem]->mFlags = 1;
     }
 }
 
@@ -782,7 +782,9 @@ void TournSetParamsScene::SetInitialParams(bool isLeagueMode, int numTeams, int 
 void TournSetParamsScene::ApplyMenuDefaults()
 {
     SlideMenuList* slideMenu = mSlideMenuLists[0];
-    m_isLeagueMode = (slideMenu->mMenuItems[slideMenu->mCurrentIndex].mType->mUserEnumType == 0);
+    int idx = slideMenu->mCurrentIndex;
+    MenuItem<SlideMenuItem>* cur0 = &slideMenu->mMenuItems[idx];
+    m_isLeagueMode = !cur0->mType->mUserEnumType;
     if (!m_isLeagueMode)
     {
         mMenuItems.mMenuItems[2].mDisabled = true;
